@@ -170,13 +170,15 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
         >
           <Link
             href="/products"
-            className="flex items-center text-muted-foreground hover:text-luxury-500 transition-colors"
+            className="flex items-center sm:text-base text-xs text-muted-foreground hover:text-luxury-500 transition-colors"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Collections
           </Link>
           <span className="mx-2 text-charcoal-900">/</span>
-          <span className="text-charcoal-900 font-medium">{product.name}</span>
+          <span className="text-charcoal-900 font-medium text-xs  sm:text-base">
+            {product.name}
+          </span>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -349,31 +351,35 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             </div>
 
             {/* Quantity Selector */}
-            <div className="flex items-center space-x-6">
-              <div className="flex items-center space-x-3">
-                <span className="font-medium text-charcoal-900">Quantity:</span>
-                <div className="flex items-center border border-cream-300 rounded-lg">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-3 hover:bg-cream-100 transition-colors rounded-l-lg"
-                    disabled={!product.inStock}
-                  >
-                    <Minus className="w-4 h-4" />
-                  </button>
-                  <span className="px-4 py-3 font-medium min-w-[3rem] text-center">
-                    {quantity}
+            <div className="flex flex-wrap sm:flex-nowrap col-span-2 items-center  sm:space-x-6">
+              <div className="flex-1 sm:flex-none sm:mr-0 mr-2">
+                <div className="flex items-center space-x-3">
+                  <span className="font-medium text-charcoal-900">
+                    Quantity:
                   </span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="p-3 hover:bg-cream-100 transition-colors rounded-r-lg"
-                    disabled={!product.inStock}
-                  >
-                    <Plus className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center border border-cream-300 rounded-lg">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="p-3 hover:bg-cream-100 transition-colors rounded-l-lg"
+                      disabled={!product.inStock}
+                    >
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span className="px-4 py-3 font-medium min-w-[3rem] text-center">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="p-3 hover:bg-cream-100 transition-colors rounded-r-lg"
+                      disabled={!product.inStock}
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <div className="text-right">
+              <div className="sm:text-right flex-1 sm:flex-none sm:w-auto w-full">
                 <p className="text-sm text-muted-foreground">Total Price</p>
                 <p className="text-xl font-bold text-charcoal-900">
                   {formatPrice(product.price * quantity)}
@@ -382,12 +388,12 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex space-x-4">
+            <div className="flex flex-wrap sm:flex-nowrap sm:col-span-3 col-span-2 gap-4">
               <Button
                 onClick={handleAddToCart}
                 variant="luxury"
                 size="xl"
-                className="flex-1"
+                className="flex-1 sm:flex-none"
                 disabled={!product.inStock}
               >
                 <ShoppingBag className="w-5 h-5 mr-2" />
@@ -398,7 +404,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 onClick={handleWishlistToggle}
                 variant="outline"
                 size="xl"
-                className={`${
+                className={`flex-1 sm:flex-none ${
                   isWishlisted
                     ? "bg-red-50 border-red-200 text-red-600"
                     : "bg-white"
@@ -409,14 +415,18 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 />
               </Button>
 
-              <Button variant="outline" size="xl" className="bg-white">
+              <Button
+                variant="outline"
+                size="xl"
+                className="flex-1 sm:flex-none bg-white"
+              >
                 <Share2 className="w-5 h-5" />
               </Button>
             </div>
 
             {/* Features */}
-            <div className="grid grid-cols-3 gap-4 pt-6 border-t border-cream-300">
-              <div className="text-center">
+            <div className="grid sm:grid-cols-3 gap-4 pt-6 border-t border-cream-300">
+              <div className="text-center border py-3 rounded-md border-cream-400">
                 <Truck className="w-6 h-6 text-luxury-500 mx-auto mb-2" />
                 <p className="text-sm font-medium text-charcoal-900">
                   Free Delivery
@@ -425,7 +435,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   Orders over AED 500
                 </p>
               </div>
-              <div className="text-center">
+              <div className="text-center border py-3 rounded-md border-cream-400">
                 <Shield className="w-6 h-6 text-luxury-500 mx-auto mb-2" />
                 <p className="text-sm font-medium text-charcoal-900">
                   Freshness Guarantee
@@ -434,7 +444,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   100% fresh flowers
                 </p>
               </div>
-              <div className="text-center">
+              <div className="text-center border py-3 rounded-md border-cream-400">
                 <Gift className="w-6 h-6 text-luxury-500 mx-auto mb-2" />
                 <p className="text-sm font-medium text-charcoal-900">
                   Gift Wrapping
@@ -781,7 +791,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                           <div className="flex items-start justify-between mb-3">
                             <div>
                               <div className="flex items-center mb-2">
-                                <span className="font-medium text-charcoal-900 mr-3">
+                                <span className="font-medium text-sm text-charcoal-900 mr-3">
                                   {review.name}
                                 </span>
                                 {review.verified && (

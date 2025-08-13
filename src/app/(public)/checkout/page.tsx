@@ -169,7 +169,9 @@ export default function CheckoutPage() {
             <ArrowLeft className="w-4 h-4 lg:w-5 lg:h-5 mr-2" />
             <span className="text-sm lg:text-base">Back to Cart</span>
           </Link>
-          <h1 className="font-cormorant text-2xl lg:text-3xl font-bold text-charcoal-900">Secure Checkout</h1>
+          <h1 className="font-cormorant text-2xl lg:text-3xl font-bold text-charcoal-900">
+            Secure Checkout
+          </h1>
         </motion.div>
 
         {/* Progress Steps */}
@@ -179,19 +181,23 @@ export default function CheckoutPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          <div className="flex items-center justify-center space-x-4 lg:space-x-8">
+          <div className="flex flex-wrap sm:flex-nowrap items-center justify-center space-x-4 lg:space-x-8">
             {steps.map((step, index) => (
               <div key={step.id} className="flex items-center">
                 <div
                   className={`w-10 h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
-                    currentStep >= step.id ? "bg-luxury-500 text-charcoal-900" : "bg-cream-200 text-muted-foreground"
+                    currentStep >= step.id
+                      ? "bg-luxury-500 text-charcoal-900"
+                      : "bg-cream-200 text-muted-foreground"
                   }`}
                 >
                   <step.icon className="w-4 h-4 lg:w-6 lg:h-6" />
                 </div>
                 <span
                   className={`ml-2 lg:ml-3 font-medium text-sm lg:text-base ${
-                    currentStep >= step.id ? "text-charcoal-900" : "text-muted-foreground"
+                    currentStep >= step.id
+                      ? "text-charcoal-900"
+                      : "text-muted-foreground"
                   }`}
                 >
                   {step.name}
@@ -229,9 +235,22 @@ export default function CheckoutPage() {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
-                    <Input label="First Name" {...register("firstName")} error={errors.firstName?.message} />
-                    <Input label="Last Name" {...register("lastName")} error={errors.lastName?.message} />
-                    <Input label="Email Address" type="email" {...register("email")} error={errors.email?.message} />
+                    <Input
+                      label="First Name"
+                      {...register("firstName")}
+                      error={errors.firstName?.message}
+                    />
+                    <Input
+                      label="Last Name"
+                      {...register("lastName")}
+                      error={errors.lastName?.message}
+                    />
+                    <Input
+                      label="Email Address"
+                      type="email"
+                      {...register("email")}
+                      error={errors.email?.message}
+                    />
                     <Input
                       label="Phone Number"
                       {...register("phone")}
@@ -242,7 +261,11 @@ export default function CheckoutPage() {
 
                   {currentStep === 1 && (
                     <div className="mt-6 flex justify-end">
-                      <Button type="button" variant="luxury" onClick={() => setCurrentStep(2)}>
+                      <Button
+                        type="button"
+                        variant="luxury"
+                        onClick={() => setCurrentStep(2)}
+                      >
                         Continue to Shipping
                       </Button>
                     </div>
@@ -261,12 +284,22 @@ export default function CheckoutPage() {
                   </div>
 
                   <div className="space-y-4 lg:space-y-6">
-                    <Input label="Street Address" {...register("address")} error={errors.address?.message} />
+                    <Input
+                      label="Street Address"
+                      {...register("address")}
+                      error={errors.address?.message}
+                    />
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
-                      <Input label="City" {...register("city")} error={errors.city?.message} />
+                      <Input
+                        label="City"
+                        {...register("city")}
+                        error={errors.city?.message}
+                      />
                       <div>
-                        <label className="block text-sm font-medium text-charcoal-900 mb-2">Emirate</label>
+                        <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                          Emirate
+                        </label>
                         <select
                           {...register("emirate")}
                           className="w-full px-4 py-3 border border-cream-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300"
@@ -278,14 +311,23 @@ export default function CheckoutPage() {
                             </option>
                           ))}
                         </select>
-                        {errors.emirate && <p className="mt-1 text-sm text-red-600">{errors.emirate.message}</p>}
+                        {errors.emirate && (
+                          <p className="mt-1 text-sm text-red-600">
+                            {errors.emirate.message}
+                          </p>
+                        )}
                       </div>
-                      <Input label="Postal Code (Optional)" {...register("postalCode")} />
+                      <Input
+                        label="Postal Code (Optional)"
+                        {...register("postalCode")}
+                      />
                     </div>
 
                     {/* Delivery Options */}
                     <div>
-                      <label className="block text-sm font-medium text-charcoal-900 mb-4">Delivery Options</label>
+                      <label className="block text-sm font-medium text-charcoal-900 mb-4">
+                        Delivery Options
+                      </label>
                       <div className="space-y-3">
                         <label className="flex items-center p-4 border-2 border-cream-300 rounded-xl cursor-pointer hover:bg-cream-50 hover:border-luxury-300 transition-all duration-300">
                           <input
@@ -295,9 +337,12 @@ export default function CheckoutPage() {
                             className="mr-3 text-luxury-500 focus:ring-luxury-500"
                           />
                           <div className="flex-1">
-                            <div className="font-medium text-charcoal-900">Standard Delivery</div>
+                            <div className="font-medium text-charcoal-900">
+                              Standard Delivery
+                            </div>
                             <div className="text-sm text-muted-foreground">
-                              Next day delivery across UAE • {subtotal > 500 ? "Free" : "AED 25"}
+                              Next day delivery across UAE •{" "}
+                              {subtotal > 500 ? "Free" : "AED 25"}
                             </div>
                           </div>
                         </label>
@@ -330,7 +375,9 @@ export default function CheckoutPage() {
                             className="mr-3 text-luxury-500 focus:ring-luxury-500"
                           />
                           <div className="flex-1">
-                            <div className="font-medium text-charcoal-900">Scheduled Delivery</div>
+                            <div className="font-medium text-charcoal-900">
+                              Scheduled Delivery
+                            </div>
                             <div className="text-sm text-muted-foreground">
                               Perfect timing for special occasions • AED 25
                             </div>
@@ -341,16 +388,26 @@ export default function CheckoutPage() {
 
                     {deliveryType === "scheduled" && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 p-4 bg-cream-50 rounded-xl">
-                        <Input label="Preferred Date" type="date" {...register("deliveryDate")} />
+                        <Input
+                          label="Preferred Date"
+                          type="date"
+                          {...register("deliveryDate")}
+                        />
                         <div>
-                          <label className="block text-sm font-medium text-charcoal-900 mb-2">Preferred Time</label>
+                          <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                            Preferred Time
+                          </label>
                           <select
                             {...register("deliveryTime")}
                             className="w-full px-4 py-3 border border-cream-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
                           >
                             <option value="">Select Time</option>
-                            <option value="morning">Morning (9AM - 12PM)</option>
-                            <option value="afternoon">Afternoon (12PM - 5PM)</option>
+                            <option value="morning">
+                              Morning (9AM - 12PM)
+                            </option>
+                            <option value="afternoon">
+                              Afternoon (12PM - 5PM)
+                            </option>
                             <option value="evening">Evening (5PM - 8PM)</option>
                           </select>
                         </div>
@@ -371,11 +428,19 @@ export default function CheckoutPage() {
                   </div>
 
                   {currentStep === 2 && (
-                    <div className="mt-6 flex justify-between">
-                      <Button type="button" variant="outline" onClick={() => setCurrentStep(1)}>
+                    <div className="mt-6 flex sm:flex-row flex-col gap-4 sm:gap-0 justify-between">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setCurrentStep(1)}
+                      >
                         Back to Information
                       </Button>
-                      <Button type="button" variant="luxury" onClick={() => setCurrentStep(3)}>
+                      <Button
+                        type="button"
+                        variant="luxury"
+                        onClick={() => setCurrentStep(3)}
+                      >
                         Continue to Payment
                       </Button>
                     </div>
@@ -388,14 +453,18 @@ export default function CheckoutPage() {
                 <div className="bg-white rounded-2xl p-6 lg:p-8 shadow-lg">
                   <div className="flex items-center mb-6">
                     <CreditCard className="w-5 h-5 lg:w-6 lg:h-6 text-luxury-500 mr-3" />
-                    <h2 className="font-cormorant text-xl lg:text-2xl font-bold text-charcoal-900">Payment Method</h2>
+                    <h2 className="font-cormorant text-xl lg:text-2xl font-bold text-charcoal-900">
+                      Payment Method
+                    </h2>
                   </div>
 
                   <div className="space-y-4 lg:space-y-6">
                     {/* Payment Method Selection */}
                     <div>
-                      <label className="block text-sm font-medium text-charcoal-900 mb-4">Choose Payment Method</label>
-                      <div className="space-y-3">
+                      <label className="block text-sm font-medium text-charcoal-900 mb-4">
+                        Choose Payment Method
+                      </label>
+                      <div className="space-y-3 relative">
                         {paymentMethods.map((method) => (
                           <label
                             key={method.id}
@@ -410,22 +479,30 @@ export default function CheckoutPage() {
                               value={method.id}
                               {...register("paymentMethod")}
                               className="mr-3 text-luxury-500 focus:ring-luxury-500"
-                              onChange={() => setValue("paymentMethod", method.id as any)}
+                              onChange={() =>
+                                setValue("paymentMethod", method.id as any)
+                              }
                             />
                             <method.icon className="w-6 h-6 text-charcoal-700 mr-3" />
-                            <div className="flex-1">
+                            <div className="flex-1 ">
                               <div className="flex items-center">
-                                <span className="font-medium text-charcoal-900">{method.name}</span>
+                                <span className="font-medium text-charcoal-900 text-xs sm:text-base">
+                                  {method.name}
+                                </span>
                                 {method.popular && (
-                                  <span className="ml-2 px-2 py-1 bg-luxury-100 text-luxury-700 text-xs rounded-full">
+                                  <span className="ml-2 px-2 py-1 sm:relative absolute top-1  right-1 bg-luxury-100 text-luxury-700 text-xs rounded-full">
                                     Popular
                                   </span>
                                 )}
                                 {method.fee > 0 && (
-                                  <span className="ml-2 text-sm text-muted-foreground">+{formatPrice(method.fee)}</span>
+                                  <span className="ml-2 text-sm text-muted-foreground">
+                                    +{formatPrice(method.fee)}
+                                  </span>
                                 )}
                               </div>
-                              <div className="text-sm text-muted-foreground">{method.description}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {method.description}
+                              </div>
                             </div>
                           </label>
                         ))}
@@ -435,7 +512,11 @@ export default function CheckoutPage() {
                     {/* Card Payment Details */}
                     {paymentMethod === "card" && (
                       <div className="space-y-4 p-4 bg-cream-50 rounded-xl">
-                        <Input label="Cardholder Name" {...register("cardName")} error={errors.cardName?.message} />
+                        <Input
+                          label="Cardholder Name"
+                          {...register("cardName")}
+                          error={errors.cardName?.message}
+                        />
 
                         <Input
                           label="Card Number"
@@ -451,12 +532,19 @@ export default function CheckoutPage() {
                             placeholder="MM/YY"
                             error={errors.expiryDate?.message}
                           />
-                          <Input label="CVV" {...register("cvv")} placeholder="123" error={errors.cvv?.message} />
+                          <Input
+                            label="CVV"
+                            {...register("cvv")}
+                            placeholder="123"
+                            error={errors.cvv?.message}
+                          />
                         </div>
 
                         {/* Accepted Cards */}
                         <div className="flex items-center space-x-3 pt-2">
-                          <span className="text-sm text-muted-foreground">We accept:</span>
+                          <span className="text-sm text-muted-foreground">
+                            We accept:
+                          </span>
                           <div className="flex space-x-2">
                             <div className="w-8 h-5 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">
                               VISA
@@ -477,11 +565,14 @@ export default function CheckoutPage() {
                       <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
                         <div className="flex items-center mb-2">
                           <Banknote className="w-5 h-5 text-amber-600 mr-2" />
-                          <span className="font-medium text-amber-800">Cash on Delivery</span>
+                          <span className="font-medium text-amber-800 ">
+                            Cash on Delivery
+                          </span>
                         </div>
                         <p className="text-sm text-amber-700">
-                          Pay with cash when your flowers are delivered. A service fee of AED 10 applies. Please have
-                          the exact amount ready for our delivery partner.
+                          Pay with cash when your flowers are delivered. A
+                          service fee of AED 10 applies. Please have the exact
+                          amount ready for our delivery partner.
                         </p>
                       </div>
                     )}
@@ -491,11 +582,14 @@ export default function CheckoutPage() {
                       <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
                         <div className="flex items-center mb-2">
                           <Wallet className="w-5 h-5 text-blue-600 mr-2" />
-                          <span className="font-medium text-blue-800">Digital Wallet</span>
+                          <span className="font-medium text-blue-800">
+                            Digital Wallet
+                          </span>
                         </div>
                         <p className="text-sm text-blue-700">
-                          You'll be redirected to complete payment with your preferred digital wallet. Secure and
-                          convenient payment in one tap.
+                          You'll be redirected to complete payment with your
+                          preferred digital wallet. Secure and convenient
+                          payment in one tap.
                         </p>
                       </div>
                     )}
@@ -504,11 +598,14 @@ export default function CheckoutPage() {
                     <div className="bg-green-50 border border-green-200 rounded-xl p-4">
                       <div className="flex items-center mb-2">
                         <Shield className="w-5 h-5 text-green-600 mr-2" />
-                        <span className="font-medium text-green-800">Secure Payment</span>
+                        <span className="font-medium text-green-800">
+                          Secure Payment
+                        </span>
                       </div>
                       <p className="text-sm text-green-700">
-                        Your payment information is encrypted and secure. We never store your card details. All
-                        transactions are processed through secure payment gateways.
+                        Your payment information is encrypted and secure. We
+                        never store your card details. All transactions are
+                        processed through secure payment gateways.
                       </p>
                     </div>
                   </div>
@@ -555,12 +652,17 @@ export default function CheckoutPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.3 }}
             >
-              <h2 className="font-cormorant text-xl font-bold text-charcoal-900 mb-6">Order Summary</h2>
+              <h2 className="font-cormorant text-xl font-bold text-charcoal-900 mb-6">
+                Order Summary
+              </h2>
 
               {/* Items */}
               <div className="space-y-4 mb-6 max-h-64 overflow-y-auto">
                 {items.map((item) => (
-                  <div key={item.product.id} className="flex items-center space-x-3">
+                  <div
+                    key={item.product.id}
+                    className="flex items-center space-x-3"
+                  >
                     <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
                       <Image
                         src={item.product.images[0] || "/placeholder.svg"}
@@ -570,11 +672,17 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-charcoal-900 text-sm line-clamp-2">{item.product.name}</h4>
-                      <p className="text-muted-foreground text-sm">Qty: {item.quantity}</p>
+                      <h4 className="font-medium text-charcoal-900 sm:text-sm text-xs line-clamp-2">
+                        {item.product.name}
+                      </h4>
+                      <p className="text-muted-foreground text-sm">
+                        Qty: {item.quantity}
+                      </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-charcoal-900">{formatPrice(item.product.price * item.quantity)}</p>
+                      <p className="font-medium text-charcoal-900">
+                        {formatPrice(item.product.price * item.quantity)}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -589,7 +697,9 @@ export default function CheckoutPage() {
 
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Delivery</span>
-                  <span className="font-medium">{deliveryFee === 0 ? "Free" : formatPrice(deliveryFee)}</span>
+                  <span className="font-medium">
+                    {deliveryFee === 0 ? "Free" : formatPrice(deliveryFee)}
+                  </span>
                 </div>
 
                 {codFee > 0 && (
@@ -606,8 +716,12 @@ export default function CheckoutPage() {
 
                 <div className="border-t border-cream-300 pt-3">
                   <div className="flex justify-between">
-                    <span className="text-lg font-semibold text-charcoal-900">Total</span>
-                    <span className="text-lg font-bold text-charcoal-900">{formatPrice(total)}</span>
+                    <span className="text-lg font-semibold text-charcoal-900">
+                      Total
+                    </span>
+                    <span className="text-lg font-bold text-charcoal-900">
+                      {formatPrice(total)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -621,11 +735,15 @@ export default function CheckoutPage() {
                   </div>
                   <div>
                     <Truck className="w-6 h-6 text-blue-600 mx-auto mb-1" />
-                    <p className="text-xs text-muted-foreground">Fast Delivery</p>
+                    <p className="text-xs text-muted-foreground">
+                      Fast Delivery
+                    </p>
                   </div>
                   <div>
                     <Phone className="w-6 h-6 text-purple-600 mx-auto mb-1" />
-                    <p className="text-xs text-muted-foreground">24/7 Support</p>
+                    <p className="text-xs text-muted-foreground">
+                      24/7 Support
+                    </p>
                   </div>
                 </div>
               </div>
@@ -634,14 +752,18 @@ export default function CheckoutPage() {
               <div className="mt-4 p-3 bg-luxury-50 rounded-lg">
                 <div className="flex items-center">
                   <CheckCircle className="w-5 h-5 text-luxury-600 mr-2" />
-                  <span className="text-sm font-medium text-luxury-800">100% Satisfaction Guarantee</span>
+                  <span className="text-sm font-medium text-luxury-800">
+                    100% Satisfaction Guarantee
+                  </span>
                 </div>
-                <p className="text-xs text-luxury-700 mt-1">Fresh flowers or your money back</p>
+                <p className="text-xs text-luxury-700 mt-1">
+                  Fresh flowers or your money back
+                </p>
               </div>
             </motion.div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

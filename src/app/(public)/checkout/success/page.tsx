@@ -49,7 +49,7 @@ export default function CheckoutSuccessPage() {
             <CheckCircle className="w-10 h-10 text-green-600" />
           </motion.div>
 
-          <h1 className="font-cormorant text-4xl font-bold text-charcoal-900 mb-4">Order Confirmed! 🌸</h1>
+          <h1 className="font-cormorant text-4xl font-bold text-charcoal-900 mb-4">Order Confirmed!</h1>
           <p className="text-xl text-muted-foreground mb-2">Thank you for choosing Misk Blooming</p>
           <p className="text-muted-foreground">Your beautiful arrangement is being prepared with love and care</p>
         </motion.div>
@@ -61,12 +61,12 @@ export default function CheckoutSuccessPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <div className="flex items-center justify-between mb-6">
+          <div className="sm:flex items-center  justify-between mb-6">
             <div>
               <h2 className="font-cormorant text-2xl font-bold text-charcoal-900">Order Details</h2>
               <p className="text-muted-foreground">Order #{orderNumber}</p>
             </div>
-            <div className="text-right">
+            <div className="sm:text-right sm:mt-0 mt-2">
               <p className="text-sm text-muted-foreground">Total Amount</p>
               <p className="text-2xl font-bold text-charcoal-900">{formatPrice(orderDetails.total)}</p>
             </div>
@@ -82,7 +82,7 @@ export default function CheckoutSuccessPage() {
                 <div className="flex items-center">
                   <Package className="w-5 h-5 text-luxury-500 mr-3" />
                   <div>
-                    <p className="font-medium text-charcoal-900">{item.name}</p>
+                    <p className="font-medium text-sm sm:text-base text-charcoal-900">{item.name}</p>
                     <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
                   </div>
                 </div>

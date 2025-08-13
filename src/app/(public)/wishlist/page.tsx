@@ -9,24 +9,7 @@ import { Button } from "../../../components/ui/Button"
 import { useWishlistStore } from "../../../store/wishlistStore"
 import { useCartStore } from "../../../store/cartStore"
 import { formatPrice } from "../../../lib/utils"
-function SafeBadge({ count }: { count: number }) {
-  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => setMounted(true), []);
-
-  if (!mounted || count <= 0) return null;
-
-  return (
-    <motion.span
-      initial={{ scale: 0 }}
-      animate={{ scale: 1 }}
-      transition={{ duration: 0.3 }}
-      className="absolute -top-1 -right-1 bg-luxury-500 text-charcoal-900 text-xs rounded-full px-1"
-    >
-      {count}
-    </motion.span>
-  );
-}
 export default function WishlistPage() {
   const { items, removeItem, clearWishlist } = useWishlistStore()
   const addToCart = useCartStore((state) => state.addItem)
@@ -93,41 +76,55 @@ export default function WishlistPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <motion.div
-          className="flex items-center justify-between mb-8"
+          className="flex flex-wrap sm:flex-nowrap items-center justify-between mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="flex items-center">
-            <Link
-              href="/products"
-              className="flex items-center text-luxury-500 hover:text-luxury-600 transition-colors mr-6"
-            >
-              <ArrowLeft className="w-5 h-5 mr-2" />
-              Continue Shopping
-            </Link>
-            <div>
-              <h1 className="font-cormorant text-3xl font-bold text-charcoal-900">
-                My Wishlist ({items.length} items)
-              </h1>
-              <p className="text-muted-foreground mt-1">Your saved luxury arrangements and gifts</p>
+          <div className="flex-1 sm:flex-none">
+            <div className="flex flex-col sm:flex-row  items-center justify-center">
+              <Link
+                href="/products"
+                className="flex items-center text-luxury-500 hover:text-luxury-600 transition-colors mr-6"
+              >
+                <ArrowLeft className="w-5 h-5 mr-2" />
+                Continue Shopping
+              </Link>
+              <div className="flex sm:block sm:mt-0 mt-4 flex-col items-center justify-center">
+                <h1 className="font-cormorant sm:text-3xl text-xl font-bold text-charcoal-900">
+                  My Wishlist ({items.length} items)
+                </h1>
+                <p className="text-muted-foreground mt-1">
+                  Your saved luxury arrangements and gifts
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="flex space-x-4">
-            <Button variant="outline" onClick={handleMoveAllToCart} className="bg-white">
-              <ShoppingBag className="w-4 h-4 mr-2" />
-              Move All to Cart
-            </Button>
-            <Button variant="outline" onClick={clearWishlist} className="bg-white text-red-600 hover:text-red-700">
-              <Trash2 className="w-4 h-4 mr-2" />
-              Clear All
-            </Button>
+          <div className="flex-1 sm:flex-none sm:mt-0 mt-4">
+            <div className="flex justify-center items-center space-x-4">
+              <Button
+                variant="outline"
+                onClick={handleMoveAllToCart}
+                className="bg-white"
+              >
+                <ShoppingBag className="w-4 h-4 mr-2" />
+                Move All to Cart
+              </Button>
+              <Button
+                variant="outline"
+                onClick={clearWishlist}
+                className="bg-white text-red-600 hover:text-red-700"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Clear All
+              </Button>
+            </div>
           </div>
         </motion.div>
 
         {/* Wishlist Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid mt-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           <AnimatePresence>
             {items.map((product, index) => (
               <motion.div
@@ -155,7 +152,13 @@ export default function WishlistPage() {
                   {/* Discount Badge */}
                   {product.originalPrice && (
                     <div className="absolute top-4 left-4 bg-luxury-500 text-charcoal-900 px-3 py-1 rounded-full text-sm font-bold">
-                      Save {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                      Save{" "}
+                      {Math.round(
+                        ((product.originalPrice - product.price) /
+                          product.originalPrice) *
+                          100
+                      )}
+                      %
                     </div>
                   )}
 
@@ -195,12 +198,16 @@ export default function WishlistPage() {
                         <Star
                           key={i}
                           className={`w-4 h-4 ${
-                            i < Math.floor(product.rating) ? "text-luxury-500 fill-current" : "text-cream-300"
+                            i < Math.floor(product.rating)
+                              ? "text-luxury-500 fill-current"
+                              : "text-cream-300"
                           }`}
                         />
                       ))}
                     </div>
-                    <span className="text-sm text-muted-foreground ml-2">({product.reviewCount})</span>
+                    <span className="text-sm text-muted-foreground ml-2">
+                      ({product.reviewCount})
+                    </span>
                   </div>
 
                   {/* Title */}
@@ -211,12 +218,16 @@ export default function WishlistPage() {
                   </Link>
 
                   {/* Description */}
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{product.description}</p>
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                    {product.description}
+                  </p>
 
                   {/* Price */}
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-2">
-                      <span className="text-xl font-bold text-charcoal-900">{formatPrice(product.price)}</span>
+                      <span className="text-xl font-bold text-charcoal-900">
+                        {formatPrice(product.price)}
+                      </span>
                       {product.originalPrice && (
                         <span className="text-sm text-muted-foreground line-through">
                           {formatPrice(product.originalPrice)}
@@ -249,8 +260,12 @@ export default function WishlistPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <h2 className="font-cormorant text-2xl font-bold text-charcoal-900 mb-4">You Might Also Like</h2>
-          <p className="text-muted-foreground mb-8">Discover more luxury arrangements curated just for you</p>
+          <h2 className="font-cormorant text-2xl font-bold text-charcoal-900 mb-4">
+            You Might Also Like
+          </h2>
+          <p className="text-muted-foreground mb-8">
+            Discover more luxury arrangements curated just for you
+          </p>
           <Link href="/products">
             <Button variant="outline" size="lg" className="bg-white">
               Explore More Collections
@@ -259,5 +274,5 @@ export default function WishlistPage() {
         </motion.div>
       </div>
     </div>
-  )
+  );
 }

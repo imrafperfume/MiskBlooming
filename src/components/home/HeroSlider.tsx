@@ -107,10 +107,14 @@ const HeroSlider = () => {
                   transition={{ duration: 0.6, delay: 1 }}
                 >
                   <Link href={slides[currentSlide].cta.link}>
-                    <Button variant="luxury" size="xl" className="group">
+                    <Button
+                      variant="luxury"
+                      size="xl"
+                      className="group sm:w-auto w-full"
+                    >
                       {slides[currentSlide].cta.text}
                       <motion.span
-                        className="ml-2"
+                        className="ml-2 "
                         animate={{ x: [0, 5, 0] }}
                         transition={{
                           duration: 1.5,

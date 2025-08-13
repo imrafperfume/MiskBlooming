@@ -146,7 +146,7 @@ export default function ProductsPage() {
           <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">Product Management</h1>
           <p className="text-gray-600 mt-2">Manage your flower and gift inventory</p>
         </div>
-        <div className="flex items-center space-x-4 mt-4 lg:mt-0">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-0 sm:space-x-4 mt-4 lg:mt-0">
           <Button variant="outline">
             <Upload className="w-4 h-4 mr-2" />
             Import
@@ -155,7 +155,7 @@ export default function ProductsPage() {
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
-          <Button variant="luxury">
+          <Button variant="luxury" >
             <Plus className="w-4 h-4 mr-2" />
             Add Product
           </Button>

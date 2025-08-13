@@ -105,7 +105,7 @@ export default function CartPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="flex items-center">
+          <div className="sm:flex items-center">
             <Link
               href="/products"
               className="flex items-center text-luxury-500 hover:text-luxury-600 transition-colors mr-6"
@@ -113,11 +113,13 @@ export default function CartPage() {
               <ArrowLeft className="w-5 h-5 mr-2" />
               Continue Shopping
             </Link>
-            <div>
+            <div className="sm:mt-0 mt-2">
               <h1 className="font-cormorant text-3xl font-bold text-charcoal-900">
                 Shopping Cart ({getTotalItems()} items)
               </h1>
-              <p className="text-muted-foreground mt-1">Review your luxury selections</p>
+              <p className="text-muted-foreground mt-1">
+                Review your luxury selections
+              </p>
             </div>
           </div>
         </motion.div>
@@ -154,48 +156,63 @@ export default function CartPage() {
 
                     {/* Product Details */}
                     <div className="flex-1 min-w-0">
-                      <Link href={`/products/${item.product.id}`}>
+                      <Link
+                        href={`/products/${item.product.id}`}
+                        className=" hidden sm:block"
+                      >
                         <h3 className="font-cormorant text-lg font-semibold text-charcoal-900 hover:text-luxury-500 transition-colors line-clamp-2">
                           {item.product.name}
                         </h3>
                       </Link>
 
-                      <p className="text-muted-foreground text-sm mt-1 line-clamp-2">{item.product.description}</p>
+                      <p className="text-muted-foreground hidden sm:block text-sm mt-1 line-clamp-2">
+                        {item.product.description}
+                      </p>
 
-                      {/* Rating */}
-                      <div className="flex items-center mt-2">
-                        <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
-                            <Star
-                              key={i}
-                              className={`w-3 h-3 ${
-                                i < Math.floor(item.product.rating) ? "text-luxury-500 fill-current" : "text-cream-300"
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-xs text-muted-foreground ml-2">({item.product.reviewCount})</span>
-                      </div>
-
-                      {/* Price */}
-                      <div className="flex items-center mt-2">
-                        <span className="text-lg font-bold text-charcoal-900">{formatPrice(item.product.price)}</span>
-                        {item.product.originalPrice && (
-                          <span className="text-sm text-muted-foreground line-through ml-2">
-                            {formatPrice(item.product.originalPrice)}
+                      <div className="sm:block hidden">
+                        {/* Rating */}
+                        <div className="flex  items-center mt-2">
+                          <div className="flex items-center">
+                            {[...Array(5)].map((_, i) => (
+                              <Star
+                                key={i}
+                                className={`w-3 h-3 ${
+                                  i < Math.floor(item.product.rating)
+                                    ? "text-luxury-500 fill-current"
+                                    : "text-cream-300"
+                                }`}
+                              />
+                            ))}
+                          </div>
+                          <span className="text-xs text-muted-foreground ml-2">
+                            ({item.product.reviewCount})
                           </span>
-                        )}
-                      </div>
+                        </div>
 
-                      {/* Actions */}
-                      <div className="flex items-center space-x-4 mt-3">
-                        <button
-                          onClick={() => handleMoveToWishlist(item.product.id)}
-                          className="flex items-center text-sm text-luxury-500 hover:text-luxury-600 transition-colors"
-                        >
-                          <Heart className="w-4 h-4 mr-1" />
-                          Save for Later
-                        </button>
+                        {/* Price */}
+                        <div className="flex flex-wrap sm:flex-nowrap items-center mt-2">
+                          <span className="text-lg font-bold text-charcoal-900">
+                            {formatPrice(item.product.price)}
+                          </span>
+                          {item.product.originalPrice && (
+                            <span className="text-sm text-muted-foreground line-through ml-2">
+                              {formatPrice(item.product.originalPrice)}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center space-x-4 mt-3">
+                          <button
+                            onClick={() =>
+                              handleMoveToWishlist(item.product.id)
+                            }
+                            className="flex items-center text-sm text-luxury-500 hover:text-luxury-600 transition-colors"
+                          >
+                            <Heart className="w-4 h-4 mr-1" />
+                            Save for Later
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -203,15 +220,27 @@ export default function CartPage() {
                     <div className="flex flex-col items-center space-y-3">
                       <div className="flex items-center border border-cream-300 rounded-lg">
                         <button
-                          onClick={() => handleUpdateQuantity(item.product.id, item.quantity - 1)}
+                          onClick={() =>
+                            handleUpdateQuantity(
+                              item.product.id,
+                              item.quantity - 1
+                            )
+                          }
                           className="p-2 hover:bg-cream-100 transition-colors rounded-l-lg"
                           disabled={removingItems.has(item.product.id)}
                         >
                           <Minus className="w-4 h-4" />
                         </button>
-                        <span className="px-4 py-2 font-medium min-w-[3rem] text-center">{item.quantity}</span>
+                        <span className="px-4 py-2 font-medium min-w-[3rem] text-center">
+                          {item.quantity}
+                        </span>
                         <button
-                          onClick={() => handleUpdateQuantity(item.product.id, item.quantity + 1)}
+                          onClick={() =>
+                            handleUpdateQuantity(
+                              item.product.id,
+                              item.quantity + 1
+                            )
+                          }
                           className="p-2 hover:bg-cream-100 transition-colors rounded-r-lg"
                           disabled={removingItems.has(item.product.id)}
                         >
@@ -240,6 +269,49 @@ export default function CartPage() {
                       )}
                     </button>
                   </div>
+                  <div className="block sm:hidden">
+                    {/* Rating */}
+                    <div className="flex  items-center mt-2">
+                      <div className="flex items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-3 h-3 ${
+                              i < Math.floor(item.product.rating)
+                                ? "text-luxury-500 fill-current"
+                                : "text-cream-300"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs text-muted-foreground ml-2">
+                        ({item.product.reviewCount})
+                      </span>
+                    </div>
+
+                    {/* Price */}
+                    <div className="flex flex-wrap sm:flex-nowrap items-center mt-2">
+                      <span className="text-lg font-bold text-charcoal-900">
+                        {formatPrice(item.product.price)}
+                      </span>
+                      {item.product.originalPrice && (
+                        <span className="text-sm text-muted-foreground line-through ml-2">
+                          {formatPrice(item.product.originalPrice)}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center space-x-4 mt-3">
+                      <button
+                        onClick={() => handleMoveToWishlist(item.product.id)}
+                        className="flex items-center text-sm text-luxury-500 hover:text-luxury-600 transition-colors"
+                      >
+                        <Heart className="w-4 h-4 mr-1" />
+                        Save for Later
+                      </button>
+                    </div>
+                  </div>
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -253,7 +325,9 @@ export default function CartPage() {
             >
               <div className="flex items-center mb-4">
                 <Gift className="w-5 h-5 text-luxury-500 mr-2" />
-                <h3 className="font-cormorant text-lg font-semibold text-charcoal-900">Promo Code</h3>
+                <h3 className="font-cormorant text-lg font-semibold text-charcoal-900">
+                  Promo Code
+                </h3>
               </div>
 
               {appliedCoupon ? (
@@ -261,7 +335,8 @@ export default function CartPage() {
                   <div className="flex items-center">
                     <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                     <span className="font-medium text-green-800">
-                      {appliedCoupon.code} - {appliedCoupon.discount}% off applied
+                      {appliedCoupon.code} - {appliedCoupon.discount}% off
+                      applied
                     </span>
                   </div>
                   <button
@@ -272,15 +347,22 @@ export default function CartPage() {
                   </button>
                 </div>
               ) : (
-                <div className="flex space-x-3">
+                <div className="sm:flex sm:space-x-3">
                   <input
                     type="text"
                     placeholder="Enter promo code"
                     value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                      setCouponCode(e.target.value.toUpperCase())
+                    }
                     className="flex-1 px-4 py-3 border border-cream-400 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
                   />
-                  <Button onClick={handleApplyCoupon} variant="outline" disabled={!couponCode.trim()}>
+                  <Button
+                    className="sm:mt-0 mt-4 hover:bg-black"
+                    onClick={handleApplyCoupon}
+                    variant="outline"
+                    disabled={!couponCode.trim()}
+                  >
                     Apply
                   </Button>
                 </div>
@@ -300,11 +382,15 @@ export default function CartPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <h2 className="font-cormorant text-xl font-bold text-charcoal-900 mb-6">Order Summary</h2>
+              <h2 className="font-cormorant text-xl font-bold text-charcoal-900 mb-6">
+                Order Summary
+              </h2>
 
               <div className="space-y-4">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotal ({getTotalItems()} items)</span>
+                  <span className="text-muted-foreground">
+                    Subtotal ({getTotalItems()} items)
+                  </span>
                   <span className="font-medium">{formatPrice(subtotal)}</span>
                 </div>
 
@@ -318,7 +404,11 @@ export default function CartPage() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>
                   <span className="font-medium">
-                    {shipping === 0 ? <span className="text-green-600">Free</span> : formatPrice(shipping)}
+                    {shipping === 0 ? (
+                      <span className="text-green-600">Free</span>
+                    ) : (
+                      formatPrice(shipping)
+                    )}
                   </span>
                 </div>
 
@@ -330,14 +420,20 @@ export default function CartPage() {
                 {shipping === 0 && (
                   <div className="flex items-center p-3 bg-green-50 rounded-lg">
                     <Truck className="w-4 h-4 text-green-600 mr-2" />
-                    <span className="text-sm text-green-800 font-medium">Free shipping applied!</span>
+                    <span className="text-sm text-green-800 font-medium">
+                      Free shipping applied!
+                    </span>
                   </div>
                 )}
 
                 <div className="border-t border-cream-300 pt-4">
                   <div className="flex justify-between">
-                    <span className="text-lg font-semibold text-charcoal-900">Total</span>
-                    <span className="text-lg font-bold text-charcoal-900">{formatPrice(total)}</span>
+                    <span className="text-lg font-semibold text-charcoal-900">
+                      Total
+                    </span>
+                    <span className="text-lg font-bold text-charcoal-900">
+                      {formatPrice(total)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -350,18 +446,24 @@ export default function CartPage() {
 
               {/* Trust Badges */}
               <div className="mt-6 pt-6 border-t border-cream-300">
-                <div className="grid grid-cols-3 gap-4 text-center">
-                  <div>
+                <div className="grid sm:grid-cols-3 gap-4 text-center">
+                  <div className="py-4  border border-cream-400 rounded-md">
                     <Shield className="w-6 h-6 text-green-600 mx-auto mb-1" />
-                    <p className="text-xs text-muted-foreground">Secure Payment</p>
+                    <p className="text-xs text-muted-foreground">
+                      Secure Payment
+                    </p>
                   </div>
-                  <div>
+                  <div className="py-4  border border-cream-400 rounded-md">
                     <Truck className="w-6 h-6 text-blue-600 mx-auto mb-1" />
-                    <p className="text-xs text-muted-foreground">Fast Delivery</p>
+                    <p className="text-xs text-muted-foreground">
+                      Fast Delivery
+                    </p>
                   </div>
-                  <div>
+                  <div className="py-4  border border-cream-400 rounded-md">
                     <Gift className="w-6 h-6 text-purple-600 mx-auto mb-1" />
-                    <p className="text-xs text-muted-foreground">Gift Wrapping</p>
+                    <p className="text-xs text-muted-foreground">
+                      Gift Wrapping
+                    </p>
                   </div>
                 </div>
               </div>
@@ -370,21 +472,27 @@ export default function CartPage() {
               <div className="mt-4 p-4 bg-luxury-50 rounded-lg">
                 <div className="flex items-center mb-2">
                   <Truck className="w-4 h-4 text-luxury-600 mr-2" />
-                  <span className="font-medium text-charcoal-900 text-sm">Estimated Delivery</span>
+                  <span className="font-medium text-charcoal-900 text-sm">
+                    Estimated Delivery
+                  </span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toLocaleDateString("en-US", {
+                  {new Date(
+                    Date.now() + 1 * 24 * 60 * 60 * 1000
+                  ).toLocaleDateString("en-US", {
                     weekday: "long",
                     month: "long",
                     day: "numeric",
                   })}
                 </p>
-                <p className="text-xs text-luxury-600 mt-1">Same-day delivery available in Dubai</p>
+                <p className="text-xs text-luxury-600 mt-1">
+                  Same-day delivery available in Dubai
+                </p>
               </div>
             </motion.div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

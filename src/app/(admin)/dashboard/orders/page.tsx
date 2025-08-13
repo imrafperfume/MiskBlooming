@@ -181,7 +181,7 @@ export default function OrdersPage() {
           <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">Order Management</h1>
           <p className="text-gray-600 mt-2">Track and manage customer orders</p>
         </div>
-        <div className="flex items-center space-x-4 mt-4 lg:mt-0">
+        <div className="flex flex-wrap sm:flex-nowrap sm:items-center gap-4 sm:gap-0 sm:space-x-4 mt-4 lg:mt-0">
           <Button variant="outline">
             <RefreshCw className="w-4 h-4 mr-2" />
             Refresh
@@ -356,8 +356,8 @@ export default function OrdersPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-4">
+            <div className="flex flex-wrap sm:flex-nowrap sm:gap-0 gap-3 items-center justify-between mb-4">
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-0 sm:space-x-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-luxury-400 to-luxury-600 rounded-full flex items-center justify-center">
                   <span className="text-white font-medium text-sm">{order.customer.avatar}</span>
                 </div>
@@ -365,7 +365,7 @@ export default function OrdersPage() {
                   <h3 className="text-lg font-semibold text-charcoal-900">#{order.id}</h3>
                   <p className="text-sm text-gray-600">{order.customer.name}</p>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="sm:flex gap-3 items-center space-x-2">
                   <span
                     className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(order.status)}`}
                   >

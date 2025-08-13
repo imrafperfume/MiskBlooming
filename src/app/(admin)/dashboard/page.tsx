@@ -159,15 +159,15 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 overflow-x-hidden">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between">
         <div>
-          <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">Welcome back, Admin! 👋</h1>
+          <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">Welcome back, Admin!</h1>
           <p className="text-gray-600 mt-2">Here's what's happening with your flower shop today.</p>
         </div>
 
-        <div className="flex items-center space-x-4 mt-4 lg:mt-0">
+        <div className="flex sm:flex-row flex-col sm:space-y-0 space-y-2 sm:items-center sm:space-x-4 mt-4 lg:mt-0">
           <select
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
@@ -351,13 +351,13 @@ export default function AdminDashboard() {
         transition={{ duration: 0.6, delay: 0.7 }}
       >
         <h2 className="text-xl font-semibold text-charcoal-900 mb-6">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 overflow-hidden md:grid-cols-3 gap-4">
           <Button
             variant="outline"
             className="justify-start h-auto p-6 bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200 hover:from-blue-100 hover:to-blue-200"
           >
             <Package className="w-6 h-6 mr-4 text-blue-600" />
-            <div className="text-left">
+            <div className="text-left overflow-hidden">
               <p className="font-medium text-charcoal-900">Add New Product</p>
               <p className="text-sm text-gray-600">Create a new flower arrangement</p>
             </div>
