@@ -118,7 +118,7 @@ export default function AdminLayout({
   ]
 
   return (
-    <div className="min-h-screen flex  bg-gray-50" >
+    <div className="min-h-screen flex overflow-x-hidden  bg-gray-50" >
       {/* Mobile sidebar backdrop */}
       <AnimatePresence>
         {sidebarOpen && (
