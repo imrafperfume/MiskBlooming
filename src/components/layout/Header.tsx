@@ -253,12 +253,12 @@ const Header = () => {
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <div className="flex gap-2 overflow-y-auto">
+                  <div className="grid gap-2 overflow-y-auto">
                     {item.dropdown.map((dropdownItem) => (
                       <Link
                         key={dropdownItem.name}
                         href={dropdownItem.href}
-                        className="flex w-full p-3 rounded-lg hover:bg-luxury-50 transition-colors group"
+                        className="block w-60 p-3 rounded-lg hover:bg-luxury-50 transition-colors group"
                       >
                         <div className="font-medium text-charcoal-900 group-hover:text-luxury-600">
                           {dropdownItem.name}
