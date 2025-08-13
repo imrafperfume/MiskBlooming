@@ -1,0 +1,50 @@
+[
+  {
+    "id": "valentines",
+    "name": "Valentine's Day",
+    "description": "Express your love with romantic flowers and gifts",
+    "image": "/images/occasions/valentine.jpg",
+    "color": "from-red-500 to-pink-500",
+    "products": ["1", "2"]
+  },
+  {
+    "id": "mothers-day",
+    "name": "Mother's Day",
+    "description": "Honor the special woman in your life",
+    "image": "/images/occasions/mothersday.jpg",
+    "color": "from-pink-500 to-purple-500",
+    "products": ["4", "5"]
+  },
+  {
+    "id": "birthday",
+    "name": "Birthday Celebrations",
+    "description": "Make their special day unforgettable",
+    "image": "/images/occasions/birthday.jpg",
+    "color": "from-yellow-500 to-orange-500",
+    "products": ["3", "5"]
+  },
+  {
+    "id": "anniversary",
+    "name": "Anniversary",
+    "description": "Celebrate your love story with elegant arrangements",
+    "image": "/images/occasions/Anniversary.jpg",
+    "color": "from-luxury-500 to-luxury-600",
+    "products": ["1", "5"]
+  },
+  {
+    "id": "congratulations",
+    "name": "Congratulations",
+    "description": "Celebrate achievements and milestones",
+    "image": "/images/occasions/Congratulations.jpg",
+    "color": "from-green-500 to-blue-500",
+    "products": ["4", "2"]
+  },
+  {
+    "id": "sympathy",
+    "name": "Sympathy & Condolences",
+    "description": "Express your condolences with grace and respect",
+    "image": "/images/occasions/Sympathy & Condolences.jpg",
+    "color": "from-gray-500 to-gray-600",
+    "products": ["4"]
+  }
+]

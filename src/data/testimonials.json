@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1",
+    "name": "Sarah Al-Mansouri",
+    "role": "Customer",
+    "company": "Dubai",
+    "content": "Absolutely stunning flowers! The roses were fresh and beautifully arranged. Same-day delivery was perfect for my anniversary surprise. Highly recommend Misk Blooming!",
+    "rating": 5,
+    "image": "../public/placeholder.svg?height=100&width=100&text=Sarah"
+  },
+  {
+    "id": "2",
+    "name": "Ahmed Hassan",
+    "role": "Corporate Client",
+    "company": "Emirates Group",
+    "content": "We've been using Misk Blooming for our corporate events and client gifts. Their service is exceptional and the quality is consistently outstanding. Professional and reliable.",
+    "rating": 5,
+    "image": "../public/placeholder.svg?height=100&width=100&text=Ahmed"
+  },
+  {
+    "id": "3",
+    "name": "Emma Johnson",
+    "role": "Customer",
+    "company": "Abu Dhabi",
+    "content": "The chocolate cake was absolutely delicious! Perfect for my daughter's birthday. The delivery was on time and the presentation was beautiful. Will definitely order again.",
+    "rating": 5,
+    "image": "../public/placeholder.svg?height=100&width=100&text=Emma"
+  },
+  {
+    "id": "4",
+    "name": "Fatima Al-Zahra",
+    "role": "Customer",
+    "company": "Sharjah",
+    "content": "Love the plant collection! The indoor plants arrived in perfect condition with clear care instructions. They've transformed my office space beautifully.",
+    "rating": 5,
+    "image": "../public/placeholder.svg?height=100&width=100&text=Fatima"
+  }
+]

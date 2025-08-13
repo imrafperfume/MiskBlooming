@@ -1,0 +1,35 @@
+[
+  {
+    "id": "1",
+    "title": "Fresh Flowers Delivered Daily",
+    "subtitle": "PREMIUM FLOWER DELIVERY",
+    "description": "Experience the beauty of fresh flowers with our same-day delivery service across Dubai. From romantic roses to elegant arrangements, we bring nature's finest to your doorstep.",
+    "image": "/images/carousal-image.png",
+    "cta": {
+      "text": "Shop Flowers",
+      "link": "/products?category=roses"
+    }
+  },
+  {
+    "id": "2",
+    "title": "Luxury Chocolates & Sweet Treats",
+    "subtitle": "INDULGENT CONFECTIONS",
+    "description": "Discover our collection of premium Belgian chocolates and fresh cakes, perfect for celebrations or treating someone special to life's sweetest moments.",
+    "image": "/images/carousal-2.png",
+    "cta": {
+      "text": "Explore Treats",
+      "link": "/products?category=chocolates"
+    }
+  },
+  {
+    "id": "3",
+    "title": "Thoughtful Gift Sets & Hampers",
+    "subtitle": "CURATED GIFT COLLECTIONS",
+    "description": "Make every occasion memorable with our carefully curated gift hampers, combining fresh flowers, gourmet treats, and luxury items in beautiful presentations.",
+    "image": "/images/carousal-image.png",
+    "cta": {
+      "text": "Browse Gifts",
+      "link": "/products?category=gift-sets"
+    }
+  }
+]

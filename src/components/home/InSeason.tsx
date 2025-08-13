@@ -1,0 +1,171 @@
+"use client"
+
+import { useState } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { ArrowRight, Sparkles, Calendar } from "lucide-react"
+import { motion } from "framer-motion"
+import { Button } from "../ui/Button"
+
+const InSeason = () => {
+  const [hoveredItem, setHoveredItem] = useState<number | null>(null)
+
+  const seasonalItems = [
+    {
+      id: 1,
+      name: "Spring Tulip Bouquet",
+      description: "Fresh tulips in vibrant spring colors",
+      price: 180,
+      originalPrice: 220,
+      image: "/placeholder.svg?height=400&width=400&text=Spring+Tulips",
+      category: "Seasonal Flowers",
+      badge: "Limited Time",
+    },
+    {
+      id: 2,
+      name: "Mother's Day Special Cake",
+      description: "Strawberry vanilla cake with fresh berries",
+      price: 250,
+      image: "/placeholder.svg?height=400&width=400&text=Mothers+Day+Cake",
+      category: "Fresh Cakes",
+      badge: "Pre-Order",
+    },
+    {
+      id: 3,
+      name: "Spring Garden Plant Set",
+      description: "Collection of flowering plants for spring",
+      price: 280,
+      originalPrice: 320,
+      image: "/placeholder.svg?height=400&width=400&text=Spring+Plants",
+      category: "Plants",
+      badge: "New Arrival",
+    },
+    {
+      id: 4,
+      name: "Easter Chocolate Collection",
+      description: "Artisanal chocolates in Easter themes",
+      price: 150,
+      image: "/placeholder.svg?height=400&width=400&text=Easter+Chocolates",
+      category: "Chocolates",
+      badge: "Seasonal",
+    },
+  ]
+
+  return (
+    <section className="py-24 bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <div className="flex items-center justify-center mb-4">
+            <Sparkles className="w-6 h-6 text-luxury-500 mr-2" />
+            <span className="text-luxury-500 font-medium tracking-wide">SEASONAL COLLECTION</span>
+            <Sparkles className="w-6 h-6 text-luxury-500 ml-2" />
+          </div>
+          <h2 className="font-cormorant text-display-md font-bold text-charcoal-900 mb-6">
+            Fresh <span className="luxury-text">In Season</span>
+          </h2>
+          <p className="text-muted-foreground text-xl max-w-3xl mx-auto">
+            Discover our seasonal collection featuring the freshest flowers, special occasion cakes, and limited-time
+            treats
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {seasonalItems.map((item, index) => (
+            <motion.div
+              key={item.id}
+              className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-luxury transition-all duration-500"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              viewport={{ once: true }}
+              onHoverStart={() => setHoveredItem(item.id)}
+              onHoverEnd={() => setHoveredItem(null)}
+              whileHover={{ y: -8 }}
+            >
+              <div className="relative aspect-square overflow-hidden">
+                <Image
+                  src={item.image || "/placeholder.svg"}
+                  alt={item.name}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+
+                {/* Badge */}
+                <div className="absolute top-4 left-4">
+                  <span className="bg-luxury-500 text-charcoal-900 px-3 py-1 rounded-full text-sm font-bold">
+                    {item.badge}
+                  </span>
+                </div>
+
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                {/* Quick Action */}
+                <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
+                  <Button variant="luxury" size="sm" className="w-full">
+                    Quick View
+                  </Button>
+                </div>
+              </div>
+
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-luxury-500 font-medium uppercase tracking-wide">{item.category}</span>
+                  <Calendar className="w-4 h-4 text-luxury-500" />
+                </div>
+
+                <h3 className="font-cormorant text-lg font-semibold text-charcoal-900 mb-2 group-hover:text-luxury-500 transition-colors">
+                  {item.name}
+                </h3>
+
+                <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{item.description}</p>
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-lg font-bold text-charcoal-900">AED {item.price}</span>
+                    {item.originalPrice && (
+                      <span className="text-sm text-muted-foreground line-through">AED {item.originalPrice}</span>
+                    )}
+                  </div>
+
+                  <motion.div
+                    animate={{
+                      x: hoveredItem === item.id ? 5 : 0,
+                      scale: hoveredItem === item.id ? 1.1 : 1,
+                    }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ArrowRight className="w-5 h-5 text-luxury-500" />
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div
+          className="text-center mt-12"
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          viewport={{ once: true }}
+        >
+          <Link href="/products">
+            <Button variant="outline" size="xl" className="group bg-transparent">
+              View All Seasonal Items
+              <Calendar className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
+            </Button>
+          </Link>
+        </motion.div>
+      </div>
+    </section>
+  )
+}
+
+export default InSeason

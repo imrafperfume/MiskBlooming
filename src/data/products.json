@@ -1,0 +1,201 @@
+[
+  {
+    "id": "1",
+    "name": "Premium Red Rose Bouquet",
+    "description": "Elegant arrangement of 24 premium red roses with baby's breath and eucalyptus",
+    "longDescription": "Our signature Premium Red Rose Bouquet features 24 carefully selected long-stem red roses, artfully arranged with delicate baby's breath and fresh eucalyptus. Each rose is hand-picked for its perfect bloom and vibrant color. This timeless arrangement symbolizes deep love and passion, making it perfect for anniversaries, romantic occasions, or expressing heartfelt emotions. Presented in our luxury packaging with a personalized message card.",
+    "price": 350,
+    "originalPrice": 420,
+    "images": [
+      "/images/product1.jpg",
+      "/images/product2.jpg",
+      "/images/product3.jpg"
+    ],
+    "category": "roses",
+    "tags": ["Premium", "Romantic", "Anniversary", "Love"],
+    "inStock": true,
+    "featured": true,
+    "rating": 4.9,
+    "reviewCount": 127,
+    "specifications": {
+      "Flower Count": "24 Premium Roses",
+      "Arrangement Height": "45-50 cm",
+      "Vase Life": "7-10 days",
+      "Packaging": "Luxury Gift Box",
+      "Includes": "Care Instructions & Message Card"
+    },
+    "care_instructions": [
+      "Trim stems at an angle under running water",
+      "Place in clean vase with fresh water",
+      "Change water every 2-3 days",
+      "Keep away from direct sunlight and heat",
+      "Remove wilted flowers to extend vase life"
+    ],
+    "delivery_info": "Same-day delivery available in Dubai. Next-day delivery across UAE."
+  },
+  {
+    "id": "2",
+    "name": "Luxury Belgian Chocolate Collection",
+    "description": "Handcrafted Belgian chocolates in an elegant gift box - 24 pieces",
+    "longDescription": "Indulge in our exquisite collection of handcrafted Belgian chocolates, featuring 24 premium pieces in various flavors. Each chocolate is meticulously crafted by master chocolatiers using the finest Belgian cocoa and premium ingredients. The collection includes dark chocolate truffles, milk chocolate pralines, white chocolate ganache, and seasonal specialties. Presented in our signature luxury gift box with gold ribbon, perfect for gifting or personal indulgence.",
+    "price": 180,
+    "originalPrice": 220,
+    "images": [
+      "/images/product2.jpg",
+      "/images/product3.jpg",
+      "/images/product4.jpg"
+    ],
+    "category": "chocolates",
+    "tags": ["Belgian", "Luxury", "Gift", "Premium"],
+    "inStock": true,
+    "featured": false,
+    "rating": 4.8,
+    "reviewCount": 89,
+    "specifications": {
+      "Piece Count": "24 Chocolates",
+      "Weight": "300g",
+      "Shelf Life": "3 months",
+      "Storage": "Cool, dry place",
+      "Allergens": "Contains milk, nuts, soy"
+    },
+    "care_instructions": [
+      "Store in cool, dry place below 18°C",
+      "Avoid direct sunlight and strong odors",
+      "Consume within 3 months for best quality",
+      "Allow to reach room temperature before serving"
+    ],
+    "delivery_info": "Temperature-controlled delivery to maintain quality."
+  },
+  {
+    "id": "3",
+    "name": "Decadent Chocolate Birthday Cake",
+    "description": "Rich chocolate cake with layers of ganache and fresh berries - serves 8-10",
+    "longDescription": "Celebrate in style with our Decadent Chocolate Birthday Cake, a masterpiece of indulgence. This three-layer chocolate sponge cake is filled with rich chocolate ganache and fresh seasonal berries, then covered in smooth chocolate buttercream. Decorated with elegant chocolate shavings and fresh strawberries, this cake serves 8-10 people and can be customized with a personal message. Made fresh daily by our expert pastry chefs using premium ingredients.",
+    "price": 280,
+    "images": [
+      "/images/product3.jpg",
+      "/images/product4.jpg",
+      "/images/product5.jpg"
+    ],
+    "category": "cakes",
+    "tags": ["Birthday", "Chocolate", "Fresh", "Celebration"],
+    "inStock": true,
+    "featured": true,
+    "rating": 4.9,
+    "reviewCount": 156,
+    "specifications": {
+      "Size": "8 inch round",
+      "Serves": "8-10 people",
+      "Layers": "3 chocolate sponge layers",
+      "Weight": "1.2 kg",
+      "Customization": "Personal message available"
+    },
+    "care_instructions": [
+      "Keep refrigerated until serving",
+      "Remove from fridge 30 minutes before serving",
+      "Consume within 3 days",
+      "Store covered to maintain freshness"
+    ],
+    "delivery_info": "Fresh cakes prepared daily. Same-day delivery with advance notice."
+  },
+  {
+    "id": "4",
+    "name": "Seasonal Mixed Flower Arrangement",
+    "description": "Beautiful mix of seasonal flowers in a ceramic vase - perfect for any occasion",
+    "longDescription": "Our Seasonal Mixed Flower Arrangement showcases the best blooms of the season in a stunning display of colors and textures. This arrangement features a carefully curated selection of fresh flowers including roses, lilies, chrysanthemums, and seasonal accents, artfully arranged in an elegant ceramic vase. Each arrangement is unique and reflects the natural beauty of the current season's finest flowers. Perfect for home decoration, office spaces, or as a thoughtful gift.",
+    "price": 220,
+    "originalPrice": 260,
+   "images": [
+      "/images/product4.jpg",
+      "/images/product5.jpg",
+      "/images/product6.jpg"
+    ],
+    "category": "mixed-arrangements",
+    "tags": ["Seasonal", "Mixed", "Vase", "Colorful"],
+    "inStock": true,
+    "featured": false,
+    "rating": 4.7,
+    "reviewCount": 94,
+    "specifications": {
+      "Arrangement Height": "35-40 cm",
+      "Vase Included": "Ceramic vase",
+      "Flower Variety": "5-7 different types",
+      "Vase Life": "5-8 days",
+      "Style": "Round arrangement"
+    },
+    "care_instructions": [
+      "Trim stems regularly",
+      "Change water every 2 days",
+      "Remove wilted flowers promptly",
+      "Keep in cool location",
+      "Mist lightly if needed"
+    ],
+    "delivery_info": "Arrangements prepared fresh daily with seasonal flowers."
+  },
+  {
+    "id": "5",
+    "name": "Luxury Celebration Gift Hamper",
+    "description": "Premium gift hamper with flowers, chocolates, wine, and gourmet treats",
+    "longDescription": "Our Luxury Celebration Gift Hamper is the ultimate expression of thoughtfulness and elegance. This carefully curated collection includes a beautiful flower arrangement, premium Belgian chocolates, a bottle of fine wine, gourmet nuts, artisanal cookies, and luxury spa items. All items are beautifully presented in a handwoven wicker basket with elegant ribbon and personalized card. Perfect for corporate gifts, special celebrations, or showing someone how much they mean to you.",
+    "price": 650,
+    "originalPrice": 780,
+    "images": [
+      "/images/product5.jpg",
+      "/images/product6.jpg",
+      "/images/product7.jpg"
+    ],
+    "category": "gift-sets",
+    "tags": ["Luxury", "Hamper", "Corporate", "Premium"],
+    "inStock": true,
+    "featured": true,
+    "rating": 4.9,
+    "reviewCount": 73,
+    "specifications": {
+      "Basket Size": "Large wicker basket",
+      "Items Included": "8-10 premium items",
+      "Wine": "Premium red or white wine",
+      "Flowers": "Fresh seasonal arrangement",
+      "Chocolates": "Belgian chocolate selection"
+    },
+    "care_instructions": [
+      "Store perishable items as directed",
+      "Consume fresh items within recommended time",
+      "Keep wine in cool, dark place",
+      "Follow individual care instructions for flowers"
+    ],
+    "delivery_info": "White-glove delivery service with presentation."
+  },
+  {
+    "id": "6",
+    "name": "Indoor Plant Trio Collection",
+    "description": "Set of three air-purifying plants in decorative pots - perfect for home or office",
+    "longDescription": "Transform your living or working space with our Indoor Plant Trio Collection, featuring three carefully selected air-purifying plants. This collection includes a Snake Plant (Sansevieria), Peace Lily (Spathiphyllum), and Rubber Plant (Ficus elastica), each known for their air-cleaning properties and low maintenance requirements. Each plant comes in a stylish ceramic pot with drainage and includes detailed care instructions. Perfect for beginners or plant enthusiasts looking to enhance their indoor environment.",
+    "price": 320,
+    "images": [
+      "/images/product6.jpg",
+      "/images/product7.jpg",
+      "/images/product1.jpg"
+    ],
+    "category": "plants",
+    "tags": ["Indoor", "Air-Purifying", "Low-Maintenance", "Set"],
+    "inStock": true,
+    "featured": false,
+    "rating": 4.6,
+    "reviewCount": 112,
+    "specifications": {
+      "Plant Count": "3 plants",
+      "Pot Size": "6 inch ceramic pots",
+      "Plant Height": "30-45 cm",
+      "Light Requirements": "Low to medium light",
+      "Watering": "Weekly watering"
+    },
+    "care_instructions": [
+      "Water when top soil feels dry",
+      "Place in bright, indirect light",
+      "Wipe leaves with damp cloth monthly",
+      "Rotate plants weekly for even growth",
+      "Fertilize monthly during growing season"
+    ],
+    "delivery_info": "Plants delivered with care instructions and plant food."
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "id": "roses",
+    "name": "Premium Roses",
+    "description": "Elegant rose bouquets and arrangements for every occasion",
+    "image": "/images/product1.jpg",
+    "productCount": 18
+  },
+  {
+    "id": "mixed-arrangements",
+    "name": "Mixed Arrangements",
+    "description": "Beautiful seasonal flower arrangements in various styles",
+    "image": "/images/product2.jpg",
+    "productCount": 24
+  },
+  {
+    "id": "chocolates",
+    "name": "Premium Chocolates",
+    "description": "Luxury Belgian and artisanal chocolate collections",
+    "image": "/images/product3.jpg",
+    "productCount": 15
+  },
+  {
+    "id": "cakes",
+    "name": "Fresh Cakes",
+    "description": "Delicious cakes made fresh daily for celebrations",
+    "image": "/images/product4.jpg",
+    "productCount": 12
+  },
+  {
+    "id": "gift-sets",
+    "name": "Gift Sets & Hampers",
+    "description": "Curated gift collections for special occasions",
+    "image": "/images/product5.jpg",
+    "productCount": 20
+  },
+  {
+    "id": "plants",
+    "name": "Indoor Plants",
+    "description": "Beautiful plants to brighten your home or office",
+    "image": "/images/product6.jpg",
+    "productCount": 16
+  }
+]
