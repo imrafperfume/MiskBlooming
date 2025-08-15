@@ -16,12 +16,18 @@ model User {
   email         String   @unique
   emailVerified Boolean  @default(false)
   passwordHash  String
+  role          Role     @default(USER)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   sessions               Session[]
   EmailVerificationToken EmailVerificationToken[]
   PasswordResetToken     PasswordResetToken[]
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 model Session {
