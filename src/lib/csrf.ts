@@ -23,7 +23,6 @@ export async function verifyCsrf() {
     const h = await headers()
     const cookie = c.get(CSRF_COOKIE)?.value;
     const header = h.get('x-csrf-token');
-    console.log(header)
     if (!cookie || !header) return false;
     return cookie === header;
 }

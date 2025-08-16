@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 export const SESSION_COOKIE = process.env.SESSION_COOKIE_NAME || '__host.sid';
 const cookieBase = {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict' as const,
     path: '/',
 };

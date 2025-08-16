@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         const ok = await verifyPassword(user.passwordHash, password);
         if (!ok) return NextResponse.json({ error: 'invalid password' }, { status: 401 });
 
-        if (!user.emailVerified) return NextResponse.json({ error: 'Email unverified' }, { status: 403 });
+        // if (!user.emailVerified) return NextResponse.json({ error: 'Email unverified' }, { status: 403 });
 
         await createSession(user.id);
         return NextResponse.json({ ok: true });

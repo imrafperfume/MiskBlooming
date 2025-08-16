@@ -1,86 +1,180 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
+// import { useLogout } from "@/hooks/useLogout";
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { Search, ShoppingBag, User, Menu, X, MapPin, ChevronDown, Heart } from "lucide-react"
-import { Button } from "../ui/Button"
-import { useCartStore } from "../../store/cartStore"
-import { useWishlistStore } from "../../store/wishlistStore"
-import { motion, AnimatePresence } from "framer-motion"
+import {
+  LogOut,
+  Settings,
+  ShoppingCart,
+  Search,
+  ShoppingBag,
+  User,
+  Menu,
+  X,
+  MapPin,
+  ChevronDown,
+  Heart,
+  UserIcon,
+} from "lucide-react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+// import {} from "lucide-react";
+import { Button } from "../ui/Button";
+import { useCartStore } from "../../store/cartStore";
+import { useWishlistStore } from "../../store/wishlistStore";
+import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import { useAuth, useLogout } from "@/src/hooks/useAuth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
-  const totalItems = useCartStore((state) => state.getTotalItems())
-  const wishlistItems = useWishlistStore((state) => state.getTotalItems())
+  const totalItems = useCartStore((state) => state.getTotalItems());
+  const wishlistItems = useWishlistStore((state) => state.getTotalItems());
+  const { data: user, isLoading } = useAuth();
   const navigation = [
     { name: "Home", href: "/" },
     {
       name: "Collections",
       href: "/products",
       dropdown: [
-        { name: "Premium Roses", href: "/products?category=roses", description: "Elegant rose bouquets" },
+        {
+          name: "Premium Roses",
+          href: "/products?category=roses",
+          description: "Elegant rose bouquets",
+        },
         {
           name: "Mixed Arrangements",
           href: "/products?category=mixed-arrangements",
           description: "Seasonal flower arrangements",
         },
-        { name: "Premium Chocolates", href: "/products?category=chocolates", description: "Luxury Belgian chocolates" },
-        { name: "Fresh Cakes", href: "/products?category=cakes", description: "Made fresh daily" },
-        { name: "Gift Sets & Hampers", href: "/products?category=gift-sets", description: "Curated gift collections" },
-        { name: "Indoor Plants", href: "/products?category=plants", description: "Beautiful home plants" },
+        {
+          name: "Premium Chocolates",
+          href: "/products?category=chocolates",
+          description: "Luxury Belgian chocolates",
+        },
+        {
+          name: "Fresh Cakes",
+          href: "/products?category=cakes",
+          description: "Made fresh daily",
+        },
+        {
+          name: "Gift Sets & Hampers",
+          href: "/products?category=gift-sets",
+          description: "Curated gift collections",
+        },
+        {
+          name: "Indoor Plants",
+          href: "/products?category=plants",
+          description: "Beautiful home plants",
+        },
       ],
     },
     {
       name: "Occasions",
       href: "/occasions",
       dropdown: [
-        { name: "Valentine's Day", href: "/occasions/valentines", description: "Romantic arrangements" },
-        { name: "Mother's Day", href: "/occasions/mothers-day", description: "Show your love" },
-        { name: "Birthday", href: "/occasions/birthday", description: "Celebration essentials" },
-        { name: "Anniversary", href: "/occasions/anniversary", description: "Memorable moments" },
-        { name: "Congratulations", href: "/occasions/congratulations", description: "Success celebrations" },
-        { name: "Sympathy", href: "/occasions/sympathy", description: "Thoughtful condolences" },
+        {
+          name: "Valentine's Day",
+          href: "/occasions/valentines",
+          description: "Romantic arrangements",
+        },
+        {
+          name: "Mother's Day",
+          href: "/occasions/mothers-day",
+          description: "Show your love",
+        },
+        {
+          name: "Birthday",
+          href: "/occasions/birthday",
+          description: "Celebration essentials",
+        },
+        {
+          name: "Anniversary",
+          href: "/occasions/anniversary",
+          description: "Memorable moments",
+        },
+        {
+          name: "Congratulations",
+          href: "/occasions/congratulations",
+          description: "Success celebrations",
+        },
+        {
+          name: "Sympathy",
+          href: "/occasions/sympathy",
+          description: "Thoughtful condolences",
+        },
       ],
     },
     {
       name: "Same Day Delivery",
       href: "/same-day-delivery",
       dropdown: [
-        { name: "Express Delivery", href: "/delivery/express", description: "2-4 hours delivery" },
-        { name: "Standard Delivery", href: "/delivery/standard", description: "Same day delivery" },
-        { name: "Scheduled Delivery", href: "/delivery/scheduled", description: "Choose your time" },
-        { name: "Corporate Delivery", href: "/delivery/corporate", description: "Business solutions" },
+        {
+          name: "Express Delivery",
+          href: "/delivery/express",
+          description: "2-4 hours delivery",
+        },
+        {
+          name: "Standard Delivery",
+          href: "/delivery/standard",
+          description: "Same day delivery",
+        },
+        {
+          name: "Scheduled Delivery",
+          href: "/delivery/scheduled",
+          description: "Choose your time",
+        },
+        {
+          name: "Corporate Delivery",
+          href: "/delivery/corporate",
+          description: "Business solutions",
+        },
       ],
     },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
-  ]
+  ];
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     setIsScrolled(window.scrollY > 20);
+  //   };
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => window.removeEventListener("scroll", handleScroll);
+  // }, []);
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/products?search=${encodeURIComponent(searchQuery)}`
+      window.location.href = `/products?search=${encodeURIComponent(
+        searchQuery
+      )}`;
     }
-  }
+  };
 
   const handleDropdownToggle = (itemName: string) => {
-    setActiveDropdown(activeDropdown === itemName ? null : itemName)
-  }
+    setActiveDropdown(activeDropdown === itemName ? null : itemName);
+  };
+
+  const logout = useLogout();
 
   return (
     <motion.header
@@ -88,7 +182,6 @@ const Header = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6 }}
-      
     >
       {/* Top Bar */}
       <div className="bg-charcoal-900 text-cream-50 py-2">
@@ -118,7 +211,7 @@ const Header = () => {
       </div>
 
       {/* Main Header */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 shadow-md border-b" >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 shadow-md border-b">
         <div className="flex  justify-between items-center py-2">
           {/* Logo */}
           <Link href="/" className="flex items-center group">
@@ -127,7 +220,12 @@ const Header = () => {
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
-              Misk<span className="luxury-text">Blooming</span>
+              <Image
+                src="/images/logo.jpg"
+                alt="Logo"
+                width={200}
+                height={100}
+              />
             </motion.div>
           </Link>
 
@@ -155,7 +253,6 @@ const Header = () => {
                 Dubai <ChevronDown className="w-4 h-4 ml-1" />
               </button>
             </div>
-
             {/* Icons */}
             <Button
               variant="ghost"
@@ -165,7 +262,6 @@ const Header = () => {
             >
               <Search className="w-5 h-5" />
             </Button>
-
             <Link href="/wishlist">
               <Button variant="ghost" size="icon" className="relative">
                 <Heart className="w-5 h-5" />
@@ -181,7 +277,6 @@ const Header = () => {
                 )}
               </Button>
             </Link>
-
             <Link href="/cart">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingBag className="w-5 h-5" />
@@ -198,15 +293,109 @@ const Header = () => {
               </Button>
             </Link>
 
-            <Link
-              href="/auth/login"
-              className="lg:inline-block md:inline-block hidden"
-            >
-              <Button variant="ghost" size="icon">
-                <User className="w-5 h-5" />
-              </Button>
-            </Link>
+            <>
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-slate-600"></div>
+                </div>
+              ) : (
+                <div className="sm:flex hidden">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="relative hover:bg-slate-100 transition-colors duration-200 rounded-full"
+                      >
+                        <UserIcon className="w-5 h-5 text-slate-700" />
+                      </Button>
+                    </DropdownMenuTrigger>
 
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-64 bg-white border border-slate-200 shadow-lg rounded-xl p-2 mt-2"
+                      sideOffset={8}
+                    >
+                      {user ? (
+                        <>
+                          <div className="px-3 py-3 border-b border-slate-100">
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
+                                <UserIcon className="w-5 h-5 text-slate-600" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-slate-900 truncate">
+                                  {user.firstName} {user.lastName}
+                                </p>
+                                <p className="text-xs text-slate-500 truncate">
+                                  {user.email}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="py-1">
+                            <DropdownMenuItem asChild>
+                              <Link
+                                href="/account/orders"
+                                className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                              >
+                                <ShoppingCart className="w-4 h-4 text-slate-500" />
+                                <span>My Orders</span>
+                              </Link>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem asChild>
+                              <Link
+                                href="/account/settings"
+                                className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                              >
+                                <Settings className="w-4 h-4 text-slate-500" />
+                                <span>Account Settings</span>
+                              </Link>
+                            </DropdownMenuItem>
+                          </div>
+
+                          <DropdownMenuSeparator className="my-1 bg-slate-100" />
+
+                          <div className="py-1">
+                            <DropdownMenuItem
+                              onClick={logout}
+                              className="flex items-center gap-3 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-150 cursor-pointer focus:bg-red-50"
+                            >
+                              <LogOut className="w-4 h-4" />
+                              <span>Sign Out</span>
+                            </DropdownMenuItem>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="py-1">
+                            <DropdownMenuItem asChild>
+                              <Link
+                                href="/auth/login"
+                                className="flex items-center justify-center px-3 py-2.5 text-sm font-medium text-white bg-luxury-500 hover:bg-luxury-800 rounded-lg transition-colors duration-150 cursor-pointer"
+                              >
+                                Sign In
+                              </Link>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem asChild>
+                              <Link
+                                href="/auth/register"
+                                className="flex items-center justify-center px-3 py-2.5 mt-2 text-sm font-medium text-charcoal-700 border border-charcoal-300 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                              >
+                                Create Account
+                              </Link>
+                            </DropdownMenuItem>
+                          </div>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              )}
+            </>
             {/* Mobile Menu Button */}
             <Button
               variant="ghost"
@@ -381,6 +570,6 @@ const Header = () => {
       </div>
     </motion.header>
   );
-}
+};
 
-export default Header
+export default Header;

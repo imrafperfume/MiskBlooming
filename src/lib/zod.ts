@@ -25,12 +25,13 @@ export const registerSchema = z.object({
         }),
     password: z
         .string({ required_error: 'Password is required' })
-        .min(12, { message: 'Password must be at least 12 characters' })
+        .min(8, { message: 'Password must be at least 8 characters' })
         .max(128, { message: 'Password must be at most 128 characters' }),
     confirmPassword: z
         .string({ required_error: 'Confirm password is required' })
-        .min(12, { message: 'Confirm password must be at least 12 characters' })
+        .min(8, { message: 'Confirm password must be at least 8 characters' })
         .max(128, { message: 'Confirm password must be at most 128 characters' }),
+    terms: z.boolean().refine((val) => val === true, "You must accept the terms and conditions"),
 }).refine((data) => data.password === data.confirmPassword, {
     path: ['confirmPassword'],
     message: 'Passwords do not match',
@@ -47,4 +48,6 @@ export const resetSchema = z.object({
 });
 export const verifySchema = z.object({ token: z.string().min(10) });
 export type RegisterInput = z.infer<typeof registerSchema>;
+
+
 

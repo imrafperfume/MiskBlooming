@@ -10,6 +10,5 @@ export const limiter = new Ratelimit({
 });
 export async function rateLimit(key: string) {
     const { success } = await limiter.limit(key);
-    console.log(success)
     return success;
 }

@@ -53,8 +53,7 @@ export default function LoginPage() {
 
       const d = await res.json();
       console.log("Login success:", d);
-
-      // window.location.href = "/dashboard";
+      window.location.href = "/";
     } catch (error) {
       console.error("Login error:", error);
     } finally {
