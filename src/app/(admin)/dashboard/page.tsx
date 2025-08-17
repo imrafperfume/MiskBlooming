@@ -159,7 +159,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="space-y-8 overflow-x-hidden">
+    <div className="space-y-8 overflow-x-hidden w-full">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between">
         <div>
