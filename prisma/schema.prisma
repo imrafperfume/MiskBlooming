@@ -72,3 +72,85 @@ model PasswordResetToken {
   @@index([userId])
   @@index([expiresAt])
 }
+
+model Product {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Basic Information
+  name             String
+  slug             String   @unique
+  description      String
+  shortDescription String
+  category         String
+  subcategory      String
+  tags             String[]
+
+  // Pricing
+  price          Float
+  compareAtPrice Float
+  costPerItem    Float
+
+  // Inventory
+  sku               String?  @unique
+  barcode           String?
+  trackQuantity     Boolean @default(false)
+  quantity          Int
+  lowStockThreshold Int
+
+  // Shipping
+  requiresShipping Boolean @default(false)
+  weight           Float?
+  dimensions       ProductDimension?
+
+  // Images
+  images        CloudinaryImage[]
+  featuredImage Int 
+
+  // SEO
+  seoTitle       String
+  seoDescription String
+  seoKeywords    String[]
+
+  // Status
+  status   ProductStatus @default(DRAFT)
+  featured Boolean       @default(false)
+
+  // Delivery
+  deliveryZones         String[]
+  deliveryTime          String
+  freeDeliveryThreshold Float
+
+  // Product Features
+  giftWrapping     Boolean  @default(false)
+  personalization  Boolean  @default(false)
+  careInstructions String?
+  occasions        String[]
+}
+
+model ProductDimension {
+  id        String   @id @default(uuid())
+  length    Float
+  width     Float
+  height    Float
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?  @unique
+}
+
+model CloudinaryImage {
+  id        String   @id @default(uuid())
+  url       String
+  publicId  String
+  width     Int
+  height    Int
+  format    String
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
