@@ -19,7 +19,7 @@ export const validateCloudinaryConfig = (): { valid: boolean; errors: string[]; 
         errors.push("NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET is not configured")
     } else if (CLOUDINARY_CONFIG.uploadPreset === "ml_default") {
         errors.push("Using default upload preset 'ml_default' - please create a custom unsigned preset")
-    } else if (["portfolio", "signed", "default"].includes(CLOUDINARY_CONFIG.uploadPreset)) {
+    } else if (["signed", "default"].includes(CLOUDINARY_CONFIG.uploadPreset)) {
         errors.push(
             `Upload preset '${CLOUDINARY_CONFIG.uploadPreset}' appears to be a signed preset - please create an unsigned preset`,
         )
@@ -229,13 +229,7 @@ export const uploadToCloudinary = async (
         publicId?: string
         tags?: string[]
         context?: Record<string, string>
-        eager?: Array<{
-            width?: number
-            height?: number
-            crop?: string
-            quality?: string | number
-            format?: string
-        }>
+
     } = {},
 ): Promise<CloudinaryUploadResult> => {
     // Validate configuration first
@@ -244,7 +238,7 @@ export const uploadToCloudinary = async (
         throw new Error(`Cloudinary configuration error: ${configValidation.errors.join(", ")}`)
     }
 
-    const { folder = "misk-blooming/products", publicId, tags = [], context = {}, eager = [] } = options
+    const { folder = "misk-blooming/products", publicId, tags = [], context = {} } = options
 
     const formData = new FormData()
     formData.append("file", file)
@@ -264,20 +258,6 @@ export const uploadToCloudinary = async (
     }
 
     // Add eager transformations for immediate optimization
-    if (eager.length > 0) {
-        const eagerString = eager
-            .map((transform) => {
-                const parts: string[] = []
-                if (transform.width) parts.push(`w_${transform.width}`)
-                if (transform.height) parts.push(`h_${transform.height}`)
-                if (transform.crop) parts.push(`c_${transform.crop}`)
-                if (transform.quality) parts.push(`q_${transform.quality}`)
-                if (transform.format) parts.push(`f_${transform.format}`)
-                return parts.join(",")
-            })
-            .join("|")
-        formData.append("eager", eagerString)
-    }
 
     try {
         const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`

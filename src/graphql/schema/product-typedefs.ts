@@ -1,14 +1,38 @@
-import { gql } from "graphql-tag"
-import { resolvers as queryResolvers } from "./resolvers/query"
-import { resolvers as mutationResolvers } from "./resolvers/mutation"
+import { gql } from "@apollo/client";
 
+export const ProductTypeDefs = gql`
 
-
-export const typeDefs = gql`
   enum ProductStatus {
-    DRAFT
-    ACTIVE
-    ARCHIVED
+    draft
+    active
+    archived
+  }
+
+  input ProductDimensionInput {
+    length: Float!
+    width: Float!
+    height: Float!
+  }
+  type OptimizedUrls {
+  thumbnail: String!
+  small: String!
+  medium: String!
+  large: String!
+  original: String!
+}
+
+input OptimizedUrlsInput {
+  thumbnail: String!
+  small: String!
+  medium: String!
+  large: String!
+  original: String!
+}
+
+  input CloudinaryImageInput {
+    publicId: String!
+    url: String!
+    optimizedUrls:OptimizedUrlsInput!
   }
 
   type ProductDimension {
@@ -20,12 +44,11 @@ export const typeDefs = gql`
   type CloudinaryImage {
     publicId: String!
     url: String!
-    width: Float!
-    height: Float!
+    optimizedUrls:OptimizedUrls!
   }
 
   type Product {
-    id: ID!
+    id: String!
     createdAt: String!
     updatedAt: String!
 
@@ -87,6 +110,7 @@ export const typeDefs = gql`
 
   type Mutation {
     createProduct(
+      id:String!
       name: String!
       slug: String!
       description: String!
@@ -102,8 +126,9 @@ export const typeDefs = gql`
       trackQuantity: Boolean!
       quantity: Int!
       lowStockThreshold: Int!
+      images: [CloudinaryImageInput!]!
       requiresShipping: Boolean!
-      weight: Float
+      dimensions: ProductDimensionInput
       featuredImage: Int!
       seoTitle: String!
       seoDescription: String!
@@ -119,11 +144,4 @@ export const typeDefs = gql`
       occasions: [String!]!
     ): Product!
   }
-`
-
-
-
-export const resolvers = {
-    Query: queryResolvers,
-    Mutation: mutationResolvers,
-}
+`;

@@ -33,6 +33,13 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import type { getResponsiveImageUrls } from "../../../../../lib/cloudinary";
+import {
+  ApolloCache,
+  DefaultContext,
+  OperationVariables,
+  useMutation,
+} from "@apollo/client";
+import { CREATE_PRODUCT } from "@/src/graphql/clientDefs/create-productDefs";
 
 interface CloudinaryImage {
   url: string;
@@ -216,6 +223,8 @@ export default function AddProductPage() {
   const [formData, setFormData] = useState<ProductFormData>(initialFormData);
   const [activeTab, setActiveTab] = useState("basic");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [createProduct, { data, loading, error }] =
+    useMutation<ProductFormData>(CREATE_PRODUCT);
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "saving" | "saved" | "error"
   >("idle");
@@ -436,21 +445,22 @@ export default function AddProductPage() {
         updatedAt: new Date().toISOString(),
       };
       console.log("Saving product with Cloudinary images:", productData);
-
+      const res = await createProduct({
+        variables: {
+          ...productData,
+        },
+      });
+      console.log(res);
       setSaveStatus("saved");
-      setTimeout(() => setSaveStatus("idle"), 2000);
-
       if (status === "active") {
-        setTimeout(() => {
-          router.push("/dashboard/products");
-        }, 1000);
+        router.push("/dashboard/products");
       }
     } catch (error) {
       setSaveStatus("error");
-      setTimeout(() => setSaveStatus("idle"), 3000);
+      setSaveStatus("idle");
     }
   };
-
+  // console.log("DATA: ", data);
   const tabs = [
     {
       id: "basic",

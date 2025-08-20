@@ -74,7 +74,7 @@ model PasswordResetToken {
 }
 
 model Product {
-  id        String   @id @default(uuid())
+  id        String   @unique @default(uuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -93,20 +93,19 @@ model Product {
   costPerItem    Float
 
   // Inventory
-  sku               String?  @unique
+  sku               String? @unique
   barcode           String?
   trackQuantity     Boolean @default(false)
   quantity          Int
   lowStockThreshold Int
 
   // Shipping
-  requiresShipping Boolean @default(false)
-  weight           Float?
+  requiresShipping Boolean           @default(false)
   dimensions       ProductDimension?
 
   // Images
   images        CloudinaryImage[]
-  featuredImage Int 
+  featuredImage Int
 
   // SEO
   seoTitle       String
@@ -114,7 +113,7 @@ model Product {
   seoKeywords    String[]
 
   // Status
-  status   ProductStatus @default(DRAFT)
+  status   ProductStatus @default(draft)
   featured Boolean       @default(false)
 
   // Delivery
@@ -139,18 +138,16 @@ model ProductDimension {
 }
 
 model CloudinaryImage {
-  id        String   @id @default(uuid())
-  url       String
-  publicId  String
-  width     Int
-  height    Int
-  format    String
-  product   Product? @relation(fields: [productId], references: [id])
-  productId String?
+  id            String   @id @default(uuid())
+  optimizedUrls Json
+  url           String
+  publicId      String
+  product       Product? @relation(fields: [productId], references: [id])
+  productId     String?
 }
 
 enum ProductStatus {
-  DRAFT
-  ACTIVE
-  ARCHIVED
+  draft
+  active
+  archived
 }

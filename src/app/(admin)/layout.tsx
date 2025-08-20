@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 // import { useSearchParams } from "next/navigation"
 import {
   LayoutDashboard,
@@ -27,20 +27,34 @@ import {
   Tag,
   Calendar,
   HelpCircle,
-} from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "../../components/ui/Button"
-import { Suspense } from "react"
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "../../components/ui/Button";
+import { Suspense } from "react";
+import { useAuth } from "@/src/hooks/useAuth";
 
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [userMenuOpen, setUserMenuOpen] = useState(false)
-  const pathname = usePathname()
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const pathname = usePathname();
   // const searchParams = useSearchParams()
+  const { data: user, isLoading } = useAuth();
+  if (isLoading) {
+    return (
+      <div>
+        <p>Loading please wait</p>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== "ADMIN") {
+    window.location.href = "/";
+    return null;
+  }
 
   const navigation = [
     {
@@ -115,7 +129,7 @@ export default function AdminLayout({
       icon: Settings,
       description: "System Configuration",
     },
-  ]
+  ];
 
   return (
     <div className="min-h-screen min-w-full flex overflow-x-hidden  bg-gray-50">
