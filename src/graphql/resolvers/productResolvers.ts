@@ -1,4 +1,5 @@
 import { prisma } from '@/src/lib/db';
+import { redis } from '@/src/lib/redis';
 interface CreateProductArgs {
     id: string;
     name: string;
@@ -38,15 +39,32 @@ export const ProductResolvers = {
     Query: {
         products: async () => {
             try {
-                return prisma.product.findMany();
+                const cache: string | null = await redis.get('allProducts')
+                if (cache) {
+                    if (typeof cache === 'string') {
+                        return JSON.parse(cache);
+                    }
+                    return cache;
+                }
+                const products = await prisma.product.findMany({
+                    include: { images: true, dimensions: true }
+                });
+                if (!products) throw new Error("Product not found");
+                await redis.set("allProducts", JSON.stringify(products), { ex: 60 * 5 }); //5 mins
+                return products
             } catch (error) {
                 console.error(error);
                 throw new Error("Failed to fetch products");
             }
         },
         product: async (_: any, args: { slug: string }) => {
+            const cache: string | null = await redis.get(`product:${args.slug}`)
+            if (cache) {
+                return JSON.parse(cache)
+            }
             const product = await prisma.product.findUnique({ where: { slug: args.slug } });
             if (!product) throw new Error("Product not found");
+            await redis.set(`product:${args.slug}`, JSON.stringify(product), { ex: 60 * 5 })
             return product;
         },
     },

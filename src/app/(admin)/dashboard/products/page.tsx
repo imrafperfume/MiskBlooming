@@ -19,7 +19,32 @@ import {
 import { motion } from "framer-motion";
 import { Button } from "../../../../components/ui/Button";
 import { Input } from "../../../../components/ui/Input";
+// import { getAllProducts } from "@/src/hooks/getAllProducts";
+import { gql, useQuery } from "@apollo/client";
+import { getStatusColor } from "@/utils/utils";
+import Image from "next/image";
+import Link from "next/link";
 
+const GET_PRODUCTS = gql`
+  query GetProducts {
+    products {
+      id
+      name
+      slug
+      images {
+        url
+        optimizedUrls {
+          small
+        }
+      }
+      status
+      quantity
+      featured
+      category
+      sku
+    }
+  }
+`;
 // Mock products data
 const mockProducts = [
   {
@@ -97,6 +122,11 @@ export default function ProductsPage() {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  const { data, loading, error } = useQuery(GET_PRODUCTS, {
+    fetchPolicy: "cache-and-network",
+  });
+  const products = data?.products;
+  console.log("products", products);
 
   const categories = [
     { value: "all", label: "All Categories" },
@@ -108,40 +138,26 @@ export default function ProductsPage() {
   ];
 
   const filteredProducts = useMemo(() => {
-    return mockProducts.filter((product) => {
-      const matchesSearch =
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.sku.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesCategory =
-        selectedCategory === "all" || product.category === selectedCategory;
-      const matchesStatus =
-        selectedStatus === "all" || product.status === selectedStatus;
-      return matchesSearch && matchesCategory && matchesStatus;
-    });
-  }, [searchTerm, selectedCategory, selectedStatus]);
-
-  const stats = useMemo(() => {
-    return {
-      total: mockProducts.length,
-      active: mockProducts.filter((p) => p.status === "active").length,
-      outOfStock: mockProducts.filter((p) => p.stock === 0).length,
-      featured: mockProducts.filter((p) => p.featured).length,
-    };
-  }, []);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "out-of-stock":
-        return "bg-red-100 text-red-800";
-      case "draft":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
+    if (!loading) {
+      return products?.filter((product: any) => {
+        const matchesSearch =
+          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          product.sku.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesCategory =
+          selectedCategory === "all" || product.category === selectedCategory;
+        const matchesStatus =
+          selectedStatus === "all" || product.status === selectedStatus;
+        return matchesSearch && matchesCategory && matchesStatus;
+      });
     }
-  };
+  }, [searchTerm, selectedCategory, selectedStatus, loading]);
 
+  // products  ui
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+  const activeCount = products.filter((p: any) => p.status === "active").length;
+  const OutOfStock = products.filter((p: any) => p.quantity === 0).length;
+  const Featured = products.filter((p: any) => p.featured).length;
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -185,7 +201,7 @@ export default function ProductsPage() {
             <div>
               <p className="text-sm text-gray-600">Total Products</p>
               <p className="text-2xl font-bold text-charcoal-900">
-                {stats.total}
+                {products.length}
               </p>
             </div>
             <Package className="w-8 h-8 text-blue-500" />
@@ -201,9 +217,7 @@ export default function ProductsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Active</p>
-              <p className="text-2xl font-bold text-green-600">
-                {stats.active}
-              </p>
+              <p className="text-2xl font-bold text-green-600">{activeCount}</p>
             </div>
             <CheckCircle className="w-8 h-8 text-green-500" />
           </div>
@@ -219,7 +233,7 @@ export default function ProductsPage() {
             <div>
               <p className="text-sm text-gray-600">Out of Stock</p>
               <p className="text-2xl font-bold text-red-600">
-                {stats.outOfStock}
+                {OutOfStock || 0}
               </p>
             </div>
             <AlertCircle className="w-8 h-8 text-red-500" />
@@ -236,7 +250,7 @@ export default function ProductsPage() {
             <div>
               <p className="text-sm text-gray-600">Featured</p>
               <p className="text-2xl font-bold text-luxury-600">
-                {stats.featured}
+                {Featured || 0}
               </p>
             </div>
             <Star className="w-8 h-8 text-luxury-500" />
@@ -337,7 +351,7 @@ export default function ProductsPage() {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredProducts.map((product, index) => (
+              {filteredProducts.map((product: any, index: any) => (
                 <motion.tr
                   key={product.id}
                   className="hover:bg-gray-50 transition-colors"
@@ -348,10 +362,15 @@ export default function ProductsPage() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0 h-12 w-12">
-                        <img
+                        <Image
                           className="h-12 w-12 rounded-lg object-cover"
-                          src={product.image || "/placeholder.svg"}
+                          src={
+                            product.images[0].optimizedUrls.small ||
+                            "/placeholder.svg"
+                          }
                           alt={product.name}
+                          width={48}
+                          height={48}
                         />
                       </div>
                       <div className="min-w-0 flex-1">
@@ -423,9 +442,11 @@ export default function ProductsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
-                      <Button variant="ghost" size="sm">
-                        <Eye className="w-4 h-4" />
-                      </Button>
+                      <Link href={`/products/${product.slug}`}>
+                        <Button variant="ghost" size="sm">
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                      </Link>
                       <Button variant="ghost" size="sm">
                         <Edit className="w-4 h-4" />
                       </Button>
