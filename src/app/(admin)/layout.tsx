@@ -132,8 +132,8 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="min-h-screen min-w-full flex overflow-x-hidden  bg-gray-50">
-      <div className="mx-auto max-w-screen-xl flex">
+    <div className="flex relative max-w-screen-2xl mx-auto   overflow-x-hidden  bg-gray-50">
+      <div className="  flex overflow-x-hidden">
         {/* Mobile sidebar backdrop */}
         <AnimatePresence>
           {sidebarOpen && (
@@ -153,7 +153,7 @@ export default function AdminLayout({
 
         {/* Sidebar */}
         <motion.div
-          className={`fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-xl transform ${
+          className={`fixed top-0 inset-y-0 left-0 z-50 w-72 bg-white shadow-xl transform ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
           initial={false}

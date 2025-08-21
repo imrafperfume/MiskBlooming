@@ -159,7 +159,7 @@ export default function ProductsPage() {
   const OutOfStock = products.filter((p: any) => p.quantity === 0).length;
   const Featured = products.filter((p: any) => p.featured).length;
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 min-w-full w-[100%]">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between">
         <div>

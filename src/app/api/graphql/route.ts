@@ -5,6 +5,7 @@ import { ProductResolvers } from "@/src/graphql/resolvers/productResolvers";
 import { ProductTypeDefs } from "@/src/graphql/schema/product-typedefs";
 import { IResolvers } from "@graphql-tools/utils";
 import { YogaInitialContext } from "graphql-yoga";
+import { rateLimit } from "@/src/lib/ratelimit";
 const typeDefs = mergeTypeDefs([
     `
     type Query {
@@ -35,9 +36,17 @@ const yoga = createYoga<ContextType>({
     context: async ({ request }) => {
         console.log("Context called");
 
+
         try {
             const userId = await getSessionUserId();
             console.log("yoga ID", userId);
+            const ip = request.headers.get("x-forwarded-for") || "unknown";
+            const key = `rate:${ip}`;
+            const limit = userId ? 150 : 60;
+            const allowed = await rateLimit(key, limit, "1 m"); // 20 req / min if user login
+            if (!allowed) {
+                throw new Error("Too many requests. Please try again later.");
+            }
             return { userId };
         } catch (error: any) {
             console.error(error);
