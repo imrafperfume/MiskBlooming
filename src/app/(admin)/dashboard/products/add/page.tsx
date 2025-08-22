@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "../../../../../components/ui/Button";
 import {
   ArrowLeft,
@@ -20,8 +20,12 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import type { getResponsiveImageUrls } from "../../../../../lib/cloudinary";
-import { useMutation } from "@apollo/client";
-import { CREATE_PRODUCT } from "@/src/graphql/clientDefs/create-productDefs";
+import { useMutation, useQuery } from "@apollo/client";
+import {
+  CREATE_PRODUCT,
+  GET_PRODUCT_BY_SLUG,
+  UPDATE_PRODUCT,
+} from "@/src/graphql/clientDefs/create-productDefs";
 import BasicInfoTab from "@/src/components/dashboard/tabs/addProductTabs/BasicInfoTab";
 import PricingTab from "@/src/components/dashboard/tabs/addProductTabs/PricingTab";
 import InventoryTab from "@/src/components/dashboard/tabs/addProductTabs/InventoryTab";
@@ -29,11 +33,18 @@ import ImagesTab from "@/src/components/dashboard/tabs/addProductTabs/ImagesTab"
 import SEOTab from "@/src/components/dashboard/tabs/addProductTabs/SEOTab";
 import DeliveryTab from "@/src/components/dashboard/tabs/addProductTabs/DeliveryTab";
 import FeaturesTab from "@/src/components/dashboard/tabs/addProductTabs/FeaturesTab";
+type OptimizedUrls = {
+  thumbnail: string;
+  small: string;
+  medium: string;
+  large: string;
+  original: string;
+};
 
 interface CloudinaryImage {
   url: string;
   publicId: string;
-  optimizedUrls?: ReturnType<typeof getResponsiveImageUrls>;
+  optimizedUrls: OptimizedUrls; //optional
 }
 
 export interface ProductFormData {
@@ -60,8 +71,8 @@ export interface ProductFormData {
 
   // Shipping
   requiresShipping: boolean;
-  weight: number;
   dimensions: {
+    weight: number;
     length: number;
     width: number;
     height: number;
@@ -109,8 +120,7 @@ const initialFormData: ProductFormData = {
   quantity: 0,
   lowStockThreshold: 5,
   requiresShipping: true,
-  weight: 0,
-  dimensions: { length: 0, width: 0, height: 0 },
+  dimensions: { weight: 0, length: 0, width: 0, height: 0 },
   images: [],
   featuredImage: 0,
   seoTitle: "",
@@ -208,6 +218,9 @@ const deliveryTimes = [
 ];
 
 export default function AddProductPage() {
+  const params = useSearchParams();
+  console.log(params);
+  const slug: any = params.get("slug");
   const router = useRouter();
   const [formData, setFormData] = useState<ProductFormData>(initialFormData);
   const [activeTab, setActiveTab] = useState("basic");
@@ -215,10 +228,29 @@ export default function AddProductPage() {
   const [createProduct, { data, loading, error }] =
     useMutation<ProductFormData>(CREATE_PRODUCT);
   const [saveStatus, setSaveStatus] = useState<
-    "idle" | "saving" | "saved" | "error"
+    "idle" | "saving" | "saved" | "error" | "update"
   >("idle");
   const [newTag, setNewTag] = useState("");
   const [newKeyword, setNewKeyword] = useState("");
+
+  // query and mutation:::::::::::::::::::::::::::::::::::::::::::
+  const {
+    data: editData,
+    loading: queryLoading,
+    error: queryError,
+  } = useQuery(GET_PRODUCT_BY_SLUG, {
+    variables: { slug: slug },
+    skip: !slug,
+  });
+  const [updateProduct, { loading: updateLoadin, error: updateError }] =
+    useMutation(UPDATE_PRODUCT);
+
+  // product by id , get for edit product::::::::
+  useEffect(() => {
+    if (editData?.productById) {
+      setFormData(editData.productById);
+    }
+  }, [editData, queryLoading]);
 
   // Auto-generate slug from name
   const generateSlug = (name: string) => {
@@ -537,238 +569,333 @@ export default function AddProductPage() {
     (cat) => cat.value === formData.category
   );
 
+  // UPDATE PRODUCT BY SLUG:::::::::::::::::::::
+  const handleUpdate = async () => {
+    if (!validateForm()) {
+      setSaveStatus("error");
+      return;
+    }
+
+    setSaveStatus("saving");
+    try {
+      const productData = {
+        name: formData.name,
+        slug: formData.slug,
+        description: formData.description,
+        shortDescription: formData.shortDescription,
+        category: formData.category,
+        subcategory: formData.subcategory,
+        tags: formData.tags,
+        price: formData.price,
+        compareAtPrice: formData.compareAtPrice,
+        costPerItem: formData.costPerItem,
+        sku: formData.sku,
+        barcode: formData.barcode,
+        trackQuantity: formData.trackQuantity,
+        quantity: formData.quantity,
+        lowStockThreshold: formData.lowStockThreshold,
+        requiresShipping: formData.requiresShipping,
+        featuredImage: formData.featuredImage,
+        seoTitle: formData.seoTitle,
+        seoDescription: formData.seoDescription,
+        seoKeywords: formData.seoKeywords,
+        status: formData.status || "draft", // enum must be valid
+        featured: formData.featured,
+        deliveryZones: formData.deliveryZones,
+        deliveryTime: formData.deliveryTime,
+        freeDeliveryThreshold: formData.freeDeliveryThreshold,
+        giftWrapping: formData.giftWrapping,
+        personalization: formData.personalization,
+        careInstructions: formData.careInstructions,
+        occasions: formData.occasions,
+
+        dimensions: formData.dimensions
+          ? {
+              weight: formData.dimensions.weight,
+              length: formData.dimensions.length,
+              width: formData.dimensions.width,
+              height: formData.dimensions.height,
+            }
+          : undefined,
+
+        images: formData.images.map((img) => ({
+          url: img.url,
+          publicId: img.publicId,
+          optimizedUrls: img.optimizedUrls || {
+            thumbnail: img.url,
+            small: img.url,
+            medium: img.url,
+            large: img.url,
+            original: img.url,
+          },
+        })),
+      };
+
+      const res = await updateProduct({
+        variables: {
+          slug,
+          data: productData,
+        },
+      });
+
+      console.log("Updated product:", res.data.updateProduct);
+      setSaveStatus("saved");
+      if (status === "active") {
+        router.push("/dashboard/products");
+      }
+    } catch (error) {
+      setSaveStatus("error");
+      setSaveStatus("idle");
+    }
+  };
   return (
-    <div className="space-y-6 w-fit overflow-x-hidden">
-      {/* Header */}
-      <div className="flex items-center gap-5 justify-between w-fit">
-        <div className="flex items-center space-x-4">
-          <Button variant="ghost" onClick={() => router.back()} className="p-2">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-cormorant font-bold text-charcoal-900 flex items-center">
-              Add New Product
-              <Cloud className="w-8 h-8 ml-3 text-blue-500" />
-            </h1>
-            <p className="text-gray-600 mt-1">
-              Create a new product with Cloudinary-optimized images
-            </p>
+    <Suspense fallback={<div>Loading query...</div>}>
+      <div className="space-y-6 w-full overflow-x-hidden">
+        {/* Header */}
+        <div className="flex items-center gap-5 justify-between w-full">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              onClick={() => router.back()}
+              className="p-2"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-cormorant font-bold text-charcoal-900 flex items-center">
+                Add New Product
+                <Cloud className="w-8 h-8 ml-3 text-blue-500" />
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Create a new product with Cloudinary-optimized images
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center space-x-3">
-          {/* Save Status Indicator */}
-          {saveStatus === "saving" && (
-            <div className="flex items-center text-blue-600">
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-              Saving...
-            </div>
-          )}
-          {saveStatus === "saved" && (
-            <div className="flex items-center text-green-600">
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Saved!
-            </div>
-          )}
-          {saveStatus === "error" && (
-            <div className="flex items-center text-red-600">
-              <AlertCircle className="w-4 h-4 mr-2" />
-              Error saving
-            </div>
-          )}
+          <div className="flex items-center space-x-3">
+            {/* Save Status Indicator */}
+            {saveStatus === "saving" && (
+              <div className="flex items-center text-blue-600">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                Saving...
+              </div>
+            )}
+            {saveStatus === "saved" && (
+              <div className="flex items-center text-green-600">
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Saved!
+              </div>
+            )}
+            {saveStatus === "error" && (
+              <div className="flex items-center text-red-600">
+                <AlertCircle className="w-4 h-4 mr-2" />
+                Error saving
+              </div>
+            )}
 
-          {/* <Button variant="outline">
+            {/* <Button variant="outline">
             <Eye className="w-4 h-4 mr-2" />
             Preview
           </Button> */}
-          <Button
-            onClick={() => handleSave("draft")}
-            disabled={saveStatus === "saving"}
-            variant="outline"
-            className={`${
-              saveStatus === "saved"
-                ? "border-green-300 text-green-700"
-                : saveStatus === "error"
-                ? "border-red-300 text-red-700"
-                : ""
-            }`}
-          >
-            {getSaveButtonContent()}
-          </Button>
-          <Button
-            onClick={() => handleSave("active")}
-            disabled={saveStatus === "saving"}
-            variant="luxury"
-          >
-            Publish Product
-          </Button>
-        </div>
-      </div>
-
-      {/* Error Summary */}
-      {Object.keys(errors).length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex items-center">
-            <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-            <h3 className="text-sm font-medium text-red-800">
-              Please fix the following errors:
-            </h3>
+            <Button
+              onClick={() => handleSave("draft")}
+              disabled={saveStatus === "saving"}
+              variant="outline"
+              className={`${
+                saveStatus === "saved"
+                  ? "border-green-300 text-green-700"
+                  : saveStatus === "error"
+                  ? "border-red-300 text-red-700"
+                  : ""
+              }`}
+            >
+              {getSaveButtonContent()}
+            </Button>
+            {slug ? (
+              <Button
+                onClick={() => handleUpdate()}
+                disabled={saveStatus === "saving" || queryLoading}
+                variant="luxury"
+              >
+                Update Product
+              </Button>
+            ) : (
+              <Button
+                onClick={() => handleSave("active")}
+                disabled={saveStatus === "saving"}
+                variant="luxury"
+              >
+                Publish Product
+              </Button>
+            )}
           </div>
-          <ul className="mt-2 text-sm text-red-700 list-disc list-inside">
-            {Object.entries(errors).map(([field, error]) => (
-              <li key={field}>{error}</li>
-            ))}
-          </ul>
         </div>
-      )}
 
-      <div className="grid grid-cols-12 gap-6">
-        {/* Sidebar Navigation */}
-        <div className="col-span-3">
-          <div className="bg-white rounded-xl shadow-sm border border-cream-200 p-4 sticky top-6">
-            <nav className="space-y-2">
-              {tabs.map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center justify-between space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                      activeTab === tab.id
-                        ? "bg-luxury-50 text-luxury-600 border border-luxury-200"
-                        : "text-gray-600 hover:bg-gray-50"
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <Icon className="w-5 h-5" />
-                      <span className="font-medium">{tab.label}</span>
-                    </div>
-                    {tab.hasError && (
-                      <AlertCircle className="w-4 h-4 text-red-500" />
-                    )}
-                  </button>
-                );
-              })}
-            </nav>
+        {/* Error Summary */}
+        {Object.keys(errors).length > 0 && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="flex items-center">
+              <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
+              <h3 className="text-sm font-medium text-red-800">
+                Please fix the following errors:
+              </h3>
+            </div>
+            <ul className="mt-2 text-sm text-red-700 list-disc list-inside">
+              {Object.entries(errors).map(([field, error]) => (
+                <li key={field}>{error}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-            {/* Progress Indicator */}
-            <div className="mt-6 pt-4 border-t border-gray-200">
-              <div className="text-sm text-gray-600 mb-2">
-                Completion Progress
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div
-                  className="bg-luxury-500 h-2 rounded-full transition-all duration-300"
-                  style={{
-                    width: `${Math.round(
-                      (tabs.filter((tab) => !tab.hasError).length /
-                        tabs.length) *
-                        100
-                    )}%`,
-                  }}
-                />
-              </div>
-              <div className="text-xs text-gray-500 mt-1">
-                {tabs.filter((tab) => !tab.hasError).length} of {tabs.length}{" "}
-                sections complete
+        <div className="grid grid-cols-12 gap-6">
+          {/* Sidebar Navigation */}
+          <div className="col-span-3">
+            <div className="bg-white rounded-xl shadow-sm border border-cream-200 p-4 sticky top-6">
+              <nav className="space-y-2">
+                {tabs.map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`w-full flex items-center justify-between space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
+                        activeTab === tab.id
+                          ? "bg-luxury-50 text-luxury-600 border border-luxury-200"
+                          : "text-gray-600 hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Icon className="w-5 h-5" />
+                        <span className="font-medium">{tab.label}</span>
+                      </div>
+                      {tab.hasError && (
+                        <AlertCircle className="w-4 h-4 text-red-500" />
+                      )}
+                    </button>
+                  );
+                })}
+              </nav>
+
+              {/* Progress Indicator */}
+              <div className="mt-6 pt-4 border-t border-gray-200">
+                <div className="text-sm text-gray-600 mb-2">
+                  Completion Progress
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-luxury-500 h-2 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${Math.round(
+                        (tabs.filter((tab) => !tab.hasError).length /
+                          tabs.length) *
+                          100
+                      )}%`,
+                    }}
+                  />
+                </div>
+                <div className="text-xs text-gray-500 mt-1">
+                  {tabs.filter((tab) => !tab.hasError).length} of {tabs.length}{" "}
+                  sections complete
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Main Content */}
-        <div className="col-span-9 w-full">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="bg-white rounded-xl shadow-sm border border-cream-200 p-6  w-full"
-          >
-            {/* Basic Information Tab */}
-            {activeTab === "basic" && (
-              <BasicInfoTab
-                formData={formData}
-                handleInputChange={handleInputChange}
-                errors={errors}
-                categories={categories}
-                selectedCategory={selectedCategory}
-                removeTag={removeTag}
-                newTag={newTag}
-                setNewTag={setNewTag}
-                addTag={addTag}
-              />
-            )}
-
-            {/* Pricing Tab */}
-            {activeTab === "pricing" && (
-              <PricingTab
-                formData={formData}
-                handleInputChange={handleInputChange}
-                errors={errors}
-              />
-            )}
-
-            {/* Inventory Tab */}
-            {activeTab === "inventory" && (
-              <InventoryTab
-                formData={formData}
-                handleInputChange={handleInputChange}
-                errors={errors}
-                handleDimensionChange={handleDimensionChange}
-              />
-            )}
-
-            {/* Images Tab */}
-            {activeTab === "images" && (
-              //
-              <div className="w-full">
-                <ImagesTab
+          {/* Main Content */}
+          <div className="col-span-9 w-full">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white rounded-xl shadow-sm border border-cream-200 p-6  w-full"
+            >
+              {/* Basic Information Tab */}
+              {activeTab === "basic" && (
+                <BasicInfoTab
                   formData={formData}
                   handleInputChange={handleInputChange}
                   errors={errors}
-                  handleImagesUploaded={handleImagesUploaded}
+                  categories={categories}
+                  selectedCategory={selectedCategory}
+                  removeTag={removeTag}
+                  newTag={newTag}
+                  setNewTag={setNewTag}
+                  addTag={addTag}
                 />
-              </div>
-            )}
+              )}
 
-            {/* SEO Tab */}
-            {activeTab === "seo" && (
-              <SEOTab
-                formData={formData}
-                handleInputChange={handleInputChange}
-                errors={errors}
-                removeKeyword={removeKeyword}
-                newKeyword={newKeyword}
-                addKeyword={addKeyword}
-                setNewKeyword={setNewKeyword}
-              />
-            )}
+              {/* Pricing Tab */}
+              {activeTab === "pricing" && (
+                <PricingTab
+                  formData={formData}
+                  handleInputChange={handleInputChange}
+                  errors={errors}
+                />
+              )}
 
-            {/* Delivery Tab */}
-            {activeTab === "delivery" && (
-              <DeliveryTab
-                formData={formData}
-                handleInputChange={handleInputChange}
-                errors={errors}
-                deliveryTimes={deliveryTimes}
-                deliveryZones={deliveryZones}
-                toggleDeliveryZone={toggleDeliveryZone}
-              />
-            )}
+              {/* Inventory Tab */}
+              {activeTab === "inventory" && (
+                <InventoryTab
+                  formData={formData}
+                  handleInputChange={handleInputChange}
+                  errors={errors}
+                  handleDimensionChange={handleDimensionChange}
+                />
+              )}
 
-            {/* Features Tab */}
-            {activeTab === "features" && (
-              <FeaturesTab
-                formData={formData}
-                handleInputChange={handleInputChange}
-                occasionsList={occasionsList}
-                toggleOccasion={toggleOccasion}
-              />
-            )}
-          </motion.div>
+              {/* Images Tab */}
+              {activeTab === "images" && (
+                //
+                <div className="w-full">
+                  <ImagesTab
+                    formData={formData}
+                    handleInputChange={handleInputChange}
+                    errors={errors}
+                    handleImagesUploaded={handleImagesUploaded}
+                  />
+                </div>
+              )}
+
+              {/* SEO Tab */}
+              {activeTab === "seo" && (
+                <SEOTab
+                  formData={formData}
+                  handleInputChange={handleInputChange}
+                  errors={errors}
+                  removeKeyword={removeKeyword}
+                  newKeyword={newKeyword}
+                  addKeyword={addKeyword}
+                  setNewKeyword={setNewKeyword}
+                />
+              )}
+
+              {/* Delivery Tab */}
+              {activeTab === "delivery" && (
+                <DeliveryTab
+                  formData={formData}
+                  handleInputChange={handleInputChange}
+                  errors={errors}
+                  deliveryTimes={deliveryTimes}
+                  deliveryZones={deliveryZones}
+                  toggleDeliveryZone={toggleDeliveryZone}
+                />
+              )}
+
+              {/* Features Tab */}
+              {activeTab === "features" && (
+                <FeaturesTab
+                  formData={formData}
+                  handleInputChange={handleInputChange}
+                  occasionsList={occasionsList}
+                  toggleOccasion={toggleOccasion}
+                />
+              )}
+            </motion.div>
+          </div>
         </div>
       </div>
-    </div>
+    </Suspense>
   );
 }

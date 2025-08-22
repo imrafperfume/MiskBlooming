@@ -132,8 +132,8 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="flex relative max-w-screen-2xl mx-auto   overflow-x-hidden  bg-gray-50">
-      <div className="  flex overflow-x-hidden">
+    <div className="flex relative max-w-screen-2xl justify-center overflow-x-hidden  bg-gray-50">
+      <div className="  flex justify-between max-w-full overflow-x-hidden">
         {/* Mobile sidebar backdrop */}
         <AnimatePresence>
           {sidebarOpen && (
@@ -276,7 +276,7 @@ export default function AdminLayout({
         </motion.div>
 
         {/* Main content */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto w-full">
           {/* Top bar */}
           <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-gray-200">
             <div className="flex items-center justify-between h-16 px-6">

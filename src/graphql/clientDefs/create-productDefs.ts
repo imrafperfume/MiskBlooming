@@ -74,3 +74,99 @@ export const CREATE_PRODUCT = gql`
     }
   }
 `;
+
+
+export const GET_PRODUCT_BY_SLUG = gql`
+  query GetProductById($slug: String!) {
+    productById(slug: $slug) {
+      id
+      name
+      slug
+      description
+      shortDescription
+      category
+      subcategory
+      tags
+      price
+      compareAtPrice
+      costPerItem
+      sku
+      barcode
+      trackQuantity
+      quantity
+      lowStockThreshold
+      requiresShipping
+      weight
+      dimensions {
+        length
+        width
+        height
+      }
+      images {
+        url
+        publicId
+      }
+      featuredImage
+      seoTitle
+      seoDescription
+      seoKeywords
+      status
+      featured
+      deliveryZones
+      deliveryTime
+      freeDeliveryThreshold
+      giftWrapping
+      personalization
+      careInstructions
+      occasions
+    }
+  }
+`;
+
+export const UPDATE_PRODUCT = gql`
+  mutation UpdateProduct($slug: String!, $data: ProductInput!) {
+    updateProduct(slug: $slug, data: $data) {
+      id
+      name
+      slug
+      description
+      shortDescription
+      category
+      subcategory
+      tags
+      price
+      compareAtPrice
+      costPerItem
+      sku
+      barcode
+      trackQuantity
+      quantity
+      lowStockThreshold
+      requiresShipping
+      weight
+      dimensions {
+        weight
+        length
+        width
+        height
+      }
+      images {
+        url
+        publicId
+      }
+      featuredImage
+      seoTitle
+      seoDescription
+      seoKeywords
+      status
+      featured
+      deliveryZones
+      deliveryTime
+      freeDeliveryThreshold
+      giftWrapping
+      personalization
+      careInstructions
+      occasions
+    }
+  }
+`;

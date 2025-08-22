@@ -31,8 +31,8 @@ interface CreateProductArgs {
     personalization: boolean;
     careInstructions?: string;
     occasions: string[];
-    images: { url: string; publicId: string; optimizedUrls: string[] }[];
-    dimensions?: { length: number; width: number; height: number };
+    images: { url: string; publicId: string; }[];
+    dimensions?: { weight: number, length: number; width: number; height: number };
 }
 
 export const ProductResolvers = {
@@ -57,12 +57,19 @@ export const ProductResolvers = {
                 throw new Error("Failed to fetch products");
             }
         },
-        product: async (_: any, args: { slug: string }) => {
+        productById: async (_: any, args: { slug: string }) => {
             const cache: string | null = await redis.get(`product:${args.slug}`)
             if (cache) {
-                return JSON.parse(cache)
+                if (typeof cache === 'string') {
+                    return JSON.parse(cache);
+                }
+                return cache;
             }
-            const product = await prisma.product.findUnique({ where: { slug: args.slug } });
+            const product = await prisma.product.findUnique({
+                where: { slug: args.slug }, include: {
+                    images: true, dimensions: true
+                }
+            });
             if (!product) throw new Error("Product not found");
             await redis.set(`product:${args.slug}`, JSON.stringify(product), { ex: 60 * 5 })
             return product;
@@ -90,10 +97,9 @@ export const ProductResolvers = {
                     data: {
                         ...args,
                         images: {
-                            create: args.images.map((img: any) => ({
-                                url: img.url,
-                                publicId: img.publicId,
-                                optimizedUrls: img.optimizedUrls ?? {},
+                            create: args?.images.map((img: any) => ({
+                                url: img?.url,
+                                publicId: img?.publicId,
                             })),
                         },
                         dimensions: args.dimensions
@@ -114,5 +120,63 @@ export const ProductResolvers = {
                 throw new Error("Failed to create product");
             }
         },
+        updateProduct: async (_: any, { slug, data }: { slug: string, data: CreateProductArgs }, context: { userId: string }) => {
+            try {
+                const { userId } = context;
+                if (!userId) throw new Error("Unauthorized");
+
+                const user = await prisma.user.findUnique({
+                    where: { id: userId },
+                    select: { role: true },
+                });
+                if (!user) throw new Error("User not found");
+                if (user.role !== "ADMIN") throw new Error("Not authorized");
+
+                const updated = await prisma.product.update({
+                    where: { slug },
+                    data: {
+                        ...data,
+                        // Update dimensions nested relation
+                        dimensions: data.dimensions
+                            ? {
+                                upsert: {
+                                    create: {
+                                        weight: data.dimensions.weight,
+                                        length: data.dimensions.length,
+                                        width: data.dimensions.width,
+                                        height: data.dimensions.height,
+                                    },
+                                    update: {
+                                        weight: data.dimensions.weight,
+                                        length: data.dimensions.length,
+                                        width: data.dimensions.width,
+                                        height: data.dimensions.height,
+                                    },
+                                },
+                            }
+                            : undefined,
+                        // Update images nested relation
+                        images: data.images
+                            ? {
+                                deleteMany: {}, // Optional: remove old images first
+                                create: data.images.map((img) => ({
+                                    url: img.url,
+                                    publicId: img.publicId,
+                                })),
+                            }
+                            : undefined,
+                    },
+                });
+
+                await redis.del(`product:${slug}`);
+                await redis.del("allProducts");
+
+                return updated;
+            } catch (error) {
+                console.error(error);
+                throw new Error("Failed to update product");
+            }
+        }
+
     },
 };

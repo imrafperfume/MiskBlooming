@@ -1,7 +1,6 @@
 import { gql } from "@apollo/client";
 
 export const ProductTypeDefs = gql`
-
   enum ProductStatus {
     draft
     active
@@ -9,42 +8,28 @@ export const ProductTypeDefs = gql`
   }
 
   input ProductDimensionInput {
+        weight:Float!
     length: Float!
     width: Float!
     height: Float!
-  }
-  type OptimizedUrls {
-  thumbnail: String!
-  small: String!
-  medium: String!
-  large: String!
-  original: String!
-}
-
-input OptimizedUrlsInput {
-  thumbnail: String!
-  small: String!
-  medium: String!
-  large: String!
-  original: String!
-}
-
-  input CloudinaryImageInput {
-    publicId: String!
-    url: String!
-    optimizedUrls:OptimizedUrlsInput!
   }
 
   type ProductDimension {
+     weight:Float!
     length: Float!
     width: Float!
     height: Float!
   }
+
 
   type CloudinaryImage {
     publicId: String!
     url: String!
-    optimizedUrls:OptimizedUrls!
+  }
+
+  input CloudinaryImageInput {
+    publicId: String!
+    url: String!
   }
 
   type Product {
@@ -103,14 +88,66 @@ input OptimizedUrlsInput {
     occasions: [String!]!
   }
 
+  input ProductInput {
+    # Basic Information
+    name: String
+    slug: String
+    description: String
+    shortDescription: String
+    category: String
+    subcategory: String
+    tags: [String!]
+
+    # Pricing
+    price: Float
+    compareAtPrice: Float
+    costPerItem: Float
+
+    # Inventory
+    sku: String
+    barcode: String
+    trackQuantity: Boolean
+    quantity: Int
+    lowStockThreshold: Int
+
+    # Shipping
+    requiresShipping: Boolean
+    weight: Float
+    dimensions: ProductDimensionInput
+
+    # Images
+    images: [CloudinaryImageInput!]
+    featuredImage: Int
+
+    # SEO
+    seoTitle: String
+    seoDescription: String
+    seoKeywords: [String!]
+
+    # Status
+    status: ProductStatus
+    featured: Boolean
+
+    # Delivery
+    deliveryZones: [String!]
+    deliveryTime: String
+    freeDeliveryThreshold: Float
+
+    # Product Features
+    giftWrapping: Boolean
+    personalization: Boolean
+    careInstructions: String
+    occasions: [String!]
+  }
+
   type Query {
     products: [Product!]!
-    product(slug: String!): Product
+    productById(slug: String!): Product
   }
 
   type Mutation {
     createProduct(
-      id:String!
+      id: String!
       name: String!
       slug: String!
       description: String!
@@ -143,5 +180,7 @@ input OptimizedUrlsInput {
       careInstructions: String
       occasions: [String!]!
     ): Product!
+
+    updateProduct(slug: String!, data: ProductInput!): Product!
   }
 `;

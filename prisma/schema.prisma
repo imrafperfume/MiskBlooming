@@ -130,6 +130,7 @@ model Product {
 
 model ProductDimension {
   id        String   @id @default(uuid())
+  weight    Float    @default(0)
   length    Float
   width     Float
   height    Float
@@ -138,12 +139,11 @@ model ProductDimension {
 }
 
 model CloudinaryImage {
-  id            String   @id @default(uuid())
-  optimizedUrls Json
-  url           String
-  publicId      String
-  product       Product? @relation(fields: [productId], references: [id])
-  productId     String?
+  id        String   @id @default(uuid())
+  url       String
+  publicId  String
+  product   Product? @relation(fields: [productId], references: [id])
+  productId String?
 }
 
 enum ProductStatus {

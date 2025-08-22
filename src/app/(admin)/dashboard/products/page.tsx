@@ -125,9 +125,6 @@ export default function ProductsPage() {
   const { data, loading, error } = useQuery(GET_PRODUCTS, {
     fetchPolicy: "cache-and-network",
   });
-  const products = data?.products;
-  console.log("products", products);
-
   const categories = [
     { value: "all", label: "All Categories" },
     { value: "roses", label: "Premium Roses" },
@@ -136,28 +133,37 @@ export default function ProductsPage() {
     { value: "cakes", label: "Fresh Cakes" },
     { value: "plants", label: "Indoor Plants" },
   ];
+  const products = data?.products;
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const filteredProducts = useMemo(() => {
-    if (!loading) {
-      return products?.filter((product: any) => {
-        const matchesSearch =
-          product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          product.sku.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory =
-          selectedCategory === "all" || product.category === selectedCategory;
-        const matchesStatus =
-          selectedStatus === "all" || product.status === selectedStatus;
-        return matchesSearch && matchesCategory && matchesStatus;
-      });
-    }
-  }, [searchTerm, selectedCategory, selectedStatus, loading]);
+    return products?.filter((product: any) => {
+      const matchesSearch =
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.sku.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "all" || product.category === selectedCategory;
+      const matchesStatus =
+        selectedStatus === "all" || product.status === selectedStatus;
+      return matchesSearch && matchesCategory && matchesStatus;
+    });
+  }, [products, searchTerm, selectedCategory, selectedStatus]);
 
-  // products  ui
+  const totalPages = Math.ceil(filteredProducts?.length / itemsPerPage);
+
+  // const paginatedProducts = useMemo(() => {
+  //   const start = (currentPage - 1) * itemsPerPage;
+  //   return filteredProducts?.slice(start, start + itemsPerPage);
+  // }, [filteredProducts, currentPage]);
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
+
   const activeCount = products.filter((p: any) => p.status === "active").length;
-  const OutOfStock = products.filter((p: any) => p.quantity === 0).length;
+  const outOfStock = products.filter((p: any) => p.quantity === 0).length;
   const Featured = products.filter((p: any) => p.featured).length;
+
   return (
     <div className="space-y-8 min-w-full w-[100%]">
       {/* Header */}
@@ -233,7 +239,7 @@ export default function ProductsPage() {
             <div>
               <p className="text-sm text-gray-600">Out of Stock</p>
               <p className="text-2xl font-bold text-red-600">
-                {OutOfStock || 0}
+                {outOfStock || 0}
               </p>
             </div>
             <AlertCircle className="w-8 h-8 text-red-500" />
@@ -365,7 +371,7 @@ export default function ProductsPage() {
                         <Image
                           className="h-12 w-12 rounded-lg object-cover"
                           src={
-                            product.images[0].optimizedUrls.small ||
+                            product?.images[0]?.optimizedUrls?.small ||
                             "/placeholder.svg"
                           }
                           alt={product.name}
@@ -448,7 +454,11 @@ export default function ProductsPage() {
                         </Button>
                       </Link>
                       <Button variant="ghost" size="sm">
-                        <Edit className="w-4 h-4" />
+                        <Link
+                          href={`/dashboard/products/add?slug=${product.slug}`}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Link>
                       </Button>
                       <Button variant="ghost" size="sm">
                         <MoreHorizontal className="w-4 h-4" />
@@ -478,20 +488,40 @@ export default function ProductsPage() {
       {filteredProducts.length > 0 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-600">
-            Showing {filteredProducts.length} of {mockProducts.length} products
+            Showing {(currentPage - 1) * itemsPerPage + 1}–
+            {Math.min(currentPage * itemsPerPage, filteredProducts.length)} of{" "}
+            {filteredProducts?.length} products
           </p>
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm" disabled>
-              Previous
-            </Button>
             <Button
               variant="outline"
               size="sm"
-              className="bg-luxury-500 text-white"
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
             >
-              1
+              Previous
             </Button>
-            <Button variant="outline" size="sm" disabled>
+            {Array.from({ length: totalPages }, (_, i) => (
+              <Button
+                key={i + 1}
+                variant="outline"
+                size="sm"
+                className={
+                  currentPage === i + 1
+                    ? "bg-luxury-500 text-white"
+                    : "text-gray-600"
+                }
+                onClick={() => setCurrentPage(i + 1)}
+              >
+                {i + 1}
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
               Next
             </Button>
           </div>
