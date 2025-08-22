@@ -1,17 +1,9 @@
 import { ProductFormData } from "@/src/app/(admin)/dashboard/products/add/page";
 import { getResponsiveImageUrls } from "@/src/lib/cloudinary";
 
-
 type CloudinaryFile = {
     url: string;
     publicId: string;
-    optimizedUrls: {
-        thumbnail: string;
-        small: string;
-        medium: string;
-        large: string;
-        original: string;
-    };
 };
 export interface TabProps {
     formData: ProductFormData;
@@ -19,12 +11,15 @@ export interface TabProps {
     errors?: Record<string, string>;
     categories?: { value: string; label: string; subcategories?: string[] }[];
     selectedCategory?: { value: string; label: string; subcategories: string[] };
-    removeTag?: (tag: string) => void
+    removeTag?: (tag: string) => void;
     newTag?: string;
     setNewTag?: (tag: string) => void;
-    addTag?: () => void
-    handleDimensionChange?: (dimension: "length" | "width" | "height", value: number) => void;
-    handleImagesUploaded?: (newImages: CloudinaryFile[]) => void
+    addTag?: () => void;
+    handleDimensionChange?: (
+        dimension: "weight" | "length" | "width" | "height",
+        value: number
+    ) => void;
+    handleImagesUploaded?: (newImages: CloudinaryFile[]) => void | undefined
     removeKeyword?: (keyword: string) => void;
     newKeyword?: string;
     addKeyword?: () => void;
@@ -34,5 +29,4 @@ export interface TabProps {
     toggleDeliveryZone?: (zone: string) => void;
     occasionsList?: string[];
     toggleOccasion?: (occasion: string) => void;
-
 }

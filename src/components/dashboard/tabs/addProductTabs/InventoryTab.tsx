@@ -168,16 +168,16 @@ function InventoryTab({
               <Input
                 id="weight"
                 type="number"
-                step="0.01"
                 min="0"
-                value={formData.weight || ""}
+                value={formData?.dimensions?.weight || ""}
                 onChange={(e) =>
-                  handleInputChange(
+                  handleDimensionChange &&
+                  handleDimensionChange(
                     "weight",
-                    Number.parseFloat(e.target.value) || 0
+                    Number.parseInt(e.target.value) || 0
                   )
                 }
-                placeholder="0.00"
+                placeholder="0"
               />
             </div>
 
@@ -192,7 +192,7 @@ function InventoryTab({
                 id="length"
                 type="number"
                 min="0"
-                value={formData.dimensions.length || ""}
+                value={formData?.dimensions?.length || ""}
                 onChange={(e) =>
                   handleDimensionChange &&
                   handleDimensionChange(
@@ -215,7 +215,7 @@ function InventoryTab({
                 id="width"
                 type="number"
                 min="0"
-                value={formData.dimensions.width || ""}
+                value={formData?.dimensions?.width || ""}
                 onChange={(e) =>
                   handleDimensionChange &&
                   handleDimensionChange(
@@ -238,7 +238,7 @@ function InventoryTab({
                 id="height"
                 type="number"
                 min="0"
-                value={formData.dimensions.height || ""}
+                value={formData?.dimensions?.height || ""}
                 onChange={(e) =>
                   handleDimensionChange &&
                   handleDimensionChange(

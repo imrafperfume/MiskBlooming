@@ -8,19 +8,18 @@ export const ProductTypeDefs = gql`
   }
 
   input ProductDimensionInput {
-        weight:Float!
+    weight: Float!
     length: Float!
     width: Float!
     height: Float!
   }
 
   type ProductDimension {
-     weight:Float!
+    weight: Float!
     length: Float!
     width: Float!
     height: Float!
   }
-
 
   type CloudinaryImage {
     publicId: String!
@@ -182,5 +181,6 @@ export const ProductTypeDefs = gql`
     ): Product!
 
     updateProduct(slug: String!, data: ProductInput!): Product!
+    deleteProduct(slug: String!): Product
   }
 `;

@@ -92,12 +92,11 @@ export const ProductResolvers = {
                 // Check duplicate slug
                 const existing = await prisma.product.findUnique({ where: { slug: args?.slug } });
                 if (existing) throw new Error("Product with this slug already exists");
-
                 const product = await prisma.product.create({
                     data: {
                         ...args,
                         images: {
-                            create: args?.images.map((img: any) => ({
+                            create: args?.images?.map((img: any) => ({
                                 url: img?.url,
                                 publicId: img?.publicId,
                             })),
@@ -131,6 +130,7 @@ export const ProductResolvers = {
                 });
                 if (!user) throw new Error("User not found");
                 if (user.role !== "ADMIN") throw new Error("Not authorized");
+                console.log(data)
 
                 const updated = await prisma.product.update({
                     where: { slug },
@@ -166,17 +166,45 @@ export const ProductResolvers = {
                             }
                             : undefined,
                     },
+                    include: {
+                        images: true,
+                    },
                 });
 
                 await redis.del(`product:${slug}`);
                 await redis.del("allProducts");
 
-                return updated;
+                return {
+                    ...updated,
+                    images: updated.images || [],
+                };
             } catch (error) {
                 console.error(error);
                 throw new Error("Failed to update product");
             }
+        },
+        deleteProduct: async (_: any, { slug }: { slug: string }, context: { userId: string }) => {
+            try {
+                if (!context.userId) throw new Error("Unauthorized");
+
+                const user = await prisma.user.findUnique({
+                    where: { id: context.userId },
+                    select: { role: true },
+                });
+                if (!user || user.role !== "ADMIN") throw new Error("Not authorized");
+
+                const deleted = await prisma.product.delete({
+                    where: { slug },
+                });
+                await redis.del('allProducts')
+                await redis.del(`product:${slug}`);
+
+                return deleted;
+            } catch (error) {
+                throw new Error("Failed to delete product");
+            }
         }
+
 
     },
 };

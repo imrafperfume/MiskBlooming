@@ -75,7 +75,6 @@ export const CREATE_PRODUCT = gql`
   }
 `;
 
-
 export const GET_PRODUCT_BY_SLUG = gql`
   query GetProductById($slug: String!) {
     productById(slug: $slug) {
@@ -96,8 +95,8 @@ export const GET_PRODUCT_BY_SLUG = gql`
       quantity
       lowStockThreshold
       requiresShipping
-      weight
       dimensions {
+        weight
         length
         width
         height
@@ -143,7 +142,6 @@ export const UPDATE_PRODUCT = gql`
       quantity
       lowStockThreshold
       requiresShipping
-      weight
       dimensions {
         weight
         length

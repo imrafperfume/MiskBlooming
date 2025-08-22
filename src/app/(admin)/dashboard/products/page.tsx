@@ -20,7 +20,7 @@ import { motion } from "framer-motion";
 import { Button } from "../../../../components/ui/Button";
 import { Input } from "../../../../components/ui/Input";
 // import { getAllProducts } from "@/src/hooks/getAllProducts";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { getStatusColor } from "@/utils/utils";
 import Image from "next/image";
 import Link from "next/link";
@@ -33,9 +33,6 @@ const GET_PRODUCTS = gql`
       slug
       images {
         url
-        optimizedUrls {
-          small
-        }
       }
       status
       quantity
@@ -45,83 +42,98 @@ const GET_PRODUCTS = gql`
     }
   }
 `;
+const DELETE_PRODUCT = gql`
+  mutation DeleteProduct($id: ID!) {
+    deleteProduct(id: $id) {
+      id
+      name
+      slug
+    }
+  }
+`;
 // Mock products data
-const mockProducts = [
-  {
-    id: "1",
-    name: "Premium Red Rose Bouquet",
-    category: "roses",
-    price: 350,
-    originalPrice: 400,
-    stock: 25,
-    status: "active",
-    rating: 4.8,
-    reviews: 124,
-    image: "/placeholder.svg?height=60&width=60&text=Rose",
-    featured: true,
-    sku: "MB-ROSE-001",
-  },
-  {
-    id: "2",
-    name: "Luxury Belgian Chocolate Collection",
-    category: "chocolates",
-    price: 180,
-    stock: 45,
-    status: "active",
-    rating: 4.9,
-    reviews: 89,
-    image: "/placeholder.svg?height=60&width=60&text=Choc",
-    featured: false,
-    sku: "MB-CHOC-002",
-  },
-  {
-    id: "3",
-    name: "Decadent Chocolate Birthday Cake",
-    category: "cakes",
-    price: 280,
-    stock: 12,
-    status: "active",
-    rating: 4.7,
-    reviews: 67,
-    image: "/placeholder.svg?height=60&width=60&text=Cake",
-    featured: true,
-    sku: "MB-CAKE-003",
-  },
-  {
-    id: "4",
-    name: "Seasonal Mixed Flower Arrangement",
-    category: "mixed-arrangements",
-    price: 220,
-    stock: 18,
-    status: "active",
-    rating: 4.6,
-    reviews: 45,
-    image: "/placeholder.svg?height=60&width=60&text=Mix",
-    featured: false,
-    sku: "MB-MIX-004",
-  },
-  {
-    id: "5",
-    name: "Indoor Plant Trio Collection",
-    category: "plants",
-    price: 320,
-    stock: 0,
-    status: "out-of-stock",
-    rating: 4.5,
-    reviews: 34,
-    image: "/placeholder.svg?height=60&width=60&text=Plant",
-    featured: false,
-    sku: "MB-PLANT-005",
-  },
-];
+// const mockProducts = [
+//   {
+//     id: "1",
+//     name: "Premium Red Rose Bouquet",
+//     category: "roses",
+//     price: 350,
+//     originalPrice: 400,
+//     stock: 25,
+//     status: "active",
+//     rating: 4.8,
+//     reviews: 124,
+//     image: "/placeholder.svg?height=60&width=60&text=Rose",
+//     featured: true,
+//     sku: "MB-ROSE-001",
+//   },
+//   {
+//     id: "2",
+//     name: "Luxury Belgian Chocolate Collection",
+//     category: "chocolates",
+//     price: 180,
+//     stock: 45,
+//     status: "active",
+//     rating: 4.9,
+//     reviews: 89,
+//     image: "/placeholder.svg?height=60&width=60&text=Choc",
+//     featured: false,
+//     sku: "MB-CHOC-002",
+//   },
+//   {
+//     id: "3",
+//     name: "Decadent Chocolate Birthday Cake",
+//     category: "cakes",
+//     price: 280,
+//     stock: 12,
+//     status: "active",
+//     rating: 4.7,
+//     reviews: 67,
+//     image: "/placeholder.svg?height=60&width=60&text=Cake",
+//     featured: true,
+//     sku: "MB-CAKE-003",
+//   },
+//   {
+//     id: "4",
+//     name: "Seasonal Mixed Flower Arrangement",
+//     category: "mixed-arrangements",
+//     price: 220,
+//     stock: 18,
+//     status: "active",
+//     rating: 4.6,
+//     reviews: 45,
+//     image: "/placeholder.svg?height=60&width=60&text=Mix",
+//     featured: false,
+//     sku: "MB-MIX-004",
+//   },
+//   {
+//     id: "5",
+//     name: "Indoor Plant Trio Collection",
+//     category: "plants",
+//     price: 320,
+//     stock: 0,
+//     status: "out-of-stock",
+//     rating: 4.5,
+//     reviews: 34,
+//     image: "/placeholder.svg?height=60&width=60&text=Plant",
+//     featured: false,
+//     sku: "MB-PLANT-005",
+//   },
+// ];
 
 export default function ProductsPage() {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  const [deleteProduct, { loading: deleteLoading, error: deleteError }] =
+    useMutation(DELETE_PRODUCT, {
+      refetchQueries: [GET_PRODUCTS],
+    });
+
   const { data, loading, error } = useQuery(GET_PRODUCTS, {
     fetchPolicy: "cache-and-network",
   });
@@ -151,19 +163,31 @@ export default function ProductsPage() {
   }, [products, searchTerm, selectedCategory, selectedStatus]);
 
   const totalPages = Math.ceil(filteredProducts?.length / itemsPerPage);
-
-  // const paginatedProducts = useMemo(() => {
-  //   const start = (currentPage - 1) * itemsPerPage;
-  //   return filteredProducts?.slice(start, start + itemsPerPage);
-  // }, [filteredProducts, currentPage]);
-
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
   const activeCount = products.filter((p: any) => p.status === "active").length;
   const outOfStock = products.filter((p: any) => p.quantity === 0).length;
   const Featured = products.filter((p: any) => p.featured).length;
+  //DELETE PRODUCT::::::::::::::::::::::::::::::::::::::::::::::
 
+  const handleDeleteProduct = async (slug: string) => {
+    try {
+      const ok = window.confirm(
+        "Are you sure you want to delete this product?"
+      );
+      if (!ok) return; // ❌ user cancel korle delete hobe na
+
+      await deleteProduct({
+        variables: { slug },
+      });
+
+      alert("Product deleted successfully!");
+    } catch (error) {
+      console.error("Failed to delete product:", error);
+      alert("Failed to delete product!");
+    }
+  };
   return (
     <div className="space-y-8 min-w-full w-[100%]">
       {/* Header */}
@@ -326,7 +350,7 @@ export default function ProductsPage() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto min-h-[450px]">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
@@ -370,10 +394,7 @@ export default function ProductsPage() {
                       <div className="flex-shrink-0 h-12 w-12">
                         <Image
                           className="h-12 w-12 rounded-lg object-cover"
-                          src={
-                            product?.images[0]?.optimizedUrls?.small ||
-                            "/placeholder.svg"
-                          }
+                          src={product?.images[0].url || "/placeholder.svg"}
                           alt={product.name}
                           width={48}
                           height={48}
@@ -421,19 +442,19 @@ export default function ProductsPage() {
                       className={`text-sm font-medium ${
                         product.stock > 10
                           ? "text-green-600"
-                          : product.stock > 0
+                          : product.quantity > 0
                           ? "text-yellow-600"
                           : "text-red-600"
                       }`}
                     >
-                      {product.stock} units
+                      {product.quantity} units
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <Star className="w-4 h-4 text-yellow-400 fill-current mr-1" />
                       <span className="text-sm text-charcoal-900">
-                        {product.rating} ({product.reviews})
+                        {/* {product.rating} ({product.reviews}) */} 0
                       </span>
                     </div>
                   </td>
@@ -460,9 +481,50 @@ export default function ProductsPage() {
                           <Edit className="w-4 h-4" />
                         </Link>
                       </Button>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
+                      <div className="relative inline-block text-left">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setOpen(!open)}
+                        >
+                          <MoreHorizontal className="w-4 h-4" />
+                        </Button>
+
+                        {open && (
+                          <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-sm z-50">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                              onClick={() =>
+                                router.push(
+                                  `/dashboard/products/add?slug=${product.slug}`
+                                )
+                              }
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
+                              onClick={() =>
+                                product && handleDeleteProduct(product?.slug)
+                              }
+                            >
+                              Delete
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                              onClick={() => alert("Duplicate clicked")}
+                            >
+                              Duplicate
+                            </Button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </td>
                 </motion.tr>

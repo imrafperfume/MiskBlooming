@@ -27,10 +27,10 @@ function ImagesTab({
 
       {/* Cloudinary File Upload Component */}
       <CloudinaryFileUpload
-        onFilesUploaded={handleImagesUploaded ? handleImagesUploaded : () => {}}
+        onFilesUploaded={handleImagesUploaded ?? (() => {})}
         maxFiles={10}
         maxFileSize={10}
-        existingFiles={formData.images.map((img) => ({
+        existingFiles={formData?.images.map((img) => ({
           url: img.url,
           publicId: img.publicId,
         }))}
@@ -58,7 +58,7 @@ function ImagesTab({
           </div>
 
           <CloudinaryImageGallery
-            images={formData.images}
+            images={formData?.images}
             featuredIndex={formData.featuredImage}
             onImagesChange={(images) => handleInputChange("images", images)}
             onFeaturedChange={(index) =>

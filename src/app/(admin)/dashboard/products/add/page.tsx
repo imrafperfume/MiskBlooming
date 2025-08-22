@@ -33,18 +33,9 @@ import ImagesTab from "@/src/components/dashboard/tabs/addProductTabs/ImagesTab"
 import SEOTab from "@/src/components/dashboard/tabs/addProductTabs/SEOTab";
 import DeliveryTab from "@/src/components/dashboard/tabs/addProductTabs/DeliveryTab";
 import FeaturesTab from "@/src/components/dashboard/tabs/addProductTabs/FeaturesTab";
-type OptimizedUrls = {
-  thumbnail: string;
-  small: string;
-  medium: string;
-  large: string;
-  original: string;
-};
-
 interface CloudinaryImage {
   url: string;
   publicId: string;
-  optimizedUrls: OptimizedUrls; //optional
 }
 
 export interface ProductFormData {
@@ -242,7 +233,7 @@ export default function AddProductPage() {
     variables: { slug: slug },
     skip: !slug,
   });
-  const [updateProduct, { loading: updateLoadin, error: updateError }] =
+  const [updateProduct, { loading: updateLoading, error: updateError }] =
     useMutation(UPDATE_PRODUCT);
 
   // product by id , get for edit product::::::::
@@ -251,7 +242,7 @@ export default function AddProductPage() {
       setFormData(editData.productById);
     }
   }, [editData, queryLoading]);
-
+  console.log(editData);
   // Auto-generate slug from name
   const generateSlug = (name: string) => {
     return name
@@ -305,7 +296,7 @@ export default function AddProductPage() {
   };
 
   const handleDimensionChange = (
-    dimension: "length" | "width" | "height",
+    dimension: "weight" | "length" | "width" | "height",
     value: number
   ) => {
     setFormData((prev) => ({
@@ -376,13 +367,11 @@ export default function AddProductPage() {
     newImages: Array<{
       url: string;
       publicId: string;
-      optimizedUrls: ReturnType<typeof getResponsiveImageUrls>;
     }>
   ) => {
     const cloudinaryImages: CloudinaryImage[] = newImages.map((img) => ({
       url: img.url,
       publicId: img.publicId,
-      optimizedUrls: img.optimizedUrls,
     }));
 
     setFormData((prev) => ({
@@ -409,6 +398,7 @@ export default function AddProductPage() {
 
     // Basic Information
     if (!formData.name.trim()) newErrors.name = "Product name is required";
+    if (!formData.slug.trim()) newErrors.slug = "Product slug is required";
     if (!formData.description.trim())
       newErrors.description = "Description is required";
     if (!formData.shortDescription.trim())
@@ -448,7 +438,7 @@ export default function AddProductPage() {
   };
 
   const handleSave = async (status: "draft" | "active" = "draft") => {
-    if (status === "active" && !validateForm()) {
+    if (!validateForm()) {
       setSaveStatus("error");
       return;
     }
@@ -618,19 +608,12 @@ export default function AddProductPage() {
             }
           : undefined,
 
-        images: formData.images.map((img) => ({
-          url: img.url,
+        images: formData?.images?.map((img) => ({
+          url: img?.url,
           publicId: img.publicId,
-          optimizedUrls: img.optimizedUrls || {
-            thumbnail: img.url,
-            small: img.url,
-            medium: img.url,
-            large: img.url,
-            original: img.url,
-          },
         })),
       };
-
+      console.log("update:", productData);
       const res = await updateProduct({
         variables: {
           slug,
@@ -638,11 +621,8 @@ export default function AddProductPage() {
         },
       });
 
-      console.log("Updated product:", res.data.updateProduct);
       setSaveStatus("saved");
-      if (status === "active") {
-        router.push("/dashboard/products");
-      }
+      router.push("/dashboard/products");
     } catch (error) {
       setSaveStatus("error");
       setSaveStatus("idle");
@@ -717,7 +697,7 @@ export default function AddProductPage() {
                 disabled={saveStatus === "saving" || queryLoading}
                 variant="luxury"
               >
-                Update Product
+                {updateLoading ? "Updating Product" : "Update Product"}
               </Button>
             ) : (
               <Button

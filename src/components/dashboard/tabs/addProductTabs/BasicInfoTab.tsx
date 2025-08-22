@@ -53,7 +53,7 @@ function BasicInfoTab({
             htmlFor="slug"
             className="block text-sm font-medium text-gray-700 mb-2"
           >
-            URL Slug
+            URL Slug *
           </label>
           <Input
             id="slug"
