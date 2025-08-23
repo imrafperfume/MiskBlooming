@@ -1,48 +1,48 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Heart, ShoppingBag, Trash2, ArrowLeft, Star } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "../../../components/ui/Button"
-import { useWishlistStore } from "../../../store/wishlistStore"
-import { useCartStore } from "../../../store/cartStore"
-import { formatPrice } from "../../../lib/utils"
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Heart, ShoppingBag, Trash2, ArrowLeft, Star } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "../../../components/ui/Button";
+import { useWishlistStore } from "../../../store/wishlistStore";
+import { useCartStore } from "../../../store/cartStore";
+import { formatPrice } from "../../../lib/utils";
 
 export default function WishlistPage() {
-  const { items, removeItem, clearWishlist } = useWishlistStore()
-  const addToCart = useCartStore((state) => state.addItem)
-  const [removingItems, setRemovingItems] = useState<Set<string>>(new Set())
+  const { items, removeItem, clearWishlist } = useWishlistStore();
+  const addToCart = useCartStore((state) => state.addItem);
+  const [removingItems, setRemovingItems] = useState<Set<string>>(new Set());
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
 
-  if (!mounted) return null; 
+  if (!mounted) return null;
   const handleRemoveItem = async (productId: string) => {
-    setRemovingItems((prev) => new Set(prev).add(productId))
+    setRemovingItems((prev) => new Set(prev).add(productId));
     // Add a small delay for animation
     setTimeout(() => {
-      removeItem(productId)
+      removeItem(productId);
       setRemovingItems((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(productId)
-        return newSet
-      })
-    }, 300)
-  }
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
+    }, 300);
+  };
 
   const handleAddToCart = (product: any) => {
-    addToCart(product)
+    addToCart(product);
     // Optional: Show success message
-  }
+  };
 
   const handleMoveAllToCart = () => {
     items.forEach((product) => {
-      addToCart(product)
-    })
-    clearWishlist()
-  }
+      addToCart(product);
+    });
+    clearWishlist();
+  };
 
   if (items.length === 0) {
     return (
@@ -55,9 +55,12 @@ export default function WishlistPage() {
               transition={{ duration: 0.6 }}
             >
               <Heart className="w-24 h-24 text-cream-300 mx-auto mb-6" />
-              <h1 className="font-cormorant text-3xl font-bold text-charcoal-900 mb-4">Your Wishlist is Empty</h1>
+              <h1 className="font-cormorant text-3xl font-bold text-charcoal-900 mb-4">
+                Your Wishlist is Empty
+              </h1>
               <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-                Save your favorite luxury arrangements and gifts to your wishlist for easy access later.
+                Save your favorite luxury arrangements and gifts to your
+                wishlist for easy access later.
               </p>
               <Link href="/products">
                 <Button variant="luxury" size="lg">
@@ -68,7 +71,7 @@ export default function WishlistPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -140,7 +143,7 @@ export default function WishlistPage() {
                 {/* Image Container */}
                 <div className="relative aspect-square overflow-hidden">
                   <Image
-                    src={product.images[0] || "/placeholder.svg"}
+                    src={product.images[0].url || "/placeholder.svg"}
                     alt={product.name}
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -150,12 +153,12 @@ export default function WishlistPage() {
                   <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                   {/* Discount Badge */}
-                  {product.originalPrice && (
+                  {product.price && (
                     <div className="absolute top-4 left-4 bg-luxury-500 text-charcoal-900 px-3 py-1 rounded-full text-sm font-bold">
                       Save{" "}
                       {Math.round(
-                        ((product.originalPrice - product.price) /
-                          product.originalPrice) *
+                        ((product.price - (product.compareAtPrice ?? 0)) /
+                          product.price) *
                           100
                       )}
                       %
@@ -181,10 +184,10 @@ export default function WishlistPage() {
                       onClick={() => handleAddToCart(product)}
                       variant="luxury"
                       className="w-full"
-                      disabled={!product.inStock}
+                      disabled={!product.quantity}
                     >
                       <ShoppingBag className="w-4 h-4 mr-2" />
-                      {product.inStock ? "Add to Cart" : "Out of Stock"}
+                      {product.quantity ? "Add to Cart" : "Out of Stock"}
                     </Button>
                   </div>
                 </div>
@@ -198,7 +201,7 @@ export default function WishlistPage() {
                         <Star
                           key={i}
                           className={`w-4 h-4 ${
-                            i < Math.floor(product.rating)
+                            i < Math.floor(5)
                               ? "text-luxury-500 fill-current"
                               : "text-cream-300"
                           }`}
@@ -206,7 +209,7 @@ export default function WishlistPage() {
                       ))}
                     </div>
                     <span className="text-sm text-muted-foreground ml-2">
-                      ({product.reviewCount})
+                      ({product.reviewCount || 0})
                     </span>
                   </div>
 
@@ -228,9 +231,9 @@ export default function WishlistPage() {
                       <span className="text-xl font-bold text-charcoal-900">
                         {formatPrice(product.price)}
                       </span>
-                      {product.originalPrice && (
+                      {product?.price && (
                         <span className="text-sm text-muted-foreground line-through">
-                          {formatPrice(product.originalPrice)}
+                          {formatPrice(product?.price)}
                         </span>
                       )}
                     </div>
@@ -238,7 +241,7 @@ export default function WishlistPage() {
 
                   {/* Tags */}
                   <div className="flex flex-wrap gap-2">
-                    {product.tags.slice(0, 2).map((tag) => (
+                    {product?.tags?.slice(0, 2).map((tag) => (
                       <span
                         key={tag}
                         className="px-2 py-1 bg-cream-100 text-charcoal-700 text-xs rounded-full font-medium"

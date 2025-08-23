@@ -6,6 +6,8 @@ import { ProductTypeDefs } from "@/src/graphql/schema/product-typedefs";
 import { IResolvers } from "@graphql-tools/utils";
 import { YogaInitialContext } from "graphql-yoga";
 import { rateLimit } from "@/src/lib/ratelimit";
+import { OrderTypeDefs } from "@/src/graphql/schema/order-typedefs";
+import { OrderResolvers } from "@/src/graphql/resolvers/orderResolvers";
 const typeDefs = mergeTypeDefs([
     `
     type Query {
@@ -16,6 +18,7 @@ const typeDefs = mergeTypeDefs([
     }
   `,
     ProductTypeDefs,
+    OrderTypeDefs,
 ]);
 
 // const resolvers = mergeResolvers([ProductResolvers]);
@@ -24,7 +27,7 @@ interface ContextType {
     userId: string | null;
 }
 
-const resolvers = mergeResolvers([ProductResolvers]) as IResolvers<any, ContextType & YogaInitialContext>;
+const resolvers = mergeResolvers([ProductResolvers, OrderResolvers]) as IResolvers<any, ContextType & YogaInitialContext>;
 
 const schema = createSchema<ContextType>({
     typeDefs,
