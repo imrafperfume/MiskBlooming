@@ -138,9 +138,11 @@ export const ProductTypeDefs = gql`
     careInstructions: String
     occasions: [String!]
   }
-
+  input ProductFilter {
+    featured: Boolean
+  }
   type Query {
-    products: [Product!]!
+    products(where: ProductFilter): [Product!]!
     productById(slug: String!): Product
   }
 

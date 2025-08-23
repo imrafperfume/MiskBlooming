@@ -176,7 +176,7 @@ export default function ProductsPage() {
       const ok = window.confirm(
         "Are you sure you want to delete this product?"
       );
-      if (!ok) return; // ❌ user cancel korle delete hobe na
+      if (!ok) return;
 
       await deleteProduct({
         variables: { slug },
@@ -189,7 +189,7 @@ export default function ProductsPage() {
     }
   };
   return (
-    <div className="space-y-8 min-w-full w-[100%]">
+    <div className="space-y-8  min-w-[100%]">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between">
         <div>

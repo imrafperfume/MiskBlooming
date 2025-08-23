@@ -23,6 +23,8 @@ model User {
   sessions               Session[]
   EmailVerificationToken EmailVerificationToken[]
   PasswordResetToken     PasswordResetToken[]
+  Order                  Order[]
+  Review                 Review[]
 }
 
 enum Role {
@@ -122,10 +124,16 @@ model Product {
   freeDeliveryThreshold Float
 
   // Product Features
-  giftWrapping     Boolean  @default(false)
-  personalization  Boolean  @default(false)
+  giftWrapping     Boolean     @default(false)
+  personalization  Boolean     @default(false)
   careInstructions String?
   occasions        String[]
+  OrderItem        OrderItem[]
+  Review           Review[]
+
+  @@index([category])
+  @@index([status])
+  @@index([price])
 }
 
 model ProductDimension {
@@ -150,4 +158,55 @@ enum ProductStatus {
   draft
   active
   archived
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products    OrderItem[]
+  status      OrderStatus @default(PENDING)
+  totalAmount Float
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([userId])
+  @@index([status])
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int    @default(1)
+  price     Float
+
+  order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  rating    Int // 1 to 5
+  comment   String?
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([productId])
 }

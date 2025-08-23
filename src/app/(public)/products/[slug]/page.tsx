@@ -31,20 +31,36 @@ import { useProduct } from "../../../../hooks/useProducts";
 import { useCartStore } from "../../../../store/cartStore";
 import { useWishlistStore } from "../../../../store/wishlistStore";
 import { formatPrice } from "../../../../lib/utils";
+import Loading from "@/src/components/layout/Loading";
 
 interface ProductDetailPageProps {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }
 
 export default function ProductDetailPage({ params }: ProductDetailPageProps) {
-  const { id } = React.use(params);
-  const { data: product, isLoading } = useProduct(id);
+  const { slug } = React.use(params);
+  console.log(slug);
+  const { data: product, isLoading } = useProduct(slug, [
+    "id",
+    "name",
+    "slug",
+    "category",
+    "shortDescription",
+    "description",
+    "price",
+    "compareAtPrice",
+    "quantity",
+    "images {url}",
+    "featured",
+    "tags",
+    "careInstructions",
+  ]);
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedReviewFilter, setSelectedReviewFilter] = useState("all");
-
+  console.log(product);
   const addItem = useCartStore((state) => state.addItem);
   const {
     addItem: addToWishlist,
@@ -119,14 +135,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   ];
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-luxury-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-charcoal-900">Loading luxury experience...</p>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   if (!product) {
@@ -152,11 +161,15 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     { id: "reviews", label: `Reviews (${reviews.length})`, icon: Star },
   ];
 
-  const discountPercentage = product.originalPrice
-    ? Math.round(
-        ((product.originalPrice - product.price) / product.originalPrice) * 100
-      )
-    : 0;
+  const discountPercentage =
+    product?.price &&
+    product?.compareAtPrice &&
+    product.compareAtPrice > product.price
+      ? Math.round(
+          ((product.compareAtPrice - product.price) / product.compareAtPrice) *
+            100
+        )
+      : 0;
 
   return (
     <div className="min-h-screen mt-10 bg-gradient-to-br from-cream-50 to-cream-100">
@@ -192,7 +205,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             {/* Main Image */}
             <div className="relative aspect-square rounded-2xl overflow-hidden bg-white shadow-luxury group">
               <Image
-                src={product.images[selectedImage] || "/placeholder.svg"}
+                src={product.images[selectedImage].url || "/placeholder.svg"}
                 alt={product.name}
                 fill
                 className="object-cover cursor-zoom-in"
@@ -231,7 +244,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                     -{discountPercentage}% OFF
                   </div>
                 )}
-                {!product.inStock && (
+                {!product.quantity && (
                   <div className="bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-bold">
                     Out of Stock
                   </div>
@@ -257,7 +270,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   }`}
                 >
                   <Image
-                    src={image || "/placeholder.svg"}
+                    src={image.url || "/placeholder.svg"}
                     alt={`${product.name} ${index + 1}`}
                     fill
                     className="object-cover"
@@ -279,7 +292,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               <span className="text-luxury-500 font-medium text-sm uppercase tracking-wide">
                 {product.category.replace("-", " ")}
               </span>
-              {product.inStock ? (
+              {product.quantity ? (
                 <div className="flex items-center text-green-600 text-sm">
                   <CheckCircle className="w-4 h-4 mr-1" />
                   In Stock
@@ -299,7 +312,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   <Star
                     key={rating}
                     className={`w-5 h-5 ${
-                      rating < Math.floor(product.rating)
+                      rating < Math.floor(product.rating || 0)
                         ? "text-luxury-500 fill-current"
                         : "text-cream-400"
                     }`}
@@ -307,7 +320,8 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 ))}
               </div>
               <span className="text-muted-foreground">
-                {product.rating} ({product.reviewCount} reviews)
+                {/* {product.rating} ({product.reviewCount} reviews) */}0
+                reviews
               </span>
             </div>
 
@@ -321,21 +335,21 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               <span className="sm:text-3xl text-2xl font-bold text-charcoal-900">
                 {formatPrice(product.price)}
               </span>
-              {product.originalPrice && (
+              {product.compareAtPrice && (
                 <span className="sm:text-xl text-muted-foreground line-through">
-                  {formatPrice(product.originalPrice)}
+                  {formatPrice(product.compareAtPrice)}
                 </span>
               )}
               {discountPercentage > 0 && (
                 <span className="sm:text-lg font-semibold text-green-600">
-                  Save {formatPrice(product.originalPrice! - product.price)}
+                  Save {formatPrice(product.compareAtPrice! - product.price)}
                 </span>
               )}
             </div>
 
             {/* Description */}
             <p className="text-muted-foreground text-lg leading-relaxed">
-              {product.description}
+              {product.shortDescription}
             </p>
 
             {/* Tags */}
@@ -361,7 +375,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       className="p-3 hover:bg-cream-100 transition-colors rounded-l-lg"
-                      disabled={!product.inStock}
+                      disabled={!product.quantity}
                     >
                       <Minus className="w-4 h-4" />
                     </button>
@@ -371,7 +385,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                     <button
                       onClick={() => setQuantity(quantity + 1)}
                       className="p-3 hover:bg-cream-100 transition-colors rounded-r-lg"
-                      disabled={!product.inStock}
+                      disabled={!product.quantity}
                     >
                       <Plus className="w-4 h-4" />
                     </button>
@@ -394,10 +408,10 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 variant="luxury"
                 size="xl"
                 className="flex-1 sm:flex-none"
-                disabled={!product.inStock}
+                disabled={!product.quantity}
               >
                 <ShoppingBag className="w-5 h-5 mr-2" />
-                {product.inStock ? "Add to Cart" : "Out of Stock"}
+                {product.quantity ? "Add to Cart" : "Out of Stock"}
               </Button>
 
               <Button
@@ -520,9 +534,12 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                     <h3 className="font-cormorant text-2xl font-bold text-charcoal-900 mb-4">
                       Product Description
                     </h3>
-                    <p className="text-muted-foreground leading-relaxed text-lg">
-                      {product.longDescription}
-                    </p>
+                    <div
+                      className="all-unset safe-html"
+                      dangerouslySetInnerHTML={{
+                        __html: product.description || "",
+                      }}
+                    />
 
                     <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
@@ -568,7 +585,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 </motion.div>
               )}
 
-              {activeTab === "specifications" && product.specifications && (
+              {/* {activeTab === "specifications" && product.specifications && (
                 <motion.div
                   key="specifications"
                   initial={{ opacity: 0, y: 20 }}
@@ -599,9 +616,9 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                     </div>
                   </div>
                 </motion.div>
-              )}
+              )} */}
 
-              {activeTab === "care" && product.care_instructions && (
+              {activeTab === "care" && product.careInstructions && (
                 <motion.div
                   key="care"
                   initial={{ opacity: 0, y: 20 }}
@@ -620,16 +637,12 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                           Daily Care
                         </h4>
                         <ul className="space-y-3">
-                          {product.care_instructions.map(
-                            (instruction, index) => (
-                              <li key={index} className="flex items-start">
-                                <span className="w-2 h-2 bg-luxury-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                                <span className="text-muted-foreground">
-                                  {instruction}
-                                </span>
-                              </li>
-                            )
-                          )}
+                          <li className="flex items-start">
+                            <span className="w-2 h-2 bg-luxury-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                            <span className="text-muted-foreground">
+                              {product.careInstructions}
+                            </span>
+                          </li>
                         </ul>
                       </div>
                       <div className="bg-luxury-50 rounded-xl p-6">
@@ -861,7 +874,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 onClick={(e) => e.stopPropagation()}
               >
                 <Image
-                  src={product.images[selectedImage] || "/placeholder.svg"}
+                  src={product.images[selectedImage].url || "/placeholder.svg"}
                   alt={product.name}
                   fill
                   className="object-contain"

@@ -123,3 +123,25 @@
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-luxury-600;
 }
+
+
+.all-unset {
+  all: unset;
+  display: block;
+}
+.safe-html {
+  all: revert;
+}
+
+.safe-html h1 {
+  font-family: Cormorant Garamond, serif;
+  all: revert;
+  font-size: revert;
+  font-weight: revert;
+}
+
+.safe-html p {
+  font-family: Cormorant Garamond, serif;
+  all: revert;
+  font-size: revert;
+}

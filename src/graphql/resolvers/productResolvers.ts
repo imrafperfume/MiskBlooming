@@ -37,26 +37,20 @@ interface CreateProductArgs {
 
 export const ProductResolvers = {
     Query: {
-        products: async () => {
-            try {
-                const cache: string | null = await redis.get('allProducts')
-                if (cache) {
-                    if (typeof cache === 'string') {
-                        return JSON.parse(cache);
-                    }
-                    return cache;
-                }
-                const products = await prisma.product.findMany({
-                    include: { images: true, dimensions: true }
-                });
-                if (!products) throw new Error("Product not found");
-                await redis.set("allProducts", JSON.stringify(products), { ex: 60 * 5 }); //5 mins
-                return products
-            } catch (error) {
-                console.error(error);
-                throw new Error("Failed to fetch products");
-            }
+        products: async (_: any, args: { where?: { featured?: boolean } }) => {
+            const cacheKey = args.where?.featured ? "featured-products" : "allProducts";
+
+            const cache = await redis.get(cacheKey);
+            if (cache) { if (typeof cache === 'string') { return JSON.parse(cache); } return cache; }
+            const products = await prisma.product.findMany({
+                where: args.where,
+                include: { images: true, dimensions: true },
+            });
+
+            await redis.set(cacheKey, JSON.stringify(products), { ex: 60 * 5 });
+            return products;
         },
+
         productById: async (_: any, args: { slug: string }) => {
             const cache: string | null = await redis.get(`product:${args.slug}`)
             if (cache) {

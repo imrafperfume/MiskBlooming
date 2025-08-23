@@ -9,13 +9,27 @@ import { useProducts } from "../../../hooks/useProducts";
 import categoriesData from "../../../data/categories.json";
 import { useSearchParams } from "next/navigation";
 export default function ProductsPage() {
-  const { data: products, isLoading } = useProducts();
+  const { data: products, isLoading } = useProducts([
+    "id",
+    "name",
+    "slug",
+    "description",
+    "shortDescription",
+    "quantity",
+    "price",
+    "category",
+    "compareAtPrice",
+    "images { url }",
+    "featured",
+    "seoTitle",
+    "seoDescription",
+  ]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [priceRange, setPriceRange] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [showFilters, setShowFilters] = useState(false);
+  // const [showFilters, setShowFilters] = useState(false);
 
   // search url categoru
   const searchParams = useSearchParams();
@@ -37,7 +51,7 @@ export default function ProductsPage() {
       if (
         searchQuery &&
         !product.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !product.description
+        !product.shortDescription
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) &&
         !product.tags.some((tag) =>
@@ -79,8 +93,8 @@ export default function ProductsPage() {
           return a.price - b.price;
         case "price-high":
           return b.price - a.price;
-        case "rating":
-          return b.rating - a.rating;
+        // case "rating":
+        //   return b.rating - a.rating;
         case "newest":
           return b.id.localeCompare(a.id);
         case "featured":
@@ -136,7 +150,7 @@ export default function ProductsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <div className="bg-white rounded-2xl p-6 shadow-lg">
+            <div className="bg-white rounded-2xl p-6 shadow">
               {/* Search Bar */}
               <div className="relative mb-6">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
@@ -285,7 +299,12 @@ export default function ProductsPage() {
               transition={{ duration: 0.6, delay: 0.2 }}
             >
               {filteredAndSortedProducts.map((product, index) => (
-                <ProductCard key={product.id} product={product} index={index} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  viewMode={viewMode}
+                  index={index}
+                />
               ))}
             </motion.div>
           )}
