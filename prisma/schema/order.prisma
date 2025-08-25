@@ -1,0 +1,73 @@
+model Order {
+    id     String      @id @default(cuid())
+    userId String
+    user   User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+    items  OrderItem[]
+
+    // Customer Info
+    firstName String
+    lastName  String
+    email     String
+    phone     String
+
+    // Shipping Address
+    address    String
+    city       String
+    emirate    String
+    postalCode String?
+
+    // Payment Info
+    paymentMethod   PaymentMethod
+    paymentStatus   PaymentStatus @default(PENDING)
+    stripePaymentId String? // Stripe intent/charge ID
+    cardLast4       String?
+
+    // Delivery Options
+    deliveryType        DeliveryType
+    deliveryDate        DateTime?
+    deliveryTime        String?
+    specialInstructions String?
+
+    // Order Meta
+    status      OrderStatus @default(PENDING)
+    totalAmount Float
+    createdAt   DateTime    @default(now())
+    updatedAt   DateTime    @updatedAt
+}
+
+model OrderItem {
+    id        String @id @default(cuid())
+    orderId   String
+    productId String
+    quantity  Int    @default(1)
+    price     Float
+
+    order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+enum PaymentMethod {
+    STRIPE
+    COD
+}
+
+enum PaymentStatus {
+    PENDING
+    PAID
+    FAILED
+    REFUNDED
+}
+
+enum DeliveryType {
+    STANDARD
+    EXPRESS
+    SCHEDULED
+}
+
+enum OrderStatus {
+    PENDING
+    PAID
+    SHIPPED
+    DELIVERED
+    CANCELLED
+}

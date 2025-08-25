@@ -47,7 +47,6 @@ export const OrderResolvers = {
     },
     Mutation: {
         createOrder: async (_: any, { input }: { input: CreateOrderInput }) => {
-            console.log(input)
             try {
                 const order = await prisma.order.create({
                     data: {
@@ -70,7 +69,19 @@ export const OrderResolvers = {
                 console.error(error);
                 throw new Error("Failed to create order");
             }
-        }
+        },
+        // updateOrderPayment: async (_: any, { id, payme }: { id: string, input: CreateOrderInput }) => {
+        //     try {
+        //         const update = await prisma.order.update({
+        //             where: { id },
+        //             data: {
+        //                 ...input,
+        //             },
+        //         })
+        //     } catch (error) {
+
+        //     }
+        // }
 
     }
 }

@@ -4,6 +4,7 @@ import { gql } from "@apollo/client";
 export const CREATE_ORDER = gql`
 mutation CreateOrder($input: CreateOrderInput!) {
   createOrder(input: $input) {
+    id
     userId
     firstName
     lastName
@@ -36,7 +37,7 @@ mutation CreateOrder($input: CreateOrderInput!) {
 
 
 export const GET_ORDER_BY_ID = gql`
-  query GetOrderById($id: String!) {
+  query GetOrderById($id: ID!) {
     orderById(id: $id) {
       id
       userId

@@ -1,6 +1,6 @@
 "use client";
 
-import { JSX, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -18,14 +18,16 @@ import {
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { boolean, z } from "zod";
 import { Button } from "../../../components/ui/Button";
 import { Input } from "../../../components/ui/Input";
 import { useCartStore } from "../../../store/cartStore";
 import { formatPrice } from "../../../lib/utils";
 import { useAuth } from "@/src/hooks/useAuth";
 import { useMutation } from "@apollo/client";
-import { CREATE_ORDER } from "@/src/graphql/clientDefs/create-orderDefs";
+import { CREATE_ORDER } from "@/src/modules/order/operations";
+import StripeSection from "@/src/components/StripeSection";
+import { useRouter } from "next/navigation";
 
 const checkoutSchema = z.object({
   // Personal Information
@@ -69,7 +71,15 @@ export default function CheckoutPage(): JSX.Element {
   const [isProcessing, setIsProcessing] = useState(false);
   const { items, getTotalPrice, clearCart } = useCartStore();
   const { data: user, isLoading } = useAuth();
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
   const userId = user?.id;
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLoading && !userId) {
+      router.push("/auth/login");
+    }
+  }, [isLoading, userId]);
   const {
     register,
     handleSubmit,
@@ -100,31 +110,94 @@ export default function CheckoutPage(): JSX.Element {
   const codFee = paymentMethod === "COD" ? 10 : 0; // Cash on delivery fee
   const total = subtotal + deliveryFee + tax + codFee;
 
+  // const onSubmit = async (data: CheckoutFormData) => {
+  //   setIsProcessing(true);
+  //   const checkoutData = {
+  //     ...data,
+  //     userId: userId,
+  //     items: items.map((item: any) => ({
+  //       productId: item.product.id,
+  //       quantity: item.quantity,
+  //       price: item.product.price,
+  //     })),
+  //     totalAmount: total,
+  //   };
+  //   console.log("chekoutData", checkoutData);
+  //   try {
+  //     // Simulate payment processing
+  //     // await new Promise((resolve) => setTimeout(resolve, 3000));
+  //     const res = await createOrder({
+  //       variables: {
+  //         input: checkoutData,
+  //       },
+  //     });
+  //     console.log("Order placed:", res);
+  //     // clearCart();
+  //     // Redirect to success page
+  //     // window.location.href = "/checkout/success";
+  //   } catch (error) {
+  //     console.error("Checkout error:", error);
+  //   } finally {
+  //     setIsProcessing(false);
+  //   }
+  // };
+
   const onSubmit = async (data: CheckoutFormData) => {
     setIsProcessing(true);
-    const checkoutData = {
-      ...data,
-      userId: userId,
-      items: items.map((item) => ({
-        productId: item.product.id,
-        quantity: item.quantity,
-        price: item.product.price,
-      })),
-      totalAmount: total,
-    };
-    console.log("chekoutData", checkoutData);
+
     try {
-      // Simulate payment processing
-      // await new Promise((resolve) => setTimeout(resolve, 3000));
-      const res = await createOrder({
-        variables: {
-          input: checkoutData,
-        },
+      // Prepare checkout data
+      const checkoutData = {
+        ...data,
+        userId: userId,
+        items: items.map((item: any) => ({
+          productId: item.product.id,
+          quantity: item.quantity,
+          price: item.product.price,
+        })),
+        totalAmount: total,
+      };
+
+      //  Create order in PENDING state via GraphQL
+      const res = await createOrder({ variables: { input: checkoutData } });
+      const order = (res as any)?.data?.createOrder;
+      console.log("order", order.id);
+      if (!order) throw new Error("Failed to create order");
+
+      //  Handle COD
+      if (data.paymentMethod === "COD") {
+        // Order is already PAID in backend if needed
+        window.location.href = "/checkout/success";
+        return;
+      }
+
+      // 4️⃣ Handle STRIPE
+      const piRes = await fetch("/api/payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: Math.round(total * 100), // minor units
+          currency: "AED",
+          orderId: order?.id,
+          email: checkoutData.email,
+          shipping: {
+            name: `${checkoutData.firstName} ${checkoutData.lastName}`,
+            phone: checkoutData.phone,
+            address: {
+              line1: checkoutData.address,
+              city: checkoutData.city,
+              state: checkoutData.emirate,
+              postal_code: checkoutData.postalCode || undefined,
+              country: "AE",
+            },
+          },
+        }),
       });
-      console.log("Order placed:", res);
-      // clearCart();
-      // Redirect to success page
-      // window.location.href = "/checkout/success";
+
+      const { clientSecret } = await piRes.json();
+      if (!clientSecret) throw new Error("Failed to create PaymentIntent");
+
+      setClientSecret(clientSecret); // For Stripe Elements rendering
     } catch (error) {
       console.error("Checkout error:", error);
     } finally {
@@ -149,10 +222,11 @@ export default function CheckoutPage(): JSX.Element {
   ];
 
   const paymentMethods = [
+    // Stripe Payment Element automatically shows Card + Apple Pay + Google Pay
     {
       id: "STRIPE",
-      name: "Credit/Debit Card",
-      description: "Secure payment with Visa, Mastercard, or American Express",
+      name: "Card / Apple Pay / Google Pay",
+      description: "Secure one‑tap checkout via Stripe",
       icon: CreditCard,
       fee: 0,
       popular: true,
@@ -160,17 +234,9 @@ export default function CheckoutPage(): JSX.Element {
     {
       id: "COD",
       name: "Cash on Delivery",
-      description: "Pay when your flowers are delivered to your door",
+      description: "Pay when your flowers arrive",
       icon: Banknote,
       fee: 10,
-      popular: false,
-    },
-    {
-      id: "wallet",
-      name: "Digital Wallet",
-      description: "Apple Pay, Google Pay, or Samsung Pay",
-      icon: Wallet,
-      fee: 0,
       popular: false,
     },
   ];
@@ -575,7 +641,7 @@ export default function CheckoutPage(): JSX.Element {
                     )}
 
                     {/* Digital Wallet Info */}
-                    {paymentMethod === "COD" && (
+                    {paymentMethod === "STRIPE" && (
                       <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
                         <div className="flex items-center mb-2">
                           <Wallet className="w-5 h-5 text-blue-600 mr-2" />
@@ -607,7 +673,7 @@ export default function CheckoutPage(): JSX.Element {
                     </div>
                   </div>
 
-                  <div className="mt-6 flex flex-col sm:flex-row justify-between gap-4">
+                  {/* <div className="mt-6 flex flex-col sm:flex-row justify-between gap-4">
                     <Button
                       type="button"
                       variant="outline"
@@ -635,7 +701,44 @@ export default function CheckoutPage(): JSX.Element {
                         </>
                       )}
                     </Button>
-                  </div>
+                  </div> */}
+                  {/* If STRIPE selected and clientSecret exists, show Payment Element instead of submit button */}
+                  {paymentMethod === "STRIPE" && clientSecret ? (
+                    <StripeSection
+                      clientSecret={clientSecret}
+                      amountLabel={formatPrice(total)}
+                    />
+                  ) : (
+                    <div className="mt-6 flex flex-col sm:flex-row justify-between gap-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setCurrentStep(2)}
+                        className="order-2 sm:order-1"
+                      >
+                        Back to Shipping
+                      </Button>
+                      <Button
+                        type="submit"
+                        variant="luxury"
+                        size="lg"
+                        disabled={isProcessing}
+                        className="min-w-[200px] order-1 sm:order-2"
+                      >
+                        {isProcessing ? (
+                          <div className="flex items-center">
+                            <div className="w-5 h-5 border-2 border-charcoal-900 border-t-transparent rounded-full animate-spin mr-2" />
+                            Processing...
+                          </div>
+                        ) : (
+                          <>
+                            <Lock className="w-4 h-4 mr-2" />
+                            Complete Order • {formatPrice(total)}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </motion.form>

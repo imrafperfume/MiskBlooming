@@ -58,7 +58,7 @@ export const OrderTypeDefs = gql`
   }
 
   type Order {
-    id: String!
+    id: ID!
     userId: String!
     firstName: String!
     lastName: String!
@@ -97,5 +97,6 @@ export const OrderTypeDefs = gql`
 
   type Mutation {
     createOrder(input: CreateOrderInput!): Order!
+    updateOrder(id:ID!, input:CreateOrderInput!):Order!
   }
 `;

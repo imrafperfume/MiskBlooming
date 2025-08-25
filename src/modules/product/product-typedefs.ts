@@ -89,6 +89,7 @@ export const ProductTypeDefs = gql`
 
   input ProductInput {
     # Basic Information
+    id:String
     name: String
     slug: String
     description: String
@@ -137,51 +138,21 @@ export const ProductTypeDefs = gql`
     personalization: Boolean
     careInstructions: String
     occasions: [String!]
+    createdAt:String
+    updatedAt:String
   }
+
   input ProductFilter {
     featured: Boolean
   }
+
   type Query {
     products(where: ProductFilter): [Product!]!
-    productById(slug: String!): Product
+    productBySlug(slug: String!): Product
   }
 
   type Mutation {
-    createProduct(
-      id: String!
-      name: String!
-      slug: String!
-      description: String!
-      shortDescription: String!
-      category: String!
-      subcategory: String!
-      tags: [String!]!
-      price: Float!
-      compareAtPrice: Float!
-      costPerItem: Float!
-      sku: String
-      barcode: String
-      trackQuantity: Boolean!
-      quantity: Int!
-      lowStockThreshold: Int!
-      images: [CloudinaryImageInput!]!
-      requiresShipping: Boolean!
-      dimensions: ProductDimensionInput
-      featuredImage: Int!
-      seoTitle: String!
-      seoDescription: String!
-      seoKeywords: [String!]!
-      status: ProductStatus!
-      featured: Boolean!
-      deliveryZones: [String!]!
-      deliveryTime: String!
-      freeDeliveryThreshold: Float!
-      giftWrapping: Boolean!
-      personalization: Boolean!
-      careInstructions: String
-      occasions: [String!]!
-    ): Product!
-
+    createProduct(data: ProductInput!): Product!
     updateProduct(slug: String!, data: ProductInput!): Product!
     deleteProduct(slug: String!): Product
   }

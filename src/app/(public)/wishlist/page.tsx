@@ -214,7 +214,7 @@ export default function WishlistPage() {
                   </div>
 
                   {/* Title */}
-                  <Link href={`/products/${product.id}`}>
+                  <Link href={`/products/${product.slug}`}>
                     <h3 className="font-cormorant text-lg font-semibold text-charcoal-900 mb-2 hover:text-luxury-500 transition-colors line-clamp-2">
                       {product.name}
                     </h3>
@@ -222,7 +222,7 @@ export default function WishlistPage() {
 
                   {/* Description */}
                   <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                    {product.description}
+                    {product.shortDescription}
                   </p>
 
                   {/* Price */}

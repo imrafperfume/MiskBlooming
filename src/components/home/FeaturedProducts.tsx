@@ -14,9 +14,6 @@ function FeaturedProducts({
   featuredProducts: Product[];
   isLoading: boolean;
 }) {
-  if (isLoading) {
-    <Loading />;
-  }
   return (
     <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -53,16 +50,26 @@ function FeaturedProducts({
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featuredProducts?.map((product, index) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                index={index}
-                viewMode="grid"
-              />
-            ))}
-          </div>
+          <>
+            {!featuredProducts || featuredProducts.length === 0 ? (
+              <div className="mt-10 flex items-center justify-center">
+                <p className="font-normal text-2xl text-luxury-500">
+                  No Products Found
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                {featuredProducts?.map((product, index) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    index={index}
+                    viewMode="grid"
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
 
         <motion.div

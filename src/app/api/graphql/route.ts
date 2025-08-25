@@ -1,13 +1,13 @@
 import { getSessionUserId } from "@/src/lib/session"
 import { createSchema, createYoga } from "graphql-yoga"
 import { mergeResolvers, mergeTypeDefs } from "@graphql-tools/merge";
-import { ProductResolvers } from "@/src/graphql/resolvers/productResolvers";
-import { ProductTypeDefs } from "@/src/graphql/schema/product-typedefs";
+import { ProductResolvers } from "@/src/modules/product/productResolvers";
+import { ProductTypeDefs } from "@/src/modules/product/product-typedefs";
 import { IResolvers } from "@graphql-tools/utils";
 import { YogaInitialContext } from "graphql-yoga";
 import { rateLimit } from "@/src/lib/ratelimit";
-import { OrderTypeDefs } from "@/src/graphql/schema/order-typedefs";
-import { OrderResolvers } from "@/src/graphql/resolvers/orderResolvers";
+import { OrderTypeDefs } from "@/src/modules/order/order-typedefs";
+import { OrderResolvers } from "@/src/modules/order/orderResolvers";
 const typeDefs = mergeTypeDefs([
     `
     type Query {

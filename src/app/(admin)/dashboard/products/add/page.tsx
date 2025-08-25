@@ -25,7 +25,7 @@ import {
   CREATE_PRODUCT,
   GET_PRODUCT_BY_SLUG,
   UPDATE_PRODUCT,
-} from "@/src/graphql/clientDefs/create-productDefs";
+} from "@/src/modules/product/operations";
 import BasicInfoTab from "@/src/components/dashboard/tabs/addProductTabs/BasicInfoTab";
 import PricingTab from "@/src/components/dashboard/tabs/addProductTabs/PricingTab";
 import InventoryTab from "@/src/components/dashboard/tabs/addProductTabs/InventoryTab";
@@ -458,7 +458,7 @@ export default function AddProductPage() {
       console.log("Saving product with Cloudinary images:", productData);
       const res = await createProduct({
         variables: {
-          ...productData,
+          data: productData,
         },
       });
       console.log(res);

@@ -1,6 +1,6 @@
 import { prisma } from '@/src/lib/db';
 import { redis } from '@/src/lib/redis';
-interface CreateProductArgs {
+interface CreateProductInput {
     id: string;
     name: string;
     slug: string;
@@ -34,12 +34,15 @@ interface CreateProductArgs {
     images: { url: string; publicId: string; }[];
     dimensions?: { weight: number, length: number; width: number; height: number };
 }
+interface CreateProductArgs {
+    data: CreateProductInput;
+}
 
 export const ProductResolvers = {
     Query: {
         products: async (_: any, args: { where?: { featured?: boolean } }) => {
             const cacheKey = args.where?.featured ? "featured-products" : "allProducts";
-
+            // console.log(args)
             const cache = await redis.get(cacheKey);
             if (cache) { if (typeof cache === 'string') { return JSON.parse(cache); } return cache; }
             const products = await prisma.product.findMany({
@@ -47,11 +50,13 @@ export const ProductResolvers = {
                 include: { images: true, dimensions: true },
             });
 
-            await redis.set(cacheKey, JSON.stringify(products), { ex: 60 * 5 });
+            if (!products || products.length === 0) return []
+
+            await redis.set(cacheKey, JSON.stringify(products), { ex: 60 * 20 });
             return products;
         },
 
-        productById: async (_: any, args: { slug: string }) => {
+        productBySlug: async (_: any, args: { slug: string }) => {
             const cache: string | null = await redis.get(`product:${args.slug}`)
             if (cache) {
                 if (typeof cache === 'string') {
@@ -72,6 +77,9 @@ export const ProductResolvers = {
 
     Mutation: {
         createProduct: async (_: any, args: CreateProductArgs, context: { userId: string }) => {
+            const productData = args.data;
+            console.log(productData)
+
             try {
                 const { userId } = context;
                 if (!userId) throw new Error("Unauthorized");
@@ -84,23 +92,28 @@ export const ProductResolvers = {
                 if (user.role !== "ADMIN") throw new Error("Not authorized");
 
                 // Check duplicate slug
-                const existing = await prisma.product.findUnique({ where: { slug: args?.slug } });
+                const existing = await prisma.product.findUnique({
+                    where: { slug: productData.slug },
+                });
                 if (existing) throw new Error("Product with this slug already exists");
+
                 const product = await prisma.product.create({
                     data: {
-                        ...args,
-                        images: {
-                            create: args?.images?.map((img: any) => ({
-                                url: img?.url,
-                                publicId: img?.publicId,
-                            })),
-                        },
-                        dimensions: args.dimensions
+                        ...productData,
+                        images: productData?.images
+                            ? {
+                                create: productData?.images.map((img: any) => ({
+                                    url: img.url,
+                                    publicId: img.publicId,
+                                })),
+                            }
+                            : undefined,
+                        dimensions: productData?.dimensions
                             ? {
                                 create: {
-                                    length: args.dimensions.length,
-                                    width: args.dimensions.width,
-                                    height: args.dimensions.height,
+                                    length: productData.dimensions.length,
+                                    width: productData.dimensions.width,
+                                    height: productData.dimensions.height,
                                 },
                             }
                             : undefined,
@@ -113,7 +126,8 @@ export const ProductResolvers = {
                 throw new Error("Failed to create product");
             }
         },
-        updateProduct: async (_: any, { slug, data }: { slug: string, data: CreateProductArgs }, context: { userId: string }) => {
+
+        updateProduct: async (_: any, { slug, data }: { slug: string, data: CreateProductInput }, context: { userId: string }) => {
             try {
                 const { userId } = context;
                 if (!userId) throw new Error("Unauthorized");
@@ -198,7 +212,5 @@ export const ProductResolvers = {
                 throw new Error("Failed to delete product");
             }
         }
-
-
     },
 };

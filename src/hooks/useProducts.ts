@@ -65,7 +65,7 @@ export function useProduct(slug: string, selectedFields: string[] = []) {
         body: JSON.stringify({
           query: `
             query GetProduct($slug: String!) {
-              productById(slug: $slug) {
+              productBySlug(slug: $slug) {
                 ${fields}
               }
             }
@@ -77,7 +77,7 @@ export function useProduct(slug: string, selectedFields: string[] = []) {
       const { data, errors } = await res.json();
       if (errors) throw new Error(errors[0].message);
 
-      return data?.productById || null;
+      return data?.productBySlug || null;
     },
     enabled: !!slug,
   });

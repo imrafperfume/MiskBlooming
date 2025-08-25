@@ -12,7 +12,7 @@ export async function POST(req: Request) {
         if (!verifyCsrf()) return NextResponse.json({ error: 'CSRF' }, { status: 403 });
         const ip = req.headers.get('x-forwarded-for') || '0.0.0.0';
         console.log("ip: ", ip);
-        if (!(await rateLimit(`login:${ip}`))) return NextResponse.json({ error: 'rate limit reached' }, { status: 429 });
+        if (!(await rateLimit(`login:${ip}`, 5, "1 m"))) return NextResponse.json({ error: 'rate limit reached' }, { status: 429 });
 
         const { email, password } = loginSchema.parse(await req.json());
         console.log(email, password);
