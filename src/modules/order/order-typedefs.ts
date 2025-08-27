@@ -94,9 +94,23 @@ export const OrderTypeDefs = gql`
     price: Float!
     product: Product!
   }
+  type OrderStats {
+    totalOrders: Int!
+    pending: Int!
+    processing: Int!
+    cancelled: Int!
+    shipped: Int!
+    delivered: Int!
+    revenue: Float!
+  }
+
+  type Query {
+    allOrders: [Order!]!
+    orderStats: OrderStats!
+  }
 
   type Mutation {
     createOrder(input: CreateOrderInput!): Order!
-    updateOrder(id:ID!, input:CreateOrderInput!):Order!
+    updateOrder(id: ID!, input: CreateOrderInput!): Order!
   }
 `;
