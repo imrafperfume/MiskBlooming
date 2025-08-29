@@ -1,6 +1,7 @@
-"use client"
+"use client";
 
-import { useState, useMemo } from "react"
+import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import {
   Plus,
   Search,
@@ -14,10 +15,10 @@ import {
   MoreHorizontal,
   Download,
   Upload,
-} from "lucide-react"
-import { motion } from "framer-motion"
-import { Button } from "../../../../components/ui/Button"
-import { Input } from "../../../../components/ui/Input"
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { Button } from "../../../../components/ui/Button";
+import { Input } from "../../../../components/ui/Input";
 
 // Mock products data
 const mockProducts = [
@@ -87,14 +88,15 @@ const mockProducts = [
     featured: false,
     sku: "MB-PLANT-005",
   },
-]
+];
 
 export default function ProductsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("all")
-  const [selectedStatus, setSelectedStatus] = useState("all")
-  const [sortBy, setSortBy] = useState("name")
-  const [viewMode, setViewMode] = useState<"table" | "grid">("table")
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [sortBy, setSortBy] = useState("name");
+  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
 
   const categories = [
     { value: "all", label: "All Categories" },
@@ -103,18 +105,20 @@ export default function ProductsPage() {
     { value: "chocolates", label: "Premium Chocolates" },
     { value: "cakes", label: "Fresh Cakes" },
     { value: "plants", label: "Indoor Plants" },
-  ]
+  ];
 
   const filteredProducts = useMemo(() => {
     return mockProducts.filter((product) => {
       const matchesSearch =
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.sku.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesCategory = selectedCategory === "all" || product.category === selectedCategory
-      const matchesStatus = selectedStatus === "all" || product.status === selectedStatus
-      return matchesSearch && matchesCategory && matchesStatus
-    })
-  }, [searchTerm, selectedCategory, selectedStatus])
+        product.sku.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        selectedCategory === "all" || product.category === selectedCategory;
+      const matchesStatus =
+        selectedStatus === "all" || product.status === selectedStatus;
+      return matchesSearch && matchesCategory && matchesStatus;
+    });
+  }, [searchTerm, selectedCategory, selectedStatus]);
 
   const stats = useMemo(() => {
     return {
@@ -122,31 +126,35 @@ export default function ProductsPage() {
       active: mockProducts.filter((p) => p.status === "active").length,
       outOfStock: mockProducts.filter((p) => p.stock === 0).length,
       featured: mockProducts.filter((p) => p.featured).length,
-    }
-  }, [])
+    };
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       case "out-of-stock":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       case "draft":
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between">
         <div>
-          <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">Product Management</h1>
-          <p className="text-gray-600 mt-2">Manage your flower and gift inventory</p>
+          <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">
+            Product Management
+          </h1>
+          <p className="text-gray-600 mt-2">
+            Manage your flower and gift inventory
+          </p>
         </div>
-        <div className="flex flex-wrap sm:flex-nowrap items-center gap-4 sm:gap-0 sm:space-x-4 mt-4 lg:mt-0">
+        <div className="flex items-center space-x-4 mt-4 lg:mt-0">
           <Button variant="outline">
             <Upload className="w-4 h-4 mr-2" />
             Import
@@ -155,7 +163,10 @@ export default function ProductsPage() {
             <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
-          <Button variant="luxury" >
+          <Button
+            variant="luxury"
+            onClick={() => router.push("/dashboard/products/add")}
+          >
             <Plus className="w-4 h-4 mr-2" />
             Add Product
           </Button>
@@ -173,7 +184,9 @@ export default function ProductsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Total Products</p>
-              <p className="text-2xl font-bold text-charcoal-900">{stats.total}</p>
+              <p className="text-2xl font-bold text-charcoal-900">
+                {stats.total}
+              </p>
             </div>
             <Package className="w-8 h-8 text-blue-500" />
           </div>
@@ -188,7 +201,9 @@ export default function ProductsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Active</p>
-              <p className="text-2xl font-bold text-green-600">{stats.active}</p>
+              <p className="text-2xl font-bold text-green-600">
+                {stats.active}
+              </p>
             </div>
             <CheckCircle className="w-8 h-8 text-green-500" />
           </div>
@@ -203,7 +218,9 @@ export default function ProductsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Out of Stock</p>
-              <p className="text-2xl font-bold text-red-600">{stats.outOfStock}</p>
+              <p className="text-2xl font-bold text-red-600">
+                {stats.outOfStock}
+              </p>
             </div>
             <AlertCircle className="w-8 h-8 text-red-500" />
           </div>
@@ -218,7 +235,9 @@ export default function ProductsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600">Featured</p>
-              <p className="text-2xl font-bold text-luxury-600">{stats.featured}</p>
+              <p className="text-2xl font-bold text-luxury-600">
+                {stats.featured}
+              </p>
             </div>
             <Star className="w-8 h-8 text-luxury-500" />
           </div>
@@ -281,7 +300,9 @@ export default function ProductsPage() {
       >
         <div className="p-6 border-b border-gray-100">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-charcoal-900">Products ({filteredProducts.length})</h2>
+            <h2 className="text-lg font-semibold text-charcoal-900">
+              Products ({filteredProducts.length})
+            </h2>
           </div>
         </div>
 
@@ -292,7 +313,9 @@ export default function ProductsPage() {
                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Product
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
+                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  SKU
+                </th>
                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Category
                 </th>
@@ -333,15 +356,23 @@ export default function ProductsPage() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center">
-                          <p className="text-sm font-medium text-charcoal-900 truncate">{product.name}</p>
-                          {product.featured && <Star className="w-4 h-4 text-yellow-400 ml-2 fill-current" />}
+                          <p className="text-sm font-medium text-charcoal-900 truncate">
+                            {product.name}
+                          </p>
+                          {product.featured && (
+                            <Star className="w-4 h-4 text-yellow-400 ml-2 fill-current" />
+                          )}
                         </div>
-                        <p className="text-sm text-gray-500">ID: {product.id}</p>
+                        <p className="text-sm text-gray-500">
+                          ID: {product.id}
+                        </p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm font-mono text-gray-900">{product.sku}</span>
+                    <span className="text-sm font-mono text-gray-900">
+                      {product.sku}
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-luxury-100 text-luxury-800 capitalize">
@@ -350,16 +381,24 @@ export default function ProductsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm">
-                      <span className="font-medium text-charcoal-900">AED {product.price}</span>
+                      <span className="font-medium text-charcoal-900">
+                        AED {product.price}
+                      </span>
                       {product.originalPrice && (
-                        <span className="text-gray-500 line-through ml-2">AED {product.originalPrice}</span>
+                        <span className="text-gray-500 line-through ml-2">
+                          AED {product.originalPrice}
+                        </span>
                       )}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`text-sm font-medium ${
-                        product.stock > 10 ? "text-green-600" : product.stock > 0 ? "text-yellow-600" : "text-red-600"
+                        product.stock > 10
+                          ? "text-green-600"
+                          : product.stock > 0
+                          ? "text-yellow-600"
+                          : "text-red-600"
                       }`}
                     >
                       {product.stock} units
@@ -376,7 +415,7 @@ export default function ProductsPage() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
                       className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                        product.status,
+                        product.status
                       )}`}
                     >
                       {product.status.replace("-", " ")}
@@ -404,8 +443,12 @@ export default function ProductsPage() {
         {filteredProducts.length === 0 && (
           <div className="text-center py-12">
             <Package className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-charcoal-900 mb-2">No products found</h3>
-            <p className="text-gray-600">Try adjusting your search or filter criteria</p>
+            <h3 className="text-lg font-medium text-charcoal-900 mb-2">
+              No products found
+            </h3>
+            <p className="text-gray-600">
+              Try adjusting your search or filter criteria
+            </p>
           </div>
         )}
       </motion.div>
@@ -420,7 +463,11 @@ export default function ProductsPage() {
             <Button variant="outline" size="sm" disabled>
               Previous
             </Button>
-            <Button variant="outline" size="sm" className="bg-luxury-500 text-white">
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-luxury-500 text-white"
+            >
               1
             </Button>
             <Button variant="outline" size="sm" disabled>
@@ -430,5 +477,5 @@ export default function ProductsPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

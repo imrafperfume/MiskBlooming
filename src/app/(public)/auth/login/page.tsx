@@ -1,59 +1,79 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react"
-import { motion } from "framer-motion"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { Button } from "../../../../components/ui/Button"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { Eye, EyeOff, Mail, Lock, ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Button } from "../../../../components/ui/Button";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
-})
+});
 
-type LoginFormData = z.infer<typeof loginSchema>
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [csrf, setCsrf] = useState("");
+  useEffect(() => {
+    fetch("/api/auth/csrf", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => setCsrf(d));
+  }, []);
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-  })
+  });
 
   const onSubmit = async (data: LoginFormData) => {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
-      console.log("Login data:", data)
-      // Redirect to dashboard or home
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-csrf-token": csrf,
+        },
+        credentials: "include",
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || "Login failed");
+      }
+
+      const d = await res.json();
+      console.log("Login success:", d);
+      window.location.href = "/";
     } catch (error) {
-      console.error("Login error:", error)
+      console.error("Login error:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen mt-4 bg-gradient-to-br from-cream-50 to-cream-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
           {/* Logo */}
           <div className="text-center">
-            <Link href="/" className="inline-block">
-              <div className="text-4xl font-cormorant font-bold text-charcoal-900 mb-2">
-                Misk<span className="luxury-text">Blooming</span>
-              </div>
-            </Link>
-            <h2 className="mt-6 text-3xl font-cormorant font-bold text-charcoal-900">Welcome Back</h2>
+            <h2 className="mt-6 text-3xl font-cormorant font-bold text-charcoal-900">
+              Welcome Back
+            </h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Sign in to your account to continue your luxury experience
             </p>
@@ -70,7 +90,10 @@ export default function LoginPage() {
             <div className="space-y-4">
               {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-charcoal-900 mb-2">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-charcoal-900 mb-2"
+                >
                   Email Address
                 </label>
                 <div className="relative">
@@ -86,12 +109,19 @@ export default function LoginPage() {
                     placeholder="Enter your email"
                   />
                 </div>
-                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
+                {errors.email && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
 
               {/* Password */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-charcoal-900 mb-2">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-charcoal-900 mb-2"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -118,7 +148,11 @@ export default function LoginPage() {
                     )}
                   </button>
                 </div>
-                {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
+                {errors.password && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -131,20 +165,32 @@ export default function LoginPage() {
                   type="checkbox"
                   className="h-4 w-4 text-luxury-500 focus:ring-luxury-500 border-cream-300 rounded"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-charcoal-900">
+                <label
+                  htmlFor="remember-me"
+                  className="ml-2 block text-sm text-charcoal-900"
+                >
                   Remember me
                 </label>
               </div>
 
               <div className="text-sm">
-                <Link href="/auth/forgot-password" className="font-medium text-luxury-500 hover:text-luxury-600">
+                <Link
+                  href="/auth/forgot-password"
+                  className="font-medium text-luxury-500 hover:text-luxury-600"
+                >
                   Forgot your password?
                 </Link>
               </div>
             </div>
 
             {/* Submit button */}
-            <Button type="submit" variant="luxury" size="xl" className="w-full group" disabled={isLoading}>
+            <Button
+              type="submit"
+              variant="luxury"
+              size="xl"
+              className="w-full group"
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <div className="flex items-center">
                   <div className="w-5 h-5 border-2 border-charcoal-900 border-t-transparent rounded-full animate-spin mr-2" />
@@ -159,13 +205,15 @@ export default function LoginPage() {
             </Button>
 
             {/* Social login */}
-            <div className="mt-6">
+            {/* <div className="mt-6">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-cream-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-muted-foreground">Or continue with</span>
+                  <span className="px-2 bg-white text-muted-foreground">
+                    Or continue with
+                  </span>
                 </div>
               </div>
 
@@ -193,19 +241,26 @@ export default function LoginPage() {
                 </Button>
 
                 <Button variant="outline" className="w-full bg-white">
-                  <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="w-5 h-5 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
                   Facebook
                 </Button>
               </div>
-            </div>
+            </div> */}
 
             {/* Sign up link */}
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
                 Don't have an account?{" "}
-                <Link href="/auth/register" className="font-medium text-luxury-500 hover:text-luxury-600">
+                <Link
+                  href="/auth/register"
+                  className="font-medium text-luxury-500 hover:text-luxury-600"
+                >
                   Create one now
                 </Link>
               </p>
@@ -214,5 +269,5 @@ export default function LoginPage() {
         </motion.div>
       </div>
     </div>
-  )
+  );
 }
