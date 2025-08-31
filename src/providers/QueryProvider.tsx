@@ -1,10 +1,11 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools"
-import { useState } from "react"
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState } from "react";
+import { ApolloProvider } from "@apollo/client";
+import { client } from "../lib/graphql-client";
 
 export function QueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -16,13 +17,15 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
             refetchOnWindowFocus: false,
           },
         },
-      }),
-  )
+      })
+  );
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
-    </QueryClientProvider>
-  )
+    <ApolloProvider client={client}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+        {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      </QueryClientProvider>
+    </ApolloProvider>
+  );
 }

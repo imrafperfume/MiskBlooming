@@ -1,0 +1,99 @@
+model Product {
+    id        String   @unique @default(uuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Basic Information
+    name             String
+    slug             String   @unique
+    description      String
+    shortDescription String
+    category         String
+    subcategory      String
+    tags             String[]
+
+    // Pricing
+    price          Float
+    compareAtPrice Float
+    costPerItem    Float
+
+    // Inventory
+    sku               String? @unique
+    barcode           String?
+    trackQuantity     Boolean @default(false)
+    quantity          Int
+    lowStockThreshold Int
+
+    // Shipping
+    requiresShipping Boolean           @default(false)
+    dimensions       ProductDimension?
+
+    // Images
+    images        CloudinaryImage[]
+    featuredImage Int
+
+    // SEO
+    seoTitle       String
+    seoDescription String
+    seoKeywords    String[]
+
+    // Status
+    status   ProductStatus @default(draft)
+    featured Boolean       @default(false)
+
+    // Delivery
+    deliveryZones         String[]
+    deliveryTime          String
+    freeDeliveryThreshold Float
+
+    // Product Features
+    giftWrapping     Boolean     @default(false)
+    personalization  Boolean     @default(false)
+    careInstructions String?
+    occasions        String[]
+    OrderItem        OrderItem[]
+    Review           Review[]
+
+    @@index([category])
+    @@index([status])
+    @@index([price])
+}
+
+model ProductDimension {
+    id        String   @id @default(uuid())
+    weight    Float    @default(0)
+    length    Float
+    width     Float
+    height    Float
+    product   Product? @relation(fields: [productId], references: [id])
+    productId String?  @unique
+}
+
+model CloudinaryImage {
+    id        String   @id @default(uuid())
+    url       String
+    publicId  String
+    product   Product? @relation(fields: [productId], references: [id])
+    productId String?
+}
+
+enum ProductStatus {
+    draft
+    active
+    archived
+}
+
+model Review {
+    id        String   @id @default(cuid())
+    userId    String
+    productId String
+    rating    Int // 1 to 5
+    comment   String?
+    createdAt DateTime @default(now())
+
+    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+    product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+    @@index([userId])
+    @@index([productId])
+}

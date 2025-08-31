@@ -1,49 +1,64 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Heart, Star, Gift, Truck, Shield } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "../../../components/ui/Button"
-import { useCartStore } from "../../../store/cartStore"
-import { useWishlistStore } from "../../../store/wishlistStore"
-import { formatPrice } from "../../../lib/utils"
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  Minus,
+  Plus,
+  Trash2,
+  ShoppingBag,
+  ArrowLeft,
+  Heart,
+  Star,
+  Gift,
+  Truck,
+  Shield,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "../../../components/ui/Button";
+import { useCartStore } from "../../../store/cartStore";
+import { useWishlistStore } from "../../../store/wishlistStore";
+import { formatPrice } from "../../../lib/utils";
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, getTotalPrice, getTotalItems } = useCartStore()
-  const { addItem: addToWishlist } = useWishlistStore()
-  const [removingItems, setRemovingItems] = useState<Set<string>>(new Set())
-  const [couponCode, setCouponCode] = useState("")
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number } | null>(null)
+  const { items, updateQuantity, removeItem, getTotalPrice, getTotalItems } =
+    useCartStore();
+  const { addItem: addToWishlist } = useWishlistStore();
+  const [removingItems, setRemovingItems] = useState<Set<string>>(new Set());
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discount: number;
+  } | null>(null);
 
   const handleUpdateQuantity = (productId: string, newQuantity: number) => {
     if (newQuantity === 0) {
-      handleRemoveItem(productId)
-      return
+      handleRemoveItem(productId);
+      return;
     }
-    updateQuantity(productId, newQuantity)
-  }
+    updateQuantity(productId, newQuantity);
+  };
 
   const handleRemoveItem = async (productId: string) => {
-    setRemovingItems((prev) => new Set(prev).add(productId))
+    setRemovingItems((prev) => new Set(prev).add(productId));
     setTimeout(() => {
-      removeItem(productId)
+      removeItem(productId);
       setRemovingItems((prev) => {
-        const newSet = new Set(prev)
-        newSet.delete(productId)
-        return newSet
-      })
-    }, 300)
-  }
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
+    }, 300);
+  };
 
   const handleMoveToWishlist = (productId: string) => {
-    const item = items.find((item) => item.product.id === productId)
+    const item = items.find((item) => item.product.id === productId);
     if (item) {
-      addToWishlist(item.product)
-      removeItem(productId)
+      addToWishlist(item.product);
+      removeItem(productId);
     }
-  }
+  };
 
   const handleApplyCoupon = () => {
     // Mock coupon validation
@@ -51,22 +66,24 @@ export default function CartPage() {
       WELCOME10: 10,
       LUXURY15: 15,
       FIRST20: 20,
-    }
+    };
 
     if (validCoupons[couponCode as keyof typeof validCoupons]) {
       setAppliedCoupon({
         code: couponCode,
         discount: validCoupons[couponCode as keyof typeof validCoupons],
-      })
-      setCouponCode("")
+      });
+      setCouponCode("");
     }
-  }
+  };
 
-  const subtotal = getTotalPrice()
-  const couponDiscount = appliedCoupon ? (subtotal * appliedCoupon.discount) / 100 : 0
-  const shipping = subtotal > 500 ? 0 : 25
-  const tax = (subtotal - couponDiscount) * 0.05 // 5% VAT
-  const total = subtotal - couponDiscount + shipping + tax
+  const subtotal = getTotalPrice();
+  const couponDiscount = appliedCoupon
+    ? (subtotal * appliedCoupon.discount) / 100
+    : 0;
+  const shipping = subtotal > 1000 ? 0 : 25;
+  const tax = (subtotal - couponDiscount) * 0.05; // 5% VAT
+  const total = subtotal - couponDiscount + shipping + tax;
 
   if (items.length === 0) {
     return (
@@ -79,10 +96,12 @@ export default function CartPage() {
             transition={{ duration: 0.6 }}
           >
             <ShoppingBag className="w-24 h-24 text-cream-300 mx-auto mb-6" />
-            <h1 className="font-cormorant text-3xl font-bold text-charcoal-900 mb-4">Your Cart is Empty</h1>
+            <h1 className="font-cormorant text-3xl font-bold text-charcoal-900 mb-4">
+              Your Cart is Empty
+            </h1>
             <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-              Discover our exquisite collection of fresh flowers, luxury chocolates, beautiful cakes, and thoughtful
-              gift sets.
+              Discover our exquisite collection of fresh flowers, luxury
+              chocolates, beautiful cakes, and thoughtful gift sets.
             </p>
             <Link href="/products">
               <Button variant="luxury" size="lg">
@@ -92,7 +111,7 @@ export default function CartPage() {
           </motion.div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -142,7 +161,7 @@ export default function CartPage() {
                     {/* Product Image */}
                     <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
                       <Image
-                        src={item.product.images[0] || "/placeholder.svg"}
+                        src={item.product.images[0].url || "/placeholder.svg"}
                         alt={item.product.name}
                         fill
                         className="object-cover"
@@ -166,7 +185,7 @@ export default function CartPage() {
                       </Link>
 
                       <p className="text-muted-foreground hidden sm:block text-sm mt-1 line-clamp-2">
-                        {item.product.description}
+                        {item.product.shortDescription}
                       </p>
 
                       <div className="sm:block hidden">
@@ -177,7 +196,7 @@ export default function CartPage() {
                               <Star
                                 key={i}
                                 className={`w-3 h-3 ${
-                                  i < Math.floor(item.product.rating)
+                                  i < Math.floor(5)
                                     ? "text-luxury-500 fill-current"
                                     : "text-cream-300"
                                 }`}
@@ -185,7 +204,7 @@ export default function CartPage() {
                             ))}
                           </div>
                           <span className="text-xs text-muted-foreground ml-2">
-                            ({item.product.reviewCount})
+                            ({item.product.reviewCount || 0})
                           </span>
                         </div>
 
@@ -194,9 +213,9 @@ export default function CartPage() {
                           <span className="text-lg font-bold text-charcoal-900">
                             {formatPrice(item.product.price)}
                           </span>
-                          {item.product.originalPrice && (
+                          {item.product.price && (
                             <span className="text-sm text-muted-foreground line-through ml-2">
-                              {formatPrice(item.product.originalPrice)}
+                              {formatPrice(item.product.price)}
                             </span>
                           )}
                         </div>
@@ -277,7 +296,7 @@ export default function CartPage() {
                           <Star
                             key={i}
                             className={`w-3 h-3 ${
-                              i < Math.floor(item.product.rating)
+                              i < Math.floor(5)
                                 ? "text-luxury-500 fill-current"
                                 : "text-cream-300"
                             }`}
@@ -294,9 +313,9 @@ export default function CartPage() {
                       <span className="text-lg font-bold text-charcoal-900">
                         {formatPrice(item.product.price)}
                       </span>
-                      {item.product.originalPrice && (
+                      {item.product.price && (
                         <span className="text-sm text-muted-foreground line-through ml-2">
-                          {formatPrice(item.product.originalPrice)}
+                          {formatPrice(item.product.price)}
                         </span>
                       )}
                     </div>

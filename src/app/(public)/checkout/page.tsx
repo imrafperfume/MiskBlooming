@@ -1,65 +1,85 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { ArrowLeft, CreditCard, Truck, Shield, Phone, User, Lock, Banknote, Wallet, CheckCircle } from "lucide-react"
-import { motion } from "framer-motion"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { Button } from "../../../components/ui/Button"
-import { Input } from "../../../components/ui/Input"
-import { useCartStore } from "../../../store/cartStore"
-import { formatPrice } from "../../../lib/utils"
+import { JSX, useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  ArrowLeft,
+  CreditCard,
+  Truck,
+  Shield,
+  Phone,
+  User,
+  Lock,
+  Banknote,
+  Wallet,
+  CheckCircle,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { boolean, z } from "zod";
+import { Button } from "../../../components/ui/Button";
+import { Input } from "../../../components/ui/Input";
+import { useCartStore } from "../../../store/cartStore";
+import { formatPrice } from "../../../lib/utils";
+import { useAuth } from "@/src/hooks/useAuth";
+import { useMutation } from "@apollo/client";
+import { CREATE_ORDER } from "@/src/modules/order/operations";
+import StripeSection from "@/src/components/StripeSection";
+import { useRouter } from "next/navigation";
 
-const checkoutSchema = z
-  .object({
-    // Personal Information
-    firstName: z.string().min(2, "First name is required"),
-    lastName: z.string().min(2, "Last name is required"),
-    email: z.string().email("Please enter a valid email address"),
-    phone: z.string().min(10, "Please enter a valid phone number"),
+const checkoutSchema = z.object({
+  // Personal Information
+  firstName: z.string().min(2, "First name is required"),
+  lastName: z.string().min(2, "Last name is required"),
+  email: z.string().email("Please enter a valid email address"),
+  phone: z.string().min(10, "Please enter a valid phone number"),
 
-    // Shipping Address
-    address: z.string().min(5, "Address is required"),
-    city: z.string().min(2, "City is required"),
-    emirate: z.string().min(2, "Emirate is required"),
-    postalCode: z.string().optional(),
+  // Shipping Address
+  address: z.string().min(5, "Address is required"),
+  city: z.string().min(2, "City is required"),
+  emirate: z.string().min(2, "Emirate is required"),
+  postalCode: z.string().optional(),
 
-    // Payment Information
-    paymentMethod: z.enum(["card", "cod", "wallet"]),
-    cardNumber: z.string().optional(),
-    expiryDate: z.string().optional(),
-    cvv: z.string().optional(),
-    cardName: z.string().optional(),
+  // Payment Information
+  paymentMethod: z.enum(["COD", "STRIPE"]),
 
-    // Delivery Options
-    deliveryType: z.enum(["standard", "express", "scheduled"]),
-    deliveryDate: z.string().optional(),
-    deliveryTime: z.string().optional(),
-    specialInstructions: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.paymentMethod === "card") {
-        return data.cardNumber && data.expiryDate && data.cvv && data.cardName
-      }
-      return true
-    },
-    {
-      message: "Card details are required for card payment",
-      path: ["cardNumber"],
-    },
-  )
+  // Delivery Options
+  deliveryType: z.enum(["STANDARD", "EXPRESS", "SCHEDULED"]),
+  deliveryDate: z.string().optional(),
+  deliveryTime: z.string().optional(),
+  specialInstructions: z.string().optional(),
+});
+// .refine(
+//   (data) => {
+//     if (data.paymentMethod === "STRIPE") {
+//       return data.cardNumber && data.expiryDate && data.cvv && data.cardName;
+//     }
+//     return true;
+//   },
+//   {
+//     message: "Card details are required for card payment",
+//     path: ["cardNumber"],
+//   }
+// );
 
-type CheckoutFormData = z.infer<typeof checkoutSchema>
+type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
-export default function CheckoutPage() {
-  const [currentStep, setCurrentStep] = useState(1)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const { items, getTotalPrice, clearCart } = useCartStore()
+export default function CheckoutPage(): JSX.Element {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const { items, getTotalPrice, clearCart } = useCartStore();
+  const { data: user, isLoading } = useAuth();
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const userId = user?.id;
+  const router = useRouter();
 
+  useEffect(() => {
+    if (!isLoading && !userId) {
+      router.push("/auth/login");
+    }
+  }, [isLoading, userId]);
   const {
     register,
     handleSubmit,
@@ -69,69 +89,157 @@ export default function CheckoutPage() {
   } = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
-      deliveryType: "standard",
-      paymentMethod: "card",
+      deliveryType: "STANDARD",
+      paymentMethod: "COD",
     },
-  })
+  });
+  const [createOrder, { data, loading, error }] =
+    useMutation<CheckoutFormData>(CREATE_ORDER);
+  const deliveryType = watch("deliveryType");
+  const paymentMethod = watch("paymentMethod");
+  const subtotal = getTotalPrice();
+  const deliveryFee =
+    deliveryType === "EXPRESS"
+      ? 50
+      : deliveryType === "SCHEDULED"
+      ? 25
+      : subtotal > 500
+      ? 0
+      : 25;
+  const tax = subtotal * 0.05; // 5% VAT
+  const codFee = paymentMethod === "COD" ? 10 : 0; // Cash on delivery fee
+  const total = subtotal + deliveryFee + tax + codFee;
 
-  const deliveryType = watch("deliveryType")
-  const paymentMethod = watch("paymentMethod")
-  const subtotal = getTotalPrice()
-  const deliveryFee = deliveryType === "express" ? 50 : deliveryType === "scheduled" ? 25 : subtotal > 500 ? 0 : 25
-  const tax = subtotal * 0.05 // 5% VAT
-  const codFee = paymentMethod === "cod" ? 10 : 0 // Cash on delivery fee
-  const total = subtotal + deliveryFee + tax + codFee
+  // const onSubmit = async (data: CheckoutFormData) => {
+  //   setIsProcessing(true);
+  //   const checkoutData = {
+  //     ...data,
+  //     userId: userId,
+  //     items: items.map((item: any) => ({
+  //       productId: item.product.id,
+  //       quantity: item.quantity,
+  //       price: item.product.price,
+  //     })),
+  //     totalAmount: total,
+  //   };
+  //   console.log("chekoutData", checkoutData);
+  //   try {
+  //     // Simulate payment processing
+  //     // await new Promise((resolve) => setTimeout(resolve, 3000));
+  //     const res = await createOrder({
+  //       variables: {
+  //         input: checkoutData,
+  //       },
+  //     });
+  //     console.log("Order placed:", res);
+  //     // clearCart();
+  //     // Redirect to success page
+  //     // window.location.href = "/checkout/success";
+  //   } catch (error) {
+  //     console.error("Checkout error:", error);
+  //   } finally {
+  //     setIsProcessing(false);
+  //   }
+  // };
 
   const onSubmit = async (data: CheckoutFormData) => {
-    setIsProcessing(true)
+    setIsProcessing(true);
+
     try {
-      // Simulate payment processing
-      await new Promise((resolve) => setTimeout(resolve, 3000))
-      console.log("Order placed:", data)
-      clearCart()
-      // Redirect to success page
-      window.location.href = "/checkout/success"
+      // Prepare checkout data
+      const checkoutData = {
+        ...data,
+        userId: userId,
+        items: items.map((item: any) => ({
+          productId: item.product.id,
+          quantity: item.quantity,
+          price: item.product.price,
+        })),
+        totalAmount: total,
+      };
+
+      //  Create order in PENDING state via GraphQL
+      const res = await createOrder({ variables: { input: checkoutData } });
+      const order = (res as any)?.data?.createOrder;
+      console.log("order", order.id);
+      if (!order) throw new Error("Failed to create order");
+
+      //  Handle COD
+      if (data.paymentMethod === "COD") {
+        // Order is already PAID in backend if needed
+        window.location.href = "/checkout/success";
+        return;
+      }
+
+      // 4️⃣ Handle STRIPE
+      const piRes = await fetch("/api/payment-intent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: Math.round(total * 100), // minor units
+          currency: "AED",
+          orderId: order?.id,
+          email: checkoutData.email,
+          shipping: {
+            name: `${checkoutData.firstName} ${checkoutData.lastName}`,
+            phone: checkoutData.phone,
+            address: {
+              line1: checkoutData.address,
+              city: checkoutData.city,
+              state: checkoutData.emirate,
+              postal_code: checkoutData.postalCode || undefined,
+              country: "AE",
+            },
+          },
+        }),
+      });
+
+      const { clientSecret } = await piRes.json();
+      if (!clientSecret) throw new Error("Failed to create PaymentIntent");
+
+      setClientSecret(clientSecret); // For Stripe Elements rendering
     } catch (error) {
-      console.error("Checkout error:", error)
+      console.error("Checkout error:", error);
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
 
   const steps = [
     { id: 1, name: "Information", icon: User },
     { id: 2, name: "Shipping", icon: Truck },
     { id: 3, name: "Payment", icon: CreditCard },
-  ]
+  ];
 
-  const emirates = ["Abu Dhabi", "Dubai", "Sharjah", "Ajman", "Umm Al Quwain", "Ras Al Khaimah", "Fujairah"]
+  const emirates = [
+    "Abu Dhabi",
+    "Dubai",
+    "Sharjah",
+    "Ajman",
+    "Umm Al Quwain",
+    "Ras Al Khaimah",
+    "Fujairah",
+  ];
 
   const paymentMethods = [
+    // Stripe Payment Element automatically shows Card + Apple Pay + Google Pay
     {
-      id: "card",
-      name: "Credit/Debit Card",
-      description: "Secure payment with Visa, Mastercard, or American Express",
+      id: "STRIPE",
+      name: "Card / Apple Pay / Google Pay",
+      description: "Secure one‑tap checkout via Stripe",
       icon: CreditCard,
       fee: 0,
       popular: true,
     },
     {
-      id: "cod",
+      id: "COD",
       name: "Cash on Delivery",
-      description: "Pay when your flowers are delivered to your door",
+      description: "Pay when your flowers arrive",
       icon: Banknote,
       fee: 10,
       popular: false,
     },
-    {
-      id: "wallet",
-      name: "Digital Wallet",
-      description: "Apple Pay, Google Pay, or Samsung Pay",
-      icon: Wallet,
-      fee: 0,
-      popular: false,
-    },
-  ]
+  ];
 
   if (items.length === 0) {
     return (
@@ -140,8 +248,12 @@ export default function CheckoutPage() {
           <div className="w-24 h-24 bg-cream-200 rounded-full flex items-center justify-center mx-auto mb-6">
             <Truck className="w-12 h-12 text-muted-foreground" />
           </div>
-          <h1 className="font-cormorant text-2xl lg:text-3xl font-bold text-charcoal-900 mb-4">Your cart is empty</h1>
-          <p className="text-muted-foreground mb-8">Add some luxury arrangements to proceed with checkout</p>
+          <h1 className="font-cormorant text-2xl lg:text-3xl font-bold text-charcoal-900 mb-4">
+            Your cart is empty
+          </h1>
+          <p className="text-muted-foreground mb-8">
+            Add some luxury arrangements to proceed with checkout
+          </p>
           <Link href="/products">
             <Button variant="luxury" size="lg">
               Continue Shopping
@@ -149,7 +261,7 @@ export default function CheckoutPage() {
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -332,7 +444,7 @@ export default function CheckoutPage() {
                         <label className="flex items-center p-4 border-2 border-cream-300 rounded-xl cursor-pointer hover:bg-cream-50 hover:border-luxury-300 transition-all duration-300">
                           <input
                             type="radio"
-                            value="standard"
+                            value="STANDARD"
                             {...register("deliveryType")}
                             className="mr-3 text-luxury-500 focus:ring-luxury-500"
                           />
@@ -350,7 +462,7 @@ export default function CheckoutPage() {
                         <label className="flex items-center p-4 border-2 border-cream-300 rounded-xl cursor-pointer hover:bg-cream-50 hover:border-luxury-300 transition-all duration-300">
                           <input
                             type="radio"
-                            value="express"
+                            value="EXPRESS"
                             {...register("deliveryType")}
                             className="mr-3 text-luxury-500 focus:ring-luxury-500"
                           />
@@ -370,7 +482,7 @@ export default function CheckoutPage() {
                         <label className="flex items-center p-4 border-2 border-cream-300 rounded-xl cursor-pointer hover:bg-cream-50 hover:border-luxury-300 transition-all duration-300">
                           <input
                             type="radio"
-                            value="scheduled"
+                            value="SCHEDULED"
                             {...register("deliveryType")}
                             className="mr-3 text-luxury-500 focus:ring-luxury-500"
                           />
@@ -386,7 +498,7 @@ export default function CheckoutPage() {
                       </div>
                     </div>
 
-                    {deliveryType === "scheduled" && (
+                    {deliveryType === "SCHEDULED" && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 p-4 bg-cream-50 rounded-xl">
                         <Input
                           label="Preferred Date"
@@ -510,58 +622,9 @@ export default function CheckoutPage() {
                     </div>
 
                     {/* Card Payment Details */}
-                    {paymentMethod === "card" && (
-                      <div className="space-y-4 p-4 bg-cream-50 rounded-xl">
-                        <Input
-                          label="Cardholder Name"
-                          {...register("cardName")}
-                          error={errors.cardName?.message}
-                        />
-
-                        <Input
-                          label="Card Number"
-                          {...register("cardNumber")}
-                          placeholder="1234 5678 9012 3456"
-                          error={errors.cardNumber?.message}
-                        />
-
-                        <div className="grid grid-cols-2 gap-4">
-                          <Input
-                            label="Expiry Date"
-                            {...register("expiryDate")}
-                            placeholder="MM/YY"
-                            error={errors.expiryDate?.message}
-                          />
-                          <Input
-                            label="CVV"
-                            {...register("cvv")}
-                            placeholder="123"
-                            error={errors.cvv?.message}
-                          />
-                        </div>
-
-                        {/* Accepted Cards */}
-                        <div className="flex items-center space-x-3 pt-2">
-                          <span className="text-sm text-muted-foreground">
-                            We accept:
-                          </span>
-                          <div className="flex space-x-2">
-                            <div className="w-8 h-5 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">
-                              VISA
-                            </div>
-                            <div className="w-8 h-5 bg-red-600 rounded text-white text-xs flex items-center justify-center font-bold">
-                              MC
-                            </div>
-                            <div className="w-8 h-5 bg-blue-500 rounded text-white text-xs flex items-center justify-center font-bold">
-                              AMEX
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
 
                     {/* Cash on Delivery Info */}
-                    {paymentMethod === "cod" && (
+                    {paymentMethod === "COD" && (
                       <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
                         <div className="flex items-center mb-2">
                           <Banknote className="w-5 h-5 text-amber-600 mr-2" />
@@ -578,7 +641,7 @@ export default function CheckoutPage() {
                     )}
 
                     {/* Digital Wallet Info */}
-                    {paymentMethod === "wallet" && (
+                    {paymentMethod === "STRIPE" && (
                       <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
                         <div className="flex items-center mb-2">
                           <Wallet className="w-5 h-5 text-blue-600 mr-2" />
@@ -610,7 +673,7 @@ export default function CheckoutPage() {
                     </div>
                   </div>
 
-                  <div className="mt-6 flex flex-col sm:flex-row justify-between gap-4">
+                  {/* <div className="mt-6 flex flex-col sm:flex-row justify-between gap-4">
                     <Button
                       type="button"
                       variant="outline"
@@ -638,7 +701,44 @@ export default function CheckoutPage() {
                         </>
                       )}
                     </Button>
-                  </div>
+                  </div> */}
+                  {/* If STRIPE selected and clientSecret exists, show Payment Element instead of submit button */}
+                  {paymentMethod === "STRIPE" && clientSecret ? (
+                    <StripeSection
+                      clientSecret={clientSecret}
+                      amountLabel={formatPrice(total)}
+                    />
+                  ) : (
+                    <div className="mt-6 flex flex-col sm:flex-row justify-between gap-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setCurrentStep(2)}
+                        className="order-2 sm:order-1"
+                      >
+                        Back to Shipping
+                      </Button>
+                      <Button
+                        type="submit"
+                        variant="luxury"
+                        size="lg"
+                        disabled={isProcessing}
+                        className="min-w-[200px] order-1 sm:order-2"
+                      >
+                        {isProcessing ? (
+                          <div className="flex items-center">
+                            <div className="w-5 h-5 border-2 border-charcoal-900 border-t-transparent rounded-full animate-spin mr-2" />
+                            Processing...
+                          </div>
+                        ) : (
+                          <>
+                            <Lock className="w-4 h-4 mr-2" />
+                            Complete Order • {formatPrice(total)}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  )}
                 </div>
               )}
             </motion.form>
@@ -665,8 +765,8 @@ export default function CheckoutPage() {
                   >
                     <div className="relative w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
                       <Image
-                        src={item.product.images[0] || "/placeholder.svg"}
-                        alt={item.product.name}
+                        src={item.product?.images[0].url || "/placeholder.svg"}
+                        alt={item.product?.name}
                         fill
                         className="object-cover"
                       />
@@ -767,3 +867,53 @@ export default function CheckoutPage() {
     </div>
   );
 }
+
+//  <div>
+//    {paymentMethod === "STRIPE" && (
+//      <div className="space-y-4 p-4 bg-cream-50 rounded-xl">
+//        <Input
+//          label="Cardholder Name"
+//          {...register("cardName")}
+//          error={errors.cardName?.message}
+//        />
+
+//        <Input
+//          label="Card Number"
+//          {...register("cardNumber")}
+//          placeholder="1234 5678 9012 3456"
+//          error={errors.cardNumber?.message}
+//        />
+
+//        <div className="grid grid-cols-2 gap-4">
+//          <Input
+//            label="Expiry Date"
+//            {...register("expiryDate")}
+//            placeholder="MM/YY"
+//            error={errors.expiryDate?.message}
+//          />
+//          <Input
+//            label="CVV"
+//            {...register("cvv")}
+//            placeholder="123"
+//            error={errors.cvv?.message}
+//          />
+//        </div>
+
+//        {/* Accepted Cards */}
+//        <div className="flex items-center space-x-3 pt-2">
+//          <span className="text-sm text-muted-foreground">We accept:</span>
+//          <div className="flex space-x-2">
+//            <div className="w-8 h-5 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">
+//              VISA
+//            </div>
+//            <div className="w-8 h-5 bg-red-600 rounded text-white text-xs flex items-center justify-center font-bold">
+//              MC
+//            </div>
+//            <div className="w-8 h-5 bg-blue-500 rounded text-white text-xs flex items-center justify-center font-bold">
+//              AMEX
+//            </div>
+//          </div>
+//        </div>
+//      </div>
+//    )}
+//  </div>;

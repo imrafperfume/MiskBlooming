@@ -1,20 +1,27 @@
 export interface Product {
-  id: string
-  name: string
-  description: string
-  longDescription: string
-  price: number
-  originalPrice?: number
-  images: string[]
-  category: string
-  tags: string[]
-  inStock: boolean
-  featured: boolean
-  rating: number
-  reviewCount: number
-  specifications?: Record<string, string>
-  care_instructions?: string[]
-  delivery_info?: string
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  shortDescription: string;
+  price: number;
+  compareAtPrice?: number;
+  images: { url: string; publicId?: string }[]; // better structure
+  category: string;
+  subcategory?: string;
+  tags: string[];
+  quantity: number; // stock quantity
+  lowStockThreshold?: number;
+  featured: boolean;
+  rating?: number;
+  reviewCount?: number;
+  specifications?: Record<string, string>;
+  careInstructions?: string[];
+  deliveryInfo?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+  status?: "draft" | "active" | "archived";
 }
 
 export interface Category {

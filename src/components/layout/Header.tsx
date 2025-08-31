@@ -22,6 +22,10 @@ import {
   ChevronDown,
   Heart,
   UserIcon,
+  CreditCard,
+  Users,
+  ShieldCheck,
+  LayoutDashboard,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -334,27 +338,75 @@ const Header = () => {
                             </div>
                           </div>
 
-                          <div className="py-1">
-                            <DropdownMenuItem asChild>
-                              <Link
-                                href="/account/orders"
-                                className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
-                              >
-                                <ShoppingCart className="w-4 h-4 text-slate-500" />
-                                <span>My Orders</span>
-                              </Link>
-                            </DropdownMenuItem>
+                          {user?.role === "ADMIN" ? (
+                            <div className="py-1">
+                              {/* Dashboard */}
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href="/dashboard"
+                                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                                >
+                                  <LayoutDashboard className="w-4 h-4 text-slate-500" />
+                                  <span>Dashboard</span>
+                                </Link>
+                              </DropdownMenuItem>
 
-                            <DropdownMenuItem asChild>
-                              <Link
-                                href="/account/settings"
-                                className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
-                              >
-                                <Settings className="w-4 h-4 text-slate-500" />
-                                <span>Account Settings</span>
-                              </Link>
-                            </DropdownMenuItem>
-                          </div>
+                              {/* Manage Admin */}
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href="/dashboard/account/settings"
+                                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                                >
+                                  <ShieldCheck className="w-4 h-4 text-slate-500" />
+                                  <span>Manage Admin</span>
+                                </Link>
+                              </DropdownMenuItem>
+
+                              {/* Users */}
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href="/dashboard/users"
+                                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                                >
+                                  <Users className="w-4 h-4 text-slate-500" />
+                                  <span>Users</span>
+                                </Link>
+                              </DropdownMenuItem>
+
+                              {/* Payments */}
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href="/dashboard/payments"
+                                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                                >
+                                  <CreditCard className="w-4 h-4 text-slate-500" />
+                                  <span>Payments</span>
+                                </Link>
+                              </DropdownMenuItem>
+                            </div>
+                          ) : (
+                            <div className="py-1">
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href="/account/orders"
+                                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                                >
+                                  <ShoppingCart className="w-4 h-4 text-slate-500" />
+                                  <span>My Orders</span>
+                                </Link>
+                              </DropdownMenuItem>
+
+                              <DropdownMenuItem asChild>
+                                <Link
+                                  href="/account/settings"
+                                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                                >
+                                  <Settings className="w-4 h-4 text-slate-500" />
+                                  <span>Account Settings</span>
+                                </Link>
+                              </DropdownMenuItem>
+                            </div>
+                          )}
 
                           <DropdownMenuSeparator className="my-1 bg-slate-100" />
 

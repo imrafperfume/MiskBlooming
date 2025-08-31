@@ -1,46 +1,55 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import Image from "next/image"
-import Link from "next/link"
-import { Star, Heart, ShoppingBag, Eye, Sparkles } from "lucide-react"
-import { motion } from "framer-motion"
-import { Button } from "../ui/Button"
-import { useCartStore } from "../../store/cartStore"
-import { useWishlistStore } from "../../store/wishlistStore"
-import type { Product } from "../../types"
-import { formatPrice, calculateDiscount } from "../../lib/utils"
+import Image from "next/image";
+import Link from "next/link";
+import { Star, Heart, ShoppingBag, Eye, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import { Button } from "../ui/Button";
+import { useCartStore } from "../../store/cartStore";
+import { useWishlistStore } from "../../store/wishlistStore";
+import type { Product } from "../../types";
+import { formatPrice, calculateDiscount } from "../../lib/utils";
 
 interface ProductCardProps {
-  product: Product
-  index?: number
+  product: Product;
+  index?: number;
+  viewMode?: string;
 }
 
-const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
-  const addItem = useCartStore((state) => state.addItem)
-  const { addItem: addToWishlist, removeItem: removeFromWishlist, isInWishlist } = useWishlistStore()
-  const isWishlisted = isInWishlist(product.id)
+const ProductCard = ({ product, index = 0, viewMode }: ProductCardProps) => {
+  const addItem = useCartStore((state) => state.addItem);
+  const {
+    addItem: addToWishlist,
+    removeItem: removeFromWishlist,
+    isInWishlist,
+  } = useWishlistStore();
+  const isWishlisted = isInWishlist(product.id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault()
-    addItem(product)
-  }
+    e.preventDefault();
+    addItem(product);
+  };
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (isWishlisted) {
-      removeFromWishlist(product.id)
+      removeFromWishlist(product.id);
     } else {
-      addToWishlist(product)
+      addToWishlist(product);
     }
-  }
+  };
 
-  const discountPercentage = product.originalPrice ? calculateDiscount(product.originalPrice, product.price) : 0
+  const discountPercentage = product.price
+    ? calculateDiscount(product.price, product?.compareAtPrice ?? 0)
+    : 0;
 
   return (
     <motion.div
-      className="group relative bg-white rounded-3xl shadow-lg hover:shadow-luxury transition-all duration-700 overflow-hidden border border-cream-200"
+      className={`${
+        viewMode !== "grid" && "flex gap-5 group justify-between"
+      } group relative bg-white rounded-3xl shadow-lg hover:shadow-luxury transition-all duration-700 overflow-hidden border border-cream-200`}
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -48,9 +57,13 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
       whileHover={{ y: -12, scale: 1.02 }}
     >
       {/* Image Container */}
-      <div className="relative aspect-square overflow-hidden">
+      <div
+        className={` ${
+          viewMode !== "grid" && "w-full aspect-auto"
+        } relative aspect-square overflow-hidden`}
+      >
         <Image
-          src={product.images[0] || "../public/placeholder.svg"}
+          src={product.images[0].url || "../public/placeholder.svg"}
           alt={product.name}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-110"
@@ -87,7 +100,7 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
               -{discountPercentage}%
             </motion.div>
           )}
-          {!product.inStock && (
+          {!product.quantity && (
             <div className="bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-bold">
               Out of Stock
             </div>
@@ -110,7 +123,7 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
               className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`}
             />
           </motion.button>
-          <Link href={`/products/${product.id}`}>
+          <Link href={`/products/${product?.slug}`}>
             <motion.button
               className="w-12 h-12 bg-white/90 hover:bg-white text-charcoal-900 rounded-full flex items-center justify-center shadow-lg transition-all duration-300"
               whileHover={{ scale: 1.1 }}
@@ -127,16 +140,16 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             onClick={handleAddToCart}
             variant="luxury"
             className="w-full shadow-luxury"
-            disabled={!product.inStock}
+            disabled={!product.quantity}
           >
             <ShoppingBag className="w-4 h-4 mr-2" />
-            {product.inStock ? "Add to Cart" : "Out of Stock"}
+            {product.quantity ? "Add to Cart" : "Out of Stock"}
           </Button>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-6">
+      <div className="px-6 py-3">
         {/* Rating */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center">
@@ -144,14 +157,14 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
               <Star
                 key={i}
                 className={`w-4 h-4 ${
-                  i < Math.floor(product.rating)
+                  i < Math.floor(4)
                     ? "text-luxury-500 fill-current"
                     : "text-cream-300"
                 }`}
               />
             ))}
             <span className="text-sm text-muted-foreground ml-2">
-              ({product.reviewCount})
+              ({product.reviewCount || 0})
             </span>
           </div>
           <div className="text-xs text-luxury-500 font-medium bg-luxury-50 px-2 py-1 rounded-full">
@@ -160,7 +173,7 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
         </div>
 
         {/* Title */}
-        <Link href={`/products/${product.id}`}>
+        <Link href={`/products/${product.slug}`}>
           <h3 className="font-cormorant text-xl font-semibold text-charcoal-900 mb-2 hover:text-luxury-500 transition-colors line-clamp-2 group-hover:text-luxury-600">
             {product.name}
           </h3>
@@ -168,7 +181,7 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
 
         {/* Description */}
         <p className="text-muted-foreground text-sm mb-4 line-clamp-2 leading-relaxed">
-          {product.description}
+          {product.shortDescription}
         </p>
 
         {/* Price */}
@@ -177,21 +190,20 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             <span className="text-xl font-bold text-charcoal-900">
               {formatPrice(product.price)}
             </span>
-            {product.originalPrice && (
+            {product.price && (
               <span className="text-sm text-muted-foreground line-through">
-                {formatPrice(product.originalPrice)}
+                {formatPrice(product.price)}
               </span>
             )}
           </div>
-          {product.inStock && (
-            <div className="text-xs  text-green-600 font-medium bg-green-50 px-2 py-1 rounded-full">
-              In Stock
-            </div>
-          )}
         </div>
-
+        {/* {product.quantity && (
+          <div className="text-xs  text-green-600 font-medium bg-green-50 rounded-full">
+            In Stock
+          </div>
+        )} */}
         {/* Tags */}
-        <div className="flex flex-wrap gap-2">
+        {/* <div className="flex flex-wrap gap-2">
           {product.tags.slice(0, 3).map((tag) => (
             <span
               key={tag}
@@ -200,13 +212,13 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
               {tag}
             </span>
           ))}
-        </div>
+        </div> */}
       </div>
 
       {/* Luxury Border Effect */}
       <div className="absolute inset-0 rounded-3xl border-2 border-transparent group-hover:border-luxury-200 transition-all duration-500 pointer-events-none" />
     </motion.div>
   );
-}
+};
 
-export default ProductCard
+export default ProductCard;

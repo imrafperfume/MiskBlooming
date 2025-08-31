@@ -1,11 +1,16 @@
 "use client";
-
-import { useState } from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
 import { Button } from "../ui/Button";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay } from "swiper/modules";
+
+// Import Swiper styles
+import "swiper/css";
+import "swiper/css/pagination";
 
 const categories = [
   {
@@ -113,126 +118,68 @@ const ShopByCategory = () => {
         </div>
 
         {/* Slider Container */}
-        <div className="relative">
-          {/* Navigation Buttons */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={prevSlide}
-            disabled={currentSlide === 0}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg hover:bg-cream-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
+        <Swiper
+          slidesPerView={5}
+          spaceBetween={30}
+          pagination={{ clickable: true }}
+          autoplay={{
+            delay: 2500,
+            disableOnInteraction: false,
+          }}
+          breakpoints={{
+            320: { slidesPerView: 2, spaceBetween: 10 }, // mobile
+            640: { slidesPerView: 2, spaceBetween: 20 }, // small devices
+            1024: { slidesPerView: 4, spaceBetween: 25 }, // tablet
+            1280: { slidesPerView: 5, spaceBetween: 30 }, // desktop
+          }}
+          modules={[Autoplay]}
+          className="mySwiper outline-none border-none"
+        >
+          {categories.map((category, index) => (
+            <SwiperSlide key={index}>
+              <motion.div
+                key={category.id}
+                className=" group"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                viewport={{ once: true }}
+              >
+                <div className="overflow-hidden transition-all duration-500">
+                  {/* Image Container */}
+                  <div className="relative aspect-square overflow-hidden rounded-full">
+                    <Image
+                      src={category.image}
+                      alt={category.name}
+                      fill
+                      className="object-cover w-full h-full scale-105 transition-transform duration-500 group-hover:scale-110"
+                    />
 
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={nextSlide}
-            disabled={currentSlide === totalSlides - 1}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow-lg hover:bg-cream-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </Button>
+                    {/* Explore Button */}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <Link href={category.href}>
+                        <Button className="bg-white text-charcoal-900 hover:bg-luxury-500 font-semibold px-6 py-2 rounded-full ">
+                          Explore Collection
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
 
-          {/* Cards Container */}
-          <div className="overflow-hidden mx-12">
-            <motion.div
-              className="flex transition-transform duration-500 ease-in-out"
-              style={{
-                transform: `translateX(-${
-                  currentSlide * (100 / totalSlides)
-                }%)`,
-                width: `${totalSlides * 100}%`,
-              }}
-            >
-              {Array.from({ length: totalSlides }).map((_, slideIndex) => (
-                <div
-                  key={slideIndex}
-                  className="flex gap-6"
-                  style={{ width: `${100 / totalSlides}%` }}
-                >
-                  {categories
-                    .slice(
-                      slideIndex * itemsPerSlide,
-                      (slideIndex + 1) * itemsPerSlide
-                    )
-                    .map((category, index) => (
-                      <motion.div
-                        key={category.id}
-                        className="flex-1 group"
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: index * 0.1 }}
-                        viewport={{ once: true }}
-                      >
-                        <div className="bg-white rounded-2xl shadow-lg border border-cream-300 overflow-hidden hover:shadow-xl transition-all duration-500 group-hover:-translate-y-2">
-                          {/* Image Container */}
-                          <div className="relative h-64 overflow-hidden">
-                            <Image
-                              src={category.image}
-                              alt={category.name}
-                              fill
-                              className="object-cover w-full h-full scale-105 transition-transform duration-500 group-hover:scale-110"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-
-                            {/* Item Count Badge */}
-                            <div className="absolute top-4 right-4 bg-luxury-500 text-charcoal-900 px-3 py-1 rounded-full text-sm font-semibold">
-                              {category.itemCount} items
-                            </div>
-
-                            {/* Explore Button */}
-                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                              <Link href={category.href}>
-                                <Button className="bg-white text-charcoal-900 hover:bg-cream-50 font-semibold px-6 py-2 rounded-full shadow-lg">
-                                  Explore Collection
-                                  <ArrowRight className="w-4 h-4 ml-2" />
-                                </Button>
-                              </Link>
-                            </div>
-                          </div>
-
-                          {/* Content */}
-                          <div className="p-6">
-                            <h3 className="text-xl font-cormorant font-semibold text-charcoal-900 mb-2 group-hover:text-luxury-600 transition-colors">
-                              {category.name}
-                            </h3>
-                            <p className="text-charcoal-700 mb-4">
-                              {category.description}
-                            </p>
-                            <Link
-                              href={category.href}
-                              className="inline-flex items-center text-luxury-600 hover:text-luxury-700 font-medium transition-colors"
-                            >
-                              View Collection
-                              <ArrowRight className="w-4 h-4 ml-1" />
-                            </Link>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
+                  {/* Content */}
+                  <div className="p-6">
+                    <h3 className="text-xl font-cormorant font-semibold text-charcoal-900 mb-2 group-hover:text-luxury-600 transition-colors">
+                      {category.name}
+                    </h3>
+                    <p className="text-charcoal-700 mb-4">
+                      {category.description}
+                    </p>
+                  </div>
                 </div>
-              ))}
-            </motion.div>
-          </div>
-
-          {/* Slide Indicators */}
-          <div className="flex justify-center mt-8 space-x-2">
-            {Array.from({ length: totalSlides }).map((_, index) => (
-              <button
-                key={index}
-                onClick={() => goToSlide(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  index === currentSlide
-                    ? "bg-luxury-500 w-8"
-                    : "bg-cream-300 hover:bg-cream-400"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-
+              </motion.div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
         {/* View All Button */}
         <div className="text-center mt-12">
           <Link href="/products">

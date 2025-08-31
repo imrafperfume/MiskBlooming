@@ -1,0 +1,73 @@
+model User {
+    id            String   @id @default(cuid())
+    firstName     String
+    lastName      String
+    phoneNumber   String   @unique
+    email         String   @unique
+    emailVerified Boolean  @default(false)
+    passwordHash  String
+    role          Role     @default(USER)
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @default(now())
+    status        Status   @default(NEW)
+
+    sessions               Session[]
+    EmailVerificationToken EmailVerificationToken[]
+    PasswordResetToken     PasswordResetToken[]
+    Order                  Order[]
+    Review                 Review[]
+}
+
+enum Status {
+    VIP
+    NEW
+    REGULAR
+}
+
+enum Role {
+    USER
+    ADMIN
+}
+
+model Session {
+    id            String   @id @default(cuid())
+    userId        String
+    user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    // opaque session token is hashed before storing
+    tokenHash     String   @unique
+    createdAt     DateTime @default(now())
+    expiresAt     DateTime
+    lastRotatedAt DateTime @default(now())
+    ip            String?
+    userAgent     String?
+    revoked       Boolean  @default(false)
+
+    @@index([userId])
+    @@index([expiresAt])
+}
+
+model EmailVerificationToken {
+    id        String    @id @default(cuid())
+    userId    String
+    user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    tokenHash String    @unique
+    expiresAt DateTime
+    usedAt    DateTime?
+    createdAt DateTime  @default(now())
+
+    @@index([userId])
+    @@index([expiresAt])
+}
+
+model PasswordResetToken {
+    id        String    @id @default(cuid())
+    userId    String
+    user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+    tokenHash String    @unique
+    expiresAt DateTime
+    usedAt    DateTime?
+    createdAt DateTime  @default(now())
+
+    @@index([userId])
+    @@index([expiresAt])
+}

@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 // import { useSearchParams } from "next/navigation"
 import {
   LayoutDashboard,
@@ -27,20 +27,34 @@ import {
   Tag,
   Calendar,
   HelpCircle,
-} from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "../../components/ui/Button"
-import { Suspense } from "react"
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "../../components/ui/Button";
+import { Suspense } from "react";
+import { useAuth } from "@/src/hooks/useAuth";
 
 export default function AdminLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [userMenuOpen, setUserMenuOpen] = useState(false)
-  const pathname = usePathname()
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const pathname = usePathname();
   // const searchParams = useSearchParams()
+  const { data: user, isLoading } = useAuth();
+  if (isLoading) {
+    return (
+      <div>
+        <p>Loading please wait</p>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== "ADMIN") {
+    window.location.href = "/";
+    return null;
+  }
 
   const navigation = [
     {
@@ -115,11 +129,11 @@ export default function AdminLayout({
       icon: Settings,
       description: "System Configuration",
     },
-  ]
+  ];
 
   return (
-    <div className="min-h-screen min-w-full flex overflow-x-hidden  bg-gray-50">
-      <div className="mx-auto max-w-screen-xl flex">
+    <div className="flex relative max-w-screen-2xl justify-center overflow-x-hidden  bg-gray-50">
+      <div className="  flex justify-between max-w-full overflow-x-hidden">
         {/* Mobile sidebar backdrop */}
         <AnimatePresence>
           {sidebarOpen && (
@@ -139,12 +153,12 @@ export default function AdminLayout({
 
         {/* Sidebar */}
         <motion.div
-          className={`fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-xl transform ${
+          className={`fixed top-0 inset-y-0 left-0 z-50 w-72 bg-white shadow-xl transform ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
           } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
           initial={false}
         >
-          <div className="flex flex-col h-full w-full">
+          <div className="flex flex-col w-full">
             {/* Logo */}
             <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 bg-white">
               <Link href="/dashboard" className="flex items-center space-x-3">
@@ -262,7 +276,7 @@ export default function AdminLayout({
         </motion.div>
 
         {/* Main content */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto w-full">
           {/* Top bar */}
           <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-gray-200">
             <div className="flex items-center justify-between h-16 px-6">
