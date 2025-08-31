@@ -145,3 +145,32 @@
   all: revert;
   font-size: revert;
 }
+
+
+.swiper {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+}
+
+.swiper-slide {
+  text-align: center;
+  border: none;
+  outline: none;
+
+  /* Center slide text vertically */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+}
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: none;
+  outline: none;
+}

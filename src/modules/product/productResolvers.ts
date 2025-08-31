@@ -116,8 +116,8 @@ export const ProductResolvers = {
             images: productData?.images
               ? {
                   create: productData?.images.map((img: any) => ({
-                    url: img.url,
-                    publicId: img.publicId,
+                    url: img?.url,
+                    publicId: img?.publicId,
                   })),
                 }
               : undefined,

@@ -107,10 +107,12 @@ export const OrderTypeDefs = gql`
   type Query {
     allOrders: [Order!]!
     orderStats: OrderStats!
+    orderById(id: ID!): Order
   }
 
   type Mutation {
     createOrder(input: CreateOrderInput!): Order!
     updateOrder(id: ID!, input: CreateOrderInput!): Order!
+    updateOrderStatus(id: ID!, status: OrderStatus!): Order!
   }
 `;

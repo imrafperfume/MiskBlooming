@@ -50,6 +50,19 @@ type OrderStats = {
   cancelled: number;
   revenue: number;
 };
+
+type OrderStatus =
+  | "PENDING"
+  | "PROCESSING"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED";
+
+interface UpdateOrderStatusArgs {
+  id: string;
+  status: OrderStatus;
+  notes?: string;
+}
 export const OrderResolvers = {
   Query: {
     allOrders: async (_: any, __: any, context: { userId: string }) => {
@@ -66,13 +79,6 @@ export const OrderResolvers = {
         const orders = await prisma.order.findMany({
           orderBy: {
             createdAt: "desc",
-          },
-          include: {
-            items: {
-              include: {
-                product: true,
-              },
-            },
           },
         });
         if (!orders) throw new Error("Orders not available");
@@ -127,6 +133,36 @@ export const OrderResolvers = {
         throw new Error(error.message);
       }
     },
+    orderById: async (_: any, args: { id: string }) => {
+      try {
+        const { id } = args;
+        console.log("🚀 ~ id:", id);
+        if (!id) throw new Error("Id not found");
+        const cache = await redis.get(`orderById:${id}`);
+        if (cache) {
+          return cache;
+        }
+        const order = await prisma.order.findUnique({
+          where: {
+            id: id,
+          },
+          include: {
+            items: {
+              include: {
+                product: true,
+              },
+            },
+          },
+        });
+        if (!order) throw new Error("Order not found");
+        await redis.set(`orderById:${id}`, JSON.stringify(order), {
+          ex: 60 * 5,
+        });
+        return order;
+      } catch (error: any) {
+        throw new Error(error.message);
+      }
+    },
   },
   Mutation: {
     createOrder: async (_: any, { input }: { input: CreateOrderInput }) => {
@@ -153,6 +189,36 @@ export const OrderResolvers = {
       } catch (error) {
         console.error(error);
         throw new Error("Failed to create order");
+      }
+    },
+    updateOrderStatus: async (
+      _: any,
+      args: UpdateOrderStatusArgs,
+      context: { userId: string }
+    ) => {
+      try {
+        const { userId } = context;
+        if (!userId) throw new Error("User not authenticated");
+
+        // Optional: check if user is admin
+        const userRole = await isAdmin(userId);
+        if (userRole.role !== "ADMIN") throw new Error("Not authorized");
+
+        const updatedOrder = await prisma.order.update({
+          where: { id: args.id },
+          data: {
+            status: args.status,
+          },
+          include: {
+            user: true,
+            items: { include: { product: true } },
+          },
+        });
+
+        return updatedOrder;
+      } catch (error) {
+        console.error("Error updating order status:", error);
+        throw new Error("Failed to update order status");
       }
     },
     // updateOrderPayment: async (_: any, { id, payme }: { id: string, input: CreateOrderInput }) => {

@@ -10,6 +10,8 @@ import { OrderTypeDefs } from "@/src/modules/order/order-typedefs";
 import { OrderResolvers } from "@/src/modules/order/orderResolvers";
 import { UserTypeDefs } from "@/src/modules/user/user-typeDefs";
 import { UserResolvers } from "@/src/modules/user/userResolvers";
+import { dashboardTypeDefs } from "@/src/modules/dashboard/dashboard-typedefs";
+import { DashboardResolvers } from "@/src/modules/dashboard/dasboardResolvers";
 const typeDefs = mergeTypeDefs([
   `
     type Query {
@@ -22,6 +24,7 @@ const typeDefs = mergeTypeDefs([
   ProductTypeDefs,
   OrderTypeDefs,
   UserTypeDefs,
+  dashboardTypeDefs,
 ]);
 
 // const resolvers = mergeResolvers([ProductResolvers]);
@@ -34,6 +37,7 @@ const resolvers = mergeResolvers([
   ProductResolvers,
   OrderResolvers,
   UserResolvers,
+  DashboardResolvers,
 ]) as IResolvers<any, ContextType & YogaInitialContext>;
 
 const schema = createSchema<ContextType>({
@@ -50,7 +54,7 @@ const yoga = createYoga<ContextType>({
       const ip = request.headers.get("x-forwarded-for") || "unknown";
       const key = `rate:${ip}`;
       const limit = userId ? 150 : 60;
-      const allowed = await rateLimit(key, limit, "1 m"); // 20 req / min if user login
+      const allowed = await rateLimit(key, limit, "1 m"); // 150 req / min if user login
       if (!allowed) {
         throw new Error("Too many requests. Please try again later.");
       }

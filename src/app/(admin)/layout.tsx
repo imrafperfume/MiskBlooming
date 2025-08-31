@@ -158,7 +158,7 @@ export default function AdminLayout({
           } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
           initial={false}
         >
-          <div className="flex flex-col h-full w-full">
+          <div className="flex flex-col w-full">
             {/* Logo */}
             <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200 bg-white">
               <Link href="/dashboard" className="flex items-center space-x-3">
