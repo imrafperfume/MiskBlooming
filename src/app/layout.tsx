@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "../providers/QueryProvider";
-
+import { Toaster, toast } from "sonner";
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -58,6 +58,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className="min-h-screen bg-gradient-to-br  overflow-x-hidden  from-cream-50 to-cream-100"
       >
+        <Toaster position="top-center" richColors />
         <QueryProvider>{children}</QueryProvider>
       </body>
     </html>

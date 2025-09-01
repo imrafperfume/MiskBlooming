@@ -9,12 +9,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "../../../../components/ui/Button";
 import { RegisterInput, registerSchema } from "@/src/lib/zod";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [csrf, setCsrf] = useState("");
+  const router = useRouter();
   useEffect(() => {
     fetch("/api/auth/csrf", { cache: "no-store" })
       .then((r) => r.json())
@@ -44,16 +47,21 @@ export default function RegisterPage() {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || "Login failed");
+        toast.error("Register Failed");
+        throw new Error(errData.error || "Register failed");
       }
 
       const d = await res.json();
 
       console.log("Register data:", d);
       // Redirect to login or Home
-      window.location.href = "/";
+      toast.success(
+        "Account created successfully! Please verify your email address"
+      );
+      router.push("/auth/login");
     } catch (error) {
       console.error("Register error:", error);
+      toast.error("Register Failed");
     } finally {
       setIsLoading(false);
     }
