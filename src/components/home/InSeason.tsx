@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { ArrowRight, Sparkles, Calendar } from "lucide-react"
-import { motion } from "framer-motion"
-import { Button } from "../ui/Button"
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, Sparkles, Calendar } from "lucide-react";
+import { motion } from "framer-motion";
+import { Button } from "../ui/Button";
 
 const InSeason = () => {
-  const [hoveredItem, setHoveredItem] = useState<number | null>(null)
+  const [hoveredItem, setHoveredItem] = useState<number | null>(null);
 
   const seasonalItems = [
     {
@@ -49,7 +49,7 @@ const InSeason = () => {
       category: "Chocolates",
       badge: "Seasonal",
     },
-  ]
+  ];
 
   return (
     <section className="py-24 bg-white">
@@ -63,15 +63,17 @@ const InSeason = () => {
         >
           <div className="flex items-center justify-center mb-4">
             <Sparkles className="w-6 h-6 text-luxury-500 mr-2" />
-            <span className="text-luxury-500 font-medium tracking-wide">SEASONAL COLLECTION</span>
+            <span className="text-luxury-500 font-medium tracking-wide">
+              SEASONAL COLLECTION
+            </span>
             <Sparkles className="w-6 h-6 text-luxury-500 ml-2" />
           </div>
           <h2 className="font-cormorant text-display-md font-bold text-charcoal-900 mb-6">
             Fresh <span className="luxury-text">In Season</span>
           </h2>
           <p className="text-muted-foreground text-xl max-w-3xl mx-auto">
-            Discover our seasonal collection featuring the freshest flowers, special occasion cakes, and limited-time
-            treats
+            Discover our seasonal collection featuring the freshest flowers,
+            special occasion cakes, and limited-time treats
           </p>
         </motion.div>
 
@@ -93,6 +95,7 @@ const InSeason = () => {
                   src={item.image || "/placeholder.svg"}
                   alt={item.name}
                   fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
                 />
 
@@ -116,7 +119,9 @@ const InSeason = () => {
 
               <div className="p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-luxury-500 font-medium uppercase tracking-wide">{item.category}</span>
+                  <span className="text-xs text-luxury-500 font-medium uppercase tracking-wide">
+                    {item.category}
+                  </span>
                   <Calendar className="w-4 h-4 text-luxury-500" />
                 </div>
 
@@ -124,13 +129,19 @@ const InSeason = () => {
                   {item.name}
                 </h3>
 
-                <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{item.description}</p>
+                <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                  {item.description}
+                </p>
 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
-                    <span className="text-lg font-bold text-charcoal-900">AED {item.price}</span>
+                    <span className="text-lg font-bold text-charcoal-900">
+                      AED {item.price}
+                    </span>
                     {item.originalPrice && (
-                      <span className="text-sm text-muted-foreground line-through">AED {item.originalPrice}</span>
+                      <span className="text-sm text-muted-foreground line-through">
+                        AED {item.originalPrice}
+                      </span>
                     )}
                   </div>
 
@@ -157,7 +168,11 @@ const InSeason = () => {
           viewport={{ once: true }}
         >
           <Link href="/products">
-            <Button variant="outline" size="xl" className="group bg-transparent">
+            <Button
+              variant="outline"
+              size="xl"
+              className="group bg-transparent"
+            >
               View All Seasonal Items
               <Calendar className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
             </Button>
@@ -165,7 +180,7 @@ const InSeason = () => {
         </motion.div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default InSeason
+export default InSeason;

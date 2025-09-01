@@ -1,13 +1,6 @@
 "use client";
 
 import type React from "react";
-// import { useLogout } from "@/hooks/useLogout";
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuTrigger,
-// } from "@/components/ui/dropdown-menu";
 
 import {
   LogOut,
@@ -188,7 +181,7 @@ const Header = () => {
       transition={{ duration: 0.6 }}
     >
       {/* Top Bar */}
-      <div className="bg-charcoal-900 text-cream-50 py-2">
+      {/* <div className="bg-charcoal-900 text-cream-50 py-2">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center text-sm">
             <motion.span
@@ -212,7 +205,7 @@ const Header = () => {
             </motion.div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Main Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 shadow-md border-b">
@@ -220,15 +213,17 @@ const Header = () => {
           {/* Logo */}
           <Link href="/" className="flex items-center group">
             <motion.div
-              className="lg:text-3xl md:text-3xl text-xl font-cormorant font-bold text-charcoal-900"
+              className="relative lg:text-3xl md:text-3xl w-48 h-24 lg:w-48 lg:h-24 md:w-40 md:h-20 text-xl font-cormorant font-bold text-charcoal-900"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
               <Image
                 src="/images/logo.jpg"
-                alt="Logo"
-                width={200}
-                height={100}
+                alt="Miskblooming"
+                fill
+                priority
+                style={{ objectFit: "contain" }}
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
             </motion.div>
           </Link>
