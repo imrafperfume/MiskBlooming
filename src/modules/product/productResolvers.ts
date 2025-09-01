@@ -69,9 +69,6 @@ export const ProductResolvers = {
     productBySlug: async (_: any, args: { slug: string }) => {
       const cache: string | null = await redis.get(`product:${args.slug}`);
       if (cache) {
-        if (cache) {
-          return cache;
-        }
         return cache;
       }
       const product = await prisma.product.findUnique({

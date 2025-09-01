@@ -1,56 +1,66 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Calendar, Heart, Gift, ChevronLeft, ChevronRight, Sparkles } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Button } from "../ui/Button"
-import occasionsData from "../../data/occasions.json"
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  Calendar,
+  Heart,
+  Gift,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "../ui/Button";
+import occasionsData from "../../data/occasions.json";
 
 interface Occasion {
-  id: string
-  name: string
-  description: string
-  image: string
-  color: string
-  products: string[]
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  color: string;
+  products: string[];
 }
 
 const SpecialOccasions = () => {
-  const occasions = occasionsData as Occasion[]
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const [itemsPerSlide, setItemsPerSlide] = useState(3)
+  const occasions = occasionsData as Occasion[];
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [itemsPerSlide, setItemsPerSlide] = useState(3);
 
   // Responsive items per slide
   useEffect(() => {
     const updateItemsPerSlide = () => {
       if (window.innerWidth < 640) {
-        setItemsPerSlide(1)
+        setItemsPerSlide(1);
       } else if (window.innerWidth < 1024) {
-        setItemsPerSlide(2)
+        setItemsPerSlide(2);
       } else if (window.innerWidth < 1280) {
-        setItemsPerSlide(3)
+        setItemsPerSlide(3);
       } else {
-        setItemsPerSlide(4)
+        setItemsPerSlide(4);
       }
-    }
+    };
 
-    updateItemsPerSlide()
-    window.addEventListener("resize", updateItemsPerSlide)
-    return () => window.removeEventListener("resize", updateItemsPerSlide)
-  }, [])
+    updateItemsPerSlide();
+    window.addEventListener("resize", updateItemsPerSlide);
+    return () => window.removeEventListener("resize", updateItemsPerSlide);
+  }, []);
 
-  const totalSlides = Math.ceil(occasions.length / itemsPerSlide)
-  const currentOccasions = occasions.slice(currentSlide * itemsPerSlide, (currentSlide + 1) * itemsPerSlide)
+  const totalSlides = Math.ceil(occasions.length / itemsPerSlide);
+  const currentOccasions = occasions.slice(
+    currentSlide * itemsPerSlide,
+    (currentSlide + 1) * itemsPerSlide
+  );
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % totalSlides)
-  }
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
+  };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)
-  }
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
+  };
 
   const getOccasionIcon = (id: string) => {
     switch (id) {
@@ -58,14 +68,14 @@ const SpecialOccasions = () => {
       case "mothers-day":
       case "anniversary":
       case "sympathy":
-        return <Heart className="w-5 h-5" />
+        return <Heart className="w-5 h-5" />;
       case "birthday":
       case "congratulations":
-        return <Gift className="w-5 h-5" />
+        return <Gift className="w-5 h-5" />;
       default:
-        return <Sparkles className="w-5 h-5" />
+        return <Sparkles className="w-5 h-5" />;
     }
-  }
+  };
 
   return (
     <section className="py-20 bg-white h-full">
@@ -80,18 +90,22 @@ const SpecialOccasions = () => {
         >
           <div className="flex items-center justify-center mb-4">
             <Calendar className="w-6 h-6 text-luxury-500 mr-2" />
-            <span className="text-luxury-500 font-medium tracking-wide text-sm uppercase">SPECIAL OCCASIONS</span>
+            <span className="text-luxury-500 font-medium tracking-wide text-sm uppercase">
+              SPECIAL OCCASIONS
+            </span>
             <Calendar className="w-6 h-6 text-luxury-500 ml-2" />
           </div>
           <h2 className="font-cormorant text-4xl md:text-5xl font-bold text-charcoal-900 mb-6">
-            Celebrate Life's <span className="text-luxury-500">Precious Moments</span>
+            Celebrate Life's{" "}
+            <span className="text-luxury-500">Precious Moments</span>
           </h2>
           <p className="text-gray-600 text-lg max-w-3xl mx-auto leading-relaxed">
-            From intimate celebrations to grand occasions, find the perfect arrangement to express your emotions
+            From intimate celebrations to grand occasions, find the perfect
+            arrangement to express your emotions
           </p>
         </motion.div>
 
-        {/* Slider Container */} 
+        {/* Slider Container */}
         <div className="relative">
           {/* Navigation Buttons */}
           <button
@@ -132,9 +146,13 @@ const SpecialOccasions = () => {
                     {/* Image Container */}
                     <div className="relative aspect-[4/3] overflow-hidden">
                       <Image
-                        src={occasion.image || "/placeholder.svg?height=300&width=400"}
+                        src={
+                          occasion.image ||
+                          "/placeholder.svg?height=300&width=400"
+                        }
                         alt={occasion.name}
                         fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         className="object-cover transition-transform duration-700 group-hover:scale-110"
                       />
 
@@ -170,10 +188,14 @@ const SpecialOccasions = () => {
                       <h3 className="font-cormorant text-xl font-semibold text-charcoal-900 mb-2 group-hover:text-luxury-500 transition-colors duration-300">
                         {occasion.name}
                       </h3>
-                      <p className="text-gray-600 text-sm leading-relaxed line-clamp-2 mb-4">{occasion.description}</p>
+                      <p className="text-gray-600 text-sm leading-relaxed line-clamp-2 mb-4">
+                        {occasion.description}
+                      </p>
 
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500 font-medium">Starting from AED 150</span>
+                        <span className="text-xs text-gray-500 font-medium">
+                          Starting from AED 150
+                        </span>
                         <Link
                           href={`/occasions/${occasion.id}`}
                           className="text-luxury-500 hover:text-luxury-600 text-sm font-medium transition-colors duration-200"
@@ -196,7 +218,9 @@ const SpecialOccasions = () => {
               key={index}
               onClick={() => setCurrentSlide(index)}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentSlide ? "bg-luxury-500 w-8" : "bg-cream-300 hover:bg-cream-400"
+                index === currentSlide
+                  ? "bg-luxury-500 w-8"
+                  : "bg-cream-300 hover:bg-cream-400"
               }`}
             />
           ))}
@@ -223,7 +247,7 @@ const SpecialOccasions = () => {
         </motion.div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default SpecialOccasions
+export default SpecialOccasions;

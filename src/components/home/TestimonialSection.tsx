@@ -1,15 +1,15 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Image from "next/image"
-import { Star, Quote } from "lucide-react"
-import { motion } from "framer-motion"
-import type { Testimonial } from "../../types"
-import testimonialsData from "../../data/testimonials.json"
+import { useState } from "react";
+import Image from "next/image";
+import { Star, Quote } from "lucide-react";
+import { motion } from "framer-motion";
+import type { Testimonial } from "../../types";
+import testimonialsData from "../../data/testimonials.json";
 
 const TestimonialSection = () => {
-  const [activeTestimonial, setActiveTestimonial] = useState(0)
-  const testimonials = testimonialsData as Testimonial[]
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const testimonials = testimonialsData as Testimonial[];
 
   return (
     <section className="py-24 bg-gradient-to-br from-charcoal-900 to-charcoal-800 relative overflow-hidden">
@@ -30,7 +30,8 @@ const TestimonialSection = () => {
             Voices of <span className="luxury-text">Excellence</span>
           </h2>
           <p className="text-cream-200 text-xl max-w-3xl mx-auto leading-relaxed">
-            Discover what our distinguished clientele says about their extraordinary experiences with MiskBlooming
+            Discover what our distinguished clientele says about their
+            extraordinary experiences with MiskBlooming
           </p>
         </motion.div>
 
@@ -65,9 +66,12 @@ const TestimonialSection = () => {
             >
               <div className="relative w-16 h-16 rounded-full overflow-hidden">
                 <Image
-                  src={testimonials[activeTestimonial].image || "/placeholder.svg"}
+                  src={
+                    testimonials[activeTestimonial].image || "/placeholder.svg"
+                  }
                   alt={testimonials[activeTestimonial].name}
                   fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-cover"
                 />
               </div>
@@ -78,12 +82,18 @@ const TestimonialSection = () => {
                 <p className="text-luxury-400 font-medium">
                   {testimonials[activeTestimonial].role}
                   {testimonials[activeTestimonial].company && (
-                    <span className="text-cream-300"> • {testimonials[activeTestimonial].company}</span>
+                    <span className="text-cream-300">
+                      {" "}
+                      • {testimonials[activeTestimonial].company}
+                    </span>
                   )}
                 </p>
                 <div className="flex items-center mt-2">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 text-luxury-500 fill-current" />
+                    <Star
+                      key={i}
+                      className="w-4 h-4 text-luxury-500 fill-current"
+                    />
                   ))}
                 </div>
               </div>
@@ -120,12 +130,17 @@ const TestimonialSection = () => {
                     />
                   </div>
                   <div className="flex-1">
-                    <h5 className="font-semibold text-cream-50 text-sm">{testimonial.name}</h5>
+                    <h5 className="font-semibold text-cream-50 text-sm">
+                      {testimonial.name}
+                    </h5>
                     <p className="text-cream-300 text-xs">{testimonial.role}</p>
                   </div>
                   <div className="flex items-center">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-3 h-3 text-luxury-500 fill-current" />
+                      <Star
+                        key={i}
+                        className="w-3 h-3 text-luxury-500 fill-current"
+                      />
                     ))}
                   </div>
                 </div>
@@ -135,7 +150,7 @@ const TestimonialSection = () => {
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default TestimonialSection
+export default TestimonialSection;
