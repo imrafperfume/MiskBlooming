@@ -61,7 +61,6 @@ type OrderStatus =
 interface UpdateOrderStatusArgs {
   id: string;
   status: OrderStatus;
-  notes?: string;
 }
 export const OrderResolvers = {
   Query: {
@@ -214,7 +213,7 @@ export const OrderResolvers = {
             items: { include: { product: true } },
           },
         });
-
+        await redis.del("orderStats");
         return updatedOrder;
       } catch (error) {
         console.error("Error updating order status:", error);

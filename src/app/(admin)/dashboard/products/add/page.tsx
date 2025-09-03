@@ -233,16 +233,16 @@ export default function AddProductPage() {
     variables: { slug: slug },
     skip: !slug,
   });
+  console.log("🚀 ~ AddProductPage ~ editData:", editData);
   const [updateProduct, { loading: updateLoading, error: updateError }] =
     useMutation(UPDATE_PRODUCT);
 
   // product by id , get for edit product::::::::
   useEffect(() => {
-    if (editData?.productById) {
-      setFormData(editData.productById);
+    if (editData?.productBySlug) {
+      setFormData(editData.productBySlug);
     }
   }, [editData, queryLoading]);
-  console.log(editData);
   // Auto-generate slug from name
   const generateSlug = (name: string) => {
     return name

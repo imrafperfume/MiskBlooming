@@ -21,7 +21,7 @@ export const OrderTypeDefs = gql`
 
   enum OrderStatus {
     PENDING
-    PAID
+    PROCESSING
     SHIPPED
     DELIVERED
     CANCELLED
