@@ -41,7 +41,7 @@ export function useAuth(options?: Partial<UseQueryOptions<User>>) {
 
 // Logout =======================
 
-export function useLogout(redirectTo: string = "/auth/login") {
+export function useLogout(redirectTo: string) {
   const queryClient = useQueryClient();
   const router = useRouter();
 
@@ -58,6 +58,7 @@ export function useLogout(redirectTo: string = "/auth/login") {
       queryClient.removeQueries({ queryKey: ["auth", "me"] });
 
       // optional redirect
+      if (!redirectTo) return null;
       return router.push(redirectTo);
     } catch (error) {
       console.error("Logout error:", error);

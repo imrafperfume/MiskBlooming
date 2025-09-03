@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { gql, useQuery } from "@apollo/client";
 import Link from "next/link";
 import { Button } from "../../../../components/ui/Button";
@@ -14,6 +14,7 @@ import {
   RefreshCw,
   Download,
 } from "lucide-react";
+import { formatDate } from "@/src/lib/utils";
 
 const ORDER_STATS = gql`
   query getOrderStats {
@@ -24,7 +25,6 @@ const ORDER_STATS = gql`
       delivered
       shipped
       cancelled
-      revenue
     }
   }
 `;
@@ -47,15 +47,17 @@ export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [refetch, setRefetch] = useState(false);
   const itemsPerPage = 10;
 
   const { data: ordersData, loading: orderLoading } = useQuery(GET_ORDERS);
-  console.log("🚀 ~ OrdersPage ~ ordersData:", ordersData);
-  const { data: statsData } = useQuery(ORDER_STATS);
+  const {
+    data: statsData,
+    loading: orderStatsLoading,
+    refetch: refetchStats,
+  } = useQuery(ORDER_STATS);
 
   const orderStats = statsData?.orderStats;
-  console.log("🚀 ~ OrdersPage ~ orderStats:", orderStats);
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "PENDING":
@@ -106,8 +108,7 @@ export default function OrdersPage() {
         (a: any, b: any) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
-  }, [ordersData, orderLoading, searchTerm, statusFilter]);
-  console.log("🚀 ~ OrdersPage ~ filteredOrders:", filteredOrders);
+  }, [refetch, orderLoading, searchTerm, statusFilter]);
 
   // Pagination
   const totalPages = Math.ceil(filteredOrders?.length / itemsPerPage);
@@ -115,6 +116,10 @@ export default function OrdersPage() {
     const start = (currentPage - 1) * itemsPerPage;
     return filteredOrders?.slice(start, start + itemsPerPage);
   }, [filteredOrders, currentPage]);
+
+  useEffect(() => {
+    refetchStats();
+  }, [refetch]);
 
   return (
     <div className="space-y-8">
@@ -127,7 +132,7 @@ export default function OrdersPage() {
           <p className="text-gray-600 mt-2">Track and manage customer orders</p>
         </div>
         <div className="flex flex-wrap sm:flex-nowrap sm:items-center gap-4 sm:gap-0 sm:space-x-4 mt-4 lg:mt-0">
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => setRefetch((prev) => !prev)}>
             <RefreshCw className="w-4 h-4 mr-2" /> Refresh
           </Button>
           <Button variant="outline">
@@ -169,9 +174,9 @@ export default function OrdersPage() {
           </p>
         </div>
         <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <p className="text-sm text-gray-600">Revenue</p>
-          <p className="text-xl font-bold text-luxury-600">
-            AED {orderStats?.revenue}
+          <p className="text-sm text-gray-600">CANCELLED</p>
+          <p className="text-xl font-bold text-red-600">
+            {orderStats?.cancelled}
           </p>
         </div>
       </div>
@@ -215,10 +220,10 @@ export default function OrdersPage() {
           </thead>
           <tbody className=" text-sm">
             {paginatedOrders?.map((order: any) => (
-              <tr key={order?.id} className="border-t">
-                <td className="px-2 py-2 font-medium">{order.id}</td>
+              <tr key={order.id} className="border-t">
+                <td className="px-2 py-2 font-medium">{order?.id}</td>
                 <td className="px-2 py-2">
-                  {order.firstName} {order.lastName}
+                  {order?.firstName} {order.lastName}
                 </td>
                 <td
                   className={`px-2 py-2 inline-flex items-center gap-1 ${getStatusColor(
@@ -229,15 +234,12 @@ export default function OrdersPage() {
                   {order.status}
                 </td>
                 <td className="px-2 py-2">AED {order.totalAmount}</td>
-                <td className="px-2 py-2">
-                  {new Date(Number(order?.createdAt)).toDateString()}
-                </td>
+                <td className="px-2 py-2">{formatDate(order?.createdAt)}</td>
                 <td className="px-2 py-2">
                   {order?.deliveryDate
-                    ? new Date(Number(order?.deliveryDate))?.toDateString()
+                    ? formatDate(order?.deliveryDate)
                     : "Not Scheduled"}
-                </td>{" "}
-                {/* Delivery Date */}
+                </td>
                 <td className="px-2 py-2">
                   <Link href={`/dashboard/orders/${order.id}`}>
                     <Button variant="outline" size="sm">

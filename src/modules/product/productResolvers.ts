@@ -56,13 +56,19 @@ export const ProductResolvers = {
         return cache;
       }
       const products = await prisma.product.findMany({
-        where: args.where,
-        include: { images: true, dimensions: true },
+        where: {
+          ...args.where,
+          status: "active",
+        },
+        include: {
+          images: true,
+          dimensions: true,
+        },
       });
 
       if (!products || products.length === 0) return [];
 
-      await redis.set(cacheKey, JSON.stringify(products), { ex: 60 * 20 });
+      await redis.set(cacheKey, JSON.stringify(products), { ex: 60 * 60 * 6 });
       return products;
     },
 
@@ -80,7 +86,7 @@ export const ProductResolvers = {
       });
       if (!product) throw new Error("Product not found");
       await redis.set(`product:${args.slug}`, JSON.stringify(product), {
-        ex: 60 * 5,
+        ex: 60 * 60 * 6,
       });
       return product;
     },

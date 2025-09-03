@@ -20,49 +20,18 @@ import {
 } from "lucide-react";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 // import { useToast } from "@/hooks/use-toast";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Select from "@radix-ui/react-select";
 import Loading from "@/src/components/layout/Loading";
-
-const GET_ORDER_BY_ID = gql`
-  query getOrderById($id: ID!) {
-    orderById(id: $id) {
-      id
-      firstName
-      lastName
-      email
-      phone
-      address
-      city
-      emirate
-      postalCode
-      paymentMethod
-      paymentStatus
-      cardLast4
-      deliveryType
-      deliveryDate
-      deliveryTime
-      specialInstructions
-      status
-      totalAmount
-      createdAt
-      items {
-        id
-        quantity
-        price
-        product {
-          name
-        }
-      }
-    }
-  }
-`;
+import { toast } from "sonner";
+import { formatDate } from "@/src/lib/utils";
+import { GET_ORDER_BY_ID } from "@/src/modules/order/operations";
 
 const UPDATE_ORDER_STATUS = gql`
-  mutation updateOrderStatus($id: ID!, $status: String!, $notes: String) {
-    updateOrderStatus(id: $id, status: $status, notes: $notes) {
+  mutation updateOrderStatus($id: ID!, $status: OrderStatus!) {
+    updateOrderStatus(id: $id, status: $status) {
       id
       status
     }
@@ -172,10 +141,10 @@ const getPaymentStatusConfig = (status: string) => {
 
 export default function OrderDetails() {
   const params = useParams();
+  const router = useRouter();
   //   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [newStatus, setNewStatus] = useState("");
-  const [updateNotes, setUpdateNotes] = useState("");
 
   const { data, loading, error, refetch } = useQuery(GET_ORDER_BY_ID, {
     variables: { id: params.id },
@@ -185,21 +154,13 @@ export default function OrderDetails() {
     UPDATE_ORDER_STATUS,
     {
       onCompleted: () => {
-        // toast({
-        //   title: "Order Updated",
-        //   description: "Order status has been successfully updated.",
-        // });
+        toast.success("Order Status Update Successfull");
         setIsEditing(false);
         setNewStatus("");
-        setUpdateNotes("");
-        refetch();
+        router.refresh();
       },
       onError: (error) => {
-        // toast({
-        //   title: "Update Failed",
-        //   description: error.message,
-        //   variant: "destructive",
-        // });
+        toast.error(error.message);
       },
     }
   );
@@ -233,20 +194,20 @@ export default function OrderDetails() {
 
   if (!order) return null;
 
-  const statusConfig = getStatusConfig(order.status);
-  const paymentConfig = getPaymentStatusConfig(order.paymentStatus);
+  const statusConfig = getStatusConfig(order?.status);
+  const paymentConfig = getPaymentStatusConfig(order?.paymentStatus);
   const StatusIcon = statusConfig.icon;
   const PaymentIcon = paymentConfig.icon;
 
   const handleStatusUpdate = async () => {
+    console.log("🚀 ~ handleStatusUpdate ~ newStatus:", newStatus);
     if (!newStatus) return;
 
     try {
       await updateOrderStatus({
         variables: {
-          id: order.id,
+          id: order?.id,
           status: newStatus,
-          notes: updateNotes || undefined,
         },
       });
     } catch (error) {
@@ -269,15 +230,8 @@ export default function OrderDetails() {
                 </div>
                 <p className="text-luxury-100 text-lg">
                   Placed on{" "}
-                  {order.createdAt
-                    ? new Date(Number(order.createdAt)).toLocaleDateString(
-                        "en-US",
-                        {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        }
-                      )
+                  {order?.createdAt
+                    ? formatDate(order?.createdAt)
                     : "Not available"}
                 </p>
               </div>
@@ -382,18 +336,6 @@ export default function OrderDetails() {
                             </Select.Content>
                           </Select.Portal>
                         </Select.Root>
-                      </div>
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium text-gray-700">
-                          Update Notes (Optional)
-                        </label>
-                        <textarea
-                          value={updateNotes}
-                          onChange={(e) => setUpdateNotes(e.target.value)}
-                          placeholder="Add notes about this status change..."
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-luxury-500 focus:ring-1 focus:ring-luxury-500 resize-none"
-                          rows={3}
-                        />
                       </div>
                     </div>
                     <div className="flex gap-3 pt-6">
@@ -566,20 +508,20 @@ export default function OrderDetails() {
               Order Items ({order.items.length})
             </h3>
           </div>
-          <div className="p-6">
-            <div className="space-y-6">
+          <div className="p-4">
+            <div className="space-y-2">
               {order.items.map((item: any, index: number) => (
                 <div key={item.id}>
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 p-4 bg-gray-50 rounded-lg">
+                  <div className="flex flex-col  sm:flex-row sm:justify-between sm:items-start gap-2 bg-gray-50">
                     <div className="flex-1">
                       <h4 className="font-semibold text-lg text-gray-900 text-balance">
                         {item.product.name}
                       </h4>
-                      {item.product.description && (
+                      {/* {item.product.description && (
                         <p className="text-gray-600 mt-1 text-pretty">
                           {item.product.description}
                         </p>
-                      )}
+                      )} */}
                     </div>
                     <div className="text-left sm:text-right sm:ml-6 space-y-1">
                       <p className="font-medium text-lg">
@@ -597,7 +539,7 @@ export default function OrderDetails() {
               ))}
 
               <div className="border-t-2 border-luxury-200 pt-6 mt-6">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 bg-luxury-50 p-6 rounded-xl">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 bg-luxury-50  rounded-xl">
                   <span className="text-lg font-cormorant font-semibold text-gray-900">
                     Total Amount With VAT & Delivery Charges:
                   </span>

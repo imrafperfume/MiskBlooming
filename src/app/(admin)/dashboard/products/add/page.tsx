@@ -238,11 +238,10 @@ export default function AddProductPage() {
 
   // product by id , get for edit product::::::::
   useEffect(() => {
-    if (editData?.productById) {
-      setFormData(editData.productById);
+    if (editData?.productBySlug) {
+      setFormData(editData.productBySlug);
     }
   }, [editData, queryLoading]);
-  console.log(editData);
   // Auto-generate slug from name
   const generateSlug = (name: string) => {
     return name
