@@ -11,6 +11,7 @@ import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
 import type { Product } from "../../types";
 import { formatPrice, calculateDiscount } from "../../lib/utils";
+import { toast } from "sonner";
 
 interface ProductCardProps {
   product: Product;
@@ -30,6 +31,7 @@ const ProductCard = ({ product, index = 0, viewMode }: ProductCardProps) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     addItem(product);
+    toast.success("Item Added To Cart");
   };
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
@@ -38,6 +40,7 @@ const ProductCard = ({ product, index = 0, viewMode }: ProductCardProps) => {
       removeFromWishlist(product.id);
     } else {
       addToWishlist(product);
+      toast.success("Item Added To Wishlist");
     }
   };
 

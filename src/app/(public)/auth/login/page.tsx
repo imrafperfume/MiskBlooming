@@ -8,6 +8,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "../../../../components/ui/Button";
+import { toast } from "sonner";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -20,6 +22,10 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [csrf, setCsrf] = useState("");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  console.log("🚀 ~ LoginPage ~ callbackUrl:", callbackUrl);
   useEffect(() => {
     fetch("/api/auth/csrf", { cache: "no-store" })
       .then((r) => r.json())
@@ -53,7 +59,9 @@ export default function LoginPage() {
 
       const d = await res.json();
       console.log("Login success:", d);
-      window.location.href = "/";
+      toast.success("Login Success");
+      router.push(callbackUrl);
+      // window.location.href = "/";
     } catch (error) {
       console.error("Login error:", error);
     } finally {

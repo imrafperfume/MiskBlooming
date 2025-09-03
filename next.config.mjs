@@ -7,8 +7,14 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ["res.cloudinary.com"], // Cloudinary allowed
-    formats: ["image/avif", "image/webp"], // Serve next-gen formats
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        pathname: "/**",
+      },
+    ],
+    formats: ["image/avif", "image/webp"],
     minimumCacheTTL: 60,
   },
   experimental: {

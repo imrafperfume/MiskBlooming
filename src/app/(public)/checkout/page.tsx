@@ -27,7 +27,7 @@ import { useAuth } from "@/src/hooks/useAuth";
 import { useMutation } from "@apollo/client";
 import { CREATE_ORDER } from "@/src/modules/order/operations";
 import StripeSection from "@/src/components/StripeSection";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const checkoutSchema = z.object({
   // Personal Information
@@ -74,10 +74,11 @@ export default function CheckoutPage(): JSX.Element {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const userId = user?.id;
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading && !userId) {
-      router.push("/auth/login");
+      router.push(`/auth/login?callbackUrl=${pathname}`);
     }
   }, [isLoading, userId]);
   const {
