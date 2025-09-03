@@ -174,11 +174,8 @@ const Header = () => {
   const logout = useLogout();
 
   return (
-    <motion.header
+    <div
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white`}
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.6 }}
     >
       {/* Top Bar */}
       {/* <div className="bg-charcoal-900 text-cream-50 py-2">
@@ -615,7 +612,7 @@ const Header = () => {
           )}
         </AnimatePresence>
       </div>
-    </motion.header>
+    </div>
   );
 };
 

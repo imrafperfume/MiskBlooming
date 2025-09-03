@@ -26,8 +26,11 @@ import { formatPrice } from "../../../lib/utils";
 import { useAuth } from "@/src/hooks/useAuth";
 import { useMutation } from "@apollo/client";
 import { CREATE_ORDER } from "@/src/modules/order/operations";
-import StripeSection from "@/src/components/StripeSection";
 import { usePathname, useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+const StripeSection = dynamic(() => import("@/src/components/StripeSection"), {
+  ssr: false,
+});
 
 const checkoutSchema = z.object({
   // Personal Information
