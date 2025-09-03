@@ -28,6 +28,7 @@ import { useMutation } from "@apollo/client";
 import { CREATE_ORDER } from "@/src/modules/order/operations";
 import { usePathname, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { toast } from "sonner";
 const StripeSection = dynamic(() => import("@/src/components/StripeSection"), {
   ssr: false,
 });
@@ -72,6 +73,7 @@ type CheckoutFormData = z.infer<typeof checkoutSchema>;
 export default function CheckoutPage(): JSX.Element {
   const [currentStep, setCurrentStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [orderId, setOrderId] = useState("");
   const { items, getTotalPrice, clearCart } = useCartStore();
   const { data: user, isLoading } = useAuth();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
@@ -165,13 +167,16 @@ export default function CheckoutPage(): JSX.Element {
       //  Create order in PENDING state via GraphQL
       const res = await createOrder({ variables: { input: checkoutData } });
       const order = (res as any)?.data?.createOrder;
-      console.log("order", order.id);
       if (!order) throw new Error("Failed to create order");
-
+      setOrderId(order?.id);
       //  Handle COD
       if (data.paymentMethod === "COD") {
         // Order is already PAID in backend if needed
-        window.location.href = "/checkout/success";
+        clearCart();
+        toast.success("Order Successfull");
+        router.push(`/checkout/success?orderId=${order?.id}`);
+        // window.location.href = "/checkout/success";
+
         return;
       }
 
@@ -202,6 +207,8 @@ export default function CheckoutPage(): JSX.Element {
       if (!clientSecret) throw new Error("Failed to create PaymentIntent");
 
       setClientSecret(clientSecret); // For Stripe Elements rendering
+      clearCart();
+      toast.success("Order Successfull");
     } catch (error) {
       console.error("Checkout error:", error);
     } finally {
@@ -711,6 +718,7 @@ export default function CheckoutPage(): JSX.Element {
                     <StripeSection
                       clientSecret={clientSecret}
                       amountLabel={formatPrice(total)}
+                      orderId={orderId}
                     />
                   ) : (
                     <div className="mt-6 flex flex-col sm:flex-row justify-between gap-4">

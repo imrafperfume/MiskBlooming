@@ -155,7 +155,7 @@ export const OrderResolvers = {
         });
         if (!order) throw new Error("Order not found");
         await redis.set(`orderById:${id}`, JSON.stringify(order), {
-          ex: 60 * 5,
+          ex: 60 * 2,
         });
         return order;
       } catch (error: any) {

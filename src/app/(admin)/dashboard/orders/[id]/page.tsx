@@ -27,40 +27,7 @@ import * as Select from "@radix-ui/react-select";
 import Loading from "@/src/components/layout/Loading";
 import { toast } from "sonner";
 import { formatDate } from "@/src/lib/utils";
-
-const GET_ORDER_BY_ID = gql`
-  query getOrderById($id: ID!) {
-    orderById(id: $id) {
-      id
-      firstName
-      lastName
-      email
-      phone
-      address
-      city
-      emirate
-      postalCode
-      paymentMethod
-      paymentStatus
-      cardLast4
-      deliveryType
-      deliveryDate
-      deliveryTime
-      specialInstructions
-      status
-      totalAmount
-      createdAt
-      items {
-        id
-        quantity
-        price
-        product {
-          name
-        }
-      }
-    }
-  }
-`;
+import { GET_ORDER_BY_ID } from "@/src/modules/order/operations";
 
 const UPDATE_ORDER_STATUS = gql`
   mutation updateOrderStatus($id: ID!, $status: OrderStatus!) {

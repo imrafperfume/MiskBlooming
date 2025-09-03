@@ -233,7 +233,6 @@ export default function AddProductPage() {
     variables: { slug: slug },
     skip: !slug,
   });
-  console.log("🚀 ~ AddProductPage ~ editData:", editData);
   const [updateProduct, { loading: updateLoading, error: updateError }] =
     useMutation(UPDATE_PRODUCT);
 

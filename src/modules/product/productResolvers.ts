@@ -56,8 +56,14 @@ export const ProductResolvers = {
         return cache;
       }
       const products = await prisma.product.findMany({
-        where: args.where,
-        include: { images: true, dimensions: true },
+        where: {
+          ...args.where,
+          status: "active",
+        },
+        include: {
+          images: true,
+          dimensions: true,
+        },
       });
 
       if (!products || products.length === 0) return [];
