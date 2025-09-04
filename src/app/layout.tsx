@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "../providers/QueryProvider";
-import { Toaster, toast } from "sonner";
+import { Toaster } from "sonner";
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -28,7 +28,10 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "MiskBlooming - Luxury Flowers & Exquisite Gifts",
+  title: {
+    default: "MiskBlooming - Luxury Flowers & Exquisite Gifts",
+    template: "%s | MiskBlooming",
+  },
   description:
     "Experience the pinnacle of floral artistry with MiskBlooming. Premium flower arrangements, luxury gifts, and bespoke creations delivered with unparalleled elegance.",
   keywords:
@@ -41,6 +44,11 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
   },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({
@@ -56,7 +64,7 @@ export default function RootLayout({
     >
       <body
         suppressHydrationWarning
-        className="min-h-screen bg-gradient-to-br  overflow-x-hidden  from-cream-50 to-cream-100"
+        className="min-h-screen overflow-x-hidden bg-gradient-to-br from-cream-50 to-cream-100 antialiased"
       >
         <Toaster position="top-center" richColors />
         <QueryProvider>{children}</QueryProvider>
