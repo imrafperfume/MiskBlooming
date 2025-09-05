@@ -6,12 +6,10 @@ import { Button } from "../../components/ui/Button";
 import { LazyWrapper } from "../../components/ui/LazyWrapper";
 import { useFeaturedProducts } from "../../hooks/useProducts";
 import {
-  ArrowRight,
   Truck,
   Shield,
   Headphones,
   Award,
-  Sparkles,
   Crown,
 } from "lucide-react";
 import Link from "next/link";
@@ -41,31 +39,6 @@ export default function HomePage() {
   ]);
   console.log(featuredProducts);
 
-  const features = [
-    {
-      icon: Crown,
-      title: "Luxury Curation",
-      description:
-        "Hand-selected premium blooms from the world's finest growers",
-    },
-    {
-      icon: Truck,
-      title: "White-Glove Delivery",
-      description:
-        "Complimentary luxury delivery service for orders above AED 500",
-    },
-    {
-      icon: Shield,
-      title: "Excellence Guarantee",
-      description:
-        "Uncompromising quality assurance with our satisfaction promise",
-    },
-    {
-      icon: Headphones,
-      title: "Concierge Service",
-      description: "Dedicated luxury customer service available 24/7",
-    },
-  ];
 
   const stats = [
     { number: "15,000+", label: "Distinguished Clients" },
