@@ -1,68 +1,84 @@
-import Stripe from "stripe";
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
+import Stripe from "stripe";
 import { prisma } from "@/src/lib/db";
 
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
-
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-07-30.basil", // type override
+  apiVersion: "2025-07-30.basil",
 });
 
 export async function POST(req: Request) {
-  const h = await headers();
-  const sig = h.get("stripe-signature");
-  const buf = await req.text(); // raw body required
+  const body = await req.text();
+  const signature = (await headers()).get("stripe-signature");
+
+  if (!signature || !process.env.STRIPE_WEBHOOK_SECRET) {
+    return NextResponse.json({ error: "Missing signature" }, { status: 400 });
+  }
+
+  let event: Stripe.Event;
 
   try {
-    const event = stripe?.webhooks?.constructEvent(
-      buf,
-      sig!,
-      process.env.STRIPE_WEBHOOK_SECRET!
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET
     );
+  } catch (err: any) {
+    console.error("⚠️ Webhook signature verification failed:", err.message);
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+  }
 
-    console.log("EVENT", event);
+  try {
     switch (event.type) {
       case "payment_intent.succeeded": {
-        const pi = event?.data.object as Stripe.PaymentIntent;
-        console.log(pi);
-        const orderId = pi.metadata?.orderId;
-        // TODO: call GraphQL/DB to mark orderId as PAID
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        const orderId = paymentIntent.metadata?.orderId;
+
         if (orderId) {
+           const charges = (paymentIntent as any).charges?.data ?? [];
+    const last4 = charges[0]?.payment_method_details?.card?.last4 || null;
           await prisma.order.update({
             where: { id: orderId },
             data: {
               paymentStatus: "PAID",
-              stripePaymentId: pi.id,
-              // paymentStatus: "PAID",
+              paymentMethod: "STRIPE",
+              stripePaymentId: paymentIntent.id,
+              cardLast4:last4,
+              status: "PROCESSING", 
+              // paidAt: new Date(),
             },
           });
+          console.log(`✅ Order ${orderId} marked as PAID`);
         }
         break;
       }
+
       case "payment_intent.payment_failed": {
-        const pi = event.data.object as Stripe.PaymentIntent;
-        const orderId = pi.metadata?.orderId;
-        // TODO: mark order failed
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        const orderId = paymentIntent.metadata?.orderId;
+
         if (orderId) {
           await prisma.order.update({
             where: { id: orderId },
             data: {
               paymentStatus: "FAILED",
+              stripePaymentId: paymentIntent.id,
               status: "CANCELLED",
-              stripePaymentId: pi.id,
+              // cancelledAt: new Date(),
             },
           });
+          console.log(`❌ Order ${orderId} marked as FAILED`);
         }
         break;
       }
+
       default:
-        break;
+        console.log(`⚠️ Unhandled event type: ${event.type}`);
     }
 
     return NextResponse.json({ received: true });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 400 });
+  } catch (error: any) {
+    console.error("⚠️ Webhook handler error:", error);
+    return NextResponse.json({ error: "Webhook failed" }, { status: 500 });
   }
 }

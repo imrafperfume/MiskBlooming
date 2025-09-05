@@ -171,7 +171,7 @@ const Header = () => {
     setActiveDropdown(activeDropdown === itemName ? null : itemName);
   };
 
-  const logout = useLogout();
+  const logout = useLogout("/");
 
   return (
     <div

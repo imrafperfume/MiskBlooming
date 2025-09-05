@@ -1,18 +1,20 @@
-import React from "react";
 import ProductDetailPage from "./productsDetails";
 import { getProductBySlug } from "@/src/modules/product/productUtils";
-interface ProductDetailPageProps {
+import { Metadata } from 'next';
+
+// Define the type for the props correctly as a Promise
+interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({
   params,
-}: {
-  params: { slug: string };
-}) {
-  const slug = (await params).slug;
+}: ProductPageProps): Promise<Metadata> {
+  // Await the params to get the slug
+  const { slug } = await params;
   const product = await getProductBySlug(slug);
   const tags = product?.tags || [];
+
   return {
     title: product?.name || "Product Details",
     description:
@@ -41,11 +43,10 @@ export async function generateMetadata({
   };
 }
 
-export default function ProductLayout({ params }: ProductDetailPageProps) {
-  const { slug } = React.use(params);
-  return (
-    <>
-      <ProductDetailPage slug={slug} />
-    </>
-  );
+export default async function ProductLayout({
+  params,
+}: ProductPageProps) {
+  // Await the params object to get the slug
+  const { slug } = await params;
+  return <ProductDetailPage slug={slug} />;
 }

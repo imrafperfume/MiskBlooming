@@ -2,10 +2,8 @@
 module.exports = {
   darkMode: ["class"],
   content: [
-    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    "*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     container: {
@@ -95,10 +93,19 @@ module.exports = {
         playfair: ["Playfair Display", "serif"],
       },
       fontSize: {
-        "display-xl": ["4.5rem", { lineHeight: "1.1", letterSpacing: "-0.02em" }],
-        "display-lg": ["3.75rem", { lineHeight: "1.1", letterSpacing: "-0.02em" }],
+        "display-xl": [
+          "4.5rem",
+          { lineHeight: "1.1", letterSpacing: "-0.02em" },
+        ],
+        "display-lg": [
+          "3.75rem",
+          { lineHeight: "1.1", letterSpacing: "-0.02em" },
+        ],
         "display-md": ["3rem", { lineHeight: "1.2", letterSpacing: "-0.02em" }],
-        "display-sm": ["2.25rem", { lineHeight: "1.3", letterSpacing: "-0.01em" }],
+        "display-sm": [
+          "2.25rem",
+          { lineHeight: "1.3", letterSpacing: "-0.01em" },
+        ],
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -156,7 +163,8 @@ module.exports = {
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+        "gradient-conic":
+          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
         "luxury-gradient": "linear-gradient(135deg, #d4af37 0%, #f4e397 100%)",
         "dark-gradient": "linear-gradient(135deg, #1a1a1a 0%, #454545 100%)",
       },
@@ -168,4 +176,4 @@ module.exports = {
     },
   },
   plugins: [require("tailwindcss-animate")],
-}
+};

@@ -12,6 +12,7 @@ import { UserTypeDefs } from "@/src/modules/user/user-typeDefs";
 import { UserResolvers } from "@/src/modules/user/userResolvers";
 import { dashboardTypeDefs } from "@/src/modules/dashboard/dashboard-typedefs";
 import { DashboardResolvers } from "@/src/modules/dashboard/dasboardResolvers";
+
 const typeDefs = mergeTypeDefs([
   `
     type Query {
@@ -26,8 +27,6 @@ const typeDefs = mergeTypeDefs([
   UserTypeDefs,
   dashboardTypeDefs,
 ]);
-
-// const resolvers = mergeResolvers([ProductResolvers]);
 
 interface ContextType {
   userId: string | null;
@@ -67,5 +66,5 @@ const yoga = createYoga<ContextType>({
   graphiql: true,
 });
 
-export const GET = yoga;
-export const POST = yoga;
+// Use a single default export
+export { yoga as GET, yoga as POST };

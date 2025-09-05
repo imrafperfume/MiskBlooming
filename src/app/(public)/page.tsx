@@ -1,13 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import HeroSlider from "../../components/home/HeroSlider";
-import ShopByCategory from "../../components/home/ShopByCategory";
-import SpecialOccasions from "../../components/home/SpecialOccasions";
-import InSeason from "../../components/home/InSeason";
-import TestimonialSection from "../../components/home/TestimonialSection";
-import ProductCard from "../../components/product/ProductCard";
+import { Suspense, lazy } from "react";
 import { Button } from "../../components/ui/Button";
+import { LazyWrapper } from "../../components/ui/LazyWrapper";
 import { useFeaturedProducts } from "../../hooks/useProducts";
 import {
   ArrowRight,
@@ -19,7 +15,16 @@ import {
   Crown,
 } from "lucide-react";
 import Link from "next/link";
-import FeaturedProducts from "@/src/components/home/FeaturedProducts";
+
+// Critical components loaded immediately
+import HeroSlider from "../../components/home/HeroSlider";
+import ShopByCategory from "../../components/home/ShopByCategory";
+
+// Lazy load non-critical components
+const FeaturedProducts = lazy(() => import("../../components/home/FeaturedProducts"));
+const SpecialOccasions = lazy(() => import("../../components/home/SpecialOccasions"));
+const InSeason = lazy(() => import("../../components/home/InSeason"));
+const TestimonialSection = lazy(() => import("../../components/home/TestimonialSection"));
 
 export default function HomePage() {
   const { data: featuredProducts, isLoading } = useFeaturedProducts([
@@ -78,16 +83,28 @@ export default function HomePage() {
       <ShopByCategory />
 
       {/* Features Section */}
-      <FeaturedProducts
-        featuredProducts={featuredProducts ?? []}
-        isLoading={isLoading}
-      />
+      <LazyWrapper>
+        <Suspense fallback={<div className="h-96 bg-cream-200 animate-pulse rounded-lg" />}>
+          <FeaturedProducts
+            featuredProducts={featuredProducts ?? []}
+            isLoading={isLoading}
+          />
+        </Suspense>
+      </LazyWrapper>
 
       {/* Special Occasions */}
-      <SpecialOccasions />
+      <LazyWrapper>
+        <Suspense fallback={<div className="h-96 bg-cream-200 animate-pulse rounded-lg" />}>
+          <SpecialOccasions />
+        </Suspense>
+      </LazyWrapper>
 
       {/* In Season */}
-      <InSeason />
+      <LazyWrapper>
+        <Suspense fallback={<div className="h-96 bg-cream-200 animate-pulse rounded-lg" />}>
+          <InSeason />
+        </Suspense>
+      </LazyWrapper>
 
       {/* Stats Section */}
       <section className="py-24 luxury-gradient">
@@ -127,7 +144,11 @@ export default function HomePage() {
       </section>
 
       {/* Testimonials */}
-      <TestimonialSection />
+      <LazyWrapper>
+        <Suspense fallback={<div className="h-96 bg-cream-200 animate-pulse rounded-lg" />}>
+          <TestimonialSection />
+        </Suspense>
+      </LazyWrapper>
 
       {/* Newsletter */}
       <section className="py-24 bg-gradient-to-br from-cream-50 to-cream-100">

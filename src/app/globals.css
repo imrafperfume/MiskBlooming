@@ -47,15 +47,15 @@
     --input: 69 69 69;
     --ring: 212 175 55;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground font-inter antialiased;
   }
+
   h1,
   h2,
   h3,
@@ -129,6 +129,7 @@
   all: unset;
   display: block;
 }
+
 .safe-html {
   all: revert;
 }
