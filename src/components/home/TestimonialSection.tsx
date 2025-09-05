@@ -66,10 +66,10 @@ const TestimonialSection = () => {
             >
               <div className="relative w-16 h-16 rounded-full overflow-hidden">
                 <Image
-                  src={
-                    testimonials[activeTestimonial].image || "/placeholder.svg"
-                  }
-                  alt={testimonials[activeTestimonial].name}
+                  src={"/placeholder.jpg"}
+                  alt={ "Testimonial"}
+                  // width={64}
+                  // height={64}
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-cover"

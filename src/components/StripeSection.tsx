@@ -10,6 +10,7 @@ import {
 } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -36,12 +37,12 @@ export default function StripeSection({
 
   return (
     <Elements stripe={stripePromise} options={options}>
-      <Inner amountLabel={amountLabel} orderId={orderId} />
+      <StripeForm amountLabel={amountLabel} orderId={orderId} />
     </Elements>
   );
 }
 
-function Inner({
+function StripeForm({
   amountLabel,
   orderId,
 }: {
@@ -58,23 +59,20 @@ function Inner({
   useEffect(() => {
     if (!stripe) return;
 
-    // Initialize Payment Request for Apple Pay / Google Pay
+    const amount = Number(amountLabel.replace(/[^0-9]/g, "")) * 100; // AED fils
+
+    //  Payment Request init
     const pr = stripe.paymentRequest({
-      country: "AE", // UAE country code
-      currency: "aed", // AED currency
-      total: {
-        label: "Order Payment",
-        amount: Number(amountLabel.replace(/[^0-9]/g, "")) * 100, // Convert to fils
-      },
+      country: "AE",
+      currency: "aed",
+      total: { label: "Order Payment", amount },
       requestPayerName: true,
       requestPayerEmail: true,
     });
 
-    // Check if Apple Pay / Google Pay is available
+    // ✅ Check availability
     pr.canMakePayment().then((result) => {
-      if (result) {
-        setPaymentRequest(pr);
-      }
+      if (result) setPaymentRequest(pr);
     });
   }, [stripe, amountLabel]);
 
@@ -85,20 +83,22 @@ function Inner({
     const { error } = await stripe.confirmPayment({
       elements,
       confirmParams: {
+        // ✅ Success redirect
         return_url: `${process.env.NEXT_PUBLIC_URL}/checkout/success?orderId=${orderId}`,
       },
     });
 
     if (error) {
-      console.error("Payment error:", error.message);
-      alert(error.message);
+      console.error("❌ Payment error:", error.message);
+      toast.error(error.message || "Payment failed. Please try again.");
     }
+
     setLoading(false);
   };
 
   return (
     <div className="space-y-6">
-      {/* Apple Pay / Google Pay Button */}
+      {/* ✅ Apple Pay / Google Pay */}
       {paymentRequest && (
         <div className="w-full">
           <PaymentRequestButtonElement
@@ -106,8 +106,8 @@ function Inner({
               paymentRequest,
               style: {
                 paymentRequestButton: {
-                  type: "default", // "buy", "donate" etc.
-                  theme: "dark", // "light", "light-outline"
+                  type: "default",
+                  theme: "dark",
                   height: "48px",
                 },
               },
@@ -121,10 +121,10 @@ function Inner({
         </div>
       )}
 
-      {/* Card Payment Element */}
-      <PaymentElement />
+      {/* ✅ Card Element */}
+      <PaymentElement id="payment-element" />
 
-      {/* Pay Button */}
+      {/* ✅ Pay Button */}
       <button
         onClick={handlePay}
         disabled={!stripe || loading}

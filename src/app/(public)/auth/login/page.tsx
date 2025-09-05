@@ -1,23 +1,21 @@
 "use client";
-
-import { useEffect, useState } from "react";
-
-// import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 import LogingPage from "./LogingPage";
 import { toast } from "sonner";
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
+
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
-
 type LoginFormData = z.infer<typeof loginSchema>;
-export default function LoginPage() {
-  // const searchParams = useSearchParams();
-  // const callbackUrl = searchParams.get("callbackUrl") || "/";
+
+function LoginFormWrapper() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -58,7 +56,7 @@ export default function LoginPage() {
       const d = await res.json();
       console.log("Login success:", d);
       toast.success("Login Success");
-      router.push("/");
+      router.push(callbackUrl);
       // window.location.href = "/";
     } catch (error) {
       console.error("Login error:", error);
@@ -68,7 +66,6 @@ export default function LoginPage() {
   };
 
   return (
-    // <Suspense fallback={<>Loading....</>}>
     <LogingPage
       handleSubmit={handleSubmit}
       onSubmit={onSubmit}
@@ -78,6 +75,13 @@ export default function LoginPage() {
       setShowPassword={setShowPassword}
       isLoading={isLoading}
     />
-    // </Suspense>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading....</div>}>
+      <LoginFormWrapper />
+    </Suspense>
   );
 }

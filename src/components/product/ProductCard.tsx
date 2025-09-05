@@ -1,17 +1,19 @@
 "use client";
 
 import type React from "react";
-
-import Image from "next/image";
+import { memo, useCallback } from "react";
 import Link from "next/link";
 import { Star, Heart, ShoppingBag, Eye, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "../ui/Button";
+import { OptimizedImage } from "../ui/OptimizedImage";
+import { LazyWrapper } from "../ui/LazyWrapper";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
 import type { Product } from "../../types";
 import { formatPrice, calculateDiscount } from "../../lib/utils";
 import { toast } from "sonner";
+import Image from "next/image";
 
 interface ProductCardProps {
   product: Product;
@@ -19,7 +21,7 @@ interface ProductCardProps {
   viewMode?: string;
 }
 
-const ProductCard = ({ product, index = 0, viewMode }: ProductCardProps) => {
+const ProductCard = memo(({ product, index = 0, viewMode }: ProductCardProps) => {
   const addItem = useCartStore((state) => state.addItem);
   const {
     addItem: addToWishlist,
@@ -28,13 +30,13 @@ const ProductCard = ({ product, index = 0, viewMode }: ProductCardProps) => {
   } = useWishlistStore();
   const isWishlisted = isInWishlist(product.id);
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     addItem(product);
     toast.success("Item Added To Cart");
-  };
+  }, [addItem, product]);
 
-  const handleWishlistToggle = (e: React.MouseEvent) => {
+  const handleWishlistToggle = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     if (isWishlisted) {
       removeFromWishlist(product.id);
@@ -42,12 +44,14 @@ const ProductCard = ({ product, index = 0, viewMode }: ProductCardProps) => {
       addToWishlist(product);
       toast.success("Item Added To Wishlist");
     }
-  };
+  }, [isWishlisted, removeFromWishlist, addToWishlist, product]);
 
   const discountPercentage = product.price
     ? calculateDiscount(product.price, product?.compareAtPrice ?? 0)
     : 0;
-
+const imageUrl = product?.images?.[0]?.url;
+const isValidUrl =
+  imageUrl && (imageUrl.startsWith("http://") || imageUrl.startsWith("https://"));
   return (
     <motion.div
       className={`${
@@ -61,16 +65,17 @@ const ProductCard = ({ product, index = 0, viewMode }: ProductCardProps) => {
     >
       {/* Image Container */}
       <div
-        className={` ${
-          viewMode !== "grid" && "w-full aspect-auto"
-        } relative aspect-square overflow-hidden`}
+        className={`relative w-full overflow-hidden ${
+    viewMode === "grid" ? "aspect-square" : "aspect-[4/3]"
+  }`}
       >
         <Image
-          src={product.images[0].url || "../public/placeholder.svg"}
+          src={isValidUrl ? imageUrl : "/placeholder.svg"}
           alt={product.name}
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           className="object-cover transition-transform duration-700 group-hover:scale-110"
+          priority={index < 4} // Prioritize first 4 images
         />
 
         {/* Gradient Overlay */}
@@ -223,6 +228,8 @@ const ProductCard = ({ product, index = 0, viewMode }: ProductCardProps) => {
       <div className="absolute inset-0 rounded-3xl border-2 border-transparent group-hover:border-luxury-200 transition-all duration-500 pointer-events-none" />
     </motion.div>
   );
-};
+});
+
+ProductCard.displayName = "ProductCard";
 
 export default ProductCard;
