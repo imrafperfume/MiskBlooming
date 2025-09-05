@@ -38,7 +38,7 @@ const playfair = Playfair_Display({
 
 // Optimized metadata for better SEO and performance
 export const metadata: Metadata = {
-   metadataBase: new URL("https://miskblooming.com"),
+  //  metadataBase: new URL("https://miskblooming.com"),
   title: {
     default: "MiskBlooming - Luxury Flowers & Exquisite Gifts",
     template: "%s | MiskBlooming",
@@ -132,34 +132,7 @@ export default function RootLayout({
       lang="en"
       className={`${cormorant.variable} ${inter.variable} ${playfair.variable}`}
     >
-      <head>
-        {/* DNS Prefetch for performance */}
-        {RESOURCE_HINTS.dnsPrefetch.map((domain) => (
-          <link key={domain} rel="dns-prefetch" href={domain} />
-        ))}
-        
-        {/* Preconnect to critical origins */}
-        {RESOURCE_HINTS.preconnect.map((origin) => (
-          <link key={origin} rel="preconnect" href={origin} />
-        ))}
-        
-        {/* Preload critical fonts */}
-        {/* <link
-          rel="preload"
-          href="/fonts/inter.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        /> */}
-        
-        {/* Preload critical images */}
-        {/* <link rel="preload" href="/images/carousle-2.png" as="image" /> */}
-        
-        {/* Prefetch critical pages */}
-        {RESOURCE_HINTS.prefetch.map((page) => (
-          <link key={page} rel="prefetch" href={page} />
-        ))}
-      </head>
+
       <body
         suppressHydrationWarning
         className="min-h-screen overflow-x-hidden bg-gradient-to-br from-cream-50 to-cream-100 antialiased"

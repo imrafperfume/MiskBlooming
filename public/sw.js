@@ -1,19 +1,19 @@
 // Service Worker for MiskBlooming
-const CACHE_NAME = "miskblooming-v1";
-const STATIC_CACHE = "static-v1";
-const DYNAMIC_CACHE = "dynamic-v1";
+const CACHE_VERSION = "v1";
+const STATIC_CACHE = `static-${CACHE_VERSION}`;
+const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`;
 
 // Files to cache immediately
 const STATIC_FILES = ["/", "/offline.html", "/manifest.json", "/favicon.ico"];
 
 // Install event - cache static files
 self.addEventListener("install", (event) => {
-  console.log("Service Worker installing...");
+  console.log("[SW] Installing...");
   event.waitUntil(
     caches
       .open(STATIC_CACHE)
       .then((cache) => {
-        console.log("Caching static files");
+        console.log("[SW] Caching static files...");
         return cache.addAll(STATIC_FILES);
       })
       .then(() => self.skipWaiting())
@@ -22,15 +22,15 @@ self.addEventListener("install", (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener("activate", (event) => {
-  console.log("Service Worker activating...");
+  console.log("[SW] Activating...");
   event.waitUntil(
     caches
       .keys()
       .then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
-            if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
-              console.log("Deleting old cache:", cacheName);
+            if (![STATIC_CACHE, DYNAMIC_CACHE].includes(cacheName)) {
+              console.log("[SW] Deleting old cache:", cacheName);
               return caches.delete(cacheName);
             }
           })
@@ -40,78 +40,58 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Fetch event - implement caching strategies
+// Fetch event - caching strategies
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET requests
-  if (request.method !== "GET") {
-    return;
-  }
+  // Only handle GET requests
+  if (request.method !== "GET") return;
+  if (!url.protocol.startsWith("http")) return;
 
-  // Skip chrome-extension and other non-http requests
-  if (!url.protocol.startsWith("http")) {
-    return;
-  }
-
-  // Handle different types of requests
+  // Strategy based on request type
   if (url.pathname.startsWith("/_next/static/")) {
-    // Static assets - Cache First
     event.respondWith(cacheFirst(request, STATIC_CACHE));
   } else if (url.pathname.startsWith("/api/")) {
-    // API requests - Network First
     event.respondWith(networkFirst(request, DYNAMIC_CACHE));
   } else if (url.pathname.startsWith("/images/")) {
-    // Images - Cache First
     event.respondWith(cacheFirst(request, DYNAMIC_CACHE));
   } else {
-    // Pages - Network First
     event.respondWith(networkFirst(request, DYNAMIC_CACHE));
   }
 });
 
 // Cache First Strategy
 async function cacheFirst(request, cacheName) {
-  try {
-    const cachedResponse = await caches.match(request);
-    if (cachedResponse) {
-      return cachedResponse;
-    }
+  const cache = await caches.open(cacheName);
+  const cachedResponse = await cache.match(request);
+  if (cachedResponse) return cachedResponse;
 
+  try {
     const networkResponse = await fetch(request);
-    if (networkResponse.ok) {
-      const cache = await caches.open(cacheName);
-      cache.put(request, networkResponse.clone());
-    }
+    if (networkResponse.ok) cache.put(request, networkResponse.clone());
     return networkResponse;
-  } catch (error) {
-    console.error("Cache First failed:", error);
+  } catch (err) {
+    console.error("[SW] Cache First failed:", err);
+    if (request.mode === "navigate") return caches.match("/offline.html");
     return new Response("Offline", { status: 503 });
   }
 }
 
 // Network First Strategy
 async function networkFirst(request, cacheName) {
+  const cache = await caches.open(cacheName);
+
   try {
     const networkResponse = await fetch(request);
-    if (networkResponse.ok) {
-      const cache = await caches.open(cacheName);
-      cache.put(request, networkResponse.clone());
-    }
+    if (networkResponse.ok) cache.put(request, networkResponse.clone());
     return networkResponse;
-  } catch (error) {
-    console.log("Network failed, trying cache:", error);
-    const cachedResponse = await caches.match(request);
-    if (cachedResponse) {
-      return cachedResponse;
-    }
+  } catch (err) {
+    console.warn("[SW] Network failed, trying cache:", err);
+    const cachedResponse = await cache.match(request);
+    if (cachedResponse) return cachedResponse;
 
-    // Return offline page for navigation requests
-    if (request.mode === "navigate") {
-      return caches.match("/offline.html");
-    }
-
+    if (request.mode === "navigate") return caches.match("/offline.html");
     return new Response("Offline", { status: 503 });
   }
 }
@@ -124,6 +104,6 @@ self.addEventListener("sync", (event) => {
 });
 
 async function doBackgroundSync() {
-  // Implement background sync logic here
-  console.log("Background sync triggered");
+  console.log("[SW] Background sync triggered");
+  // TODO: Implement background sync logic
 }
