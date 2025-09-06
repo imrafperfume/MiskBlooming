@@ -10,7 +10,9 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+);
 
 interface PaymentStepProps {
   form: UseFormReturn<CheckoutFormData>;
@@ -41,59 +43,56 @@ const paymentMethods = [
   },
 ];
 
-export function PaymentStep({ 
-  form, 
-  onBack, 
-  onSubmit, 
-  isProcessing, 
+export function PaymentStep({
+  form,
+  onBack,
+  onSubmit,
+  isProcessing,
   total,
   clientSecret,
-  orderId 
+  orderId,
 }: PaymentStepProps) {
-  console.log("🚀 ~ PaymentStep ~ clientSecret:", clientSecret)
   const { register, watch, setValue } = form;
   const paymentMethod = watch("paymentMethod");
   const router = useRouter();
 
- const handleStripeClick = async () => {
-    try {
-      if (!orderId) throw new Error("Order ID missing");
-      const stripe = await stripePromise;
-      if (!stripe) throw new Error("Stripe not loaded");
+  // const handleStripeClick = async () => {
+  //   try {
+  //     if (!orderId) throw new Error("Order ID missing");
+  //     const stripe = await stripePromise;
+  //     if (!stripe) throw new Error("Stripe not loaded");
 
-      // Redirect to Stripe Checkout
-      const res = await fetch("/api/payment-intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderId,
-          amount: Math.round(total * 100),
-          currency: "AED",
-          email: form.getValues("email"),
-        }),
-      });
-      const data = await res.json();
-      console.log("🚀 ~ handleStripeClick ~ data:", data)
-      if (!data.clientSecret) throw new Error("Payment initialization failed");
+  //     // Redirect to Stripe Checkout
+  //     const res = await fetch("/api/payment-intent", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         orderId,
+  //         amount: Math.round(total * 100),
+  //         currency: "AED",
+  //         email: form.getValues("email"),
+  //       }),
+  //     });
+  //     const data = await res.json();
+  //     if (!data.clientSecret) throw new Error("Payment initialization failed");
 
-      const { error } = await stripe.confirmPayment({
-        clientSecret: data.clientSecret,
-        confirmParams: {
-          return_url: `${process.env.NEXT_PUBLIC_URL}/checkout/success?orderId=${orderId}`,
-        },
-        redirect: "always",
-      });
+  //     const { error } = await stripe.confirmPayment({
+  //       clientSecret: data.clientSecret,
+  //       confirmParams: {
+  //         return_url: `${process.env.NEXT_PUBLIC_URL}/checkout/success?orderId=${orderId}`,
+  //       },
+  //       redirect: "always",
+  //     });
 
-      if (error) {
-        console.error("Stripe redirect error:", error.message);
-        toast.error(error.message || "Payment failed");
-      }
-    } catch (err: any) {
-      console.error("Stripe handle error:", err.message);
-      toast.error(err.message || "Something went wrong");
-    }
-  };
-
+  //     if (error) {
+  //       console.error("Stripe redirect error:", error.message);
+  //       toast.error(error.message || "Payment failed");
+  //     }
+  //   } catch (err: any) {
+  //     console.error("Stripe handle error:", err.message);
+  //     toast.error(err.message || "Something went wrong");
+  //   }
+  // };
 
   return (
     <CheckoutStep>
@@ -158,11 +157,14 @@ export function PaymentStep({
           <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
             <div className="flex items-center mb-2">
               <Banknote className="w-5 h-5 text-amber-600 mr-2" />
-              <span className="font-medium text-amber-800">Cash on Delivery</span>
+              <span className="font-medium text-amber-800">
+                Cash on Delivery
+              </span>
             </div>
             <p className="text-sm text-amber-700">
-              Pay with cash when your flowers are delivered. A service fee of AED 10 applies. 
-              Please have the exact amount ready for our delivery partner.
+              Pay with cash when your flowers are delivered. A service fee of
+              AED 10 applies. Please have the exact amount ready for our
+              delivery partner.
             </p>
           </div>
         )}
@@ -174,8 +176,8 @@ export function PaymentStep({
               <span className="font-medium text-blue-800">Digital Wallet</span>
             </div>
             <p className="text-sm text-blue-700">
-              You'll be redirected to complete payment with your preferred digital wallet. 
-              Secure and convenient payment in one tap.
+              You'll be redirected to complete payment with your preferred
+              digital wallet. Secure and convenient payment in one tap.
             </p>
           </div>
         )}
@@ -187,8 +189,9 @@ export function PaymentStep({
             <span className="font-medium text-green-800">Secure Payment</span>
           </div>
           <p className="text-sm text-green-700">
-            Your payment information is encrypted and secure. We never store your card details. 
-            All transactions are processed through secure payment gateways.
+            Your payment information is encrypted and secure. We never store
+            your card details. All transactions are processed through secure
+            payment gateways.
           </p>
         </div>
       </div>

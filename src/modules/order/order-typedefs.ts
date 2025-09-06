@@ -34,7 +34,8 @@ export const OrderTypeDefs = gql`
   }
 
   input CreateOrderInput {
-    userId: String!
+    userId: String
+    isGuest: Boolean
     firstName: String!
     lastName: String!
     email: String!
@@ -54,12 +55,13 @@ export const OrderTypeDefs = gql`
     specialInstructions: String
 
     items: [OrderItemInput!]!
+    couponCode: String
     totalAmount: Float!
   }
 
   type Order {
     id: ID!
-    userId: String!
+    userId: String
     firstName: String!
     lastName: String!
     email: String!
@@ -85,6 +87,7 @@ export const OrderTypeDefs = gql`
     updatedAt: String
 
     items: [OrderItem!]!
+    couponUsage: CouponUsage
   }
 
   type OrderItem {

@@ -54,11 +54,13 @@ export default function RegisterPage() {
       const d = await res.json();
 
       console.log("Register data:", d);
-      // Redirect to login or Home
+      // Show success message with email verification info
       toast.success(
-        "Account created successfully! Please verify your email address"
+        "Account created successfully! Please check your email to verify your account."
       );
-      router.push("/auth/login");
+      
+      // Redirect to a verification pending page or show verification info
+      router.push("/auth/verify-pending");
     } catch (error) {
       console.error("Register error:", error);
       toast.error("Register Failed");

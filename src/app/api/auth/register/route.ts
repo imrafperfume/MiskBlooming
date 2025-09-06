@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     if (!verifyCsrf()) return NextResponse.json({ error: 'CSRF' }, { status: 403 });
     const ip = req.headers.get('x-forwarded-for') || 'ip';
     console.log(ip)
-    if (!(await rateLimit(`reg:${ip}`))) return NextResponse.json({ error: 'rate limit reached' }, { status: 429 });
+    if (!(await rateLimit(`reg:${ip}`, 3, "5 m"))) return NextResponse.json({ error: 'rate limit reached' }, { status: 429 });
 
     const body = await req.json();
     const parsed = registerSchema.safeParse(body);

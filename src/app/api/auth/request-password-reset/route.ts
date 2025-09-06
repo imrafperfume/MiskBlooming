@@ -9,7 +9,7 @@ import { rateLimit } from '@/src/lib/ratelimit';
 export async function POST(req: Request) {
     try {
         const ip = req.headers.get('x-forwarded-for') || 'ip';
-        if (!(await rateLimit(`reset:${ip}`))) return NextResponse.json({ error: 'rate' }, { status: 429 });
+        if (!(await rateLimit(`reset:${ip}`, 3, "5 m"))) return NextResponse.json({ error: 'rate' }, { status: 429 });
 
         const { email } = resetRequestSchema.parse(await req.json());
         const user = await prisma.user.findUnique({ where: { email } });

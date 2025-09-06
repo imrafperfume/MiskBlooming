@@ -1,0 +1,70 @@
+model Coupon {
+    id          String  @id @default(cuid())
+    code        String  @unique
+    name        String
+    description String?
+
+    // Discount Configuration
+    discountType    DiscountType
+    discountValue   Float
+    minimumAmount   Float? // Minimum order amount to apply coupon
+    maximumDiscount Float? // Maximum discount amount (for percentage coupons)
+
+    // Usage Limits
+    usageLimit     Int? // Total usage limit (null = unlimited)
+    usageCount     Int  @default(0) // Current usage count
+    userUsageLimit Int? @default(1) // Per user usage limit
+
+    // Validity
+    validFrom  DateTime
+    validUntil DateTime
+    isActive   Boolean  @default(true)
+
+    // Product/Category Restrictions
+    applicableProducts   String[] // Product IDs that this coupon applies to (empty = all products)
+    applicableCategories String[] // Categories that this coupon applies to (empty = all categories)
+
+    // User Restrictions
+    applicableUsers String[] // User IDs that can use this coupon (empty = all users)
+    newUsersOnly    Boolean  @default(false) // Only for new users
+
+    // Metadata
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    createdBy String? // Admin user ID who created this coupon
+
+    // Relations
+    usages CouponUsage[]
+
+    @@index([code])
+    @@index([isActive])
+    @@index([validFrom, validUntil])
+}
+
+model CouponUsage {
+    id       String  @id @default(cuid())
+    couponId String
+    orderId  String  @unique
+    userId   String? // null for guest users
+    email    String? // for guest users
+
+    // Usage Details
+    discountAmount Float
+    orderAmount    Float
+    usedAt         DateTime @default(now())
+
+    // Relations
+    coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
+    order  Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+    @@index([couponId])
+    @@index([orderId])
+    @@index([userId])
+    @@index([email])
+}
+
+enum DiscountType {
+    PERCENTAGE
+    FIXED_AMOUNT
+    FREE_SHIPPING
+}

@@ -19,18 +19,27 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../../../components/ui/Button";
 import { useCartStore } from "../../../store/cartStore";
 import { useWishlistStore } from "../../../store/wishlistStore";
+import { useCoupon } from "../../../hooks/useCoupon";
 import { formatPrice } from "../../../lib/utils";
+import { toast } from "sonner";
 
 export default function CartPage() {
-  const { items, updateQuantity, removeItem, getTotalPrice, getTotalItems } =
-    useCartStore();
+  const { 
+    items, 
+    updateQuantity, 
+    removeItem, 
+    getTotalPrice, 
+    getTotalItems,
+    appliedCoupon,
+    couponDiscount,
+    applyCoupon,
+    removeCoupon,
+    getDiscountedTotal
+  } = useCartStore();
   const { addItem: addToWishlist } = useWishlistStore();
+  const { validateCouponCode, isValidating } = useCoupon();
   const [removingItems, setRemovingItems] = useState<Set<string>>(new Set());
   const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<{
-    code: string;
-    discount: number;
-  } | null>(null);
 
   const handleUpdateQuantity = (productId: string, newQuantity: number) => {
     if (newQuantity === 0) {
@@ -60,27 +69,25 @@ export default function CartPage() {
     }
   };
 
-  const handleApplyCoupon = () => {
-    // Mock coupon validation
-    const validCoupons = {
-      WELCOME10: 10,
-      LUXURY15: 15,
-      FIRST20: 20,
-    };
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast.error("Please enter a coupon code");
+      return;
+    }
 
-    if (validCoupons[couponCode as keyof typeof validCoupons]) {
-      setAppliedCoupon({
-        code: couponCode,
-        discount: validCoupons[couponCode as keyof typeof validCoupons],
-      });
+    const subtotal = getTotalPrice();
+    const result = await validateCouponCode(couponCode, subtotal);
+
+    if (result.isValid && result.coupon) {
+      applyCoupon(result.coupon);
+      toast.success(`Coupon "${result.coupon.code}" applied successfully!`);
       setCouponCode("");
+    } else {
+      toast.error(result.error || "Invalid coupon code");
     }
   };
 
   const subtotal = getTotalPrice();
-  const couponDiscount = appliedCoupon
-    ? (subtotal * appliedCoupon.discount) / 100
-    : 0;
   const shipping = subtotal > 1000 ? 0 : 25;
   const tax = (subtotal - couponDiscount) * 0.05; // 5% VAT
   const total = subtotal - couponDiscount + shipping + tax;
@@ -354,12 +361,16 @@ export default function CartPage() {
                   <div className="flex items-center">
                     <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                     <span className="font-medium text-green-800">
-                      {appliedCoupon.code} - {appliedCoupon.discount}% off
-                      applied
+                      {appliedCoupon.code} - {appliedCoupon.discountType === 'PERCENTAGE' 
+                        ? `${appliedCoupon.discountValue}% off`
+                        : appliedCoupon.discountType === 'FIXED_AMOUNT'
+                        ? `${appliedCoupon.discountValue} AED off`
+                        : 'Free shipping'
+                      } applied
                     </span>
                   </div>
                   <button
-                    onClick={() => setAppliedCoupon(null)}
+                    onClick={removeCoupon}
                     className="text-green-600 hover:text-green-700 text-sm font-medium"
                   >
                     Remove
@@ -380,9 +391,9 @@ export default function CartPage() {
                     className="sm:mt-0 mt-4 hover:bg-black"
                     onClick={handleApplyCoupon}
                     variant="outline"
-                    disabled={!couponCode.trim()}
+                    disabled={!couponCode.trim() || isValidating}
                   >
-                    Apply
+                    {isValidating ? "Validating..." : "Apply"}
                   </Button>
                 </div>
               )}

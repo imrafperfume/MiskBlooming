@@ -38,7 +38,7 @@ const playfair = Playfair_Display({
 
 // Optimized metadata for better SEO and performance
 export const metadata: Metadata = {
-  //  metadataBase: new URL("https://miskblooming.com"),
+   metadataBase: new URL("https://misk-blooming.vercel.app"),
   title: {
     default: "MiskBlooming - Luxury Flowers & Exquisite Gifts",
     template: "%s | MiskBlooming",
@@ -103,7 +103,7 @@ export const metadata: Metadata = {
       { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#d4af37" },
     ],
   },
-  manifest: "/site.webmanifest",
+  // manifest: "/site.webmanifest",
   verification: {
     google: "your-google-verification-code",
   },

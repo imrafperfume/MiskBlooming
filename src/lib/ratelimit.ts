@@ -17,8 +17,8 @@ export function createRateLimiter(
 // Call function dynamically
 export async function rateLimit(
   key: string,
-  limit: number,
-  duration: `${number} m`
+  limit: number = 5,
+  duration: `${number} m` = "5 m"
 ) {
   const limiter = createRateLimiter(limit, duration);
   const { success } = await limiter.limit(key);

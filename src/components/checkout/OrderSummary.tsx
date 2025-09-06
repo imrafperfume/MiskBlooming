@@ -13,6 +13,7 @@ interface OrderSummaryProps {
   codFee: number;
   tax: number;
   total: number;
+  couponDiscount?: number;
 }
 
 export function OrderSummary({ 
@@ -21,7 +22,8 @@ export function OrderSummary({
   deliveryFee, 
   codFee, 
   tax, 
-  total 
+  total,
+  couponDiscount = 0
 }: OrderSummaryProps) {
   return (
     <motion.div
@@ -69,6 +71,13 @@ export function OrderSummary({
           <span className="text-muted-foreground">Subtotal</span>
           <span className="font-medium">{formatPrice(subtotal)}</span>
         </div>
+
+        {couponDiscount > 0 && (
+          <div className="flex justify-between text-green-600">
+            <span>Discount</span>
+            <span>-{formatPrice(couponDiscount)}</span>
+          </div>
+        )}
 
         <div className="flex justify-between">
           <span className="text-muted-foreground">Delivery</span>
