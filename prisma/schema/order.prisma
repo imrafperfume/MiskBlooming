@@ -1,8 +1,10 @@
 model Order {
-    id     String      @id @default(cuid())
-    userId String
-    user   User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-    items  OrderItem[]
+    id      String      @id @default(cuid())
+    userId  String?
+    user    User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
+    items   OrderItem[]
+    invoice Invoice? // One-to-one relation with invoice
+    couponUsage CouponUsage? // Coupon used for this order
 
     // Customer Info
     firstName String

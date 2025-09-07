@@ -12,6 +12,8 @@ import { UserTypeDefs } from "@/src/modules/user/user-typeDefs";
 import { UserResolvers } from "@/src/modules/user/userResolvers";
 import { dashboardTypeDefs } from "@/src/modules/dashboard/dashboard-typedefs";
 import { DashboardResolvers } from "@/src/modules/dashboard/dasboardResolvers";
+import { couponTypeDefs } from "@/src/modules/coupon/coupon-typedefs";
+import { CouponResolvers } from "@/src/modules/coupon/couponResolvers";
 
 const typeDefs = mergeTypeDefs([
   `
@@ -26,6 +28,7 @@ const typeDefs = mergeTypeDefs([
   OrderTypeDefs,
   UserTypeDefs,
   dashboardTypeDefs,
+  couponTypeDefs,
 ]);
 
 interface ContextType {
@@ -37,6 +40,7 @@ const resolvers = mergeResolvers([
   OrderResolvers,
   UserResolvers,
   DashboardResolvers,
+  CouponResolvers,
 ]) as IResolvers<any, ContextType & YogaInitialContext>;
 
 const schema = createSchema<ContextType>({

@@ -147,6 +147,7 @@ const Header = () => {
       ],
     },
     { name: "About", href: "/about" },
+    { name: "Track Order", href: "/track-order" },
     { name: "Contact", href: "/contact" },
   ];
 

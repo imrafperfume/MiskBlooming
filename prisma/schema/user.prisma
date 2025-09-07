@@ -7,6 +7,7 @@ model User {
     emailVerified Boolean  @default(false)
     passwordHash  String
     role          Role     @default(USER)
+    isGuest       Boolean  @default(false)
     createdAt     DateTime @default(now())
     updatedAt     DateTime @default(now())
     status        Status   @default(NEW)
@@ -27,6 +28,7 @@ enum Status {
 enum Role {
     USER
     ADMIN
+    GUEST
 }
 
 model Session {

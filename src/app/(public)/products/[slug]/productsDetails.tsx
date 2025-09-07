@@ -201,8 +201,9 @@ export default function ProductDetailPage({ slug }: { slug: string }) {
                 src={product.images[selectedImage].url || "/placeholder.svg"}
                 alt={product.name}
                 fill
-                className="object-cover cursor-zoom-in"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 priority
+                className="object-cover cursor-zoom-in"
                 onClick={() => setIsImageModalOpen(true)}
               />
 
@@ -266,6 +267,8 @@ export default function ProductDetailPage({ slug }: { slug: string }) {
                     src={image.url || "/placeholder.svg"}
                     alt={`${product.name} ${index + 1}`}
                     fill
+                    priority
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     className="object-cover"
                   />
                 </button>

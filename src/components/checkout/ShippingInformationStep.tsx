@@ -5,6 +5,7 @@ import { UseFormReturn } from "react-hook-form";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { CheckoutStep } from "./CheckoutStep";
+import { CouponInput } from "./CouponInput";
 import type { CheckoutFormData } from "../../types/checkout";
 
 interface ShippingInformationStepProps {
@@ -180,6 +181,9 @@ export function ShippingInformationStep({
             placeholder="Special delivery instructions, gift message, or occasion details..."
           />
         </div>
+
+        {/* Coupon Input */}
+        <CouponInput />
       </div>
 
       <div className="mt-6 flex sm:flex-row flex-col gap-4 sm:gap-0 justify-between">

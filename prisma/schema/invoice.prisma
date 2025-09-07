@@ -1,0 +1,79 @@
+model Invoice {
+    id            String @id @default(cuid())
+    invoiceNumber String @unique
+    orderId       String @unique
+    order         Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+    // Invoice Details
+    issueDate DateTime      @default(now())
+    dueDate   DateTime?
+    status    InvoiceStatus @default(DRAFT)
+
+    // Financial Details
+    subtotal    Float
+    taxRate     Float @default(0.05) // 5% VAT
+    taxAmount   Float
+    discount    Float @default(0)
+    totalAmount Float
+
+    // Payment Info
+    paymentStatus PaymentStatus @default(PENDING)
+    paidAt        DateTime?
+    paymentMethod String?
+
+    // Additional Info
+    notes String?
+    terms String?
+
+    // Timestamps
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    payments Payment[]
+    reports  InvoiceReport[]
+}
+
+model Payment {
+    id        String  @id @default(cuid())
+    invoiceId String
+    invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+    amount        Float
+    paymentDate   DateTime @default(now())
+    paymentMethod String
+    reference     String?
+    notes         String?
+
+    createdAt DateTime @default(now())
+}
+
+model InvoiceReport {
+    id        String  @id @default(cuid())
+    invoiceId String
+    invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+    reportType  ReportType
+    generatedAt DateTime   @default(now())
+    data        Json // Store report data as JSON
+
+    createdAt DateTime @default(now())
+}
+
+enum InvoiceStatus {
+    DRAFT
+    SENT
+    PAID
+    OVERDUE
+    CANCELLED
+}
+
+enum ReportType {
+    SALES_SUMMARY
+    PAYMENT_ANALYSIS
+    CUSTOMER_ANALYSIS
+    PRODUCT_PERFORMANCE
+    MONTHLY_REVENUE
+    QUARTERLY_REPORT
+    YEARLY_REPORT
+}

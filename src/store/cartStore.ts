@@ -1,21 +1,29 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { CartItem, Product } from "../types";
+import type { Coupon } from "../types/coupon";
 
 interface CartStore {
   items: CartItem[];
+  appliedCoupon: Coupon | null;
+  couponDiscount: number;
   addItem: (product: Product, quantity?: number) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
+  applyCoupon: (coupon: Coupon) => void;
+  removeCoupon: () => void;
+  getDiscountedTotal: () => number;
 }
 
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
+      appliedCoupon: null,
+      couponDiscount: 0,
 
       addItem: (product, quantity = 1) => {
         set((state) => {
@@ -58,7 +66,7 @@ export const useCartStore = create<CartStore>()(
       },
 
       clearCart: () => {
-        set({ items: [] });
+        set({ items: [], appliedCoupon: null, couponDiscount: 0 });
       },
 
       getTotalItems: () => {
@@ -70,6 +78,37 @@ export const useCartStore = create<CartStore>()(
           (total, item) => total + item.product.price * item.quantity,
           0
         );
+      },
+
+      applyCoupon: (coupon) => {
+        const total = get().getTotalPrice();
+        let discount = 0;
+
+        if (coupon.discountType === 'PERCENTAGE') {
+          discount = (total * coupon.discountValue) / 100;
+          if (coupon.maximumDiscount && discount > coupon.maximumDiscount) {
+            discount = coupon.maximumDiscount;
+          }
+        } else if (coupon.discountType === 'FIXED_AMOUNT') {
+          discount = coupon.discountValue;
+        } else if (coupon.discountType === 'FREE_SHIPPING') {
+          // Free shipping will be handled in checkout calculations
+          discount = 0;
+        }
+
+        set({ 
+          appliedCoupon: coupon, 
+          couponDiscount: Math.min(discount, total) // Don't exceed total amount
+        });
+      },
+
+      removeCoupon: () => {
+        set({ appliedCoupon: null, couponDiscount: 0 });
+      },
+
+      getDiscountedTotal: () => {
+        const total = get().getTotalPrice();
+        return Math.max(0, total - get().couponDiscount);
       },
     }),
     {

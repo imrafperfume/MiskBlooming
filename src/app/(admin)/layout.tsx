@@ -27,6 +27,7 @@ import {
   Tag,
   Calendar,
   HelpCircle,
+  Ticket,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../../components/ui/Button";
@@ -100,6 +101,12 @@ export default function AdminLayout({
       description: "Discounts & Offers",
     },
     {
+      name: "Coupons",
+      href: "/dashboard/coupons",
+      icon: Ticket,
+      description: "Coupon Management",
+    },
+    {
       name: "Delivery",
       href: "/dashboard/delivery",
       icon: Truck,
@@ -112,9 +119,15 @@ export default function AdminLayout({
       description: "Payment Processing",
     },
     {
+      name: "Invoices",
+      href: "/dashboard/invoices",
+      icon: FileText,
+      description: "Invoice Management",
+    },
+    {
       name: "Reports",
       href: "/dashboard/reports",
-      icon: FileText,
+      icon: BarChart3,
       description: "Business Reports",
     },
     {

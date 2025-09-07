@@ -1,23 +1,25 @@
+"use server"
+
 import ProductDetailPage from "./productsDetails";
 import { getProductBySlug } from "@/src/modules/product/productUtils";
 import { Metadata } from 'next';
 
 // Updated interface for Next.js 15 - params is now a Promise
 interface ProductPageProps {
-  params: Promise<{ slug: string }>;
+  params: { slug: string }
 }
 
 export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   // Await the params Promise to get the slug
-  const resolvedParams = await params;
-  const { slug } = resolvedParams;
+    const { slug } = await params;
+    console.log("🚀 ~ generateMetadata ~ slug:", slug)
   
-  console.log("🚀 ~ generateMetadata ~ slug:", slug);
   
   try {
     const product = await getProductBySlug(slug);
+    console.log("🚀 ~ generateMetadata ~ product:", product)
     const tags = product?.tags || [];
 
     return {
@@ -73,7 +75,6 @@ export default async function ProductLayout({
   const resolvedParams = await params;
   const { slug } = resolvedParams;
   
-  console.log("🚀 ~ ProductLayout ~ slug:", slug);
   
   return <ProductDetailPage slug={slug} />;
 }
