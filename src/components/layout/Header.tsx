@@ -151,14 +151,6 @@ const Header = () => {
     { name: "Contact", href: "/contact" },
   ];
 
-  // useEffect(() => {
-  //   const handleScroll = () => {
-  //     setIsScrolled(window.scrollY > 20);
-  //   };
-  //   window.addEventListener("scroll", handleScroll);
-  //   return () => window.removeEventListener("scroll", handleScroll);
-  // }, []);
-
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -207,11 +199,14 @@ const Header = () => {
 
       {/* Main Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 shadow-md border-b">
-        <div className="flex  justify-between items-center py-2">
+        <div className="flex flex-col sm:flex-row  justify-between items-center py-2">
           {/* Logo */}
-          <Link href="/" className="flex items-center group">
+          <Link
+            href="/"
+            className="flex items-center sm:border-none border-b group"
+          >
             <motion.div
-              className="relative lg:text-3xl md:text-3xl w-48 h-24 lg:w-48 lg:h-24 md:w-40 md:h-20 text-xl font-cormorant font-bold text-charcoal-900"
+              className="relative  w-52 h-14 lg:w-48 lg:h-24 md:w-40 md:h-20 text-xl font-cormorant font-bold text-charcoal-900"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
@@ -241,7 +236,7 @@ const Header = () => {
           </div>
 
           {/* Right Side */}
-          <div className="flex items-center md:space-x-4 lg:space-x-4 space-x-1">
+          <div className="flex sm:w-auto w-full items-center md:space-x-4 lg:space-x-4 space-x-4 sm:justify-end justify-between mt-4 sm:mt-0">
             {/* Delivery Location */}
             <div className="hidden lg:flex items-center text-sm">
               <MapPin className="w-4 h-4 mr-1 text-luxury-500" />
@@ -296,7 +291,7 @@ const Header = () => {
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-slate-600"></div>
                 </div>
               ) : (
-                <div className="sm:flex hidden">
+                <div className="sm:flex">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
@@ -536,7 +531,7 @@ const Header = () => {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.nav
-              className="md:hidden pb-4 border-t border-cream-300 pt-4"
+              className="md:hidden pb-4 w-full border-t border-cream-300 pt-4"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
@@ -594,13 +589,6 @@ const Header = () => {
                     </div>
                   </motion.div>
                 ))}
-                <Link
-                  href="/auth/login"
-                  className="flex items-center gap-2 bg-black text-white py-3 px-3 rounded-lg"
-                >
-                  <User className="w-5 h-5" />
-                  <span className="font-semibold ">My Account</span>
-                </Link>
                 <div className="flex items-center pt-2">
                   <MapPin className="w-4 h-4 mr-1 text-luxury-500" />
                   <span className="mr-1 text-sm">Deliver To</span>

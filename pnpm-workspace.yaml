@@ -5,3 +5,4 @@ onlyBuiltDependencies:
   - core-js
   - prisma
   - sharp
+  - unrs-resolver

@@ -2,7 +2,7 @@ import { prisma } from "@/src/lib/db";
 import { isAdmin } from "@/src/lib/isAdmin";
 import { hashPassword } from "@/src/lib/password";
 import { redis } from "@/src/lib/redis";
-
+import { createId } from "@paralleldrive/cuid2";
 export interface OrderItemInput {
   productId: string;
   quantity: number;
@@ -172,9 +172,6 @@ export const OrderResolvers = {
     createOrder: async (_: any, { input }: { input: CreateOrderInput }) => {
       try {
         const { isGuest, couponCode, ...orderInput } = input;
-        console.log("🚀 ~ couponCode:", couponCode);
-        console.log("🚀 ~ orderInput:", orderInput);
-        console.log("🚀 ~ isGuest:", isGuest);
         let userId = input.userId;
 
         // Validate that all products exist before creating the order
@@ -269,20 +266,7 @@ export const OrderResolvers = {
 
         // If user is not logged in (guest checkout), create a new guest user
         if (isGuest || !userId) {
-          const password = Math.random().toString(36).slice(-8);
-          const passwordHash = await hashPassword(password);
-          const guestUser = await prisma.user.create({
-            data: {
-              email: input.email,
-              firstName: input.firstName,
-              lastName: input.lastName,
-              phoneNumber: input.phone,
-              role: "GUEST",
-              isGuest: true,
-              passwordHash,
-            },
-          });
-          userId = guestUser.id;
+          userId = createId();
           console.log(`Created guest user with ID: ${userId}`);
         }
 
