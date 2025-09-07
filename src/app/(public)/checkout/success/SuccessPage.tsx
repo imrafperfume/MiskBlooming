@@ -308,7 +308,7 @@ export default function SuccessPage({ order }: { order: Order }) {
             </Button>
           </Link>
 
-          <Link href="/account/orders">
+          <Link href="/track-order">
             <Button
               variant="outline"
               size="lg"

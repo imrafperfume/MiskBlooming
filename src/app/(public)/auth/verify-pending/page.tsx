@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, ArrowRight, RefreshCw } from "lucide-react";
 import { Button } from "../../../../components/ui/Button";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -54,11 +53,13 @@ export default function VerifyPendingPage() {
                 Almost there!
               </h3>
               <p className="text-muted-foreground mb-4">
-                We've sent a verification link to your email address. Please check your inbox and click the link to verify your account.
+                We've sent a verification link to your email address. Please
+                check your inbox and click the link to verify your account.
               </p>
               <div className="bg-cream-50 p-4 rounded-lg">
                 <p className="text-sm text-charcoal-700">
-                  <strong>Don't see the email?</strong> Check your spam folder or wait a few minutes for it to arrive.
+                  <strong>Don't see the email?</strong> Check your spam folder
+                  or wait a few minutes for it to arrive.
                 </p>
               </div>
             </div>
@@ -99,8 +100,12 @@ export default function VerifyPendingPage() {
             {/* Help Text */}
             <div className="pt-4 border-t border-cream-200">
               <p className="text-xs text-muted-foreground">
-                The verification link will expire in 15 minutes. If you need help, contact us at{" "}
-                <a href="mailto:support@miskblooming.com" className="text-luxury-500 hover:text-luxury-600">
+                The verification link will expire in 15 minutes. If you need
+                help, contact us at{" "}
+                <a
+                  href="mailto:support@miskblooming.com"
+                  className="text-luxury-500 hover:text-luxury-600"
+                >
                   support@miskblooming.com
                 </a>
               </p>
