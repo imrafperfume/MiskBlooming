@@ -308,7 +308,7 @@ export default function SuccessPage({ order }: { order: Order }) {
             </Button>
           </Link>
 
-          <Link href="/account/orders">
+          <Link href="/track-order">
             <Button
               variant="outline"
               size="lg"
@@ -319,7 +319,6 @@ export default function SuccessPage({ order }: { order: Order }) {
           </Link>
         </motion.div>
 
-        {/* Review Prompt */}
         <motion.div
           className="text-center mt-12 p-6 bg-luxury-50 rounded-2xl"
           initial={{ opacity: 0, y: 20 }}
