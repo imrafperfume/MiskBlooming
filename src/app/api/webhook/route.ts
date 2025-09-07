@@ -15,14 +15,14 @@ export async function POST(req: Request) {
   }
 
   // Convert request body to ArrayBuffer
- const buf = Buffer.from(await req.arrayBuffer());
+  const body = await req.text();
   // const bodyUint8 = new Uint8Array(buf);
 
   let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(
-      buf, // pass Uint8Array
+      body,
       signature,
       process.env.STRIPE_WEBHOOK_SECRET
     );
@@ -39,6 +39,7 @@ export async function POST(req: Request) {
         if (orderId) {
           const charges = (paymentIntent as any).charges?.data ?? [];
           const last4 = charges[0]?.payment_method_details?.card?.last4 || null;
+          console.log("🚀 ~ POST ~ last4:", last4);
 
           await prisma.order.update({
             where: { id: orderId },

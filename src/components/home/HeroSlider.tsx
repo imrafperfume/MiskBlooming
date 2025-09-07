@@ -1,43 +1,43 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { Button } from "../ui/Button"
-import { motion, AnimatePresence } from "framer-motion"
-import type { HeroSlide } from "../../types"
-import heroSlidesData from "../../data/hero-slides.json"
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "../ui/Button";
+import { motion, AnimatePresence } from "framer-motion";
+import type { HeroSlide } from "../../types";
+import heroSlidesData from "../../data/hero-slides.json";
 
 const HeroSlider = () => {
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true)
-  const slides = heroSlidesData as HeroSlide[]
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const slides = heroSlidesData as HeroSlide[];
 
   useEffect(() => {
-    if (!isAutoPlaying) return
+    if (!isAutoPlaying) return;
 
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length)
-    }, 6000)
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 6000);
 
-    return () => clearInterval(interval)
-  }, [isAutoPlaying, slides.length])
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, slides.length]);
 
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length)
-    setIsAutoPlaying(false)
-  }
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+    setIsAutoPlaying(false);
+  };
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)
-    setIsAutoPlaying(false)
-  }
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+    setIsAutoPlaying(false);
+  };
 
   const goToSlide = (index: number) => {
-    setCurrentSlide(index)
-    setIsAutoPlaying(false)
-  }
+    setCurrentSlide(index);
+    setIsAutoPlaying(false);
+  };
 
   return (
     <div className="relative h-screen overflow-hidden">
@@ -142,14 +142,14 @@ const HeroSlider = () => {
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute left-6 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full glass-effect bg-white/20 transition-all duration-300 group"
+        className="absolute sm:inline-block hidden left-6 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full glass-effect bg-white/20 transition-all duration-300 group"
       >
         <ChevronLeft className="w-6 h-6 text-cream-50 group-hover:text-luxury-400 transition-colors" />
       </button>
 
       <button
         onClick={nextSlide}
-        className="absolute right-6 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full glass-effect bg-gray-600/20 transition-all duration-300 group"
+        className="absolute sm:inline-block hidden right-6 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full glass-effect bg-gray-600/20 transition-all duration-300 group"
       >
         <ChevronRight className="w-6 h-6 text-cream-50 group-hover:text-luxury-400 transition-colors" />
       </button>
@@ -181,6 +181,6 @@ const HeroSlider = () => {
       </div>
     </div>
   );
-}
+};
 
-export default HeroSlider
+export default HeroSlider;

@@ -93,7 +93,7 @@ const ShopByCategory = () => {
 
   return (
     <section className="py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-8 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">
           <motion.h2
@@ -127,7 +127,7 @@ const ShopByCategory = () => {
             disableOnInteraction: false,
           }}
           breakpoints={{
-            320: { slidesPerView: 2, spaceBetween: 10 }, // mobile
+            320: { slidesPerView: 1, spaceBetween: 10 }, // mobile
             640: { slidesPerView: 2, spaceBetween: 20 }, // small devices
             1024: { slidesPerView: 4, spaceBetween: 25 }, // tablet
             1280: { slidesPerView: 5, spaceBetween: 30 }, // desktop
