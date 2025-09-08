@@ -3,6 +3,7 @@ import { isAdmin } from "@/src/lib/isAdmin";
 import { hashPassword } from "@/src/lib/password";
 import { redis } from "@/src/lib/redis";
 import { createId } from "@paralleldrive/cuid2";
+import { randomBytes } from "crypto";
 export interface OrderItemInput {
   productId: string;
   quantity: number;
@@ -199,8 +200,29 @@ export const OrderResolvers = {
       try {
         const { isGuest, couponCode, ...orderInput } = input;
         let userId = input.userId;
+        const password = randomBytes(4).toString("hex");
+        const passwordHash = await hashPassword(password);
         if (isGuest && !userId) {
-          userId = createId();
+          let user = await prisma.user.findUnique({
+            where: { email: input.email },
+          });
+
+          if (!user) {
+            const { email, firstName, lastName, phone } = input;
+
+            user = await prisma.user.create({
+              data: {
+                firstName,
+                lastName,
+                phoneNumber: phone,
+                email,
+                passwordHash,
+                isGuest: true,
+              },
+            });
+          }
+
+          userId = user.id;
         }
 
         console.log(userId);
