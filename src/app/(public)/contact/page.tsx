@@ -1,12 +1,22 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { MapPin, Phone, Mail, Clock, Send, MessageCircle, Truck, Gift } from "lucide-react"
-import { Button } from "../../../components/ui/Button"
-import { Input } from "../../../components/ui/Input"
+import { useState } from "react";
+import { motion } from "framer-motion";
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  Send,
+  MessageCircle,
+  Truck,
+  Gift,
+} from "lucide-react";
+import { Button } from "../../../components/ui/Button";
+import { Input } from "../../../components/ui/Input";
+import MapEmbed from "@/src/components/Map";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -15,19 +25,19 @@ export default function ContactPage() {
     phone: "",
     subject: "",
     message: "",
-  })
+  });
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+    e.preventDefault();
+    setIsSubmitting(true);
 
     // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 2000))
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    console.log("Form submitted:", formData)
-    setIsSubmitting(false)
+    console.log("Form submitted:", formData);
+    setIsSubmitting(false);
 
     // Reset form
     setFormData({
@@ -36,15 +46,19 @@ export default function ContactPage() {
       phone: "",
       subject: "",
       message: "",
-    })
-  }
+    });
+  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   const contactInfo = [
     {
@@ -71,7 +85,7 @@ export default function ContactPage() {
       details: ["Mon-Sat: 8AM-10PM", "Sun: 9AM-8PM"],
       description: "We're here when you need us",
     },
-  ]
+  ];
 
   const services = [
     {
@@ -89,7 +103,7 @@ export default function ContactPage() {
       title: "24/7 Support",
       description: "Customer service available around the clock",
     },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100">
@@ -102,9 +116,12 @@ export default function ContactPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="font-cormorant text-5xl md:text-6xl font-bold mb-6">Contact Us</h1>
+            <h1 className="font-cormorant text-5xl md:text-6xl font-bold mb-6">
+              Contact Us
+            </h1>
             <p className="text-xl md:text-2xl max-w-3xl mx-auto">
-              We're here to help make your special moments even more beautiful. Get in touch with our team today.
+              We're here to help make your special moments even more beautiful.
+              Get in touch with our team today.
             </p>
           </motion.div>
         </div>
@@ -119,14 +136,23 @@ export default function ContactPage() {
             transition={{ duration: 0.6, delay: 0.2 }}
           >
             <div className="bg-white rounded-2xl p-8 shadow-luxury">
-              <h2 className="font-cormorant text-3xl font-bold text-charcoal-900 mb-6">Send us a Message</h2>
+              <h2 className="font-cormorant text-3xl font-bold text-charcoal-900 mb-6">
+                Send us a Message
+              </h2>
               <p className="text-muted-foreground mb-8">
-                Have a question about our flowers, cakes, or delivery services? We'd love to hear from you.
+                Have a question about our flowers, cakes, or delivery services?
+                We'd love to hear from you.
               </p>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Input label="Full Name" name="name" value={formData.name} onChange={handleChange} required />
+                  <Input
+                    label="Full Name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                  />
                   <Input
                     label="Email Address"
                     name="email"
@@ -146,7 +172,9 @@ export default function ContactPage() {
                     placeholder="+971 50 123 4567"
                   />
                   <div>
-                    <label className="block text-sm font-medium text-charcoal-900 mb-2">Subject</label>
+                    <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                      Subject
+                    </label>
                     <select
                       name="subject"
                       value={formData.subject}
@@ -166,7 +194,9 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-charcoal-900 mb-2">Message</label>
+                  <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                    Message
+                  </label>
                   <textarea
                     name="message"
                     value={formData.message}
@@ -178,7 +208,13 @@ export default function ContactPage() {
                   />
                 </div>
 
-                <Button type="submit" variant="luxury" size="lg" className="w-full" disabled={isSubmitting}>
+                <Button
+                  type="submit"
+                  variant="luxury"
+                  size="lg"
+                  className="w-full"
+                  disabled={isSubmitting}
+                >
                   {isSubmitting ? (
                     <div className="flex items-center">
                       <div className="w-5 h-5 border-2 border-charcoal-900 border-t-transparent rounded-full animate-spin mr-2" />
@@ -204,7 +240,9 @@ export default function ContactPage() {
           >
             {/* Contact Details */}
             <div className="bg-white rounded-2xl p-8 shadow-luxury">
-              <h2 className="font-cormorant text-3xl font-bold text-charcoal-900 mb-6">Get in Touch</h2>
+              <h2 className="font-cormorant text-3xl font-bold text-charcoal-900 mb-6">
+                Get in Touch
+              </h2>
 
               <div className="space-y-6">
                 {contactInfo.map((info, index) => (
@@ -213,13 +251,17 @@ export default function ContactPage() {
                       <info.icon className="w-6 h-6 text-charcoal-900" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-charcoal-900 mb-1">{info.title}</h3>
+                      <h3 className="font-semibold text-charcoal-900 mb-1">
+                        {info.title}
+                      </h3>
                       {info.details.map((detail, idx) => (
                         <p key={idx} className="text-muted-foreground">
                           {detail}
                         </p>
                       ))}
-                      <p className="text-sm text-luxury-500 mt-1">{info.description}</p>
+                      <p className="text-sm text-luxury-500 mt-1">
+                        {info.description}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -228,7 +270,9 @@ export default function ContactPage() {
 
             {/* Services */}
             <div className="bg-white rounded-2xl p-8 shadow-luxury">
-              <h3 className="font-cormorant text-2xl font-bold text-charcoal-900 mb-6">Our Services</h3>
+              <h3 className="font-cormorant text-2xl font-bold text-charcoal-900 mb-6">
+                Our Services
+              </h3>
 
               <div className="space-y-4">
                 {services.map((service, index) => (
@@ -237,8 +281,12 @@ export default function ContactPage() {
                       <service.icon className="w-5 h-5 text-luxury-600" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-charcoal-900 mb-1">{service.title}</h4>
-                      <p className="text-sm text-muted-foreground">{service.description}</p>
+                      <h4 className="font-semibold text-charcoal-900 mb-1">
+                        {service.title}
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        {service.description}
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -247,9 +295,12 @@ export default function ContactPage() {
 
             {/* Emergency Contact */}
             <div className="bg-luxury-50 rounded-2xl p-6 border border-luxury-200">
-              <h3 className="font-cormorant text-xl font-bold text-charcoal-900 mb-3">Need Urgent Help?</h3>
+              <h3 className="font-cormorant text-xl font-bold text-charcoal-900 mb-3">
+                Need Urgent Help?
+              </h3>
               <p className="text-muted-foreground mb-4">
-                For urgent delivery issues or last-minute orders, call our emergency line:
+                For urgent delivery issues or last-minute orders, call our
+                emergency line:
               </p>
               <a
                 href="tel:+971501234567"
@@ -271,18 +322,13 @@ export default function ContactPage() {
           viewport={{ once: true }}
         >
           <div className="bg-white rounded-2xl p-8 shadow-luxury">
-            <h2 className="font-cormorant text-3xl font-bold text-charcoal-900 mb-6 text-center">Visit Our Showroom</h2>
-            <div className="aspect-video bg-cream-100 rounded-xl flex items-center justify-center">
-              <div className="text-center">
-                <MapPin className="w-16 h-16 text-luxury-500 mx-auto mb-4" />
-                <h3 className="font-semibold text-charcoal-900 mb-2">Misk Blooming Showroom</h3>
-                <p className="text-muted-foreground">Dubai Marina, Dubai, UAE</p>
-                <p className="text-sm text-luxury-500 mt-2">Interactive map coming soon</p>
-              </div>
-            </div>
+            <h2 className="font-cormorant text-3xl font-bold text-charcoal-900 mb-6 text-center">
+              Visit Our Showroom
+            </h2>
+            <MapEmbed height={400} className="rounded-lg shadow-md" />
           </div>
         </motion.div>
       </div>
     </div>
-  )
+  );
 }

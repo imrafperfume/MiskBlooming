@@ -50,14 +50,13 @@ function LoginFormWrapper() {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || "Login failed");
+        toast.error(errData.error || "Login failed");
       }
 
       const d = await res.json();
-      console.log("Login success:", d);
       toast.success("Login Success");
-      router.push(callbackUrl);
-      // window.location.href = "/";
+      // router.push(callbackUrl);
+      window.location.href = callbackUrl;
     } catch (error) {
       console.error("Login error:", error);
     } finally {

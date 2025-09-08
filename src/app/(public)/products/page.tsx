@@ -24,16 +24,15 @@ export default function ProductsPage() {
     "seoTitle",
     "seoDescription",
   ]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const searchParams = useSearchParams();
+  const category = searchParams.get("category");
+  const search = searchParams.get("search");
+  console.log("🚀 ~ ProductsPage ~ search:", search);
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [priceRange, setPriceRange] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  // const [showFilters, setShowFilters] = useState(false);
-
-  // search url categoru
-  const searchParams = useSearchParams();
-  const category = searchParams.get("category");
+  const [searchQuery, setSearchQuery] = useState(search || "");
 
   // category Data
   const categories = categoriesData;
@@ -46,15 +45,15 @@ export default function ProductsPage() {
   const filteredAndSortedProducts = useMemo(() => {
     if (!products) return [];
 
-    const filtered = products.filter((product) => {
+    const filtered = products?.filter((product) => {
       // Search filter
       if (
         searchQuery &&
-        !product.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !product.shortDescription
+        !product?.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !product?.shortDescription
           .toLowerCase()
           .includes(searchQuery.toLowerCase()) &&
-        !product.tags.some((tag) =>
+        !product?.tags?.some((tag) =>
           tag.toLowerCase().includes(searchQuery.toLowerCase())
         )
       ) {

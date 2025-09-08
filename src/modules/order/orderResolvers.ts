@@ -3,6 +3,7 @@ import { isAdmin } from "@/src/lib/isAdmin";
 import { hashPassword } from "@/src/lib/password";
 import { redis } from "@/src/lib/redis";
 import { createId } from "@paralleldrive/cuid2";
+import { randomBytes } from "crypto";
 export interface OrderItemInput {
   productId: string;
   quantity: number;
@@ -167,21 +168,70 @@ export const OrderResolvers = {
         throw new Error(error.message);
       }
     },
+    ordersByUser: async (
+      _: any,
+      args: { userId: string },
+      context: { userId: string }
+    ) => {
+      try {
+        const { userId } = args;
+        if (!userId) throw new Error("User ID is required");
+        const cache = await redis.get(`ordersByUser:${userId}`);
+        if (cache) {
+          return cache;
+        }
+        const orders = await prisma.order.findMany({
+          where: { userId },
+          orderBy: { createdAt: "desc" },
+          include: {
+            items: { include: { product: true } },
+          },
+        });
+        if (!orders) throw new Error("No orders found for this user");
+        await redis.set(`ordersByUser:${userId}`, JSON.stringify(orders), {
+          ex: 60 * 2,
+        });
+        return orders;
+      } catch (error) {}
+    },
   },
   Mutation: {
     createOrder: async (_: any, { input }: { input: CreateOrderInput }) => {
       try {
         const { isGuest, couponCode, ...orderInput } = input;
         let userId = input.userId;
+        const password = randomBytes(4).toString("hex");
+        const passwordHash = await hashPassword(password);
+        if (isGuest && !userId) {
+          let user = await prisma.user.findUnique({
+            where: { email: input.email },
+          });
 
+          if (!user) {
+            const { email, firstName, lastName, phone } = input;
+
+            user = await prisma.user.create({
+              data: {
+                firstName,
+                lastName,
+                phoneNumber: phone,
+                email,
+                passwordHash,
+                isGuest: true,
+              },
+            });
+          }
+
+          userId = user.id;
+        }
+
+        console.log(userId);
         // Validate that all products exist before creating the order
         const productIds = input.items.map((item) => item.productId);
-        console.log("🚀 ~ productIds:", productIds);
         const existingProducts = await prisma.product.findMany({
           where: { id: { in: productIds } },
           select: { id: true, name: true, status: true },
         });
-        console.log("🚀 ~ existingProducts:", existingProducts);
 
         if (existingProducts.length !== productIds.length) {
           const existingProductIds = existingProducts.map((p) => p.id);
@@ -264,13 +314,7 @@ export const OrderResolvers = {
           console.log("🚀 ~ couponUsage:", couponUsage);
         }
 
-        // If user is not logged in (guest checkout), create a new guest user
-        if (isGuest || !userId) {
-          userId = createId();
-          console.log(`Created guest user with ID: ${userId}`);
-        }
-
-        // Build orderData safely (couponCode বাদ দিয়ে)
+        // Build orderData safely with nested creates
         const orderData: any = {
           ...orderInput,
           userId,
@@ -298,7 +342,10 @@ export const OrderResolvers = {
             couponUsage: { include: { coupon: true } },
           },
         });
-
+        await redis.del("allOrders");
+        if (userId) {
+          await redis.del(`ordersByUser:${userId}`);
+        }
         // Update coupon usage count
         if (couponUsage) {
           await prisma.coupon.update({

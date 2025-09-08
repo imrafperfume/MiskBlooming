@@ -85,6 +85,8 @@ export const GET_ORDERS_BY_USER = gql`
       totalAmount
       status
       createdAt
+      email
+      paymentMethod
       items {
         id
         productId
@@ -93,6 +95,7 @@ export const GET_ORDERS_BY_USER = gql`
         product {
           id
           name
+          # images
           slug
           price
         }

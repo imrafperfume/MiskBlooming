@@ -1,11 +1,23 @@
 "use client";
 
-import { JSX, useState } from "react";
+import { JSX, Suspense, useState } from "react";
 import { useQuery } from "@apollo/client";
 import { GET_ORDER_BY_ID } from "@/src/modules/order/operations";
 import { Button } from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
-import { Package, Search, Mail, Phone, MapPin, Calendar, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import {
+  Package,
+  Search,
+  Mail,
+  Phone,
+  MapPin,
+  Calendar,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { formatDate } from "@/src/lib/utils";
 
 interface OrderDetails {
   id: string;
@@ -36,15 +48,24 @@ interface OrderDetails {
   }>;
 }
 
-export default function TrackOrderPage(): JSX.Element {
-  const [orderId, setOrderId] = useState("");
-  const [email, setEmail] = useState("");
+function TrackOrderPage(): JSX.Element {
+  const searchParams = useSearchParams();
+  const prefillOrderId = searchParams?.get("orderId") || "";
+  console.log("🚀 ~ TrackOrderPage ~ prefillOrderId:", prefillOrderId);
+  const prefillOrderEmail = searchParams?.get("email") || "";
+  console.log("🚀 ~ TrackOrderPage ~ prefillOrderEmail:", prefillOrderEmail);
+  const [orderId, setOrderId] = useState(prefillOrderId || "");
+  const [email, setEmail] = useState(prefillOrderEmail || "");
   const [searchOrderId, setSearchOrderId] = useState("");
   const [searchEmail, setSearchEmail] = useState("");
   const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
   const [error, setError] = useState("");
 
-  const { data, loading, error: queryError } = useQuery(GET_ORDER_BY_ID, {
+  const {
+    data,
+    loading,
+    error: queryError,
+  } = useQuery(GET_ORDER_BY_ID, {
     variables: { id: searchOrderId },
     skip: !searchOrderId,
     onCompleted: (data) => {
@@ -54,7 +75,9 @@ export default function TrackOrderPage(): JSX.Element {
           setOrderDetails(data.orderById);
           setError("");
         } else {
-          setError("Email address does not match the order. Please check your email and try again.");
+          setError(
+            "Email address does not match the order. Please check your email and try again."
+          );
           setOrderDetails(null);
         }
       } else {
@@ -107,14 +130,6 @@ export default function TrackOrderPage(): JSX.Element {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   const formatTime = (timeString: string) => {
     return new Date(`2000-01-01T${timeString}`).toLocaleTimeString("en-US", {
       hour: "2-digit",
@@ -159,7 +174,7 @@ export default function TrackOrderPage(): JSX.Element {
                 required
               />
             </div>
-            
+
             {error && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
                 <div className="flex">
@@ -171,9 +186,9 @@ export default function TrackOrderPage(): JSX.Element {
               </div>
             )}
 
-            <Button 
-              type="submit" 
-              variant="luxury" 
+            <Button
+              type="submit"
+              variant="luxury"
               className="w-full md:w-auto"
               disabled={loading}
             >
@@ -191,27 +206,35 @@ export default function TrackOrderPage(): JSX.Element {
                 <h2 className="text-xl font-cormorant font-bold text-charcoal-900">
                   Order Status
                 </h2>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(orderDetails.status)}`}>
+                <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
+                    orderDetails.status
+                  )}`}
+                >
                   {getStatusIcon(orderDetails.status)}
                   <span className="ml-2">{orderDetails.status}</span>
                 </span>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">
-                    <span className="font-medium">Order ID:</span> {orderDetails.id}
+                    <span className="font-medium">Order ID:</span>{" "}
+                    {orderDetails.id}
                   </p>
                   <p className="text-sm text-gray-600 mb-1">
-                    <span className="font-medium">Order Date:</span> {formatDate(orderDetails.createdAt)}
+                    <span className="font-medium">Order Date:</span>{" "}
+                    {formatDate(orderDetails?.createdAt)}
                   </p>
                   <p className="text-sm text-gray-600">
-                    <span className="font-medium">Total Amount:</span> AED {orderDetails.totalAmount.toFixed(2)}
+                    <span className="font-medium">Total Amount:</span> AED{" "}
+                    {orderDetails.totalAmount.toFixed(2)}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-600 mb-1">
-                    <span className="font-medium">Payment Method:</span> {orderDetails.paymentMethod}
+                    <span className="font-medium">Payment Method:</span>{" "}
+                    {orderDetails.paymentMethod}
                   </p>
                   <p className="text-sm text-gray-600 mb-1">
                     <span className="font-medium">Payment Status:</span>
@@ -220,7 +243,8 @@ export default function TrackOrderPage(): JSX.Element {
                     </span>
                   </p>
                   <p className="text-sm text-gray-600">
-                    <span className="font-medium">Delivery Type:</span> {orderDetails.deliveryType}
+                    <span className="font-medium">Delivery Type:</span>{" "}
+                    {orderDetails.deliveryType}
                   </p>
                 </div>
               </div>
@@ -231,24 +255,30 @@ export default function TrackOrderPage(): JSX.Element {
               <h2 className="text-xl font-cormorant font-bold text-charcoal-900 mb-4">
                 Customer Information
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <div className="flex items-center mb-2">
                     <Mail className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-sm text-gray-600">{orderDetails.email}</span>
+                    <span className="text-sm text-gray-600">
+                      {orderDetails.email}
+                    </span>
                   </div>
                   <div className="flex items-center mb-2">
                     <Phone className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-sm text-gray-600">{orderDetails.phone}</span>
+                    <span className="text-sm text-gray-600">
+                      {orderDetails.phone}
+                    </span>
                   </div>
                 </div>
                 <div>
                   <div className="flex items-start">
                     <MapPin className="h-4 w-4 text-gray-400 mr-2 mt-0.5" />
                     <span className="text-sm text-gray-600">
-                      {orderDetails.address}, {orderDetails.city}, {orderDetails.emirate}
-                      {orderDetails.postalCode && `, ${orderDetails.postalCode}`}
+                      {orderDetails.address}, {orderDetails.city},{" "}
+                      {orderDetails.emirate}
+                      {orderDetails.postalCode &&
+                        `, ${orderDetails.postalCode}`}
                     </span>
                   </div>
                 </div>
@@ -260,8 +290,18 @@ export default function TrackOrderPage(): JSX.Element {
               <h2 className="text-xl font-cormorant font-bold text-charcoal-900 mb-4">
                 Delivery Information
               </h2>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  {orderDetails.deliveryType && (
+                    <div className="flex items-center mb-2">
+                      <Package className="h-4 w-4 text-gray-400 mr-2" />
+                      <span className="text-sm text-gray-600">
+                        Delivery Type: {orderDetails.deliveryType}
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <div>
                   {orderDetails.deliveryDate && (
                     <div className="flex items-center mb-2">
@@ -283,7 +323,9 @@ export default function TrackOrderPage(): JSX.Element {
                 <div>
                   {orderDetails.specialInstructions && (
                     <div>
-                      <h4 className="font-medium text-gray-900 mb-2">Special Instructions</h4>
+                      <h4 className="font-medium text-gray-900 mb-2">
+                        Special Instructions
+                      </h4>
                       <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
                         {orderDetails.specialInstructions}
                       </p>
@@ -298,17 +340,28 @@ export default function TrackOrderPage(): JSX.Element {
               <h2 className="text-xl font-cormorant font-bold text-charcoal-900 mb-4">
                 Order Items
               </h2>
-              
+
               <div className="space-y-4">
                 {orderDetails.items.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center py-3 border-b border-gray-200 last:border-b-0">
+                  <div
+                    key={item.id}
+                    className="flex justify-between items-center py-3 border-b border-gray-200 last:border-b-0"
+                  >
                     <div>
-                      <h4 className="font-medium text-gray-900">{item.product.name}</h4>
-                      <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
+                      <h4 className="font-medium text-gray-900">
+                        {item.product.name}
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        Quantity: {item.quantity}
+                      </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-gray-900">AED {(item.price * item.quantity).toFixed(2)}</p>
-                      <p className="text-sm text-gray-600">AED {item.price.toFixed(2)} each</p>
+                      <p className="font-medium text-gray-900">
+                        AED {(item.price * item.quantity).toFixed(2)}
+                      </p>
+                      <p className="text-sm text-gray-600">
+                        AED {item.price.toFixed(2)} each
+                      </p>
                     </div>
                   </div>
                 ))}
@@ -319,24 +372,23 @@ export default function TrackOrderPage(): JSX.Element {
 
         {/* Help Section */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
-          <h3 className="text-lg font-medium text-blue-800 mb-2">
-            Need Help?
-          </h3>
+          <h3 className="text-lg font-medium text-blue-800 mb-2">Need Help?</h3>
           <p className="text-sm text-blue-700 mb-4">
-            If you're having trouble tracking your order or have any questions, please contact our customer service team.
+            If you're having trouble tracking your order or have any questions,
+            please contact our customer service team.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button 
-              onClick={() => window.location.href = "/contact"} 
+            <Button
+              onClick={() => (window.location.href = "/contact")}
               variant="outline"
-              className="border-blue-300 text-blue-700 hover:bg-blue-100"
+              className="border-blue-300 text-blue-700 hover:bg-blue-800"
             >
               Contact Support
             </Button>
-            <Button 
-              onClick={() => window.location.href = "/"} 
+            <Button
+              onClick={() => (window.location.href = "/")}
               variant="outline"
-              className="border-blue-300 text-blue-700 hover:bg-blue-100"
+              className="border-blue-300 text-blue-700 hover:bg-blue-800"
             >
               Continue Shopping
             </Button>
@@ -344,5 +396,13 @@ export default function TrackOrderPage(): JSX.Element {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function TrackOrderWrapper() {
+  return (
+    <Suspense fallback={<div>Loading....</div>}>
+      <TrackOrderPage />
+    </Suspense>
   );
 }

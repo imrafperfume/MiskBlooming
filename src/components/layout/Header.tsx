@@ -36,13 +36,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
+import { useRouter } from "next/navigation";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-
+  const router = useRouter();
   const totalItems = useCartStore((state) => state.getTotalItems());
   const wishlistItems = useWishlistStore((state) => state.getTotalItems());
   const { data: user, isLoading } = useAuth();
@@ -154,9 +155,7 @@ const Header = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      window.location.href = `/products?search=${encodeURIComponent(
-        searchQuery
-      )}`;
+      router.push(`/products?search=${encodeURIComponent(searchQuery)}`);
     }
   };
 
