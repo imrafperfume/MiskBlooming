@@ -22,25 +22,26 @@ import { useWishlistStore } from "../../../store/wishlistStore";
 import { useCoupon } from "../../../hooks/useCoupon";
 import { formatPrice } from "../../../lib/utils";
 import { toast } from "sonner";
+import { useAuth } from "@/src/hooks/useAuth";
 
 export default function CartPage() {
-  const { 
-    items, 
-    updateQuantity, 
-    removeItem, 
-    getTotalPrice, 
+  const {
+    items,
+    updateQuantity,
+    removeItem,
+    getTotalPrice,
     getTotalItems,
     appliedCoupon,
     couponDiscount,
     applyCoupon,
     removeCoupon,
-    getDiscountedTotal
+    getDiscountedTotal,
   } = useCartStore();
   const { addItem: addToWishlist } = useWishlistStore();
   const { validateCouponCode, isValidating } = useCoupon();
   const [removingItems, setRemovingItems] = useState<Set<string>>(new Set());
   const [couponCode, setCouponCode] = useState("");
-
+  const { data: user } = useAuth();
   const handleUpdateQuantity = (productId: string, newQuantity: number) => {
     if (newQuantity === 0) {
       handleRemoveItem(productId);
@@ -60,7 +61,7 @@ export default function CartPage() {
       });
     }, 300);
   };
-
+  const userId = user?.id || "";
   const handleMoveToWishlist = (productId: string) => {
     const item = items.find((item) => item.product.id === productId);
     if (item) {
@@ -76,7 +77,7 @@ export default function CartPage() {
     }
 
     const subtotal = getTotalPrice();
-    const result = await validateCouponCode(couponCode, subtotal);
+    const result = await validateCouponCode(couponCode, subtotal, userId);
 
     if (result.isValid && result.coupon) {
       applyCoupon(result.coupon);
@@ -361,12 +362,13 @@ export default function CartPage() {
                   <div className="flex items-center">
                     <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                     <span className="font-medium text-green-800">
-                      {appliedCoupon.code} - {appliedCoupon.discountType === 'PERCENTAGE' 
+                      {appliedCoupon.code} -{" "}
+                      {appliedCoupon.discountType === "PERCENTAGE"
                         ? `${appliedCoupon.discountValue}% off`
-                        : appliedCoupon.discountType === 'FIXED_AMOUNT'
+                        : appliedCoupon.discountType === "FIXED_AMOUNT"
                         ? `${appliedCoupon.discountValue} AED off`
-                        : 'Free shipping'
-                      } applied
+                        : "Free shipping"}{" "}
+                      applied
                     </span>
                   </div>
                   <button

@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Package,
   Eye,
@@ -19,8 +19,14 @@ import {
   Navigation,
   Package2,
   Home,
-} from "lucide-react"
-import { Button } from "../../../../components/ui/Button"
+} from "lucide-react";
+import { Button } from "../../../../components/ui/Button";
+import { useQuery } from "@apollo/client";
+import { GET_ORDERS_BY_USER } from "@/src/modules/order/operations";
+import { useAuth } from "@/src/hooks/useAuth";
+import Loading from "@/src/components/layout/Loading";
+import Link from "next/link";
+import { formatDate } from "@/src/lib/utils";
 
 const orders = [
   {
@@ -178,49 +184,77 @@ const orders = [
       },
     ],
   },
-]
+];
 
 const statusColors = {
   delivered: "bg-green-100 text-green-800",
   out_for_delivery: "bg-blue-100 text-blue-800",
   preparing: "bg-yellow-100 text-yellow-800",
   cancelled: "bg-red-100 text-red-800",
-  pending: "bg-gray-100 text-gray-800",
-}
+  PENDING: "bg-gray-100 text-gray-800",
+};
 
 const statusIcons = {
   delivered: CheckCircle,
   out_for_delivery: Truck,
   preparing: Clock,
   cancelled: AlertCircle,
-  pending: Package,
-}
+  PENDING: Package,
+};
 
 export default function OrdersPage() {
-  const [selectedOrder, setSelectedOrder] = useState<string | null>(null)
-  const [trackingModalOpen, setTrackingModalOpen] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
+  const [trackingModalOpen, setTrackingModalOpen] = useState(false);
+  const { data: user, isLoading } = useAuth();
+  const userId = user?.id;
 
+  const { data, loading } = useQuery(GET_ORDERS_BY_USER, {
+    variables: { userId: userId },
+  });
+  if (isLoading || loading) return <Loading />;
+  console.log("🚀 ~ OrdersPage ~ data:", data);
+  if (!userId)
+    return (
+      <div className="min-h-screen flex flex-col gap-2 items-center justify-center">
+        Please log in to view your orders.
+        <Link
+          href="/auth/login"
+          className="bg-luxury-500 px-8 py-4 font-cormorant text-lg text-charcoal-900 rounded-md "
+        >
+          Login
+        </Link>
+      </div>
+    );
+
+  const orders = data?.ordersByUser || [];
   const openTracking = (orderId: string) => {
-    setSelectedOrder(orderId)
-    setTrackingModalOpen(true)
-  }
+    setSelectedOrder(orderId);
+    setTrackingModalOpen(true);
+  };
 
-  const selectedOrderData = orders.find((order) => order.id === selectedOrder)
+  // const selectedOrderData = orders.find((order) => order.id === selectedOrder);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100 pt-32 pb-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-cormorant font-bold text-charcoal-900 mb-4">My Orders</h1>
+            <h1 className="text-4xl md:text-5xl font-cormorant font-bold text-charcoal-900 mb-4">
+              My Orders
+            </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Track your orders and view your purchase history
             </p>
           </div>
 
           <div className="space-y-6">
-            {orders.map((order, index) => {
-              const StatusIcon = statusIcons[order.status as keyof typeof statusIcons]
+            {orders?.map((order: any, index: any) => {
+              const StatusIcon =
+                statusIcons[order?.status as keyof typeof statusIcons];
 
               return (
                 <motion.div
@@ -236,17 +270,21 @@ export default function OrdersPage() {
                         <StatusIcon className="w-6 h-6 text-luxury-500" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-cormorant font-bold text-charcoal-900">Order {order.id}</h3>
+                        <h3 className="text-xl font-cormorant font-bold text-charcoal-900">
+                          Order {order?.id}
+                        </h3>
                         <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                           <span className="flex items-center">
                             <Calendar className="w-4 h-4 mr-1" />
-                            {new Date(order.date).toLocaleDateString()}
+                            {order?.createdAt
+                              ? formatDate(order?.createdAt)
+                              : "Not available"}
                           </span>
                           <span className="flex items-center">
                             <CreditCard className="w-4 h-4 mr-1" />
-                            {order.paymentMethod}
+                            {order?.paymentMethod}
                           </span>
-                          {order.trackingNumber && (
+                          {order?.trackingNumber && (
                             <span className="flex items-center">
                               <Navigation className="w-4 h-4 mr-1" />
                               {order.trackingNumber}
@@ -258,56 +296,84 @@ export default function OrdersPage() {
 
                     <div className="flex items-center space-x-4">
                       <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${statusColors[order.status as keyof typeof statusColors]}`}
+                        className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          statusColors[
+                            order?.status as keyof typeof statusColors
+                          ]
+                        }`}
                       >
-                        {order.status.replace("_", " ").replace(/\b\w/g, (l) => l.toUpperCase())}
+                        {order?.status
+                          .replace("_", " ")
+                          .replace(/\b\w/g, (l: any) => l.toUpperCase())}
                       </span>
                       <div className="text-right">
-                        <div className="text-2xl font-cormorant font-bold text-charcoal-900">AED {order.total}</div>
+                        <div className="text-2xl font-cormorant font-bold text-charcoal-900">
+                          AED {order?.totalAmount}
+                        </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Quick Status Progress */}
-                  <div className="mb-4 p-4 bg-cream-50 rounded-lg">
+                  {/* <div className="mb-4 p-4 bg-cream-50 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-charcoal-900">Order Progress</span>
+                      <span className="text-sm font-medium text-charcoal-900">
+                        Order Progress
+                      </span>
                       {order.estimatedDelivery && (
                         <span className="text-sm text-muted-foreground">
-                          Est. Delivery: {new Date(order.estimatedDelivery).toLocaleDateString()}
+                          Est. Delivery:{" "}
+                          {new Date(
+                            order.estimatedDelivery
+                          ).toLocaleDateString()}
                         </span>
                       )}
                     </div>
                     <div className="flex items-center space-x-2">
-                      {order.trackingHistory.map((step, stepIndex) => (
-                        <div key={stepIndex} className="flex items-center">
-                          <div className={`w-3 h-3 rounded-full ${step.completed ? "bg-luxury-500" : "bg-gray-300"}`} />
-                          {stepIndex < order.trackingHistory.length - 1 && (
+                      {order.trackingHistory.map(
+                        (step: any, stepIndex: any) => (
+                          <div key={stepIndex} className="flex items-center">
                             <div
-                              className={`w-8 h-0.5 ${
-                                order.trackingHistory[stepIndex + 1]?.completed ? "bg-luxury-500" : "bg-gray-300"
+                              className={`w-3 h-3 rounded-full ${
+                                step.completed ? "bg-luxury-500" : "bg-gray-300"
                               }`}
                             />
-                          )}
-                        </div>
-                      ))}
+                            {stepIndex < order.trackingHistory.length - 1 && (
+                              <div
+                                className={`w-8 h-0.5 ${
+                                  order.trackingHistory[stepIndex + 1]
+                                    ?.completed
+                                    ? "bg-luxury-500"
+                                    : "bg-gray-300"
+                                }`}
+                              />
+                            )}
+                          </div>
+                        )
+                      )}
                     </div>
                     <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-                      {order.trackingHistory.map((step, stepIndex) => (
-                        <span key={stepIndex} className="text-center">
-                          {step.status}
-                        </span>
-                      ))}
+                      {order.trackingHistory.map(
+                        (step: any, stepIndex: any) => (
+                          <span key={stepIndex} className="text-center">
+                            {step.status}
+                          </span>
+                        )
+                      )}
                     </div>
-                  </div>
+                  </div> */}
 
                   {/* Courier Information */}
-                  {order.courierName && order.status === "out_for_delivery" && (
+                  {/* {order.courierName && order.status === "out_for_delivery" && (
                     <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="font-medium text-charcoal-900 mb-1">Your Delivery Partner</h4>
-                          <p className="text-sm text-muted-foreground">{order.courierName}</p>
+                          <h4 className="font-medium text-charcoal-900 mb-1">
+                            Your Delivery Partner
+                          </h4>
+                          <p className="text-sm text-muted-foreground">
+                            {order.courierName}
+                          </p>
                         </div>
                         <div className="flex space-x-2">
                           <Button
@@ -329,10 +395,10 @@ export default function OrdersPage() {
                         </div>
                       </div>
                     </div>
-                  )}
+                  )} */}
 
                   <div className="border-t border-cream-200 pt-4">
-                    <div className="grid md:grid-cols-2 gap-4 mb-4">
+                    {/* <div className="grid md:grid-cols-2 gap-4 mb-4">
                       <div className="flex items-center text-sm text-muted-foreground">
                         <MapPin className="w-4 h-4 mr-2" />
                         <span>Delivery to: {order.deliveryAddress}</span>
@@ -341,52 +407,75 @@ export default function OrdersPage() {
                         <Calendar className="w-4 h-4 mr-2" />
                         <span>
                           {order.actualDelivery
-                            ? `Delivered: ${new Date(order.actualDelivery).toLocaleDateString()}`
-                            : `Est. Delivery: ${new Date(order.estimatedDelivery).toLocaleDateString()}`}
+                            ? `Delivered: ${new Date(
+                                order.actualDelivery
+                              ).toLocaleDateString()}`
+                            : `Est. Delivery: ${new Date(
+                                order.estimatedDelivery
+                              ).toLocaleDateString()}`}
                         </span>
                       </div>
-                    </div>
+                    </div> */}
 
                     <div className="space-y-3 mb-4">
-                      {order.items.map((item, itemIndex) => (
-                        <div key={itemIndex} className="flex items-center space-x-4 p-3 bg-cream-50 rounded-lg">
-                          <img
-                            src={item.image || "/placeholder.svg"}
-                            alt={item.name}
+                      {order?.items.map((item: any, itemIndex: any) => (
+                        <div
+                          key={itemIndex}
+                          className="flex items-center space-x-4 p-3 bg-cream-50 rounded-lg"
+                        >
+                          {/* <img
+                            src={item.product?.images[0] || "/placeholder.svg"}
+                            alt={item.product?.name}
                             className="w-16 h-16 object-cover rounded-lg"
-                          />
+                          /> */}
                           <div className="flex-1">
-                            <h4 className="font-medium text-charcoal-900">{item.name}</h4>
-                            <p className="text-sm text-muted-foreground">Quantity: {item.quantity}</p>
+                            <h4 className="font-medium text-charcoal-900">
+                              {item.product?.name}
+                            </h4>
+                            <p className="text-sm text-muted-foreground">
+                              Quantity: {item.quantity}
+                            </p>
                           </div>
                           <div className="text-right">
-                            <div className="font-bold text-charcoal-900">AED {item.price}</div>
+                            <div className="font-bold text-charcoal-900">
+                              AED {item.price}
+                            </div>
                           </div>
                         </div>
                       ))}
                     </div>
 
                     <div className="flex flex-wrap gap-3">
-                      <Button
-                        variant="luxury"
-                        size="sm"
-                        className="flex items-center"
-                        onClick={() => openTracking(order.id)}
+                      <Link
+                        href={`/track-order?orderId=${order.id}&email=${order.email}`}
+                        className="flex items-center bg-luxury-500 px-4 py-2 text-charcoal-900 rounded-lg hover:bg-luxury-600 transition"
                       >
                         <Navigation className="w-4 h-4 mr-2" />
                         Track Order
-                      </Button>
-                      <Button variant="outline" size="sm" className="flex items-center bg-transparent">
+                      </Link>
+                      {/* <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center bg-transparent"
+                      >
                         <Eye className="w-4 h-4 mr-2" />
                         View Details
-                      </Button>
-                      {order.status === "delivered" && (
+                      </Button> */}
+                      {order.status === "DELIVERED" && (
                         <>
-                          <Button variant="outline" size="sm" className="flex items-center bg-transparent">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex items-center bg-transparent"
+                          >
                             <Download className="w-4 h-4 mr-2" />
                             Download Invoice
                           </Button>
-                          <Button variant="outline" size="sm" className="flex items-center bg-transparent">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex items-center bg-transparent"
+                          >
                             <Star className="w-4 h-4 mr-2" />
                             Leave Review
                           </Button>
@@ -402,7 +491,7 @@ export default function OrdersPage() {
                     </div>
                   </div>
                 </motion.div>
-              )
+              );
             })}
           </div>
 
@@ -414,8 +503,12 @@ export default function OrdersPage() {
               transition={{ delay: 0.3 }}
             >
               <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-2xl font-cormorant font-bold text-charcoal-900 mb-2">No Orders Yet</h3>
-              <p className="text-muted-foreground mb-6">Start shopping to see your orders here</p>
+              <h3 className="text-2xl font-cormorant font-bold text-charcoal-900 mb-2">
+                No Orders Yet
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                Start shopping to see your orders here
+              </p>
               <Button variant="luxury" size="lg">
                 Browse Products
               </Button>
@@ -425,129 +518,6 @@ export default function OrdersPage() {
       </div>
 
       {/* Detailed Tracking Modal */}
-      <AnimatePresence>
-        {trackingModalOpen && selectedOrderData && (
-          <motion.div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setTrackingModalOpen(false)}
-          >
-            <motion.div
-              className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-2xl font-cormorant font-bold text-charcoal-900">
-                    Track Order {selectedOrderData.id}
-                  </h2>
-                  <p className="text-muted-foreground">Tracking: {selectedOrderData.trackingNumber}</p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setTrackingModalOpen(false)}
-                  className="bg-transparent"
-                >
-                  ✕
-                </Button>
-              </div>
-
-              {/* Detailed Timeline */}
-              <div className="space-y-6">
-                {selectedOrderData.trackingHistory.map((step, index) => {
-                  const StepIcon = step.icon
-                  return (
-                    <div key={index} className="flex items-start space-x-4">
-                      <div className="flex flex-col items-center">
-                        <div
-                          className={`p-3 rounded-full ${
-                            step.completed ? "bg-luxury-500 text-white" : "bg-gray-200 text-gray-400"
-                          }`}
-                        >
-                          <StepIcon className="w-5 h-5" />
-                        </div>
-                        {index < selectedOrderData.trackingHistory.length - 1 && (
-                          <div
-                            className={`w-0.5 h-12 mt-2 ${
-                              selectedOrderData.trackingHistory[index + 1]?.completed ? "bg-luxury-500" : "bg-gray-200"
-                            }`}
-                          />
-                        )}
-                      </div>
-                      <div className="flex-1 pb-6">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className={`font-medium ${step.completed ? "text-charcoal-900" : "text-gray-400"}`}>
-                            {step.status}
-                          </h3>
-                          {step.timestamp && (
-                            <span className="text-sm text-muted-foreground">
-                              {new Date(step.timestamp).toLocaleString()}
-                            </span>
-                          )}
-                        </div>
-                        <p className={`text-sm ${step.completed ? "text-muted-foreground" : "text-gray-400"}`}>
-                          {step.description}
-                        </p>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-
-              {/* Delivery Information */}
-              <div className="mt-8 p-4 bg-cream-50 rounded-lg">
-                <h3 className="font-medium text-charcoal-900 mb-3">Delivery Information</h3>
-                <div className="grid md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Delivery Address:</span>
-                    <p className="font-medium">{selectedOrderData.deliveryAddress}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Estimated Delivery:</span>
-                    <p className="font-medium">{new Date(selectedOrderData.estimatedDelivery).toLocaleDateString()}</p>
-                  </div>
-                  {selectedOrderData.courierName && (
-                    <>
-                      <div>
-                        <span className="text-muted-foreground">Courier:</span>
-                        <p className="font-medium">{selectedOrderData.courierName}</p>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">Contact:</span>
-                        <p className="font-medium">{selectedOrderData.courierPhone}</p>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-3 mt-6">
-                {selectedOrderData.courierPhone && selectedOrderData.status === "out_for_delivery" && (
-                  <Button variant="luxury" size="sm" className="flex items-center">
-                    <Phone className="w-4 h-4 mr-2" />
-                    Call Courier
-                  </Button>
-                )}
-                <Button variant="outline" size="sm" className="flex items-center bg-transparent">
-                  <Download className="w-4 h-4 mr-2" />
-                  Download Receipt
-                </Button>
-                <Button variant="outline" size="sm" className="flex items-center bg-transparent">
-                  <Mail className="w-4 h-4 mr-2" />
-                  Contact Support
-                </Button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
-  )
+  );
 }

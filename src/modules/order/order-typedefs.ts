@@ -111,6 +111,7 @@ export const OrderTypeDefs = gql`
     allOrders: [Order!]!
     orderStats: OrderStats!
     orderById(id: ID!): Order
+    ordersByUser(userId: String!): [Order!]!
   }
 
   type Mutation {
