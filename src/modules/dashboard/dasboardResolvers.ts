@@ -46,7 +46,11 @@ export const DashboardResolvers = {
 
         // Customers
         const totalCustomers = await prisma.user.count({
-          where: { role: "USER" },
+          where: {
+            role: {
+              in: ["USER", "GUEST"],
+            },
+          },
         });
         const customersYesterday = await prisma.user.count({
           where: {

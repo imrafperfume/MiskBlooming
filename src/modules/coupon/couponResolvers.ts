@@ -193,41 +193,29 @@ export const CouponResolvers = {
       }
     ) => {
       try {
-        const { code, orderAmount, userId, email } = args;
+        const { code, orderAmount, userId } = args;
 
         // Find the coupon
         const coupon = await prisma.coupon.findUnique({
           where: { code: code.toUpperCase() },
         });
+        if (!coupon) return { isValid: false, error: "Invalid coupon code" };
 
-        if (!coupon) {
-          return {
-            isValid: false,
-            error: "Invalid coupon code",
-          };
-        }
-
-        // Check if coupon is active
-        if (!coupon.isActive) {
-          return {
-            isValid: false,
-            error: "This coupon is no longer active",
-          };
-        }
-
-        // Check validity period
         const now = new Date();
+
+        // Check if coupon is active and valid period
         if (
+          !coupon.isActive ||
           now < new Date(coupon.validFrom) ||
           now > new Date(coupon.validUntil)
         ) {
           return {
             isValid: false,
-            error: "This coupon has expired",
+            error: "This coupon is not valid or has expired",
           };
         }
 
-        // Check minimum amount
+        // Check minimum order amount
         if (coupon.minimumAmount && orderAmount < coupon.minimumAmount) {
           return {
             isValid: false,
@@ -235,7 +223,7 @@ export const CouponResolvers = {
           };
         }
 
-        // Check usage limit
+        // Check global usage limit
         if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
           return {
             isValid: false,
@@ -243,15 +231,11 @@ export const CouponResolvers = {
           };
         }
 
-        // Check user usage limit
+        // Check per-user usage limit (only if userId exists)
         if (userId && coupon.userUsageLimit) {
           const userUsageCount = await prisma.couponUsage.count({
-            where: {
-              couponId: coupon.id,
-              userId: userId,
-            },
+            where: { couponId: coupon.id, userId },
           });
-
           if (userUsageCount >= coupon.userUsageLimit) {
             return {
               isValid: false,
@@ -260,12 +244,11 @@ export const CouponResolvers = {
           }
         }
 
-        // Check if user is eligible (for new users only coupons)
+        // New users only coupon
         if (coupon.newUsersOnly && userId) {
           const userOrderCount = await prisma.order.count({
-            where: { userId: userId },
+            where: { userId },
           });
-
           if (userOrderCount > 0) {
             return {
               isValid: false,
@@ -274,35 +257,33 @@ export const CouponResolvers = {
           }
         }
 
-        // Calculate discount amount
+        // Calculate discount
         let discountAmount = 0;
-        if (coupon.discountType === "PERCENTAGE") {
-          discountAmount = (orderAmount * coupon.discountValue) / 100;
-          if (
-            coupon.maximumDiscount &&
-            discountAmount > coupon.maximumDiscount
-          ) {
-            discountAmount = coupon.maximumDiscount;
-          }
-        } else if (coupon.discountType === "FIXED_AMOUNT") {
-          discountAmount = coupon.discountValue;
-        } else if (coupon.discountType === "FREE_SHIPPING") {
-          // Free shipping discount will be handled in checkout
-          discountAmount = 0;
+        switch (coupon.discountType) {
+          case "PERCENTAGE":
+            discountAmount = (orderAmount * coupon.discountValue) / 100;
+            if (
+              coupon.maximumDiscount &&
+              discountAmount > coupon.maximumDiscount
+            ) {
+              discountAmount = coupon.maximumDiscount;
+            }
+            break;
+          case "FIXED_AMOUNT":
+            discountAmount = coupon.discountValue;
+            break;
+          case "FREE_SHIPPING":
+            discountAmount = 0; // handled in checkout
+            break;
         }
 
-        // Don't exceed order amount
         discountAmount = Math.min(discountAmount, orderAmount);
 
-        return {
-          isValid: true,
-          coupon,
-          discountAmount,
-        };
+        return { isValid: true, coupon, discountAmount };
       } catch (error: any) {
         return {
           isValid: false,
-          error: error.message,
+          error: error.message || "Coupon validation failed",
         };
       }
     },

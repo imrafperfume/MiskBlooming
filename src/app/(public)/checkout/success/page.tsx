@@ -10,12 +10,10 @@ import SuccessPage from "./SuccessPage";
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams?.get("orderId");
-  console.log("🚀 ~ CheckoutSuccessContent ~ orderId:", orderId);
 
   const { data, loading } = useQuery(GET_ORDER_BY_ID, {
     variables: { id: orderId },
   });
-  console.log("🚀 ~ CheckoutSuccessContent ~ data:", data);
 
   if (loading) return <Loading />;
   const order = data?.orderById;

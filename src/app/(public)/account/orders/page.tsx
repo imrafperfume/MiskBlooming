@@ -233,7 +233,17 @@ export default function OrdersPage() {
   };
 
   // const selectedOrderData = orders.find((order) => order.id === selectedOrder);
-
+  const handleDownload = async (orderId: string) => {
+    if (!orderId) return;
+    const res = await fetch(`/api/invoice/${orderId}`);
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `invoice-${orderId}.pdf`;
+    a.click();
+    a.remove();
+  };
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100 pt-32 pb-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -453,6 +463,14 @@ export default function OrdersPage() {
                         <Navigation className="w-4 h-4 mr-2" />
                         Track Order
                       </Link>
+                      <Button
+                        size={"sm"}
+                        onClick={() => handleDownload(order?.id)}
+                        className="flex items-center bg-transparent"
+                        variant={"outline"}
+                      >
+                        Download Invoice
+                      </Button>
                       {/* <Button
                         variant="outline"
                         size="sm"

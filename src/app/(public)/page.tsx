@@ -5,13 +5,7 @@ import { Suspense, lazy } from "react";
 import { Button } from "../../components/ui/Button";
 import { LazyWrapper } from "../../components/ui/LazyWrapper";
 import { useFeaturedProducts } from "../../hooks/useProducts";
-import {
-  Truck,
-  Shield,
-  Headphones,
-  Award,
-  Crown,
-} from "lucide-react";
+import { Truck, Shield, Headphones, Award, Crown } from "lucide-react";
 import Link from "next/link";
 
 // Critical components loaded immediately
@@ -19,10 +13,16 @@ import HeroSlider from "../../components/home/HeroSlider";
 import ShopByCategory from "../../components/home/ShopByCategory";
 
 // Lazy load non-critical components
-const FeaturedProducts = lazy(() => import("../../components/home/FeaturedProducts"));
-const SpecialOccasions = lazy(() => import("../../components/home/SpecialOccasions"));
+const FeaturedProducts = lazy(
+  () => import("../../components/home/FeaturedProducts")
+);
+const SpecialOccasions = lazy(
+  () => import("../../components/home/SpecialOccasions")
+);
 const InSeason = lazy(() => import("../../components/home/InSeason"));
-const TestimonialSection = lazy(() => import("../../components/home/TestimonialSection"));
+const TestimonialSection = lazy(
+  () => import("../../components/home/TestimonialSection")
+);
 
 export default function HomePage() {
   const { data: featuredProducts, isLoading } = useFeaturedProducts([
@@ -38,7 +38,6 @@ export default function HomePage() {
     "featured",
   ]);
   console.log(featuredProducts);
-
 
   const stats = [
     { number: "15,000+", label: "Distinguished Clients" },
@@ -57,7 +56,11 @@ export default function HomePage() {
 
       {/* Features Section */}
       <LazyWrapper>
-        <Suspense fallback={<div className="h-96 bg-cream-200 animate-pulse rounded-lg" />}>
+        <Suspense
+          fallback={
+            <div className="h-96 bg-cream-200 animate-pulse rounded-lg" />
+          }
+        >
           <FeaturedProducts
             featuredProducts={featuredProducts ?? []}
             isLoading={isLoading}
@@ -67,14 +70,22 @@ export default function HomePage() {
 
       {/* Special Occasions */}
       <LazyWrapper>
-        <Suspense fallback={<div className="h-96 bg-cream-200 animate-pulse rounded-lg" />}>
+        <Suspense
+          fallback={
+            <div className="h-96 bg-cream-200 animate-pulse rounded-lg" />
+          }
+        >
           <SpecialOccasions />
         </Suspense>
       </LazyWrapper>
 
       {/* In Season */}
       <LazyWrapper>
-        <Suspense fallback={<div className="h-96 bg-cream-200 animate-pulse rounded-lg" />}>
+        <Suspense
+          fallback={
+            <div className="h-96 bg-cream-200 animate-pulse rounded-lg" />
+          }
+        >
           <InSeason />
         </Suspense>
       </LazyWrapper>
@@ -118,7 +129,7 @@ export default function HomePage() {
 
       {/* Testimonials */}
       <LazyWrapper>
-        <Suspense fallback={<div className="h-96 bg-cream-200 animate-pulse rounded-lg" />}>
+        <Suspense fallback={<div className=" ">Loading...</div>}>
           <TestimonialSection />
         </Suspense>
       </LazyWrapper>

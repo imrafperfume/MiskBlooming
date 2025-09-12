@@ -52,6 +52,10 @@ export const OrderTypeDefs = gql`
     deliveryType: DeliveryType!
     deliveryDate: String
     deliveryTime: String
+    codFee: Float
+    deliveryCost: Float
+    vatAmount: Float
+    discount: Float
     specialInstructions: String
 
     items: [OrderItemInput!]!
@@ -79,6 +83,10 @@ export const OrderTypeDefs = gql`
     deliveryType: DeliveryType!
     deliveryDate: String
     deliveryTime: String
+    codFee: Float
+    deliveryCost: Float
+    vatAmount: Float
+    discount: Float
     specialInstructions: String
 
     status: OrderStatus

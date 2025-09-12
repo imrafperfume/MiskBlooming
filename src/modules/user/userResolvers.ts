@@ -59,4 +59,42 @@ export const UserResolvers = {
       });
     },
   },
+  Mutation: {
+    updateUser: async (
+      _: any,
+      args: {
+        id: string;
+        firstName?: string;
+        lastName?: string;
+        email?: string;
+        phoneNumber?: string;
+        address?: string;
+      },
+      context: { userId: string }
+    ) => {
+      try {
+        const { userId } = context;
+        if (!userId) throw new Error("userId not found");
+        if (userId !== args.id) throw new Error("Not authorized");
+
+        const updatedUser = await prisma.user.update({
+          where: { id: args.id },
+          data: {
+            firstName: args.firstName,
+            lastName: args.lastName,
+            email: args.email,
+            phoneNumber: args.phoneNumber,
+            address: args.address,
+          },
+        });
+        if (!updatedUser) throw new Error("User not found");
+
+        // Invalidate user cache
+        await redis.del(`user:${args.id}`);
+        return updatedUser;
+      } catch (error: any) {
+        throw new Error(error.message);
+      }
+    },
+  },
 };

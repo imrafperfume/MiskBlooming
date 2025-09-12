@@ -1,5 +1,5 @@
 import Button from "@/src/components/ui/Button";
-import { formatPrice } from "@/src/lib/utils";
+import { formatPrice, handleDownload } from "@/src/lib/utils";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -12,6 +12,7 @@ import {
   Truck,
 } from "lucide-react";
 import Link from "next/link";
+
 interface OrderItem {
   id: string;
   quantity: number;
@@ -40,9 +41,14 @@ interface Order {
   specialInstructions?: string;
   status: string;
   totalAmount: number;
+  vatAmount?: number;
+  codFee?: number;
+  discount?: number;
+  deliveryCost?: number;
   createdAt: string;
   items: OrderItem[];
 }
+
 export default function SuccessPage({ order }: { order: Order }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100">
@@ -77,6 +83,14 @@ export default function SuccessPage({ order }: { order: Order }) {
           <p className="text-muted-foreground">
             Your beautiful arrangement is being prepared with love and care
           </p>
+          <Button
+            onClick={() => handleDownload(order?.id)}
+            variant={"luxury"}
+            size={"sm"}
+            className="mt-6"
+          >
+            Download Invoice
+          </Button>
         </motion.div>
 
         {/* Order Details Card */}
@@ -86,7 +100,7 @@ export default function SuccessPage({ order }: { order: Order }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <div className="sm:flex items-center  justify-between mb-6">
+          <div className="sm:flex items-center justify-between mb-6">
             <div>
               <h2 className="font-cormorant text-2xl font-bold text-charcoal-900">
                 Order Details
@@ -103,7 +117,7 @@ export default function SuccessPage({ order }: { order: Order }) {
 
           {/* Order Items */}
           <div className="space-y-4 mb-6">
-            {order?.items.map((item: any, index: any) => (
+            {order?.items.map((item, index) => (
               <div
                 key={index}
                 className="flex items-center justify-between py-3 border-b border-cream-200 last:border-b-0"
@@ -126,8 +140,52 @@ export default function SuccessPage({ order }: { order: Order }) {
             ))}
           </div>
 
+          {/* ✅ Order Summary */}
+          <div className="bg-luxury-50 rounded-xl p-6 mt-6">
+            <h3 className="font-semibold text-charcoal-900 mb-4 flex items-center">
+              <Package className="w-5 h-5 text-luxury-500 mr-2" />
+              Order Summary
+            </h3>
+
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">VAT</span>
+                <span className="font-medium">
+                  {formatPrice(order.vatAmount || 0)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Delivery Cost</span>
+                <span className="font-medium">
+                  {order.deliveryCost && order.deliveryCost > 0
+                    ? formatPrice(order.deliveryCost)
+                    : "Free"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">COD Fee</span>
+                <span className="font-medium">
+                  {formatPrice(order.codFee || 0)}
+                </span>
+              </div>
+              <div className="flex justify-between text-red-600">
+                <span className="text-muted-foreground">Discount</span>
+                <span className="font-medium">
+                  - {formatPrice(order.discount || 0)}
+                </span>
+              </div>
+
+              <div className="border-t border-cream-200 my-2"></div>
+
+              <div className="flex justify-between font-bold text-lg text-charcoal-900">
+                <span>Total</span>
+                <span>{formatPrice(order.totalAmount)}</span>
+              </div>
+            </div>
+          </div>
+
           {/* Delivery Information */}
-          <div className="bg-luxury-50 rounded-xl p-6">
+          <div className="bg-luxury-50 rounded-xl p-6 mt-6">
             <h3 className="font-semibold text-charcoal-900 mb-4 flex items-center">
               <Truck className="w-5 h-5 text-luxury-500 mr-2" />
               Delivery Information
@@ -154,7 +212,10 @@ export default function SuccessPage({ order }: { order: Order }) {
                       Estimated Delivery
                     </p>
                     <p className="font-medium text-charcoal-900">
-                      {order?.deliveryDate}
+                      {new Date(Number(order?.deliveryDate)).toLocaleDateString(
+                        "en-GB",
+                        { day: "2-digit", month: "short", year: "numeric" }
+                      )}
                     </p>
                   </div>
                   <div>

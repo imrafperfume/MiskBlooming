@@ -202,10 +202,10 @@ const Header = () => {
           {/* Logo */}
           <Link
             href="/"
-            className="flex items-center sm:border-none border-b group"
+            className="flex items-center sm:w-auto w-full space-x-4 justify-between sm:justify-normal sm:border-none  group"
           >
             <motion.div
-              className="relative  w-52 h-14 lg:w-48 lg:h-24 md:w-40 md:h-20 text-xl font-cormorant font-bold text-charcoal-900"
+              className="relative  w-40 h-14 lg:w-48 lg:h-24 md:w-40 md:h-20 text-xl font-cormorant font-bold text-charcoal-900"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
@@ -218,6 +218,19 @@ const Header = () => {
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
             </motion.div>
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="sm:hidden"
+            >
+              {isMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
+            </Button>
           </Link>
 
           {/* Search Bar - Desktop */}
@@ -235,7 +248,7 @@ const Header = () => {
           </div>
 
           {/* Right Side */}
-          <div className="flex sm:w-auto w-full items-center md:space-x-4 lg:space-x-4 space-x-4 sm:justify-end justify-between mt-4 sm:mt-0">
+          <div className="flex px-4 py-2 sm:py-0 sm:px-0 sm:relative bg-white fixed bottom-0 left-0  sm:w-auto w-full items-center md:space-x-4 lg:space-x-4 gap-4 sm:gap-0 sm:justify-end justify-between mt-4 sm:mt-0">
             {/* Delivery Location */}
             <div className="hidden lg:flex items-center text-sm">
               <MapPin className="w-4 h-4 mr-1 text-luxury-500" />
@@ -435,19 +448,6 @@ const Header = () => {
                 </div>
               )}
             </>
-            {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden"
-            >
-              {isMenuOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <Menu className="w-5 h-5" />
-              )}
-            </Button>
           </div>
         </div>
 

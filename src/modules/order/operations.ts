@@ -26,6 +26,10 @@ export const GET_ORDER_BY_ID = gql`
       deliveryType
       deliveryDate
       deliveryTime
+      deliveryCost
+      codFee
+      discount
+      vatAmount
       specialInstructions
       status
       totalAmount

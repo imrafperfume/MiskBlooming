@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   User,
@@ -9,54 +9,91 @@ import {
   MapPin,
   Bell,
   Shield,
-  CreditCard,
   Save,
   Edit3,
 } from "lucide-react";
 import { Button } from "../../../../components/ui/Button";
 import { useAuth } from "@/src/hooks/useAuth";
+import Loading from "@/src/components/layout/Loading";
+import { useMutation } from "@apollo/client";
+import { USER_UPDATE } from "@/src/modules/user/oparations";
+import { toast } from "sonner";
+import { deleteAccount } from "@/src/modules/user/actions";
+import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function SettingsPage() {
   const { data: user, isLoading } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: user?.firstName || "",
-    lastName: user?.lastName || "",
-    email: user?.email || "",
-    phone: user?.phoneNumber || "",
-    address: "123 Business Bay, Dubai, UAE",
-    notifications: {
-      email: true,
-      sms: true,
-      push: false,
-    },
-    privacy: {
-      profileVisible: true,
-      shareData: false,
-    },
-  });
-
-//   const handleSave = () => {
-//     if (user) {
-//       updateUser({
-//         firstName: formData.firstName,
-//         lastName: formData.lastName,
-//         email: formData.email,
-//         phone: formData.phone,
-//       });
-//     }
-//     setIsEditing(false);
-//   };
+  const [updateUser, { loading, error }] = useMutation(USER_UPDATE);
+  console.log("🚀 ~ SettingsPage ~ user:", user);
+  const router = useRouter();
+  const [formData, setFormData] = useState<any>(null);
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phoneNumber,
+        address: user?.address,
+        notifications: {
+          email: true,
+          sms: true,
+          push: false,
+        },
+        privacy: {
+          profileVisible: true,
+          shareData: false,
+        },
+      });
+    }
+  }, [isLoading]);
+  const handleSave = async () => {
+    try {
+      if (user) {
+        console.log(user);
+        const res = await updateUser({
+          variables: {
+            id: user?.id,
+            firstName: formData?.firstName,
+            lastName: formData?.lastName,
+            email: formData?.email,
+            phoneNumber: formData?.phone,
+            address: formData?.address,
+          },
+        });
+        console.log("🚀 ~ handleSave ~ res:", res);
+        const updatedUser = res?.data.updateUser;
+        if (updatedUser) {
+          toast.success("Profile updated successfully");
+          setFormData((prev: any) => ({
+            ...prev,
+            firstName: updatedUser.firstName || prev.firstName,
+            lastName: updatedUser.lastName || prev.lastName,
+            email: updatedUser.email || prev.email,
+            phone: updatedUser.phoneNumber || prev.phone,
+            address: updatedUser.address || prev.address,
+          }));
+        }
+      }
+      setIsEditing(false);
+    } catch (error) {
+      toast.error("Failed to update profile. Please try again.");
+      console.error("Error updating profile:", error);
+    }
+  };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({
+    setFormData((prev: any) => ({
       ...prev,
       [field]: value,
     }));
   };
 
   const handleNotificationChange = (field: string, value: boolean) => {
-    setFormData((prev) => ({
+    setFormData((prev: any) => ({
       ...prev,
       notifications: {
         ...prev.notifications,
@@ -66,7 +103,7 @@ export default function SettingsPage() {
   };
 
   const handlePrivacyChange = (field: string, value: boolean) => {
-    setFormData((prev) => ({
+    setFormData((prev: any) => ({
       ...prev,
       privacy: {
         ...prev.privacy,
@@ -75,6 +112,30 @@ export default function SettingsPage() {
     }));
   };
 
+  const handleDeleteAccount = async () => {
+    const result = await deleteAccount(user?.id || "");
+    if (result.success) {
+      toast.success("Account deleted");
+      await queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+      router.push("/");
+    } else {
+      toast.error(result.error);
+    }
+  };
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg text-muted-foreground">
+          You must be logged in to view this page.
+        </p>
+      </div>
+    );
+  }
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100 pt-32 pb-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -111,13 +172,13 @@ export default function SettingsPage() {
                 </div>
                 <Button
                   variant={isEditing ? "luxury" : "outline"}
-                //   onClick={isEditing ? handleSave : () => setIsEditing(true)}
+                  onClick={isEditing ? handleSave : () => setIsEditing(true)}
                   className="flex items-center"
                 >
                   {isEditing ? (
                     <>
                       <Save className="w-4 h-4 mr-2" />
-                      Save Changes
+                      {loading ? "Saving..." : "Save Changes"}
                     </>
                   ) : (
                     <>
@@ -137,7 +198,7 @@ export default function SettingsPage() {
                     <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <input
                       type="text"
-                      value={formData.firstName}
+                      value={formData?.firstName ?? ""}
                       onChange={(e) =>
                         handleInputChange("firstName", e.target.value)
                       }
@@ -153,7 +214,7 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="text"
-                    value={formData.lastName}
+                    value={formData?.lastName ?? ""}
                     onChange={(e) =>
                       handleInputChange("lastName", e.target.value)
                     }
@@ -170,7 +231,7 @@ export default function SettingsPage() {
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <input
                       type="email"
-                      value={formData.email}
+                      value={formData?.email ?? ""}
                       onChange={(e) =>
                         handleInputChange("email", e.target.value)
                       }
@@ -188,7 +249,7 @@ export default function SettingsPage() {
                     <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <input
                       type="tel"
-                      value={formData.phone}
+                      value={formData?.phone ?? ""}
                       onChange={(e) =>
                         handleInputChange("phone", e.target.value)
                       }
@@ -205,7 +266,7 @@ export default function SettingsPage() {
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 w-5 h-5 text-muted-foreground" />
                     <textarea
-                      value={formData.address}
+                      value={formData?.address ?? ""}
                       onChange={(e) =>
                         handleInputChange("address", e.target.value)
                       }
@@ -247,7 +308,7 @@ export default function SettingsPage() {
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={formData.notifications.email}
+                      checked={formData?.notifications.email ?? ""}
                       onChange={(e) =>
                         handleNotificationChange("email", e.target.checked)
                       }
@@ -269,7 +330,7 @@ export default function SettingsPage() {
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={formData.notifications.sms}
+                      checked={formData?.notifications.sms ?? ""}
                       onChange={(e) =>
                         handleNotificationChange("sms", e.target.checked)
                       }
@@ -291,7 +352,7 @@ export default function SettingsPage() {
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={formData.notifications.push}
+                      checked={formData?.notifications.push ?? ""}
                       onChange={(e) =>
                         handleNotificationChange("push", e.target.checked)
                       }
@@ -332,7 +393,7 @@ export default function SettingsPage() {
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={formData.privacy.profileVisible}
+                      checked={formData?.privacy.profileVisible ?? ""}
                       onChange={(e) =>
                         handlePrivacyChange("profileVisible", e.target.checked)
                       }
@@ -355,7 +416,7 @@ export default function SettingsPage() {
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={formData.privacy.shareData}
+                      checked={formData?.privacy.shareData ?? ""}
                       onChange={(e) =>
                         handlePrivacyChange("shareData", e.target.checked)
                       }
@@ -386,8 +447,9 @@ export default function SettingsPage() {
                     </p>
                   </div>
                   <Button
+                    onClick={() => handleDeleteAccount()}
                     variant="outline"
-                    className="border-red-300 text-red-600 hover:bg-red-50"
+                    className="border-red-300 text-red-600 hover:bg-red-500"
                   >
                     Delete Account
                   </Button>

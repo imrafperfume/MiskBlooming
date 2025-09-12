@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -20,7 +21,7 @@ function LoginFormWrapper() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const [csrf, setCsrf] = useState("");
-
+  const queryClient = useQueryClient();
   useEffect(() => {
     fetch("/api/auth/csrf", { cache: "no-store" })
       .then((r) => r.json())
@@ -55,8 +56,8 @@ function LoginFormWrapper() {
 
       const d = await res.json();
       toast.success("Login Success");
-      // router.push(callbackUrl);
-      window.location.href = callbackUrl;
+      await queryClient.invalidateQueries({ queryKey: ["auth", "me"] });
+      router.push(callbackUrl);
     } catch (error) {
       console.error("Login error:", error);
     } finally {

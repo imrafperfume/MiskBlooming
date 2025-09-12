@@ -26,8 +26,9 @@ import * as Dialog from "@radix-ui/react-dialog";
 import * as Select from "@radix-ui/react-select";
 import Loading from "@/src/components/layout/Loading";
 import { toast } from "sonner";
-import { formatDate } from "@/src/lib/utils";
+import { formatDate, handleDownload } from "@/src/lib/utils";
 import { GET_ORDER_BY_ID } from "@/src/modules/order/operations";
+import Button from "@/src/components/ui/Button";
 
 const UPDATE_ORDER_STATUS = gql`
   mutation updateOrderStatus($id: ID!, $status: OrderStatus!) {
@@ -68,6 +69,10 @@ interface Order {
   totalAmount: number;
   createdAt: string;
   items: OrderItem[];
+  deliveryCost: number;
+  codFee: number;
+  vatAmount: number;
+  discount: number;
 }
 
 const getStatusConfig = (status: string) => {
@@ -259,12 +264,24 @@ export default function OrderDetails() {
                 <Edit3 className="h-5 w-5" />
                 Order Management
               </h3>
+              <Button
+                variant={"outline"}
+                size={"sm"}
+                onClick={() => handleDownload(order?.id)}
+                className="px-4 py-2 border border-gray-300 bg-transparent rounded-md font-medium flex items-center gap-2 transition-colors"
+              >
+                Download Invoice
+              </Button>
               <Dialog.Root open={isEditing} onOpenChange={setIsEditing}>
                 <Dialog.Trigger asChild>
-                  <button className="px-4 py-2 border border-luxury-200 text-luxury-600 hover:bg-luxury-50 hover:border-luxury-300 bg-transparent rounded-md text-sm font-medium transition-colors flex items-center gap-2">
+                  <Button
+                    variant={"luxury"}
+                    size={"sm"}
+                    className="px-4 py-2 border border-luxury-200 text-luxury-100 hover:bg-luxury-50 hover:border-luxury-300 bg-transparent rounded-md text-sm font-medium transition-colors flex items-center gap-2"
+                  >
                     <Edit3 className="h-4 w-4" />
                     Update Status
-                  </button>
+                  </Button>
                 </Dialog.Trigger>
                 <Dialog.Portal>
                   <Dialog.Overlay className="fixed inset-0 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
@@ -339,19 +356,26 @@ export default function OrderDetails() {
                       </div>
                     </div>
                     <div className="flex gap-3 pt-6">
-                      <button
+                      <Button
+                        variant={"luxury"}
+                        size={"sm"}
                         onClick={handleStatusUpdate}
                         disabled={!newStatus || updating}
                         className="bg-luxury-600 hover:bg-luxury-700 text-white px-4 py-2 rounded-md font-medium flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         <Save className="h-4 w-4" />
                         {updating ? "Updating..." : "Update Order"}
-                      </button>
+                      </Button>
+
                       <Dialog.Close asChild>
-                        <button className="px-4 py-2 border border-gray-300 hover:bg-gray-50 bg-transparent rounded-md font-medium flex items-center gap-2 transition-colors">
+                        <Button
+                          variant={"outline"}
+                          size={"sm"}
+                          className="px-4 py-2 border border-gray-300 bg-transparent rounded-md font-medium flex items-center gap-2 transition-colors"
+                        >
                           <X className="h-4 w-4" />
                           Cancel
-                        </button>
+                        </Button>
                       </Dialog.Close>
                     </div>
                   </Dialog.Content>
@@ -501,7 +525,7 @@ export default function OrderDetails() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl  border-0">
+        <div className="bg-white rounded-xl border-0">
           <div className="p-6 pb-4 border-b border-gray-200">
             <h3 className="flex items-center gap-2 text-luxury-700 text-lg font-semibold">
               <Package className="h-5 w-5" />
@@ -512,16 +536,11 @@ export default function OrderDetails() {
             <div className="space-y-2">
               {order.items.map((item: any, index: number) => (
                 <div key={item.id}>
-                  <div className="flex flex-col  sm:flex-row sm:justify-between sm:items-start gap-2 bg-gray-50">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 bg-gray-50">
                     <div className="flex-1">
                       <h4 className="font-semibold text-lg text-gray-900 text-balance">
                         {item.product.name}
                       </h4>
-                      {/* {item.product.description && (
-                        <p className="text-gray-600 mt-1 text-pretty">
-                          {item.product.description}
-                        </p>
-                      )} */}
                     </div>
                     <div className="text-left sm:text-right sm:ml-6 space-y-1">
                       <p className="font-medium text-lg">
@@ -538,10 +557,44 @@ export default function OrderDetails() {
                 </div>
               ))}
 
-              <div className="border-t-2 border-luxury-200 pt-6 mt-6">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 bg-luxury-50  rounded-xl">
+              {/* Cost Breakdown */}
+              <div className="border-t-2 border-luxury-200 pt-6 mt-6 space-y-2 text-right">
+                {order?.deliveryCost > 0 && (
+                  <p className="text-gray-700">
+                    Delivery Fee:{" "}
+                    <span className="font-medium">
+                      AED {order?.deliveryCost.toFixed(2)}
+                    </span>
+                  </p>
+                )}
+                {order?.codFee > 0 && (
+                  <p className="text-gray-700">
+                    COD Fee:{" "}
+                    <span className="font-medium">
+                      AED {order?.codFee.toFixed(2)}
+                    </span>
+                  </p>
+                )}
+                {order.vatAmount > 0 && (
+                  <p className="text-gray-700">
+                    VAT:{" "}
+                    <span className="font-medium">
+                      AED {order.vatAmount.toFixed(2)}
+                    </span>
+                  </p>
+                )}
+                {order.discount > 0 && (
+                  <p className="text-gray-700">
+                    Discount:{" "}
+                    <span className="font-medium text-green-600">
+                      - AED {order.discount.toFixed(2)}
+                    </span>
+                  </p>
+                )}
+
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 bg-luxury-50 rounded-xl mt-4 pt-4 border-t border-gray-200">
                   <span className="text-lg font-cormorant font-semibold text-gray-900">
-                    Total Amount With VAT & Delivery Charges:
+                    Total Amount:
                   </span>
                   <span className="text-3xl font-bold text-luxury-600">
                     AED {order.totalAmount.toFixed(2)}
