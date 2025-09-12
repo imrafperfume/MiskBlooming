@@ -12,6 +12,7 @@ export interface User {
   role: string;
   createdAt: string;
   updatedAt: string;
+  address?: string;
 }
 
 async function fetchMe(): Promise<User> {

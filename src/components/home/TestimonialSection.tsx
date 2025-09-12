@@ -67,7 +67,7 @@ const TestimonialSection = () => {
               <div className="relative w-16 h-16 rounded-full overflow-hidden">
                 <Image
                   src={"/placeholder.jpg"}
-                  alt={ "Testimonial"}
+                  alt={"Testimonial"}
                   // width={64}
                   // height={64}
                   fill
@@ -123,7 +123,7 @@ const TestimonialSection = () => {
                 <div className="flex items-center space-x-4">
                   <div className="relative w-12 h-12 rounded-full overflow-hidden">
                     <Image
-                      src={testimonial.image || "/placeholder.svg"}
+                      src={testimonial?.image || "/placeholder.svg"}
                       alt={testimonial.name}
                       fill
                       className="object-cover"

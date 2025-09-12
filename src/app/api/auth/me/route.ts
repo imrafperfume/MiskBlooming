@@ -23,6 +23,7 @@ export async function GET(req: Request) {
         phoneNumber: true,
         email: true,
         emailVerified: true,
+        address: true,
         role: true,
         createdAt: true,
         updatedAt: true,

@@ -24,7 +24,7 @@ import { DASHBOARD_METRICS } from "@/src/modules/dashboard/oprations";
 import Loading from "@/src/components/layout/Loading";
 
 export default function AdminDashboard() {
-  const [timeRange, setTimeRange] = useState("7d");
+  const [timeRange, setTimeRange] = useState(7);
   const { data, loading, error } = useQuery(DASHBOARD_METRICS);
   console.log("🚀 ~ AdminDashboard ~ data:", data);
 
@@ -124,7 +124,17 @@ export default function AdminDashboard() {
         return "bg-gray-100 text-gray-800";
     }
   };
-
+  // Handle report download
+  const downloadReport = async () => {
+    const res = await fetch(`/api/dashboard-report?days=${timeRange}`);
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `dashboard-report-${timeRange}-days.pdf`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
   return (
     <div className="space-y-8 overflow-x-hidden w-full">
       {/* Header */}
@@ -141,14 +151,14 @@ export default function AdminDashboard() {
         <div className="flex sm:flex-row flex-col sm:space-y-0 space-y-2 sm:items-center sm:space-x-4 mt-4 lg:mt-0">
           <select
             value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
+            onChange={(e) => setTimeRange(parseInt(e.target.value))}
             className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
           >
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
+            <option value={7}>Last 7 days</option>
+            <option value={30}>Last 30 days</option>
+            <option value={90}>Last 90 days</option>
           </select>
-          <Button variant="luxury">
+          <Button onClick={downloadReport} variant="luxury">
             <Calendar className="w-4 h-4 mr-2" />
             Export Report
           </Button>

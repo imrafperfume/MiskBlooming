@@ -17,7 +17,6 @@ import { useAuth } from "@/src/hooks/useAuth";
 export default function CheckoutPage(): JSX.Element {
   const { items } = useCartStore();
   const { data: user, isLoading } = useAuth();
-  console.log("🚀 ~ CheckoutPage ~ user:", user);
   const userId = user?.id;
   const {
     form,
@@ -30,7 +29,6 @@ export default function CheckoutPage(): JSX.Element {
     nextStep,
     prevStep,
   } = useCheckout(userId || ""); // Always use guest checkout
-  console.log("🚀 ~ CheckoutPage ~ isProcessing:", isProcessing);
   // Memoize calculations to prevent unnecessary recalculations
   const calculations = useMemo(() => calculateTotals(), [calculateTotals]);
   // Show loading state during processing
@@ -50,7 +48,6 @@ export default function CheckoutPage(): JSX.Element {
     );
   }
 
-  console.log("🚀 ~ CheckoutPage ~ calculations:", calculations);
   // Early return for empty cart
   if (items.length === 0) {
     return <EmptyCart />;

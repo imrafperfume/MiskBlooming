@@ -225,7 +225,6 @@ export const OrderResolvers = {
           userId = user.id;
         }
 
-        console.log(userId);
         // Validate that all products exist before creating the order
         const productIds = input.items.map((item) => item.productId);
         const existingProducts = await prisma.product.findMany({
@@ -334,14 +333,38 @@ export const OrderResolvers = {
           orderData.couponUsage = { create: couponUsage };
         }
 
-        const order = await prisma.order.create({
-          data: orderData,
-          include: {
-            items: { include: { product: true } },
-            user: true,
-            couponUsage: { include: { coupon: true } },
-          },
+        const order = await prisma.$transaction(async (prismaTx) => {
+          // 1 Create the order
+          const createdOrder = await prismaTx.order.create({
+            data: orderData,
+            include: {
+              items: { include: { product: true } },
+              user: true,
+              couponUsage: { include: { coupon: true } },
+            },
+          });
+
+          // 2 Stock update (quantity minus)
+          for (const item of createdOrder.items) {
+            const product = await prismaTx.product.findUnique({
+              where: { id: item.productId },
+            });
+
+            if (!product)
+              throw new Error(`Product not found: ${item.productId}`);
+            if (product.quantity < item.quantity) {
+              throw new Error(`Insufficient stock for ${product.name}`);
+            }
+
+            await prismaTx.product.update({
+              where: { id: item.productId },
+              data: { quantity: { decrement: item.quantity } },
+            });
+          }
+
+          return createdOrder;
         });
+
         await redis.del("allOrders");
         if (userId) {
           await redis.del(`ordersByUser:${userId}`);

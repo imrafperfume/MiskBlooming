@@ -45,3 +45,15 @@ export function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
+
+export const handleDownload = async (orderId: string) => {
+  if (!orderId) return;
+  const res = await fetch(`/api/invoice/${orderId}`);
+  const blob = await res.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `invoice-${orderId}.pdf`;
+  a.click();
+  a.remove();
+};

@@ -11,6 +11,7 @@ export const UserTypeDefs = gql`
     stats: UserStats!
     lastOrder: Order
     status: String!
+    address: String
   }
 
   type UserStats {
@@ -34,5 +35,15 @@ export const UserTypeDefs = gql`
   type Query {
     userById(id: ID!): User
     users: [User!]!
+  }
+  type Mutation {
+    updateUser(
+      id: ID!
+      firstName: String
+      lastName: String
+      email: String
+      phoneNumber: String
+      address: String
+    ): User
   }
 `;

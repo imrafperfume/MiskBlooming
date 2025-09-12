@@ -16,7 +16,6 @@ import {
 
 // Initialize Stripe
 export function useCheckout(userId?: string) {
-  console.log("🚀 ~ useCheckout ~ userId:", userId);
   const [currentStep, setCurrentStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderId, setOrderId] = useState("");
@@ -24,8 +23,6 @@ export function useCheckout(userId?: string) {
 
   const { items, getTotalPrice, clearCart, appliedCoupon, couponDiscount } =
     useCartStore();
-  console.log("🚀 ~ useCheckout ~ getTotalPrice:", getTotalPrice);
-  console.log("🚀 ~ useCheckout ~ appliedCoupon:", appliedCoupon);
   const router = useRouter();
   const [createOrder, { loading, error }] = useMutation(CREATE_ORDER);
 
@@ -43,7 +40,6 @@ export function useCheckout(userId?: string) {
 
   const calculateTotals = useCallback((): CheckoutCalculations => {
     const subtotal = getTotalPrice();
-    console.log("🚀 ~ useCheckout ~ getTotalPrice:", getTotalPrice);
     let deliveryFee =
       deliveryType === "EXPRESS"
         ? 50
@@ -79,24 +75,28 @@ export function useCheckout(userId?: string) {
       try {
         const { total, deliveryFee, codFee, couponDiscount, tax } =
           calculateTotals();
-        console.log("🚀 ~ useCheckout ~ total:", total);
 
         const isGuest = !userId || userId === "";
         const checkoutData = {
           ...data,
           userId: isGuest ? undefined : userId,
+          totalAmount: Number(total.toFixed(2)),
           items: items.map((item: any) => ({
             productId: item.product.id,
             quantity: item.quantity,
             price: item.product.price,
           })),
-          couponCode: appliedCoupon?.code,
-          totalAmount: total,
+          deliveryCost: Number(deliveryFee.toFixed(2)),
+          codFee: Number(codFee.toFixed(2)),
+          vatAmount: Number(tax.toFixed(2)),
+          discount: Number(couponDiscount?.toFixed(2)),
           isGuest,
         };
+        console.log("🚀 ~ checkoutData:", checkoutData);
 
         // 1️⃣ Create Order
         const res = await createOrder({ variables: { input: checkoutData } });
+        console.log("🚀 ~ useCheckout ~ res:", res);
         const order = (res as any)?.data?.createOrder;
         if (!order) throw new Error("Failed to create order");
         setOrderId(order.id);
@@ -106,7 +106,7 @@ export function useCheckout(userId?: string) {
           clearCart();
           toast.success("Order Successful");
           // Always redirect to guest success page since we're using guest checkout by default
-          const successUrl = `/checkout/guest/success?orderId=${
+          const successUrl = `/checkout/success?orderId=${
             order.id
           }&email=${encodeURIComponent(data.email)}`;
           router.push(successUrl);
