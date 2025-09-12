@@ -19,6 +19,7 @@ import {
   Users,
   ShieldCheck,
   LayoutDashboard,
+  House,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -200,14 +201,10 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 shadow-md border-b">
         <div className="flex flex-col sm:flex-row  justify-between items-center py-2">
           {/* Logo */}
-          <Link
-            href="/"
-            className="flex items-center sm:w-auto w-full space-x-4 justify-between sm:justify-normal sm:border-none  group"
-          >
-            <motion.div
+          <div className="flex items-center sm:w-auto w-full space-x-4 justify-between sm:justify-normal sm:border-none  group">
+            <Link
+              href="/"
               className="relative  w-40 h-14 lg:w-48 lg:h-24 md:w-40 md:h-20 text-xl font-cormorant font-bold text-charcoal-900"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
               <Image
                 src="/images/logo.jpg"
@@ -217,21 +214,31 @@ const Header = () => {
                 style={{ objectFit: "contain" }}
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
               />
-            </motion.div>
+            </Link>
             {/* Mobile Menu Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="sm:hidden"
-            >
-              {isMenuOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <Menu className="w-5 h-5" />
-              )}
-            </Button>
-          </Link>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsSearchOpen(!isSearchOpen)}
+                className="md:hidden"
+              >
+                <Search className="w-5 h-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="sm:hidden"
+              >
+                {isMenuOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
+                )}
+              </Button>
+            </div>
+          </div>
 
           {/* Search Bar - Desktop */}
           <div className="hidden md:flex flex-1 max-w-2xl mx-8">
@@ -252,19 +259,22 @@ const Header = () => {
             {/* Delivery Location */}
             <div className="hidden lg:flex items-center text-sm">
               <MapPin className="w-4 h-4 mr-1 text-luxury-500" />
-              <span className="mr-1">Deliver To</span>
-              <button className="flex items-center luxury-text font-medium hover:text-luxury-600 transition-colors">
+              <span className="">Deliver To</span>
+              <Button
+                variant="ghost"
+                className="flex items-center -ml-2 luxury-text font-medium hover:text-luxury-600 transition-colors"
+              >
                 Dubai <ChevronDown className="w-4 h-4 ml-1" />
-              </button>
+              </Button>
             </div>
             {/* Icons */}
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              onClick={() => router.push("/")}
               className="md:hidden"
             >
-              <Search className="w-5 h-5" />
+              <House className="w-5 h-5" />
             </Button>
             <Link href="/wishlist">
               <Button variant="ghost" size="icon" className="relative">
