@@ -50,11 +50,10 @@ export const ProductResolvers = {
       const cacheKey = args.where?.featured
         ? "featured-products"
         : "allProducts";
-      // console.log(args)
-      const cache = await redis.get(cacheKey);
-      if (cache) {
-        return cache;
-      }
+      // const cache = await redis.get(cacheKey);
+      // if (cache) {
+      //   return cache;
+      // }
       const products = await prisma.product.findMany({
         where: {
           ...args.where,
@@ -134,8 +133,13 @@ export const ProductResolvers = {
                 }
               : undefined,
           },
+          include: {
+            images: true,
+            dimensions: true,
+          },
         });
-
+        await redis.del("allProducts");
+        await redis.del("featured-products");
         return product;
       } catch (error: any) {
         console.error(error);
@@ -221,6 +225,7 @@ export const ProductResolvers = {
           where: { slug },
         });
         await redis.del("allProducts");
+        await redis.del("featured-products");
         await redis.del(`product:${slug}`);
 
         return deleted;

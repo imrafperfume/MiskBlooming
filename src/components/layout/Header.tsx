@@ -255,7 +255,7 @@ const Header = () => {
           </div>
 
           {/* Right Side */}
-          <div className="flex px-4 py-2 sm:py-0 sm:px-0 sm:relative bg-white fixed bottom-0 left-0  sm:w-auto w-full items-center md:space-x-4 lg:space-x-4 gap-4 sm:gap-0 sm:justify-end justify-between mt-4 sm:mt-0">
+          <div className="flex px-4 py-2 shat sm:py-0 sm:px-0 sm:relative bg-white fixed bottom-0 left-0  sm:w-auto w-full items-center md:space-x-4 lg:space-x-4 gap-4 sm:gap-0 sm:justify-end justify-between mt-4 sm:mt-0">
             {/* Delivery Location */}
             <div className="hidden lg:flex items-center text-sm">
               <MapPin className="w-4 h-4 mr-1 text-luxury-500" />

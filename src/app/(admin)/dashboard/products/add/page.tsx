@@ -33,6 +33,7 @@ import ImagesTab from "@/src/components/dashboard/tabs/addProductTabs/ImagesTab"
 import SEOTab from "@/src/components/dashboard/tabs/addProductTabs/SEOTab";
 import DeliveryTab from "@/src/components/dashboard/tabs/addProductTabs/DeliveryTab";
 import FeaturesTab from "@/src/components/dashboard/tabs/addProductTabs/FeaturesTab";
+import { toast } from "sonner";
 interface CloudinaryImage {
   url: string;
   publicId: string;
@@ -461,13 +462,18 @@ export default function AddProductPage() {
         },
       });
       console.log(res);
+      if (res.errors) {
+        toast.error(res.errors[0].message);
+      }
+      toast.success("Product created successfully!");
       setSaveStatus("saved");
       if (status === "active") {
         router.push("/dashboard/products");
       }
-    } catch (error) {
+    } catch (error: any) {
       setSaveStatus("error");
       setSaveStatus("idle");
+      toast.error(error?.message || "Error saving product");
     }
   };
   // console.log("DATA: ", data);
