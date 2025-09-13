@@ -24,6 +24,7 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import { getStatusColor } from "@/utils/utils";
 import Image from "next/image";
 import Link from "next/link";
+import Loading from "@/src/components/layout/Loading";
 
 const GET_PRODUCTS = gql`
   query GetProducts {
@@ -43,92 +44,22 @@ const GET_PRODUCTS = gql`
   }
 `;
 const DELETE_PRODUCT = gql`
-  mutation DeleteProduct($id: ID!) {
-    deleteProduct(id: $id) {
+  mutation DeleteProduct($slug: String!) {
+    deleteProduct(slug: $slug) {
       id
       name
       slug
     }
   }
 `;
-// Mock products data
-// const mockProducts = [
-//   {
-//     id: "1",
-//     name: "Premium Red Rose Bouquet",
-//     category: "roses",
-//     price: 350,
-//     originalPrice: 400,
-//     stock: 25,
-//     status: "active",
-//     rating: 4.8,
-//     reviews: 124,
-//     image: "/placeholder.svg?height=60&width=60&text=Rose",
-//     featured: true,
-//     sku: "MB-ROSE-001",
-//   },
-//   {
-//     id: "2",
-//     name: "Luxury Belgian Chocolate Collection",
-//     category: "chocolates",
-//     price: 180,
-//     stock: 45,
-//     status: "active",
-//     rating: 4.9,
-//     reviews: 89,
-//     image: "/placeholder.svg?height=60&width=60&text=Choc",
-//     featured: false,
-//     sku: "MB-CHOC-002",
-//   },
-//   {
-//     id: "3",
-//     name: "Decadent Chocolate Birthday Cake",
-//     category: "cakes",
-//     price: 280,
-//     stock: 12,
-//     status: "active",
-//     rating: 4.7,
-//     reviews: 67,
-//     image: "/placeholder.svg?height=60&width=60&text=Cake",
-//     featured: true,
-//     sku: "MB-CAKE-003",
-//   },
-//   {
-//     id: "4",
-//     name: "Seasonal Mixed Flower Arrangement",
-//     category: "mixed-arrangements",
-//     price: 220,
-//     stock: 18,
-//     status: "active",
-//     rating: 4.6,
-//     reviews: 45,
-//     image: "/placeholder.svg?height=60&width=60&text=Mix",
-//     featured: false,
-//     sku: "MB-MIX-004",
-//   },
-//   {
-//     id: "5",
-//     name: "Indoor Plant Trio Collection",
-//     category: "plants",
-//     price: 320,
-//     stock: 0,
-//     status: "out-of-stock",
-//     rating: 4.5,
-//     reviews: 34,
-//     image: "/placeholder.svg?height=60&width=60&text=Plant",
-//     featured: false,
-//     sku: "MB-PLANT-005",
-//   },
-// ];
-
 export default function ProductsPage() {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [openSlug, setOpenSlug] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState("all");
-  const [sortBy, setSortBy] = useState("name");
-  const [viewMode, setViewMode] = useState<"table" | "grid">("table");
+  // const [sortBy, setSortBy] = useState("name");
+  // const [viewMode, setViewMode] = useState<"table" | "grid">("table");
   const [deleteProduct, { loading: deleteLoading, error: deleteError }] =
     useMutation(DELETE_PRODUCT, {
       refetchQueries: [GET_PRODUCTS],
@@ -163,7 +94,7 @@ export default function ProductsPage() {
   }, [products, searchTerm, selectedCategory, selectedStatus]);
 
   const totalPages = Math.ceil(filteredProducts?.length / itemsPerPage);
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loading />;
   if (error) return <p>Error: {error.message}</p>;
 
   const activeCount = products.filter((p: any) => p.status === "active").length;
@@ -172,6 +103,7 @@ export default function ProductsPage() {
   //DELETE PRODUCT::::::::::::::::::::::::::::::::::::::::::::::
 
   const handleDeleteProduct = async (slug: string) => {
+    console.log("🚀 ~ handleDeleteProduct ~ slug:", slug);
     try {
       const ok = window.confirm(
         "Are you sure you want to delete this product?"
@@ -485,12 +417,16 @@ export default function ProductsPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => setOpen(!open)}
+                          onClick={() =>
+                            setOpenSlug(
+                              openSlug === product.slug ? null : product.slug
+                            )
+                          }
                         >
                           <MoreHorizontal className="w-4 h-4" />
                         </Button>
 
-                        {open && (
+                        {openSlug === product.slug && (
                           <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-md shadow-sm z-50">
                             <Button
                               variant="ghost"
@@ -514,14 +450,14 @@ export default function ProductsPage() {
                             >
                               Delete
                             </Button>
-                            <Button
+                            {/* <Button
                               variant="ghost"
                               size="sm"
                               className="block w-full text-left px-4 py-2 hover:bg-gray-100"
                               onClick={() => alert("Duplicate clicked")}
                             >
                               Duplicate
-                            </Button>
+                            </Button> */}
                           </div>
                         )}
                       </div>

@@ -6,6 +6,7 @@ export interface Product {
   shortDescription: string;
   price: number;
   compareAtPrice?: number;
+  featuredImage: number;
   images: { url: string; publicId?: string }[]; // better structure
   category: string;
   subcategory?: string;
@@ -25,57 +26,57 @@ export interface Product {
 }
 
 export interface Category {
-  id: string
-  name: string
-  description: string
-  image: string
-  productCount: number
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  productCount: number;
 }
 
 export interface CartItem {
-  product: Product
-  quantity: number
+  product: Product;
+  quantity: number;
 }
 
 export interface Order {
-  id: string
-  customerName: string
-  email: string
-  phone: string
-  address: string
-  items: CartItem[]
-  total: number
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled"
-  createdAt: string
+  id: string;
+  customerName: string;
+  email: string;
+  phone: string;
+  address: string;
+  items: CartItem[];
+  total: number;
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  createdAt: string;
 }
 
 export interface AdminStats {
-  totalOrders: number
-  totalRevenue: number
-  totalProducts: number
-  totalCustomers: number
-  monthlyRevenue: { month: string; revenue: number }[]
-  topProducts: { name: string; sales: number }[]
+  totalOrders: number;
+  totalRevenue: number;
+  totalProducts: number;
+  totalCustomers: number;
+  monthlyRevenue: { month: string; revenue: number }[];
+  topProducts: { name: string; sales: number }[];
 }
 
 export interface Testimonial {
-  id: string
-  name: string
-  role: string
-  company?: string
-  content: string
-  rating: number
-  image: string
+  id: string;
+  name: string;
+  role: string;
+  company?: string;
+  content: string;
+  rating: number;
+  image: string;
 }
 
 export interface HeroSlide {
-  id: string
-  title: string
-  subtitle: string
-  description: string
-  image: string
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  image: string;
   cta: {
-    text: string
-    link: string
-  }
+    text: string;
+    link: string;
+  };
 }

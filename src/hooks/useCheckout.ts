@@ -92,16 +92,14 @@ export function useCheckout(userId?: string) {
           discount: Number(couponDiscount?.toFixed(2)),
           isGuest,
         };
-        console.log("🚀 ~ checkoutData:", checkoutData);
 
-        // 1️⃣ Create Order
+        // 1 Create Order
         const res = await createOrder({ variables: { input: checkoutData } });
-        console.log("🚀 ~ useCheckout ~ res:", res);
         const order = (res as any)?.data?.createOrder;
         if (!order) throw new Error("Failed to create order");
         setOrderId(order.id);
 
-        // 2️⃣ COD handling
+        // 2 COD handling
         if (data.paymentMethod === "COD") {
           clearCart();
           toast.success("Order Successful");
@@ -146,8 +144,9 @@ export function useCheckout(userId?: string) {
 
         const { checkoutUrl } = await piRes.json();
         if (!checkoutUrl) throw new Error("Failed to create Stripe session");
+        clearCart();
 
-        // 4️⃣ Redirect user to Stripe Checkout
+        // 4 Redirect user to Stripe Checkout
         window.location.href = checkoutUrl;
       } catch (error: any) {
         console.error("Checkout error:", error);

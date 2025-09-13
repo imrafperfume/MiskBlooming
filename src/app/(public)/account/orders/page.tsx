@@ -26,7 +26,7 @@ import { GET_ORDERS_BY_USER } from "@/src/modules/order/operations";
 import { useAuth } from "@/src/hooks/useAuth";
 import Loading from "@/src/components/layout/Loading";
 import Link from "next/link";
-import { formatDate } from "@/src/lib/utils";
+import { formatDate, handleDownload } from "@/src/lib/utils";
 
 const orders = [
   {
@@ -187,10 +187,10 @@ const orders = [
 ];
 
 const statusColors = {
-  delivered: "bg-green-100 text-green-800",
+  DELIVERED: "bg-green-100 text-green-800",
   out_for_delivery: "bg-blue-100 text-blue-800",
-  preparing: "bg-yellow-100 text-yellow-800",
-  cancelled: "bg-red-100 text-red-800",
+  PROCESSING: "bg-yellow-100 text-yellow-800",
+  CANCELLED: "bg-red-100 text-red-800",
   PENDING: "bg-gray-100 text-gray-800",
 };
 
@@ -199,20 +199,19 @@ const statusIcons = {
   out_for_delivery: Truck,
   preparing: Clock,
   cancelled: AlertCircle,
-  PENDING: Package,
+  pending: Package,
 };
-
 export default function OrdersPage() {
-  const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
-  const [trackingModalOpen, setTrackingModalOpen] = useState(false);
+  // const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
+  // const [trackingModalOpen, setTrackingModalOpen] = useState(false);
   const { data: user, isLoading } = useAuth();
   const userId = user?.id;
 
   const { data, loading } = useQuery(GET_ORDERS_BY_USER, {
     variables: { userId: userId },
   });
+
   if (isLoading || loading) return <Loading />;
-  console.log("🚀 ~ OrdersPage ~ data:", data);
   if (!userId)
     return (
       <div className="min-h-screen flex flex-col gap-2 items-center justify-center">
@@ -227,23 +226,13 @@ export default function OrdersPage() {
     );
 
   const orders = data?.ordersByUser || [];
-  const openTracking = (orderId: string) => {
-    setSelectedOrder(orderId);
-    setTrackingModalOpen(true);
-  };
+  // const openTracking = (orderId: string) => {
+  //   setSelectedOrder(orderId);
+  //   setTrackingModalOpen(true);
+  // };
 
   // const selectedOrderData = orders.find((order) => order.id === selectedOrder);
-  const handleDownload = async (orderId: string) => {
-    if (!orderId) return;
-    const res = await fetch(`/api/invoice/${orderId}`);
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `invoice-${orderId}.pdf`;
-    a.click();
-    a.remove();
-  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100 pt-32 pb-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -264,7 +253,9 @@ export default function OrdersPage() {
           <div className="space-y-6">
             {orders?.map((order: any, index: any) => {
               const StatusIcon =
-                statusIcons[order?.status as keyof typeof statusIcons];
+                statusIcons[
+                  order?.status?.toLowerCase() as keyof typeof statusIcons
+                ] ?? Package;
 
               return (
                 <motion.div
@@ -287,7 +278,9 @@ export default function OrdersPage() {
                           <span className="flex items-center">
                             <Calendar className="w-4 h-4 mr-1" />
                             {order?.createdAt
-                              ? formatDate(order?.createdAt)
+                              ? new Date(
+                                  Number(order.createdAt)
+                                ).toLocaleDateString()
                               : "Not available"}
                           </span>
                           <span className="flex items-center">
@@ -481,14 +474,6 @@ export default function OrdersPage() {
                       </Button> */}
                       {order.status === "DELIVERED" && (
                         <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex items-center bg-transparent"
-                          >
-                            <Download className="w-4 h-4 mr-2" />
-                            Download Invoice
-                          </Button>
                           <Button
                             variant="outline"
                             size="sm"

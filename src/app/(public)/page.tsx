@@ -11,6 +11,7 @@ import Link from "next/link";
 // Critical components loaded immediately
 import HeroSlider from "../../components/home/HeroSlider";
 import ShopByCategory from "../../components/home/ShopByCategory";
+import Loading from "@/src/components/layout/Loading";
 
 // Lazy load non-critical components
 const FeaturedProducts = lazy(
@@ -36,8 +37,11 @@ export default function HomePage() {
     "quantity",
     "images {url}",
     "featured",
+    "compareAtPrice",
+    "status",
+    "tags",
+    "featuredImage",
   ]);
-  console.log(featuredProducts);
 
   const stats = [
     { number: "15,000+", label: "Distinguished Clients" },
@@ -56,11 +60,7 @@ export default function HomePage() {
 
       {/* Features Section */}
       <LazyWrapper>
-        <Suspense
-          fallback={
-            <div className="h-96 bg-cream-200 animate-pulse rounded-lg" />
-          }
-        >
+        <Suspense fallback={<Loading />}>
           <FeaturedProducts
             featuredProducts={featuredProducts ?? []}
             isLoading={isLoading}
