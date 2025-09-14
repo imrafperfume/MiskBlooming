@@ -68,7 +68,7 @@ const ProductCard = memo(
       <motion.div
         className={`${
           viewMode !== "grid" && "flex gap-5 justify-between"
-        } group relative bg-white rounded-3xl shadow-sm hover:shadow-luxury transition-all duration-700 overflow-hidden border border-cream-200`}
+        } group relative bg-white rounded-md shadow-sm hover:shadow-luxury transition-all duration-700 overflow-hidden border border-cream-200`}
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -200,14 +200,14 @@ const ProductCard = memo(
                 ({product.reviewCount || 0})
               </span>
             </div>
-            <div className="text-xs text-luxury-500 font-medium bg-luxury-50 sm:px-2 px-0 py-1 rounded-full">
+            <div className="text-xs hidden sm:flex text-luxury-500 font-medium bg-luxury-50 sm:px-2 px-0 py-1 rounded-full">
               {product.category.replace("-", " ").toUpperCase()}
             </div>
           </div>
 
           {/* Title */}
           <Link href={`/products/${product.slug}`}>
-            <h3 className="font-cormorant sm:text-xl text-lg font-semibold text-charcoal-900 mb-2 hover:text-luxury-500 transition-colors line-clamp-2 group-hover:text-luxury-600">
+            <h3 className="font-cormorant sm:text-xl text-base font-semibold text-charcoal-900 sm:mb-2 mb-0 hover:text-luxury-500 transition-colors line-clamp-2 group-hover:text-luxury-600">
               {product.name}
             </h3>
           </Link>
