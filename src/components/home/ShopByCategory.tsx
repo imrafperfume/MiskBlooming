@@ -66,11 +66,11 @@ const categories = [
 const ShopByCategory = () => {
   return (
     <section className="py-16 bg-white">
-      <div className="max-w-7xl mx-auto px-8 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center mb-12">
+        <div className="text-center sm:mb-12 mb-6">
           <motion.h2
-            className="text-4xl font-cormorant font-bold text-charcoal-900 mb-4"
+            className="font-cormorant sm:text-display-md text-display-sm font-bold text-charcoal-900 mb-4"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -100,8 +100,8 @@ const ShopByCategory = () => {
             disableOnInteraction: false,
           }}
           breakpoints={{
-            320: { slidesPerView: 3, spaceBetween: 20 }, // mobile
-            640: { slidesPerView: 4, spaceBetween: 20 }, // small devices
+            320: { slidesPerView: 3, spaceBetween: 10 }, // mobile
+            640: { slidesPerView: 3, spaceBetween: 20 }, // small devices
             1024: { slidesPerView: 4, spaceBetween: 25 }, // tablet
             1280: { slidesPerView: 5, spaceBetween: 30 }, // desktop
           }}
@@ -123,7 +123,7 @@ const ShopByCategory = () => {
                   className="overflow-hidden transition-all duration-500"
                 >
                   {/* Image Container */}
-                  <div className="relative aspect-square overflow-hidden rounded-full">
+                  <div className="relative aspect-square overflow-hidden sm:rounded-full rounded-md">
                     <Image
                       src={category.image}
                       alt={category.name}
@@ -143,7 +143,7 @@ const ShopByCategory = () => {
 
                   {/* Content */}
                   <div className="sm:p-6 p-2 text-center flex flex-col items-center justify-center">
-                    <h3 className="sm:text-xl text-base text-center font-cormorant font-semibold text-charcoal-900 mb-2 group-hover:text-luxury-600 transition-colors">
+                    <h3 className="sm:text-xl text-sm text-center font-cormorant font-semibold text-charcoal-900 mb-2 group-hover:text-luxury-600 transition-colors">
                       {category.name}
                     </h3>
                     <p className="text-charcoal-700 text-center hidden sm:flex mb-4">

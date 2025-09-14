@@ -14,7 +14,7 @@ function FeaturedProducts({
   isLoading: boolean;
 }) {
   return (
-    <section className="sm:py-24 py-16 bg-white">
+    <section className="sm:py-24 py-14 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           className="text-center mb-16"
@@ -23,14 +23,14 @@ function FeaturedProducts({
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <div className="flex items-center justify-center mb-4">
+          <div className="flex items-center justify-center sm:mb-4 mb-2">
             <Sparkles className="w-6 h-6 text-luxury-500 mr-2" />
             <span className="text-luxury-500 font-medium tracking-wide">
               SIGNATURE COLLECTIONS
             </span>
             <Sparkles className="w-6 h-6 text-luxury-500 ml-2" />
           </div>
-          <h2 className="font-cormorant sm:text-display-md text-display-sm font-bold text-charcoal-900 mb-6">
+          <h2 className="font-cormorant sm:text-display-md text-display-sm font-bold text-charcoal-900 sm:mb-6 mb-2">
             Masterpieces in <span className="luxury-text">Bloom</span>
           </h2>
           <p className="text-muted-foreground sm:text-xl text-base max-w-3xl mx-auto">
@@ -57,7 +57,7 @@ function FeaturedProducts({
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 sm:gap-8 gap-2">
                 {featuredProducts?.map((product, index) => (
                   <ProductCard
                     key={product.id}
