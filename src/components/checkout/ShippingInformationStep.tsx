@@ -13,6 +13,7 @@ interface ShippingInformationStepProps {
   onNext: () => void;
   onBack: () => void;
   subtotal: number;
+  userId: string;
 }
 
 const emirates = [
@@ -25,13 +26,18 @@ const emirates = [
   "Fujairah",
 ];
 
-export function ShippingInformationStep({ 
-  form, 
-  onNext, 
-  onBack, 
-  subtotal 
+export function ShippingInformationStep({
+  form,
+  onNext,
+  onBack,
+  subtotal,
+  userId,
 }: ShippingInformationStepProps) {
-  const { register, formState: { errors }, watch } = form;
+  const {
+    register,
+    formState: { errors },
+    watch,
+  } = form;
   const deliveryType = watch("deliveryType");
 
   return (
@@ -77,10 +83,7 @@ export function ShippingInformationStep({
               </p>
             )}
           </div>
-          <Input
-            label="Postal Code (Optional)"
-            {...register("postalCode")}
-          />
+          <Input label="Postal Code (Optional)" {...register("postalCode")} />
         </div>
 
         {/* Delivery Options */}
@@ -183,7 +186,7 @@ export function ShippingInformationStep({
         </div>
 
         {/* Coupon Input */}
-        <CouponInput />
+        {userId && <CouponInput />}
       </div>
 
       <div className="mt-6 flex sm:flex-row flex-col gap-4 sm:gap-0 justify-between">

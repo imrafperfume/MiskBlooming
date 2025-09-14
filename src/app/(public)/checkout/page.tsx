@@ -54,7 +54,7 @@ export default function CheckoutPage(): JSX.Element {
   }
 
   return (
-    <div className="min-h-screen mt-10 bg-gradient-to-br from-cream-50 to-cream-100">
+    <div className="min-h-screen sm:mt-14 mt-20 bg-gradient-to-br from-cream-50 to-cream-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
         <CheckoutHeader />
         <CheckoutProgress currentStep={currentStep} />
@@ -106,6 +106,7 @@ export default function CheckoutPage(): JSX.Element {
                   form={form}
                   onNext={nextStep}
                   onBack={prevStep}
+                  userId={userId || ""}
                   subtotal={calculations.subtotal}
                 />
               )}

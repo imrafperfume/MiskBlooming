@@ -95,7 +95,7 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen mt-10 bg-gradient-to-br from-cream-50 to-cream-100">
+      <div className="min-h-screen sm:mt-16 mt-20 bg-gradient-to-br from-cream-50 to-cream-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <motion.div
             className="text-center"
@@ -123,7 +123,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen mt-10 bg-gradient-to-br from-cream-50 to-cream-100">
+    <div className="min-h-screen sm:mt-14 mt-20 bg-gradient-to-br from-cream-50 to-cream-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <motion.div
@@ -158,7 +158,7 @@ export default function CartPage() {
               {items.map((item, index) => (
                 <motion.div
                   key={item.product.id}
-                  className="bg-white border border-cream-200 rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300"
+                  className="bg-white border border-cream-200 rounded-2xl sm:p-6 sm:shadow-sm hover:shadow-lg transition-all duration-300"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -100, scale: 0.95 }}
@@ -212,7 +212,7 @@ export default function CartPage() {
                             ))}
                           </div>
                           <span className="text-xs text-muted-foreground ml-2">
-                            ({item.product.reviewCount || 0})
+                            ({item?.product.reviewCount || 0})
                           </span>
                         </div>
 
@@ -321,9 +321,9 @@ export default function CartPage() {
                       <span className="text-lg font-bold text-charcoal-900">
                         {formatPrice(item.product.price)}
                       </span>
-                      {item.product.price && (
+                      {item.product.compareAtPrice && (
                         <span className="text-sm text-muted-foreground line-through ml-2">
-                          {formatPrice(item.product.price)}
+                          {formatPrice(item.product.compareAtPrice)}
                         </span>
                       )}
                     </div>
@@ -344,72 +344,80 @@ export default function CartPage() {
             </AnimatePresence>
 
             {/* Coupon Section */}
-            <motion.div
-              className="bg-white rounded-2xl p-6 shadow-sm"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-            >
-              <div className="flex items-center mb-4">
-                <Gift className="w-5 h-5 text-luxury-500 mr-2" />
-                <h3 className="font-cormorant text-lg font-semibold text-charcoal-900">
-                  Promo Code
-                </h3>
-              </div>
+            {user ? (
+              <motion.div
+                className="bg-white rounded-2xl sm:p-6 sm:shadow-sm"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+              >
+                <div className="flex items-center sm:mb-4 mb-1">
+                  <Gift className="w-5 h-5 text-luxury-500 mr-2" />
+                  <h3 className="font-cormorant text-lg font-semibold text-charcoal-900">
+                    Promo Code
+                  </h3>
+                </div>
 
-              {appliedCoupon ? (
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                  <div className="flex items-center">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                    <span className="font-medium text-green-800">
-                      {appliedCoupon.code} -{" "}
-                      {appliedCoupon.discountType === "PERCENTAGE"
-                        ? `${appliedCoupon.discountValue}% off`
-                        : appliedCoupon.discountType === "FIXED_AMOUNT"
-                        ? `${appliedCoupon.discountValue} AED off`
-                        : "Free shipping"}{" "}
-                      applied
-                    </span>
+                {appliedCoupon ? (
+                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                    <div className="flex items-center">
+                      <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                      <span className="font-medium text-green-800">
+                        {appliedCoupon.code} -{" "}
+                        {appliedCoupon.discountType === "PERCENTAGE"
+                          ? `${appliedCoupon.discountValue}% off`
+                          : appliedCoupon.discountType === "FIXED_AMOUNT"
+                          ? `${appliedCoupon.discountValue} AED off`
+                          : "Free shipping"}{" "}
+                        applied
+                      </span>
+                    </div>
+                    <button
+                      onClick={removeCoupon}
+                      className="text-green-600 hover:text-green-700 text-sm font-medium"
+                    >
+                      Remove
+                    </button>
                   </div>
-                  <button
-                    onClick={removeCoupon}
-                    className="text-green-600 hover:text-green-700 text-sm font-medium"
-                  >
-                    Remove
-                  </button>
-                </div>
-              ) : (
-                <div className="sm:flex sm:space-x-3">
-                  <input
-                    type="text"
-                    placeholder="Enter promo code"
-                    value={couponCode}
-                    onChange={(e) =>
-                      setCouponCode(e.target.value.toUpperCase())
-                    }
-                    className="flex-1 px-4 py-3 border border-cream-400 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
-                  />
-                  <Button
-                    className="sm:mt-0 mt-4 hover:bg-black"
-                    onClick={handleApplyCoupon}
-                    variant="outline"
-                    disabled={!couponCode.trim() || isValidating}
-                  >
-                    {isValidating ? "Validating..." : "Apply"}
-                  </Button>
-                </div>
-              )}
+                ) : (
+                  <div className="sm:flex sm:space-x-3 ">
+                    <input
+                      type="text"
+                      placeholder="Enter promo code"
+                      value={couponCode}
+                      onChange={(e) =>
+                        setCouponCode(e.target.value.toUpperCase())
+                      }
+                      className="flex-1 px-4 mr-2 py-3 border border-cream-400 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                    />
+                    <Button
+                      className="sm:mt-0 mt-4 hover:bg-black"
+                      onClick={handleApplyCoupon}
+                      variant="outline"
+                      disabled={!couponCode.trim() || isValidating}
+                    >
+                      {isValidating ? "Validating..." : "Apply"}
+                    </Button>
+                  </div>
+                )}
 
-              <div className="mt-3 text-sm text-muted-foreground">
-                <p>Try: WELCOME10, LUXURY15, or FIRST20</p>
+                <div className="mt-3 text-sm text-muted-foreground">
+                  <p>Try: WELCOME10, LUXURY15, or FIRST20</p>
+                </div>
+              </motion.div>
+            ) : (
+              <div>
+                <p className="text-sm text-muted-foreground italic">
+                  Log in to apply promo codes and enjoy exclusive discounts!
+                </p>
               </div>
-            </motion.div>
+            )}
           </div>
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <motion.div
-              className="bg-white rounded-2xl p-6 shadow-lg sticky top-8"
+              className="bg-white rounded-2xl sm:p-6 sm:shadow-lg sticky top-8"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}

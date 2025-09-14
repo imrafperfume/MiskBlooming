@@ -57,6 +57,9 @@ export function useProduct(slug: string, selectedFields: string[] = []) {
           category
           images { url }
           featured
+          featuredImage
+          tags
+          shortDescription
         `;
 
       const res = await fetch("/api/graphql", {
@@ -120,4 +123,3 @@ export function useFeaturedProducts(selectedFields: string[] = []) {
     },
   });
 }
-
