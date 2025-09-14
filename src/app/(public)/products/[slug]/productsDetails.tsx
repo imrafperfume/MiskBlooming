@@ -48,8 +48,11 @@ export default function ProductDetailPage({ slug }: { slug: string }) {
     "featured",
     "tags",
     "careInstructions",
+    "featuredImage",
   ]);
-  const [selectedImage, setSelectedImage] = useState(0);
+  const [selectedImage, setSelectedImage] = useState(
+    product?.featuredImage || 0
+  );
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -148,7 +151,7 @@ export default function ProductDetailPage({ slug }: { slug: string }) {
 
   const tabs = [
     { id: "description", label: "Description", icon: MessageCircle },
-    { id: "specifications", label: "Specifications", icon: Award },
+    // { id: "specifications", label: "Specifications", icon: Award },
     { id: "care", label: "Care Instructions", icon: Leaf },
     { id: "delivery", label: "Delivery Info", icon: Truck },
     { id: "reviews", label: `Reviews (${reviews.length})`, icon: Star },
@@ -252,7 +255,7 @@ export default function ProductDetailPage({ slug }: { slug: string }) {
             </div>
 
             {/* Thumbnail Images */}
-            <div className="flex space-x-4 overflow-x-auto pb-2">
+            <div className="flex items-center gap-4 h-fit py-3  overflow-x-auto px-2 sm:px-0 sm:pb-2 aspect-auto">
               {product.images.map((image, index) => (
                 <button
                   key={index}
@@ -269,7 +272,7 @@ export default function ProductDetailPage({ slug }: { slug: string }) {
                     fill
                     priority
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    className="object-cover"
+                    className="object-cover aspect-square"
                   />
                 </button>
               ))}
@@ -278,7 +281,7 @@ export default function ProductDetailPage({ slug }: { slug: string }) {
 
           {/* Product Info */}
           <motion.div
-            className="space-y-6"
+            className="sm:space-y-6 space-y-2"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
@@ -327,8 +330,8 @@ export default function ProductDetailPage({ slug }: { slug: string }) {
             </h1>
 
             {/* Price */}
-            <div className="flex items-center space-x-4">
-              <span className="sm:text-3xl text-2xl font-bold text-charcoal-900">
+            <div className="flex flex-wrap items-center sm:space-x-4 gap-2">
+              <span className="sm:text-3xl text-xl font-bold text-charcoal-900">
                 {formatPrice(product.price)}
               </span>
               {product.compareAtPrice && (
@@ -337,14 +340,14 @@ export default function ProductDetailPage({ slug }: { slug: string }) {
                 </span>
               )}
               {discountPercentage > 0 && (
-                <span className="sm:text-lg font-semibold text-green-600">
+                <span className="sm:text-lg text-sm font-semibold text-green-600">
                   Save {formatPrice(product.compareAtPrice! - product.price)}
                 </span>
               )}
             </div>
 
             {/* Description */}
-            <p className="text-muted-foreground text-lg leading-relaxed">
+            <p className="text-muted-foreground text-lg line-clamp-4 leading-relaxed">
               {product.shortDescription}
             </p>
 
@@ -398,7 +401,7 @@ export default function ProductDetailPage({ slug }: { slug: string }) {
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap sm:flex-nowrap sm:col-span-3 col-span-2 gap-4">
+            <div className="flex flex-wrap sm:flex-nowrap sm:col-span-3 sm:pt-0 pt-6 col-span-2 gap-4">
               <Button
                 onClick={handleAddToCart}
                 variant="luxury"
@@ -491,12 +494,12 @@ export default function ProductDetailPage({ slug }: { slug: string }) {
 
         {/* Product Details Tabs */}
         <motion.div
-          className="mt-16"
+          className="sm:mt-16 mt-4"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
-          <div className="border-b border-cream-300">
+          <div className="">
             <nav className="flex space-x-8 overflow-x-auto">
               {tabs.map((tab) => (
                 <button
@@ -526,7 +529,7 @@ export default function ProductDetailPage({ slug }: { slug: string }) {
                   transition={{ duration: 0.3 }}
                   className="prose prose-lg max-w-none"
                 >
-                  <div className="bg-white rounded-2xl p-8 shadow-sm">
+                  <div className="bg-white rounded-2xl sm:p-8 shadow-sm">
                     <h3 className="font-cormorant text-2xl font-bold text-charcoal-900 mb-4">
                       Product Description
                     </h3>

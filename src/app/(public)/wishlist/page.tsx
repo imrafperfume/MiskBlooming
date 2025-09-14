@@ -46,7 +46,7 @@ export default function WishlistPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100">
+      <div className="min-h-screen mt-14 bg-gradient-to-br from-cream-50 to-cream-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <motion.div
@@ -75,7 +75,7 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="min-h-screen mt-10 bg-gradient-to-br from-cream-50 to-cream-100">
+    <div className="min-h-screen sm:mt-14 mt-20 bg-gradient-to-br from-cream-50 to-cream-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <motion.div
@@ -127,12 +127,12 @@ export default function WishlistPage() {
         </motion.div>
 
         {/* Wishlist Grid */}
-        <div className="grid mt-10 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid mt-10 grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 sm:gap-8 gap-2">
           <AnimatePresence>
             {items.map((product, index) => (
               <motion.div
                 key={product.id}
-                className="group bg-white rounded-2xl shadow-lg hover:shadow-luxury transition-all duration-500 overflow-hidden"
+                className="group bg-white rounded-md shadow-md hover:shadow-luxury transition-all duration-500 overflow-hidden"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.8, y: -30 }}
@@ -154,7 +154,7 @@ export default function WishlistPage() {
 
                   {/* Discount Badge */}
                   {product.price && (
-                    <div className="absolute top-4 left-4 bg-luxury-500 text-charcoal-900 px-3 py-1 rounded-full text-sm font-bold">
+                    <div className="absolute top-4 sm:left-4 left-2 bg-luxury-500 text-charcoal-900 px-3 py-1 rounded-full sm:text-sm text-xs font-bold">
                       Save{" "}
                       {Math.round(
                         ((product.price - (product.compareAtPrice ?? 0)) /
@@ -169,12 +169,12 @@ export default function WishlistPage() {
                   <button
                     onClick={() => handleRemoveItem(product.id)}
                     disabled={removingItems.has(product.id)}
-                    className="absolute top-4 right-4 w-10 h-10 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-red-600 hover:text-red-700 transition-all duration-300 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0"
+                    className="absolute top-4 sm:right-4 right-2 sm:w-10 sm:h-10 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-red-600 hover:text-red-700 transition-all duration-300 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0"
                   >
                     {removingItems.has(product.id) ? (
                       <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <Heart className="w-5 h-5 fill-current" />
+                      <Heart className="sm:w-5 sm:h-5 w-4 h-4 fill-current" />
                     )}
                   </button>
 
@@ -183,7 +183,17 @@ export default function WishlistPage() {
                     <Button
                       onClick={() => handleAddToCart(product)}
                       variant="luxury"
-                      className="w-full"
+                      className="w-full hidden sm:flex"
+                      disabled={!product.quantity}
+                    >
+                      <ShoppingBag className="w-4 h-4 mr-2" />
+                      {product.quantity ? "Add to Cart" : "Out of Stock"}
+                    </Button>
+                    <Button
+                      onClick={() => handleAddToCart(product)}
+                      variant="luxury"
+                      size={"sm"}
+                      className="w-full sm:hidden flex"
                       disabled={!product.quantity}
                     >
                       <ShoppingBag className="w-4 h-4 mr-2" />
@@ -193,62 +203,53 @@ export default function WishlistPage() {
                 </div>
 
                 {/* Content */}
-                <div className="p-6">
+                <div className="sm:px-6 px-3 sm:py-3 py-1">
                   {/* Rating */}
-                  <div className="flex items-center mb-3">
+                  <div className="flex items-center justify-between sm:mb-3 mb-1 flex-wrap">
                     <div className="flex items-center">
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
                           className={`w-4 h-4 ${
-                            i < Math.floor(5)
+                            i < Math.floor(4)
                               ? "text-luxury-500 fill-current"
                               : "text-cream-300"
                           }`}
                         />
                       ))}
+                      <span className="text-sm text-muted-foreground ml-2">
+                        ({product.reviewCount || 0})
+                      </span>
                     </div>
-                    <span className="text-sm text-muted-foreground ml-2">
-                      ({product.reviewCount || 0})
-                    </span>
+                    <div className="text-xs hidden sm:flex text-luxury-500 font-medium bg-luxury-50 sm:px-2 px-0 py-1 rounded-full">
+                      {product.category.replace("-", " ").toUpperCase()}
+                    </div>
                   </div>
 
                   {/* Title */}
                   <Link href={`/products/${product.slug}`}>
-                    <h3 className="font-cormorant text-lg font-semibold text-charcoal-900 mb-2 hover:text-luxury-500 transition-colors line-clamp-2">
+                    <h3 className="font-cormorant sm:text-xl text-base font-semibold text-charcoal-900 sm:mb-2 mb-0 hover:text-luxury-500 transition-colors line-clamp-2 group-hover:text-luxury-600">
                       {product.name}
                     </h3>
                   </Link>
 
                   {/* Description */}
-                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
+                  <p className="text-muted-foreground sm:text-sm text-xs sm:mb-4 mb-2 sm:line-clamp-2 line-clamp-1 leading-relaxed">
                     {product.shortDescription}
                   </p>
 
                   {/* Price */}
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xl font-bold text-charcoal-900">
+                  <div className="flex items-center justify-between  mb-4">
+                    <div className="flex items-center flex-wrap sm:space-x-2">
+                      <span className="sm:text-xl text-lg font-bold text-charcoal-900">
                         {formatPrice(product.price)}
                       </span>
-                      {product?.price && (
-                        <span className="text-sm text-muted-foreground line-through">
-                          {formatPrice(product?.price)}
+                      {product.compareAtPrice && (
+                        <span className="sm:text-sm text-xs text-muted-foreground line-through">
+                          {formatPrice(product.compareAtPrice!)}
                         </span>
                       )}
                     </div>
-                  </div>
-
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-2">
-                    {product?.tags?.slice(0, 2).map((tag) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 bg-cream-100 text-charcoal-700 text-xs rounded-full font-medium"
-                      >
-                        {tag}
-                      </span>
-                    ))}
                   </div>
                 </div>
               </motion.div>
