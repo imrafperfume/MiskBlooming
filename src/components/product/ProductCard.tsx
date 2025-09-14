@@ -68,7 +68,7 @@ const ProductCard = memo(
       <motion.div
         className={`${
           viewMode !== "grid" && "flex gap-5 justify-between"
-        } group relative bg-white rounded-3xl shadow-lg hover:shadow-luxury transition-all duration-700 overflow-hidden border border-cream-200`}
+        } group relative bg-white rounded-3xl shadow-sm hover:shadow-luxury transition-all duration-700 overflow-hidden border border-cream-200`}
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -94,21 +94,21 @@ const ProductCard = memo(
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
           {/* Badges */}
-          <div className="absolute top-4 left-4 flex flex-col space-y-2">
+          <div className="absolute sm:top-4 top-2 sm:left-4 left-2 flex flex-col space-y-2">
             {product.featured && (
               <motion.div
-                className="flex items-center bg-luxury-500 text-charcoal-900 px-3 py-1 rounded-full text-sm font-bold"
+                className="flex items-center bg-luxury-500 text-charcoal-900 sm:px-3 px-2 py-1 rounded-full sm:text-sm text-xs font-bold"
                 initial={{ scale: 0, rotate: -10 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
               >
-                <Sparkles className="w-3 h-3 mr-1" />
+                <Sparkles className="sm:w-3 sm:h-3 w-2 h-2 mr-1" />
                 Featured
               </motion.div>
             )}
             {discountPercentage > 0 && (
               <motion.div
-                className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold"
+                className="bg-red-500 text-white sm:px-3 px-2 py-1 rounded-full sm:text-sm text-xs w-fit font-bold"
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{
@@ -129,10 +129,10 @@ const ProductCard = memo(
           </div>
 
           {/* Action Buttons */}
-          <div className="absolute top-4 right-4 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0">
+          <div className="absolute sm:top-4 top-2 sm:right-4 right-2 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-x-4 group-hover:translate-x-0">
             <motion.button
               onClick={handleWishlistToggle}
-              className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all duration-300 ${
+              className={`sm:w-12 sm:h-12 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all duration-300 ${
                 isWishlisted
                   ? "bg-red-500 text-white"
                   : "bg-white/90 hover:bg-white text-charcoal-900 hover:text-red-500"
@@ -141,16 +141,18 @@ const ProductCard = memo(
               whileTap={{ scale: 0.9 }}
             >
               <Heart
-                className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`}
+                className={`sm:w-5 sm:h-5 w-4 h-4 ${
+                  isWishlisted ? "fill-current" : ""
+                }`}
               />
             </motion.button>
             <Link href={`/products/${product.slug}`}>
               <motion.button
-                className="w-12 h-12 bg-white/90 hover:bg-white text-charcoal-900 rounded-full flex items-center justify-center shadow-lg transition-all duration-300"
+                className="sm:w-12 sm:h-12 w-8 h-8 bg-white/90 hover:bg-white text-charcoal-900 rounded-full flex items-center justify-center shadow-lg transition-all duration-300"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
-                <Eye className="w-5 h-5" />
+                <Eye className="sm:w-5 sm:h-5 w-4 h-4" />
               </motion.button>
             </Link>
           </div>
@@ -160,7 +162,17 @@ const ProductCard = memo(
             <Button
               onClick={handleAddToCart}
               variant="luxury"
-              className="w-full shadow-luxury"
+              className="w-full shadow-luxury hidden sm:flex"
+              disabled={!product.quantity}
+            >
+              <ShoppingBag className="w-4 h-4 mr-2" />
+              {product.quantity ? "Add to Cart" : "Out of Stock"}
+            </Button>{" "}
+            <Button
+              onClick={handleAddToCart}
+              variant="luxury"
+              size={"sm"}
+              className="w-full shadow-luxury flex sm:hidden"
               disabled={!product.quantity}
             >
               <ShoppingBag className="w-4 h-4 mr-2" />
@@ -170,9 +182,9 @@ const ProductCard = memo(
         </div>
 
         {/* Content */}
-        <div className="px-6 py-3">
+        <div className="sm:px-6 px-3 sm:py-3 py-1">
           {/* Rating */}
-          <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center justify-between sm:mb-3 mb-1 flex-wrap">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -188,31 +200,31 @@ const ProductCard = memo(
                 ({product.reviewCount || 0})
               </span>
             </div>
-            <div className="text-xs text-luxury-500 font-medium bg-luxury-50 px-2 py-1 rounded-full">
+            <div className="text-xs text-luxury-500 font-medium bg-luxury-50 sm:px-2 px-0 py-1 rounded-full">
               {product.category.replace("-", " ").toUpperCase()}
             </div>
           </div>
 
           {/* Title */}
           <Link href={`/products/${product.slug}`}>
-            <h3 className="font-cormorant text-xl font-semibold text-charcoal-900 mb-2 hover:text-luxury-500 transition-colors line-clamp-2 group-hover:text-luxury-600">
+            <h3 className="font-cormorant sm:text-xl text-lg font-semibold text-charcoal-900 mb-2 hover:text-luxury-500 transition-colors line-clamp-2 group-hover:text-luxury-600">
               {product.name}
             </h3>
           </Link>
 
           {/* Description */}
-          <p className="text-muted-foreground text-sm mb-4 line-clamp-2 leading-relaxed">
+          <p className="text-muted-foreground sm:text-sm text-xs sm:mb-4 mb-2 sm:line-clamp-2 line-clamp-1 leading-relaxed">
             {product.shortDescription}
           </p>
 
           {/* Price */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-xl font-bold text-charcoal-900">
+          <div className="flex items-center justify-between  mb-4">
+            <div className="flex items-center flex-wrap sm:space-x-2">
+              <span className="sm:text-xl text-lg font-bold text-charcoal-900">
                 {formatPrice(product.price)}
               </span>
               {hasComparePrice && (
-                <span className="text-sm text-muted-foreground line-through">
+                <span className="sm:text-sm text-xs text-muted-foreground line-through">
                   {formatPrice(product.compareAtPrice!)}
                 </span>
               )}

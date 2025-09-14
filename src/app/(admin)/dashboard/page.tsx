@@ -25,8 +25,10 @@ import Loading from "@/src/components/layout/Loading";
 
 export default function AdminDashboard() {
   const [timeRange, setTimeRange] = useState(7);
-  const { data, loading, error } = useQuery(DASHBOARD_METRICS);
-  console.log("🚀 ~ AdminDashboard ~ data:", data);
+  const { data, loading, error } = useQuery(DASHBOARD_METRICS, {
+    fetchPolicy: "cache-and-network",
+    variables: { days: timeRange },
+  });
 
   if (loading) {
     return <Loading />;

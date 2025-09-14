@@ -64,33 +64,6 @@ const categories = [
 ];
 
 const ShopByCategory = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  const getItemsPerSlide = () => {
-    if (typeof window !== "undefined") {
-      if (window.innerWidth >= 1280) return 4; // xl
-      if (window.innerWidth >= 1024) return 3; // lg
-      if (window.innerWidth >= 768) return 2; // md
-      return 1; // sm
-    }
-    return 3; // default for SSR
-  };
-
-  const itemsPerSlide = getItemsPerSlide();
-  const totalSlides = Math.ceil(categories.length / itemsPerSlide);
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % totalSlides);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
-  };
-
-  const goToSlide = (index: number) => {
-    setCurrentSlide(index);
-  };
-
   return (
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-8 sm:px-6 lg:px-8">
@@ -106,7 +79,7 @@ const ShopByCategory = () => {
             Shop by Category
           </motion.h2>
           <motion.p
-            className="text-lg text-muted-foreground max-w-2xl mx-auto"
+            className="sm:text-lg text-muted-foreground max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
@@ -127,8 +100,8 @@ const ShopByCategory = () => {
             disableOnInteraction: false,
           }}
           breakpoints={{
-            320: { slidesPerView: 1, spaceBetween: 10 }, // mobile
-            640: { slidesPerView: 2, spaceBetween: 20 }, // small devices
+            320: { slidesPerView: 3, spaceBetween: 20 }, // mobile
+            640: { slidesPerView: 4, spaceBetween: 20 }, // small devices
             1024: { slidesPerView: 4, spaceBetween: 25 }, // tablet
             1280: { slidesPerView: 5, spaceBetween: 30 }, // desktop
           }}
@@ -145,7 +118,10 @@ const ShopByCategory = () => {
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 viewport={{ once: true }}
               >
-                <div className="overflow-hidden transition-all duration-500">
+                <Link
+                  href={category.href}
+                  className="overflow-hidden transition-all duration-500"
+                >
                   {/* Image Container */}
                   <div className="relative aspect-square overflow-hidden rounded-full">
                     <Image
@@ -157,35 +133,42 @@ const ShopByCategory = () => {
                     />
 
                     {/* Explore Button */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <Link href={category.href}>
-                        <Button className="bg-white text-charcoal-900 hover:bg-luxury-500 font-semibold px-6 py-2 rounded-full ">
-                          Explore Collection
-                          <ArrowRight className="w-4 h-4 ml-2" />
-                        </Button>
-                      </Link>
+                    <div className="absolute inset-0 sm:flex hidden items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <Button className="bg-white text-charcoal-900 hover:bg-luxury-500 font-semibold sm:px-6 py-2 pz-2 rounded-full ">
+                        Explore Collection
+                        <ArrowRight className="w-4 h-4 ml-2" />
+                      </Button>
                     </div>
                   </div>
 
                   {/* Content */}
-                  <div className="p-6">
-                    <h3 className="text-xl font-cormorant font-semibold text-charcoal-900 mb-2 group-hover:text-luxury-600 transition-colors">
+                  <div className="sm:p-6 p-2 text-center flex flex-col items-center justify-center">
+                    <h3 className="sm:text-xl text-base text-center font-cormorant font-semibold text-charcoal-900 mb-2 group-hover:text-luxury-600 transition-colors">
                       {category.name}
                     </h3>
-                    <p className="text-charcoal-700 mb-4">
+                    <p className="text-charcoal-700 text-center hidden sm:flex mb-4">
                       {category.description}
                     </p>
                   </div>
-                </div>
+                </Link>
               </motion.div>
             </SwiperSlide>
           ))}
         </Swiper>
         {/* View All Button */}
-        <div className="text-center mt-12">
-          <Link href="/products">
+        <div className="text-center sm:mt-12 mt-6">
+          <Link href="/products" className="hidden sm:inline-block">
             <Button
               size="lg"
+              className="bg-luxury-500 hover:bg-luxury-600 text-charcoal-900 font-semibold px-8 py-3"
+            >
+              View All Products
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
+          </Link>{" "}
+          <Link href="/products" className="inline-block sm:hidden">
+            <Button
+              size="sm"
               className="bg-luxury-500 hover:bg-luxury-600 text-charcoal-900 font-semibold px-8 py-3"
             >
               View All Products

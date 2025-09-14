@@ -21,12 +21,14 @@ import {
 import { motion } from "framer-motion";
 import { Button } from "../../../../components/ui/Button";
 import { Input } from "../../../../components/ui/Input";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import Loading from "@/src/components/layout/Loading";
+import { toast } from "sonner";
 interface Customer {
   id: string;
   firstName: string;
   lastName: string;
+  role: string;
   lastOrder: {
     id: string;
     createdAt: string;
@@ -50,6 +52,7 @@ const GET_USERS = gql`
       phoneNumber
       createdAt
       email
+      role
       status
       stats {
         totalSpent
@@ -64,10 +67,27 @@ const GET_USERS = gql`
     }
   }
 `;
+const UPDATE_ROLE_MUTATION = gql`
+  mutation UpdateUserRole($id: ID!, $role: Role!) {
+    updateUserRole(id: $id, role: $role) {
+      id
+      role
+    }
+  }
+`;
+const DELETE_USER = gql`
+  mutation DeleteUser($id: ID!) {
+    deleteUser(id: $id)
+  }
+`;
 export default function CustomersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("name");
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
+    null
+  );
+  // Fetch users
   const { data, loading, error } = useQuery(GET_USERS, {
     fetchPolicy: "cache-and-network",
   });
@@ -75,7 +95,6 @@ export default function CustomersPage() {
   const pageSize = 10;
 
   const users = data?.users || [];
-  console.log("🚀 ~ CustomersPage ~ users:", users);
   // Filtered customers
   const filteredCustomers = useMemo(() => {
     return users?.filter((customer: Customer) => {
@@ -95,6 +114,11 @@ export default function CustomersPage() {
       currentPage * pageSize
     );
   }, [filteredCustomers, currentPage]);
+  const [updateUserRole] = useMutation(UPDATE_ROLE_MUTATION);
+  const [deleteUser] = useMutation(DELETE_USER, {
+    refetchQueries: [{ query: GET_USERS }],
+    awaitRefetchQueries: true,
+  });
   // Stats calculation
   const stats = useMemo(() => {
     const totalSpent = users.reduce(
@@ -152,6 +176,30 @@ export default function CustomersPage() {
   if (loading) return <Loading />;
   if (error) return <p className="mt-5">{error.message}</p>;
 
+  const handleMakeAdmin = async (customerId: string) => {
+    try {
+      if (!customerId) return;
+      setSelectedCustomerId(null);
+
+      await updateUserRole({
+        variables: { id: customerId, role: "ADMIN" },
+      });
+      console.log("Make admin for user ID:", customerId);
+      toast.success("User promoted to admin successfully!");
+    } catch (error) {
+      toast.error("Failed to promote user to admin.");
+      console.error("Error promoting user to admin:", error);
+    }
+  };
+  const handleDelete = async (customerId: string) => {
+    try {
+      await deleteUser({ variables: { id: customerId } });
+      toast.success("User deleted successfully!");
+    } catch (error) {
+      toast.error("Failed to delete user.");
+      console.error("Error deleting user:", error);
+    }
+  };
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -336,7 +384,8 @@ export default function CustomersPage() {
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-luxury-400 to-luxury-600 rounded-full flex items-center justify-center">
                   <span className="text-white font-medium">
-                    {/* {customer.avatar} */} M
+                    {(customer?.firstName?.[0] || "M") +
+                      (customer?.lastName?.[0] || "B")}
                   </span>
                 </div>
                 <div>
@@ -428,22 +477,53 @@ export default function CustomersPage() {
               </div>
             </div>
 
-            {/* <div className="flex items-center space-x-2">
-              <Button
+            <div className="flex justify-between items-center space-x-2">
+              {/* <Button
                 variant="outline"
                 size="sm"
                 className="flex-1 bg-transparent"
               >
                 <Eye className="w-4 h-4 mr-2" />
                 View Profile
-              </Button>
-              <Button variant="ghost" size="sm">
+              </Button> */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  window.location.href = `mailto:${customer.email}`;
+                }}
+              >
                 <Mail className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="sm">
+
+              <Button
+                onClick={() => {
+                  selectedCustomerId === customer.id
+                    ? setSelectedCustomerId(null) // Close the menu if it's already open
+                    : setSelectedCustomerId(customer.id); // Open the menu for the selected user
+                }}
+                variant="ghost"
+                size="sm"
+              >
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
-            </div> */}
+              {selectedCustomerId === customer.id && ( // Only show the menu for the selected user
+                <div className="absolute flex flex-col gap-1 p-4 shadow right-6 bottom-14 bg-white border border-gray-200 rounded-lg z-10">
+                  <span
+                    onClick={() => handleMakeAdmin(customer.id)}
+                    className="text-sm text-gray-600 mb-2 cursor-pointer hover:scale-105 transition-transform"
+                  >
+                    Make Admin
+                  </span>
+                  <span
+                    onClick={() => handleDelete(customer?.id)}
+                    className="text-sm text-red-600 cursor-pointer hover:scale-105 transition-transform"
+                  >
+                    Delete User
+                  </span>
+                </div>
+              )}
+            </div>
           </motion.div>
         ))}
       </div>

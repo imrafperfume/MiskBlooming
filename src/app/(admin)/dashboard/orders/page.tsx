@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useQuery, useSubscription } from "@apollo/client";
 import Link from "next/link";
 import { Button } from "../../../../components/ui/Button";
 import {
@@ -49,6 +49,7 @@ export default function OrdersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [refetch, setRefetch] = useState(false);
   const itemsPerPage = 10;
+  // const { data: orderUpdates } = useSubscription(GET_ORDERS);
 
   const { data: ordersData, loading: orderLoading } = useQuery(GET_ORDERS);
   const {
