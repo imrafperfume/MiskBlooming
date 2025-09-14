@@ -175,24 +175,32 @@ export const OrderResolvers = {
     ) => {
       try {
         const { userId } = args;
+        console.log("🚀 ~ userId:", userId);
         if (!userId) throw new Error("User ID is required");
-        const cache = await redis.get(`ordersByUser:${userId}`);
-        if (cache) {
-          return cache;
-        }
+        // const cache = await redis.get(`ordersByUser:${userId}`);
+        // if (cache) {
+        //   return cache;
+        // }
         const orders = await prisma.order.findMany({
           where: { userId },
           orderBy: { createdAt: "desc" },
           include: {
-            items: { include: { product: true } },
+            items: {
+              include: {
+                product: true,
+              },
+            },
           },
         });
+        console.log("🚀 ~ orders:", orders);
         if (!orders) throw new Error("No orders found for this user");
         await redis.set(`ordersByUser:${userId}`, JSON.stringify(orders), {
           ex: 60 * 2,
         });
         return orders;
-      } catch (error) {}
+      } catch (error) {
+        throw new Error((error as Error).message);
+      }
     },
   },
   Mutation: {

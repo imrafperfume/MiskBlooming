@@ -11,7 +11,9 @@ export const UserTypeDefs = gql`
     stats: UserStats!
     lastOrder: Order
     status: String!
+    role: Role!
     address: String
+    emailVerified: Boolean!
   }
 
   type UserStats {
@@ -32,9 +34,15 @@ export const UserTypeDefs = gql`
     DELIVERED
     CANCELLED
   }
+  enum Role {
+    USER
+    ADMIN
+    GUEST
+  }
   type Query {
     userById(id: ID!): User
     users: [User!]!
+    adminUsers: [User!]!
   }
   type Mutation {
     updateUser(
@@ -45,5 +53,7 @@ export const UserTypeDefs = gql`
       phoneNumber: String
       address: String
     ): User
+    updateUserRole(id: ID!, role: Role!): User
+    deleteUser(id: ID!): Boolean
   }
 `;

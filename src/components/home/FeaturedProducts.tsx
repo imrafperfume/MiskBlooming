@@ -5,7 +5,6 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import ProductCard from "../product/ProductCard";
 import { Product } from "@/src/types";
-import Loading from "../layout/Loading";
 
 function FeaturedProducts({
   featuredProducts,
@@ -14,9 +13,8 @@ function FeaturedProducts({
   featuredProducts: Product[];
   isLoading: boolean;
 }) {
-  console.log("🚀 ~ FeaturedProducts ~ featuredProducts:", featuredProducts);
   return (
-    <section className="py-24 bg-white">
+    <section className="sm:py-24 py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           className="text-center mb-16"
@@ -32,10 +30,10 @@ function FeaturedProducts({
             </span>
             <Sparkles className="w-6 h-6 text-luxury-500 ml-2" />
           </div>
-          <h2 className="font-cormorant text-display-md font-bold text-charcoal-900 mb-6">
+          <h2 className="font-cormorant sm:text-display-md text-display-sm font-bold text-charcoal-900 mb-6">
             Masterpieces in <span className="luxury-text">Bloom</span>
           </h2>
-          <p className="text-muted-foreground text-xl max-w-3xl mx-auto">
+          <p className="text-muted-foreground sm:text-xl text-base max-w-3xl mx-auto">
             Discover our curated selection of premium arrangements, each a
             testament to luxury and artistry
           </p>
@@ -46,7 +44,7 @@ function FeaturedProducts({
             {[...Array(6)].map((_, i) => (
               <div
                 key={i}
-                className="bg-cream-100 rounded-2xl h-96 animate-pulse"
+                className="bg-cream-500 rounded-2xl h-96 animate-pulse"
               />
             ))}
           </div>
@@ -59,7 +57,7 @@ function FeaturedProducts({
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-8">
                 {featuredProducts?.map((product, index) => (
                   <ProductCard
                     key={product.id}
@@ -80,10 +78,20 @@ function FeaturedProducts({
           transition={{ duration: 0.6, delay: 0.3 }}
           viewport={{ once: true }}
         >
-          <Link href="/products">
+          <Link href="/products" className="hidden sm:inline-block">
             <Button
               variant="outline"
               size="xl"
+              className="group bg-transparent"
+            >
+              Explore All Collections
+              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>{" "}
+          <Link href="/products" className="sm:hidden inline-block">
+            <Button
+              variant="outline"
+              size="sm"
               className="group bg-transparent"
             >
               Explore All Collections

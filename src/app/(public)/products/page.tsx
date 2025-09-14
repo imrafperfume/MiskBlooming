@@ -123,7 +123,7 @@ export default function ProductsPage() {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <div className="min-h-screen mt-10 bg-gradient-to-br from-cream-50 to-cream-100">
+      <div className="min-h-screen sm:mt-14 mt-16 bg-gradient-to-br from-cream-50 to-cream-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
           <motion.div
@@ -135,7 +135,7 @@ export default function ProductsPage() {
             <h1 className="font-cormorant text-4xl md:text-5xl font-bold text-luxury-500 mb-4">
               Our Collections
             </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="sm:text-xl text-muted-foreground max-w-3xl mx-auto">
               Discover our exquisite selection of fresh flowers, luxury
               chocolates, delicious cakes, thoughtful gift sets, and beautiful
               plants
@@ -149,7 +149,7 @@ export default function ProductsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <div className="bg-white rounded-2xl p-6 shadow">
+            <div className="bg-white rounded-2xl sm:p-6 py-4 sm:py-0 shadow">
               {/* Search Bar */}
               <div className="relative mb-6">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
@@ -164,13 +164,13 @@ export default function ProductsPage() {
 
               {/* Filter Controls */}
               <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-                <div className="flex flex-wrap gap-4 items-center">
+                <div className="sm:flex grid grid-cols-2 sm:flex-wrap gap-4 items-center">
                   {/* Category Filter */}
                   <div className="relative">
                     <select
                       value={selectedCategory}
                       onChange={(e) => setSelectedCategory(e.target.value)}
-                      className="appearance-none bg-white border border-cream-400 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                      className="appearance-none bg-white border border-cream-400 rounded-lg text-sm sm:text-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
                     >
                       <option value="all">All Categories</option>
                       {categories.map((category) => (
@@ -179,7 +179,7 @@ export default function ProductsPage() {
                         </option>
                       ))}
                     </select>
-                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                    <ChevronDown className="absolute sm:right-2 right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                   </div>
 
                   {/* Price Range Filter */}
@@ -187,7 +187,7 @@ export default function ProductsPage() {
                     <select
                       value={priceRange}
                       onChange={(e) => setPriceRange(e.target.value)}
-                      className="appearance-none bg-white border border-cream-400 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                      className="appearance-none bg-white border ext-sm sm:text-lg border-cream-400 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
                     >
                       {priceRanges.map((range) => (
                         <option key={range.value} value={range.value}>
@@ -195,7 +195,7 @@ export default function ProductsPage() {
                         </option>
                       ))}
                     </select>
-                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                    <ChevronDown className="absolute sm:right-2 right-8 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                   </div>
 
                   {/* Sort Filter */}
@@ -203,7 +203,7 @@ export default function ProductsPage() {
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
-                      className="appearance-none bg-white border border-cream-400 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                      className="appearance-none bg-white border text-sm sm:text-lg border-cream-400 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
                     >
                       {sortOptions.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -211,7 +211,7 @@ export default function ProductsPage() {
                         </option>
                       ))}
                     </select>
-                    <ChevronDown className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                    <ChevronDown className="absolute sm:right-2 right-8 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                   </div>
                 </div>
 
@@ -290,7 +290,7 @@ export default function ProductsPage() {
             <motion.div
               className={`grid gap-8 ${
                 viewMode === "grid"
-                  ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  ? "grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
                   : "grid-cols-1"
               }`}
               initial={{ opacity: 0 }}

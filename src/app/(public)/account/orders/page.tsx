@@ -206,9 +206,12 @@ export default function OrdersPage() {
   // const [trackingModalOpen, setTrackingModalOpen] = useState(false);
   const { data: user, isLoading } = useAuth();
   const userId = user?.id;
+  console.log("🚀 ~ OrdersPage ~ userId:", userId);
 
   const { data, loading } = useQuery(GET_ORDERS_BY_USER, {
     variables: { userId: userId },
+    skip: !userId,
+    fetchPolicy: "cache-and-network",
   });
 
   if (isLoading || loading) return <Loading />;
@@ -226,6 +229,7 @@ export default function OrdersPage() {
     );
 
   const orders = data?.ordersByUser || [];
+  console.log("🚀 ~ OrdersPage ~ orders:", orders);
   // const openTracking = (orderId: string) => {
   //   setSelectedOrder(orderId);
   //   setTrackingModalOpen(true);

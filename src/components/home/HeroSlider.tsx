@@ -40,7 +40,7 @@ const HeroSlider = () => {
   };
 
   return (
-    <div className="relative h-screen overflow-hidden">
+    <div className="relative sm:h-screen h-1/3 overflow-hidden">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentSlide}
@@ -63,7 +63,7 @@ const HeroSlider = () => {
 
       {/* Content */}
       <div className="relative z-10 h-full flex items-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="max-w-7xl mt-16 sm:mt-0 mx-auto px-4 sm:py-0 py-6 sm:px-6 lg:px-8 w-full">
           <div className="max-w-3xl">
             <AnimatePresence mode="wait">
               <motion.div
@@ -74,7 +74,7 @@ const HeroSlider = () => {
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
                 <motion.p
-                  className="text-luxury-400 text-lg font-medium mb-4 tracking-wide"
+                  className="text-luxury-400 sm:text-lg text-base font-medium mb-4 tracking-wide"
                   initial={{ opacity: 0, x: -30 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6, delay: 0.4 }}
@@ -83,7 +83,7 @@ const HeroSlider = () => {
                 </motion.p>
 
                 <motion.h1
-                  className="font-cormorant text-display-lg lg:text-display-xl font-bold text-cream-50 mb-6 leading-tight"
+                  className="font-cormorant sm:text-display-lg text-display-md lg:text-display-xl font-bold text-cream-50 mb-6 leading-tight"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.6 }}
@@ -92,7 +92,7 @@ const HeroSlider = () => {
                 </motion.h1>
 
                 <motion.p
-                  className="text-cream-100 text-xl leading-relaxed mb-8 max-w-2xl"
+                  className="text-cream-100 sm:text-xl leading-relaxed mb-8 max-w-2xl"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 0.8 }}
@@ -106,11 +106,36 @@ const HeroSlider = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.6, delay: 1 }}
                 >
-                  <Link href={slides[currentSlide].cta.link}>
+                  <Link
+                    href={slides[currentSlide].cta.link}
+                    className="sm:flex hidden"
+                  >
                     <Button
                       variant="luxury"
                       size="xl"
-                      className="group sm:w-auto w-full"
+                      className="group sm:w-auto w-full "
+                    >
+                      {slides[currentSlide].cta.text}
+                      <motion.span
+                        className="ml-2 "
+                        animate={{ x: [0, 5, 0] }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Number.POSITIVE_INFINITY,
+                        }}
+                      >
+                        →
+                      </motion.span>
+                    </Button>
+                  </Link>{" "}
+                  <Link
+                    href={slides[currentSlide].cta.link}
+                    className="sm:hidden flex"
+                  >
+                    <Button
+                      variant="luxury"
+                      size="lg"
+                      className="group sm:w-auto w-full "
                     >
                       {slides[currentSlide].cta.text}
                       <motion.span
@@ -128,7 +153,14 @@ const HeroSlider = () => {
                   <Button
                     variant="outline"
                     size="xl"
-                    className="border-cream-50 text-cream-50 hover:bg-cream-50 hover:text-charcoal-900 bg-transparent"
+                    className="border-cream-50 sm:flex hidden text-cream-50 hover:bg-cream-50 hover:text-charcoal-900 bg-transparent"
+                  >
+                    View Gallery
+                  </Button>{" "}
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="border-cream-50 sm:hidden flex text-cream-50 hover:bg-cream-50 hover:text-charcoal-900 bg-transparent"
                   >
                     View Gallery
                   </Button>
@@ -155,7 +187,7 @@ const HeroSlider = () => {
       </button>
 
       {/* Slide Indicators */}
-      <div className="absolute lg:bottom-8 md:bottom-8 bottom-4 left-1/2 -translate-x-1/2 z-20 flex space-x-3">
+      <div className="absolute lg:bottom-8 md:bottom-8 sm:flex hidden bottom-4 left-1/2 -translate-x-1/2 z-20  space-x-3">
         {slides.map((_, index) => (
           <button
             key={index}
@@ -170,7 +202,7 @@ const HeroSlider = () => {
       </div>
 
       {/* Progress Bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/20">
+      <div className="absolute bottom-0 sm:flex hidden left-0 right-0 h-1 bg-white/20">
         <motion.div
           className="h-full bg-luxury-500"
           initial={{ width: "0%" }}
