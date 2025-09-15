@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
   if (!signature || !webhookSecret) {
+    console.error("Missing Stripe signature or webhook secret");
     return NextResponse.json(
       { error: "Missing signature or webhook secret" },
       { status: 400 }
@@ -23,17 +24,23 @@ export async function POST(req: NextRequest) {
   }
 
   // Read request body as string
-  const body = await req.text();
+  let body: string;
+  try {
+    body = await req.text();
+  } catch (err) {
+    console.error("Failed to read request body:", err);
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 }
+    );
+  }
 
   let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
   } catch (err: any) {
-    console.error(
-      "⚠️ Stripe webhook signature verification failed:",
-      err.message
-    );
+    console.error("Stripe webhook signature verification failed:", err.message);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -43,30 +50,28 @@ export async function POST(req: NextRequest) {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         const orderId = paymentIntent.metadata?.orderId;
 
-        if (orderId) {
-          // Safe way to get last4
-          let last4: string | null = null;
-          const paymentMethodDetails =
-            paymentIntent.payment_method_types?.includes("card")
-              ? (paymentIntent as any).charges?.data?.[0]
-                  ?.payment_method_details?.card?.last4
-              : null;
-
-          last4 = last4 || null;
-
-          await prisma.order.update({
-            where: { id: orderId },
-            data: {
-              paymentStatus: "PAID",
-              paymentMethod: "STRIPE",
-              stripePaymentId: paymentIntent.id,
-              cardLast4: last4,
-              status: "PROCESSING",
-            },
-          });
-
-          console.log(` Order ${orderId} marked as PAID`);
+        if (!orderId) {
+          console.error("Order ID missing in payment_intent.succeeded event");
+          break;
         }
+
+        const last4 =
+          paymentIntent.payment_method_types?.includes("card") &&
+          (paymentIntent as any).charges?.data?.[0]?.payment_method_details
+            ?.card?.last4;
+
+        await prisma.order.update({
+          where: { id: orderId },
+          data: {
+            paymentStatus: "PAID",
+            paymentMethod: "STRIPE",
+            stripePaymentId: paymentIntent.id,
+            cardLast4: last4 || null,
+            status: "PROCESSING",
+          },
+        });
+
+        console.log(`Order ${orderId} marked as PAID`);
         break;
       }
 
@@ -74,28 +79,36 @@ export async function POST(req: NextRequest) {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         const orderId = paymentIntent.metadata?.orderId;
 
-        if (orderId) {
-          await prisma.order.update({
-            where: { id: orderId },
-            data: {
-              paymentStatus: "FAILED",
-              stripePaymentId: paymentIntent.id,
-              status: "CANCELLED",
-            },
-          });
-
-          console.log(` Order ${orderId} marked as FAILED`);
+        if (!orderId) {
+          console.error(
+            "Order ID missing in payment_intent.payment_failed event"
+          );
+          break;
         }
+
+        await prisma.order.update({
+          where: { id: orderId },
+          data: {
+            paymentStatus: "FAILED",
+            stripePaymentId: paymentIntent.id,
+            status: "CANCELLED",
+          },
+        });
+
+        console.log(`Order ${orderId} marked as FAILED`);
         break;
       }
 
       default:
-        console.log(` Unhandled Stripe event type: ${event.type}`);
+        console.warn(`Unhandled Stripe event type: ${event.type}`);
     }
 
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (error: any) {
-    console.error(" Webhook handler error:", error);
-    return NextResponse.json({ error: "Webhook failed" }, { status: 500 });
+    console.error("Webhook handler error:", error.message || error);
+    return NextResponse.json(
+      { error: "Webhook processing failed" },
+      { status: 500 }
+    );
   }
 }
