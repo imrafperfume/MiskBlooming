@@ -59,8 +59,7 @@ const ProductCard = memo(
       : 0;
     const feayturedImageIndex = product?.featuredImage || 0;
 
-    const imageUrl =
-      product.images?.[feayturedImageIndex]?.url || "/placeholder.svg";
+    const imageUrl = product.images?.[feayturedImageIndex]?.url;
     const isValidUrl =
       imageUrl.startsWith("http://") || imageUrl.startsWith("https://");
 

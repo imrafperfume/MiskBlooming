@@ -2,7 +2,6 @@ import { prisma } from "@/src/lib/db";
 import { isAdmin } from "@/src/lib/isAdmin";
 import { hashPassword } from "@/src/lib/password";
 import { redis } from "@/src/lib/redis";
-import { createId } from "@paralleldrive/cuid2";
 import { randomBytes } from "crypto";
 export interface OrderItemInput {
   productId: string;

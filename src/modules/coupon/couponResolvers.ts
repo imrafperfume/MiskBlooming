@@ -185,15 +185,13 @@ export const CouponResolvers = {
 
     validateCoupon: async (
       _: any,
-      args: {
-        code: string;
-        orderAmount: number;
-        userId?: string;
-        email?: string;
-      }
+      args: { code: string; orderAmount: number; userId: string }
     ) => {
       try {
         const { code, orderAmount, userId } = args;
+
+        // Only logged-in users can use coupons
+        if (!userId) throw new Error("User not authenticated");
 
         // Find the coupon
         const coupon = await prisma.coupon.findUnique({
@@ -203,7 +201,7 @@ export const CouponResolvers = {
 
         const now = new Date();
 
-        // Check if coupon is active and valid period
+        // Check coupon validity period and active status
         if (
           !coupon.isActive ||
           now < new Date(coupon.validFrom) ||
@@ -215,15 +213,15 @@ export const CouponResolvers = {
           };
         }
 
-        // Check minimum order amount
+        // Minimum order amount check
         if (coupon.minimumAmount && orderAmount < coupon.minimumAmount) {
           return {
             isValid: false,
-            error: `Minimum order amount of ${coupon.minimumAmount} AED required`,
+            error: `Minimum order amount of ${coupon.minimumAmount} required`,
           };
         }
 
-        // Check global usage limit
+        // Global usage limit
         if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
           return {
             isValid: false,
@@ -231,8 +229,8 @@ export const CouponResolvers = {
           };
         }
 
-        // Check per-user usage limit (only if userId exists)
-        if (userId && coupon.userUsageLimit) {
+        // Per-user usage limit
+        if (coupon.userUsageLimit) {
           const userUsageCount = await prisma.couponUsage.count({
             where: { couponId: coupon.id, userId },
           });
@@ -244,8 +242,8 @@ export const CouponResolvers = {
           }
         }
 
-        // New users only coupon
-        if (coupon.newUsersOnly && userId) {
+        // New users only
+        if (coupon.newUsersOnly) {
           const userOrderCount = await prisma.order.count({
             where: { userId },
           });
@@ -259,22 +257,12 @@ export const CouponResolvers = {
 
         // Calculate discount
         let discountAmount = 0;
-        switch (coupon.discountType) {
-          case "PERCENTAGE":
-            discountAmount = (orderAmount * coupon.discountValue) / 100;
-            if (
-              coupon.maximumDiscount &&
-              discountAmount > coupon.maximumDiscount
-            ) {
-              discountAmount = coupon.maximumDiscount;
-            }
-            break;
-          case "FIXED_AMOUNT":
-            discountAmount = coupon.discountValue;
-            break;
-          case "FREE_SHIPPING":
-            discountAmount = 0; // handled in checkout
-            break;
+        if (coupon.discountType === "PERCENTAGE") {
+          discountAmount = (orderAmount * coupon.discountValue) / 100;
+          if (coupon.maximumDiscount)
+            discountAmount = Math.min(discountAmount, coupon.maximumDiscount);
+        } else if (coupon.discountType === "FIXED_AMOUNT") {
+          discountAmount = coupon.discountValue;
         }
 
         discountAmount = Math.min(discountAmount, orderAmount);
