@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const VALIDATE_COUPON = gql`
-  query ValidateCoupon($code: String!, $orderAmount: Float!, $userId: String, $email: String) {
-    validateCoupon(code: $code, orderAmount: $orderAmount, userId: $userId, email: $email) {
+  query ValidateCoupon($code: String!, $orderAmount: Float!, $userId: String!) {
+    validateCoupon(code: $code, orderAmount: $orderAmount, userId: $userId) {
       isValid
       coupon {
         id

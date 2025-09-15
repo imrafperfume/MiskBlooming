@@ -35,13 +35,14 @@ export default function CartPage() {
     couponDiscount,
     applyCoupon,
     removeCoupon,
-    getDiscountedTotal,
   } = useCartStore();
   const { addItem: addToWishlist } = useWishlistStore();
   const { validateCouponCode, isValidating } = useCoupon();
   const [removingItems, setRemovingItems] = useState<Set<string>>(new Set());
   const [couponCode, setCouponCode] = useState("");
   const { data: user } = useAuth();
+  const userId = user?.id;
+
   const handleUpdateQuantity = (productId: string, newQuantity: number) => {
     if (newQuantity === 0) {
       handleRemoveItem(productId);
@@ -61,7 +62,6 @@ export default function CartPage() {
       });
     }, 300);
   };
-  const userId = user?.id || "";
   const handleMoveToWishlist = (productId: string) => {
     const item = items.find((item) => item.product.id === productId);
     if (item) {
@@ -77,7 +77,7 @@ export default function CartPage() {
     }
 
     const subtotal = getTotalPrice();
-    const result = await validateCouponCode(couponCode, subtotal, userId);
+    const result = await validateCouponCode(couponCode, subtotal, userId ?? "");
 
     if (result.isValid && result.coupon) {
       applyCoupon(result.coupon);

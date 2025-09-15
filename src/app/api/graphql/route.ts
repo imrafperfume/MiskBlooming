@@ -14,6 +14,8 @@ import { dashboardTypeDefs } from "@/src/modules/dashboard/dashboard-typedefs";
 import { DashboardResolvers } from "@/src/modules/dashboard/dasboardResolvers";
 import { couponTypeDefs } from "@/src/modules/coupon/coupon-typedefs";
 import { CouponResolvers } from "@/src/modules/coupon/couponResolvers";
+import { CategoryTypeDefs } from "@/src/modules/category/category-typedefs";
+import { CategoryResolvers } from "@/src/modules/category/category-resolvers";
 
 const typeDefs = mergeTypeDefs([
   `
@@ -29,6 +31,7 @@ const typeDefs = mergeTypeDefs([
   UserTypeDefs,
   dashboardTypeDefs,
   couponTypeDefs,
+  CategoryTypeDefs,
 ]);
 
 interface ContextType {
@@ -41,6 +44,7 @@ const resolvers = mergeResolvers([
   UserResolvers,
   DashboardResolvers,
   CouponResolvers,
+  CategoryResolvers,
 ]) as IResolvers<any, ContextType & YogaInitialContext>;
 
 const schema = createSchema<ContextType>({
@@ -53,7 +57,6 @@ const yoga = createYoga<ContextType>({
   context: async ({ request }) => {
     try {
       const userId = await getSessionUserId();
-      console.log("yoga ID", userId);
       const ip = request.headers.get("x-forwarded-for") || "unknown";
       const key = `rate:${ip}`;
       const limit = userId ? 150 : 60;
