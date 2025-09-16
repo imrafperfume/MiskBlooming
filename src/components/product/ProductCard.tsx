@@ -222,7 +222,7 @@ const ProductCard = memo(
               <span className="sm:text-xl text-lg font-bold text-charcoal-900">
                 {formatPrice(product.price)}
               </span>
-              {hasComparePrice && (
+              {Number(product.compareAtPrice) > 0 && (
                 <span className="sm:text-sm text-xs text-muted-foreground line-through">
                   {formatPrice(product.compareAtPrice!)}
                 </span>

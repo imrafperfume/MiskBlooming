@@ -21,20 +21,6 @@ export async function POST(req: Request) {
     if (!email)
       return NextResponse.json({ error: "Email required" }, { status: 400 });
 
-    // const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map(
-    //   (item: any) => ({
-    //     price_data: {
-    //       currency: currency.toLowerCase(),
-    //       product_data: {
-    //         name: item.product.name,
-    //         ...(item.product.image ? { images: [item.product.image] } : {}),
-    //       },
-    //       unit_amount: Math.round(Number(item.price) * 100),
-    //     },
-    //     quantity: Number(item.quantity),
-    //   })
-    // );
-
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -52,7 +38,18 @@ export async function POST(req: Request) {
       cancel_url: `${process.env.NEXT_PUBLIC_URL}/checkout?orderId=${orderId}`,
       customer_email: email,
       shipping_address_collection: { allowed_countries: ["AE"] },
-      metadata: { orderId, email, finalAmount: amount.toString() },
+      metadata: {
+        orderId: orderId.toString(),
+        email,
+        finalAmount: amount.toString(),
+      },
+      payment_intent_data: {
+        metadata: {
+          orderId: orderId.toString(),
+          email,
+          finalAmount: amount.toString(),
+        },
+      },
     });
 
     return NextResponse.json({ checkoutUrl: session.url });
