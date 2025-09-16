@@ -52,6 +52,7 @@ export async function POST(req: NextRequest) {
 
         if (!orderId) {
           console.error("Order ID missing in payment_intent.succeeded event");
+          console.log("PaymentIntent metadata:", paymentIntent.metadata);
           break;
         }
 
@@ -60,18 +61,21 @@ export async function POST(req: NextRequest) {
           (paymentIntent as any).charges?.data?.[0]?.payment_method_details
             ?.card?.last4;
 
-        await prisma.order.update({
-          where: { id: orderId },
-          data: {
-            paymentStatus: "PAID",
-            paymentMethod: "STRIPE",
-            stripePaymentId: paymentIntent.id,
-            cardLast4: last4 || null,
-            status: "PROCESSING",
-          },
-        });
-
-        console.log(`Order ${orderId} marked as PAID`);
+        try {
+          await prisma.order.update({
+            where: { id: orderId },
+            data: {
+              paymentStatus: "PAID",
+              paymentMethod: "STRIPE",
+              stripePaymentId: paymentIntent.id,
+              cardLast4: last4 || null,
+              status: "PROCESSING",
+            },
+          });
+          console.log(`Order ${orderId} marked as PAID`);
+        } catch (err) {
+          console.error(`Failed to update order ${orderId}:`, err);
+        }
         break;
       }
 
@@ -86,16 +90,19 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        await prisma.order.update({
-          where: { id: orderId },
-          data: {
-            paymentStatus: "FAILED",
-            stripePaymentId: paymentIntent.id,
-            status: "CANCELLED",
-          },
-        });
-
-        console.log(`Order ${orderId} marked as FAILED`);
+        try {
+          await prisma.order.update({
+            where: { id: orderId },
+            data: {
+              paymentStatus: "FAILED",
+              stripePaymentId: paymentIntent.id,
+              status: "CANCELLED",
+            },
+          });
+          console.log(`Order ${orderId} marked as FAILED`);
+        } catch (err) {
+          console.error(`Failed to update order ${orderId}:`, err);
+        }
         break;
       }
 
