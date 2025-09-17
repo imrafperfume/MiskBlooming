@@ -20,17 +20,17 @@ export const CategoryTypeDefs = gql`
   }
 
   input CreateCategoryInput {
-    id: ID!
+    id: ID
     name: String!
     description: String
     imageUrl: String
     subcategories: [CreateSubcategoryInput!]
   }
   input CreateSubcategoryInput {
-    id: ID!
+    id: ID
     name: String!
     categoryId: ID!
-    category: CreateCategoryInput!
+    category: CreateCategoryInput
   }
 
   type Query {
@@ -45,5 +45,7 @@ export const CategoryTypeDefs = gql`
     updateCategory(id: ID!, input: CreateCategoryInput!): Category!
     deleteCategory(id: ID!): Boolean!
     createSubCategory(input: CreateSubcategoryInput!): Subcategory!
+    updateSubCategory(id: ID!, input: CreateSubcategoryInput!): Subcategory!
+    deleteSubCategory(id: ID!): Boolean!
   }
 `;

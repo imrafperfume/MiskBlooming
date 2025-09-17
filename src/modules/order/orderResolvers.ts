@@ -373,6 +373,12 @@ export const OrderResolvers = {
         });
 
         await redis.del("allOrders");
+        await redis.del("orderStats");
+        await redis.del(`orderById:${order.id}`);
+        await redis.del("featured-products");
+        await Promise.all(
+          order.items.map((i) => redis.del(`product:${i.product.slug}`))
+        );
         if (userId) {
           await redis.del(`ordersByUser:${userId}`);
         }

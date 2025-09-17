@@ -4,6 +4,7 @@ import RichTextEditor from "@/src/components/ui/RichTextEditor";
 import { Heart, Plus, Tag, X } from "lucide-react";
 import React from "react";
 import { TabProps } from "../types";
+import { SubCategory } from "@/src/modules/category/categoryTypes";
 
 function BasicInfoTab({
   formData,
@@ -84,8 +85,8 @@ function BasicInfoTab({
           >
             <option value="">Select a category</option>
             {categories?.map((category) => (
-              <option key={category.value} value={category.value}>
-                {category.label}
+              <option key={category.id} value={category.name}>
+                {category.name}
               </option>
             ))}
           </select>
@@ -109,11 +110,23 @@ function BasicInfoTab({
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
             >
               <option value="">Select a subcategory</option>
-              {selectedCategory.subcategories.map((sub) => (
-                <option key={sub} value={sub}>
-                  {sub}
-                </option>
-              ))}
+              {Array.isArray(selectedCategory?.subcategories) &&
+                (selectedCategory.subcategories as unknown[]).map((sub) => {
+                  if (
+                    typeof sub === "object" &&
+                    sub !== null &&
+                    "id" in sub &&
+                    "name" in sub
+                  ) {
+                    const subCategory = sub as SubCategory;
+                    return (
+                      <option key={subCategory.id} value={subCategory.name}>
+                        {subCategory.name}
+                      </option>
+                    );
+                  }
+                  return null;
+                })}
             </select>
           </div>
         )}

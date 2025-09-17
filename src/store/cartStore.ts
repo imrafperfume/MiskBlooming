@@ -3,11 +3,15 @@ import { persist } from "zustand/middleware";
 import type { CartItem, Product } from "../types";
 import type { Coupon } from "../types/coupon";
 
+type AddItemResult = {
+  success: boolean;
+  message: string;
+};
 interface CartStore {
   items: CartItem[];
   appliedCoupon: Coupon | null;
   couponDiscount: number;
-  addItem: (product: Product, quantity?: number) => void;
+  addItem: (product: Product, quantity?: number) => AddItemResult;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -26,24 +30,47 @@ export const useCartStore = create<CartStore>()(
       couponDiscount: 0,
 
       addItem: (product, quantity = 1) => {
+        let result = { success: true, message: "Item added to cart" };
+
         set((state) => {
           const existingItem = state.items.find(
             (item) => item.product.id === product.id
           );
 
           if (existingItem) {
+            const newQuantity = existingItem.quantity + quantity;
+
+            if (newQuantity > product.quantity) {
+              result = {
+                success: false,
+                message: `Only ${product.quantity} items available in stock.`,
+              };
+              return state; // return previous state
+            }
+
             return {
               items: state.items.map((item) =>
                 item.product.id === product.id
-                  ? { ...item, quantity: item.quantity + quantity }
+                  ? { ...item, quantity: newQuantity }
                   : item
               ),
             };
           }
+
+          if (quantity > product.quantity) {
+            result = {
+              success: false,
+              message: `Only ${product.quantity} items available in stock.`,
+            };
+            return state;
+          }
+
           return {
             items: [...state.items, { product, quantity }],
           };
         });
+
+        return result;
       },
 
       removeItem: (productId) => {
@@ -84,21 +111,21 @@ export const useCartStore = create<CartStore>()(
         const total = get().getTotalPrice();
         let discount = 0;
 
-        if (coupon.discountType === 'PERCENTAGE') {
+        if (coupon.discountType === "PERCENTAGE") {
           discount = (total * coupon.discountValue) / 100;
           if (coupon.maximumDiscount && discount > coupon.maximumDiscount) {
             discount = coupon.maximumDiscount;
           }
-        } else if (coupon.discountType === 'FIXED_AMOUNT') {
+        } else if (coupon.discountType === "FIXED_AMOUNT") {
           discount = coupon.discountValue;
-        } else if (coupon.discountType === 'FREE_SHIPPING') {
+        } else if (coupon.discountType === "FREE_SHIPPING") {
           // Free shipping will be handled in checkout calculations
           discount = 0;
         }
 
-        set({ 
-          appliedCoupon: coupon, 
-          couponDiscount: Math.min(discount, total) // Don't exceed total amount
+        set({
+          appliedCoupon: coupon,
+          couponDiscount: Math.min(discount, total), // Don't exceed total amount
         });
       },
 

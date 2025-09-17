@@ -32,8 +32,13 @@ const ProductCard = memo(
     const handleAddToCart = useCallback(
       (e: React.MouseEvent) => {
         e.preventDefault();
-        addItem(product);
-        toast.success("Item added to cart");
+        const result = addItem(product);
+
+        if (result.success) {
+          toast.success(result.message);
+        } else {
+          toast.error(result.message);
+        }
       },
       [addItem, product]
     );
