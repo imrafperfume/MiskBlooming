@@ -42,6 +42,7 @@ export default function ProductsPage() {
     "subcategories{id name}",
   ]);
   const [column, setColumn] = useState(1);
+
   // useEffect for filter category
   useEffect(() => {
     setSelectedCategory(category || "all");
@@ -54,7 +55,6 @@ export default function ProductsPage() {
     if (!products) return [];
 
     const filtered = products?.filter((product) => {
-      // Search filter
       if (
         searchQuery &&
         !product?.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
