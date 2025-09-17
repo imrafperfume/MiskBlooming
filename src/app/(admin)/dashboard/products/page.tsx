@@ -25,6 +25,7 @@ import { getStatusColor } from "@/utils/utils";
 import Image from "next/image";
 import Link from "next/link";
 import Loading from "@/src/components/layout/Loading";
+import { useCategories } from "@/src/hooks/useCategories";
 
 const GET_PRODUCTS = gql`
   query GetProducts {
@@ -68,14 +69,15 @@ export default function ProductsPage() {
   const { data, loading, error } = useQuery(GET_PRODUCTS, {
     fetchPolicy: "cache-and-network",
   });
-  const categories = [
-    { value: "all", label: "All Categories" },
-    { value: "roses", label: "Premium Roses" },
-    { value: "mixed-arrangements", label: "Mixed Arrangements" },
-    { value: "chocolates", label: "Premium Chocolates" },
-    { value: "cakes", label: "Fresh Cakes" },
-    { value: "plants", label: "Indoor Plants" },
-  ];
+  const { data: categories } = useCategories(["id", "name"]);
+  // const categories = [
+  //   { value: "all", label: "All Categories" },
+  //   { value: "roses", label: "Premium Roses" },
+  //   { value: "mixed-arrangements", label: "Mixed Arrangements" },
+  //   { value: "chocolates", label: "Premium Chocolates" },
+  //   { value: "cakes", label: "Fresh Cakes" },
+  //   { value: "plants", label: "Indoor Plants" },
+  // ];
   const products = data?.products;
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -244,9 +246,10 @@ export default function ProductsPage() {
             onChange={(e) => setSelectedCategory(e.target.value)}
             className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
           >
-            {categories.map((category) => (
-              <option key={category.value} value={category.value}>
-                {category.label}
+            <option value="all">All Categories</option>
+            {categories?.map((category) => (
+              <option key={category.id} value={category.name}>
+                {category.name}
               </option>
             ))}
           </select>

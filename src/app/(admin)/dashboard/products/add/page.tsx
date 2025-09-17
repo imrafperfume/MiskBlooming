@@ -34,6 +34,8 @@ import SEOTab from "@/src/components/dashboard/tabs/addProductTabs/SEOTab";
 import DeliveryTab from "@/src/components/dashboard/tabs/addProductTabs/DeliveryTab";
 import FeaturesTab from "@/src/components/dashboard/tabs/addProductTabs/FeaturesTab";
 import { toast } from "sonner";
+import { useCategories } from "@/src/hooks/useCategories";
+import { Category } from "@/src/types";
 interface CloudinaryImage {
   url: string;
   publicId: string;
@@ -129,43 +131,43 @@ const initialFormData: ProductFormData = {
   occasions: [],
 };
 
-const categories = [
-  {
-    value: "roses",
-    label: "Premium Roses",
-    subcategories: ["Red Roses", "White Roses", "Pink Roses", "Mixed Roses"],
-  },
-  {
-    value: "mixed-arrangements",
-    label: "Mixed Arrangements",
-    subcategories: ["Seasonal", "Tropical", "Classic", "Modern"],
-  },
-  {
-    value: "chocolates",
-    label: "Premium Chocolates",
-    subcategories: [
-      "Dark Chocolate",
-      "Milk Chocolate",
-      "Assorted",
-      "Sugar-Free",
-    ],
-  },
-  {
-    value: "cakes",
-    label: "Fresh Cakes",
-    subcategories: ["Birthday", "Anniversary", "Wedding", "Custom"],
-  },
-  {
-    value: "plants",
-    label: "Indoor Plants",
-    subcategories: ["Succulents", "Flowering", "Green Plants", "Air Purifying"],
-  },
-  {
-    value: "gifts",
-    label: "Luxury Gifts",
-    subcategories: ["Jewelry", "Perfumes", "Accessories", "Gift Sets"],
-  },
-];
+// const categories = [
+//   {
+//     value: "roses",
+//     label: "Premium Roses",
+//     subcategories: ["Red Roses", "White Roses", "Pink Roses", "Mixed Roses"],
+//   },
+//   {
+//     value: "mixed-arrangements",
+//     label: "Mixed Arrangements",
+//     subcategories: ["Seasonal", "Tropical", "Classic", "Modern"],
+//   },
+//   {
+//     value: "chocolates",
+//     label: "Premium Chocolates",
+//     subcategories: [
+//       "Dark Chocolate",
+//       "Milk Chocolate",
+//       "Assorted",
+//       "Sugar-Free",
+//     ],
+//   },
+//   {
+//     value: "cakes",
+//     label: "Fresh Cakes",
+//     subcategories: ["Birthday", "Anniversary", "Wedding", "Custom"],
+//   },
+//   {
+//     value: "plants",
+//     label: "Indoor Plants",
+//     subcategories: ["Succulents", "Flowering", "Green Plants", "Air Purifying"],
+//   },
+//   {
+//     value: "gifts",
+//     label: "Luxury Gifts",
+//     subcategories: ["Jewelry", "Perfumes", "Accessories", "Gift Sets"],
+//   },
+// ];
 
 const occasionsList = [
   "Birthday",
@@ -219,6 +221,13 @@ export default function AddProductPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [createProduct, { data, loading, error }] =
     useMutation<ProductFormData>(CREATE_PRODUCT);
+  const { data: categories } = useCategories([
+    "id",
+    "name",
+    "description",
+    "subcategories {id name}",
+  ]);
+  console.log("🚀 ~ AddProductPage ~ categories:", categories);
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "saving" | "saved" | "error" | "update"
   >("idle");
@@ -560,9 +569,17 @@ export default function AddProductPage() {
     }
   };
 
-  const selectedCategory = categories.find(
-    (cat) => cat.value === formData.category
-  );
+  const category = categories?.find((cat) => cat.name === formData.category) as
+    | Category
+    | undefined;
+  const selectedCategory = category
+    ? {
+        id: category.id,
+        name: category.name,
+        desription: category.description ?? "",
+        subcategories: (category as any)?.subcategories ?? [],
+      }
+    : undefined;
 
   // UPDATE PRODUCT BY SLUG:::::::::::::::::::::
   const handleUpdate = async () => {

@@ -56,11 +56,18 @@ export async function POST(req: NextRequest) {
           break;
         }
 
-        const last4 =
-          paymentIntent.payment_method_types?.includes("card") &&
-          (paymentIntent as any).charges?.data?.[0]?.payment_method_details
-            ?.card?.last4;
+        let last4: string | null = null;
 
+        if (paymentIntent.payment_method_types?.includes("card")) {
+          const paymentIntentWithCharges =
+            (await stripe.paymentIntents.retrieve(paymentIntent.id, {
+              expand: ["charges.data.payment_method"],
+            })) as any;
+
+          last4 =
+            paymentIntentWithCharges.charges.data[0]?.payment_method?.card
+              ?.last4 || null;
+        }
         try {
           await prisma.order.update({
             where: { id: orderId },

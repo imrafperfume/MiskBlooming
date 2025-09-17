@@ -202,36 +202,36 @@ export function CloudinaryFileUpload({
                 alt: `Product image ${uploadedFile.file.name}`,
                 caption: `Uploaded ${new Date().toISOString()}`,
               },
-              eager: [
-                {
-                  width: 150,
-                  height: 150,
-                  crop: "thumb",
-                  quality: "auto",
-                  format: "webp",
-                },
-                {
-                  width: 400,
-                  height: 400,
-                  crop: "fill",
-                  quality: "auto",
-                  format: "webp",
-                },
-                {
-                  width: 800,
-                  height: 800,
-                  crop: "fill",
-                  quality: "auto",
-                  format: "webp",
-                },
-                {
-                  width: 1200,
-                  height: 1200,
-                  crop: "fill",
-                  quality: "auto",
-                  format: "webp",
-                },
-              ],
+              // eager: [
+              //   {
+              //     width: 150,
+              //     height: 150,
+              //     crop: "thumb",
+              //     quality: "auto",
+              //     format: "webp",
+              //   },
+              //   {
+              //     width: 400,
+              //     height: 400,
+              //     crop: "fill",
+              //     quality: "auto",
+              //     format: "webp",
+              //   },
+              //   {
+              //     width: 800,
+              //     height: 800,
+              //     crop: "fill",
+              //     quality: "auto",
+              //     format: "webp",
+              //   },
+              //   {
+              //     width: 1200,
+              //     height: 1200,
+              //     crop: "fill",
+              //     quality: "auto",
+              //     format: "webp",
+              //   },
+              // ],
             });
           }
 
@@ -389,36 +389,36 @@ export function CloudinaryFileUpload({
             alt: `Product image ${file.file.name}`,
             caption: `Uploaded ${new Date().toISOString()}`,
           },
-          eager: [
-            {
-              width: 150,
-              height: 150,
-              crop: "thumb",
-              quality: "auto",
-              format: "webp",
-            },
-            {
-              width: 400,
-              height: 400,
-              crop: "fill",
-              quality: "auto",
-              format: "webp",
-            },
-            {
-              width: 800,
-              height: 800,
-              crop: "fill",
-              quality: "auto",
-              format: "webp",
-            },
-            {
-              width: 1200,
-              height: 1200,
-              crop: "fill",
-              quality: "auto",
-              format: "webp",
-            },
-          ],
+          // eager: [
+          //   {
+          //     width: 150,
+          //     height: 150,
+          //     crop: "thumb",
+          //     quality: "auto",
+          //     format: "webp",
+          //   },
+          //   {
+          //     width: 400,
+          //     height: 400,
+          //     crop: "fill",
+          //     quality: "auto",
+          //     format: "webp",
+          //   },
+          //   {
+          //     width: 800,
+          //     height: 800,
+          //     crop: "fill",
+          //     quality: "auto",
+          //     format: "webp",
+          //   },
+          //   {
+          //     width: 1200,
+          //     height: 1200,
+          //     crop: "fill",
+          //     quality: "auto",
+          //     format: "webp",
+          //   },
+          // ],
         });
       }
 
@@ -991,7 +991,7 @@ export function CloudinaryFileUpload({
       )}
 
       {/* Features Info */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4">
+      {/* <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4">
         <div className="flex items-center mb-2">
           {useMockMode ? (
             <Settings className="w-5 h-5 text-orange-600 mr-2" />
@@ -1024,7 +1024,7 @@ export function CloudinaryFileUpload({
             {useMockMode ? "Local preview" : "CDN delivery"}
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }

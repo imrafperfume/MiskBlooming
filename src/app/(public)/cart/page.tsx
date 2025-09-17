@@ -262,12 +262,18 @@ export default function CartPage() {
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() =>
-                            handleUpdateQuantity(
-                              item.product.id,
-                              item.quantity + 1
-                            )
-                          }
+                          onClick={() => {
+                            if (item.quantity < item.product.quantity) {
+                              handleUpdateQuantity(
+                                item.product.id,
+                                item.quantity + 1
+                              );
+                            } else {
+                              toast.error(
+                                `Only ${item.product.quantity} items available in stock.`
+                              );
+                            }
+                          }}
                           className="p-2 hover:bg-cream-100 transition-colors rounded-r-lg"
                           disabled={removingItems.has(item.product.id)}
                         >

@@ -1,6 +1,5 @@
 import { prisma } from "@/src/lib/db";
 import { redis } from "@/src/lib/redis";
-import { ca } from "zod/v4/locales";
 import { Category, SubCategory } from "./categoryTypes";
 import { isAdmin } from "@/src/lib/isAdmin";
 
@@ -20,7 +19,7 @@ export const CategoryResolvers = {
         });
         if (!categories) throw new Error("No categories found");
         await redis.set("categories:all", JSON.stringify(categories), {
-          ex: 60 * 60, // 1 hour
+          ex: 60 * 60,
         });
         return categories;
       } catch (error) {
@@ -106,6 +105,9 @@ export const CategoryResolvers = {
           },
         });
         await redis.del("categories:all");
+        await redis.del("subcategories:all");
+        await redis.del(`category:${args.input.id}`);
+        await redis.del(`subcategory:${args.input.id}`);
         return category;
       } catch (error) {
         throw new Error("Failed to create category");
@@ -154,6 +156,7 @@ export const CategoryResolvers = {
         await redis.del("categories:all");
         await redis.del(`category:${args.id}`);
         await redis.del("subcategories:all");
+        await redis.del(`subcategory:${args.id}`);
         return !!deleted;
       } catch (error) {}
     },
@@ -182,6 +185,53 @@ export const CategoryResolvers = {
         return updated;
       } catch (error) {
         throw new Error("Failed to update category");
+      }
+    },
+    updateSubCategory: async (
+      _: any,
+      args: { id: string; input: SubCategory },
+      context: { userId: string }
+    ) => {
+      try {
+        const userId = context.userId;
+        if (!userId) throw new Error("Unauthorized");
+        const isUserAdmin = await isAdmin(userId);
+        if (!isUserAdmin) throw new Error("Forbidden");
+        if (isUserAdmin.role !== "ADMIN") throw new Error("Forbidden");
+        const updated = await prisma.subCategory.update({
+          where: { id: args.id },
+          data: {
+            name: args.input.name,
+            categoryId: args.input.categoryId,
+            updatedAt: new Date(),
+          },
+        });
+        await redis.del("subcategories:all");
+        await redis.del(`subcategory:${args.id}`);
+        return updated;
+      } catch (error) {
+        throw new Error("Failed to update subcategory");
+      }
+    },
+    deleteSubCategory: async (
+      _: any,
+      args: { id: string },
+      context: { userId: string }
+    ) => {
+      try {
+        const userId = context.userId;
+        if (!userId) throw new Error("Unauthorized");
+        const isUserAdmin = await isAdmin(userId);
+        if (!isUserAdmin) throw new Error("Forbidden");
+        if (isUserAdmin.role !== "ADMIN") throw new Error("Forbidden");
+        const deleted = await prisma.subCategory.delete({
+          where: { id: args.id },
+        });
+        await redis.del("subcategories:all");
+        await redis.del(`subcategory:${args.id}`);
+        return !!deleted;
+      } catch (error) {
+        throw new Error("Failed to delete subcategory");
       }
     },
   },

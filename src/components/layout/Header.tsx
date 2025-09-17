@@ -8,7 +8,6 @@ import {
   ShoppingCart,
   Search,
   ShoppingBag,
-  User,
   Menu,
   X,
   MapPin,
@@ -21,9 +20,8 @@ import {
   LayoutDashboard,
   House,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
-// import {} from "lucide-react";
 import { Button } from "../ui/Button";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
@@ -38,6 +36,7 @@ import {
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
 import { useRouter } from "next/navigation";
+import { useCategories } from "@/src/hooks/useCategories";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -48,43 +47,19 @@ const Header = () => {
   const totalItems = useCartStore((state) => state.getTotalItems());
   const wishlistItems = useWishlistStore((state) => state.getTotalItems());
   const { data: user, isLoading } = useAuth();
+  const { data: categories } = useCategories(["id", "name", "description"]);
+
   const navigation = [
     { name: "Home", href: "/" },
     {
       name: "Collections",
       href: "/products",
-      dropdown: [
-        {
-          name: "Premium Roses",
-          href: "/products?category=roses",
-          description: "Elegant rose bouquets",
-        },
-        {
-          name: "Mixed Arrangements",
-          href: "/products?category=mixed-arrangements",
-          description: "Seasonal flower arrangements",
-        },
-        {
-          name: "Premium Chocolates",
-          href: "/products?category=chocolates",
-          description: "Luxury Belgian chocolates",
-        },
-        {
-          name: "Fresh Cakes",
-          href: "/products?category=cakes",
-          description: "Made fresh daily",
-        },
-        {
-          name: "Gift Sets & Hampers",
-          href: "/products?category=gift-sets",
-          description: "Curated gift collections",
-        },
-        {
-          name: "Indoor Plants",
-          href: "/products?category=plants",
-          description: "Beautiful home plants",
-        },
-      ],
+      dropdown:
+        categories?.map((cat) => ({
+          name: cat.name,
+          href: `/products?category=${cat.name}`,
+          description: cat.description || "",
+        })) ?? [],
     },
     {
       name: "Occasions",
@@ -122,32 +97,32 @@ const Header = () => {
         },
       ],
     },
-    {
-      name: "Same Day Delivery",
-      href: "/same-day-delivery",
-      dropdown: [
-        {
-          name: "Express Delivery",
-          href: "/delivery/express",
-          description: "2-4 hours delivery",
-        },
-        {
-          name: "Standard Delivery",
-          href: "/delivery/standard",
-          description: "Same day delivery",
-        },
-        {
-          name: "Scheduled Delivery",
-          href: "/delivery/scheduled",
-          description: "Choose your time",
-        },
-        {
-          name: "Corporate Delivery",
-          href: "/delivery/corporate",
-          description: "Business solutions",
-        },
-      ],
-    },
+    // {
+    //   name: "Same Day Delivery",
+    //   href: "/same-day-delivery",
+    //   dropdown: [
+    //     {
+    //       name: "Express Delivery",
+    //       href: "/delivery/express",
+    //       description: "2-4 hours delivery",
+    //     },
+    //     {
+    //       name: "Standard Delivery",
+    //       href: "/delivery/standard",
+    //       description: "Same day delivery",
+    //     },
+    //     {
+    //       name: "Scheduled Delivery",
+    //       href: "/delivery/scheduled",
+    //       description: "Choose your time",
+    //     },
+    //     {
+    //       name: "Corporate Delivery",
+    //       href: "/delivery/corporate",
+    //       description: "Business solutions",
+    //     },
+    //   ],
+    // },
     { name: "About", href: "/about" },
     { name: "Track Order", href: "/track-order" },
     { name: "Contact", href: "/contact" },
@@ -491,7 +466,7 @@ const Header = () => {
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <div className="grid gap-2 overflow-y-auto">
+                  <div className="grid gap-1 overflow-y-auto">
                     {item.dropdown.map((dropdownItem) => (
                       <Link
                         key={dropdownItem.name}

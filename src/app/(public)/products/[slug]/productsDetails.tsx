@@ -32,6 +32,7 @@ import { useCartStore } from "../../../../store/cartStore";
 import { useWishlistStore } from "../../../../store/wishlistStore";
 import { formatPrice } from "../../../../lib/utils";
 import Loading from "@/src/components/layout/Loading";
+import { toast } from "sonner";
 
 export default function ProductDetailPage({ slug }: { slug: string }) {
   const { data: product, isLoading } = useProduct(slug, [
@@ -50,6 +51,7 @@ export default function ProductDetailPage({ slug }: { slug: string }) {
     "careInstructions",
     "featuredImage",
   ]);
+  console.log("🚀 ~ ProductDetailPage ~ product:", product);
   const [selectedImage, setSelectedImage] = useState(
     product?.featuredImage || 0
   );
@@ -291,7 +293,7 @@ export default function ProductDetailPage({ slug }: { slug: string }) {
               <span className="text-luxury-500 font-medium text-sm uppercase tracking-wide">
                 {product.category.replace("-", " ")}
               </span>
-              {product.quantity ? (
+              {product?.quantity ? (
                 <div className="flex items-center text-green-600 text-sm">
                   <CheckCircle className="w-4 h-4 mr-1" />
                   In Stock
@@ -382,7 +384,15 @@ export default function ProductDetailPage({ slug }: { slug: string }) {
                       {quantity}
                     </span>
                     <button
-                      onClick={() => setQuantity(quantity + 1)}
+                      onClick={() => {
+                        if (quantity < product.quantity) {
+                          setQuantity(quantity + 1);
+                        } else {
+                          toast.error(
+                            `Only ${product.quantity} items available in stock.`
+                          );
+                        }
+                      }}
                       className="p-3 hover:bg-cream-100 transition-colors rounded-r-lg"
                       disabled={!product.quantity}
                     >
