@@ -43,7 +43,6 @@ export default function ProductsPage() {
   ]);
   const [column, setColumn] = useState(1);
 
-  // useEffect for filter category
   useEffect(() => {
     setSelectedCategory(category || "all");
   }, [category]);
