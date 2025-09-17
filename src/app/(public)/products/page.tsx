@@ -8,6 +8,7 @@ import ProductCard from "../../../components/product/ProductCard";
 import { useProducts } from "../../../hooks/useProducts";
 import categoriesData from "../../../data/categories.json";
 import { useSearchParams } from "next/navigation";
+import { useCategories } from "@/src/hooks/useCategories";
 export default function ProductsPage() {
   const { data: products, isLoading } = useProducts([
     "id",
@@ -19,6 +20,7 @@ export default function ProductsPage() {
     "price",
     "category",
     "compareAtPrice",
+    "subcategory",
     "images { url }",
     "featured",
     "seoTitle",
@@ -33,14 +35,20 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState("featured");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchQuery, setSearchQuery] = useState(search || "");
-
-  // category Data
-  const categories = categoriesData;
-
+  const [subCategory, setSubcategory] = useState("all");
+  const { data: categories } = useCategories([
+    "id",
+    "name",
+    "subcategories{id name}",
+  ]);
+  const [column, setColumn] = useState(1);
   // useEffect for filter category
   useEffect(() => {
     setSelectedCategory(category || "all");
   }, [category]);
+  const currentCategory = categories?.find(
+    (cat) => cat.name === selectedCategory
+  );
 
   const filteredAndSortedProducts = useMemo(() => {
     if (!products) return [];
@@ -62,6 +70,15 @@ export default function ProductsPage() {
 
       // Category filter
       if (selectedCategory !== "all" && product.category !== selectedCategory) {
+        return false;
+      }
+      if (selectedCategory === "all") setSubcategory("all");
+
+      if (
+        subCategory !== "all" &&
+        product?.subcategory?.trim().toLowerCase() !==
+          subCategory.trim().toLowerCase()
+      ) {
         return false;
       }
 
@@ -103,7 +120,15 @@ export default function ProductsPage() {
     });
 
     return filtered;
-  }, [products, searchQuery, selectedCategory, priceRange, sortBy]);
+  }, [
+    products,
+    searchQuery,
+    selectedCategory,
+    subCategory,
+    priceRange,
+    sortBy,
+  ]);
+  console.log("🚀 ~ ProductsPage ~ selectedCategory:", selectedCategory);
 
   const priceRanges = [
     { value: "all", label: "All Prices" },
@@ -123,11 +148,11 @@ export default function ProductsPage() {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <div className="min-h-screen sm:mt-14 mt-16 bg-gradient-to-br from-cream-50 to-cream-100">
+      <div className="min-h-screen  mt-16 bg-gradient-to-br from-cream-50 to-cream-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
           <motion.div
-            className="text-center mb-12"
+            className="text-center sm:mb-12 mb-4"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -144,12 +169,12 @@ export default function ProductsPage() {
 
           {/* Search and Filters */}
           <motion.div
-            className="mb-8"
+            className="mb-4 sm:mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <div className="bg-white rounded-2xl sm:p-6 py-4 sm:py-0 sm:shadow">
+            <div className="bg-white rounded-2xl sm:p-6 py-4 sm:py-0">
               {/* Search Bar */}
               <div className="relative mb-6">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
@@ -173,15 +198,30 @@ export default function ProductsPage() {
                       className="appearance-none bg-white border border-cream-400 rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
                     >
                       <option value="all">All Categories</option>
-                      {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
+                      {categories?.map((category) => (
+                        <option key={category.id} value={category.name}>
                           {category.name}
                         </option>
                       ))}
                     </select>
                     <ChevronDown className="absolute sm:right-2 right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                  </div>
+                  </div>{" "}
+                  <div className="relative">
+                    <select
+                      value={subCategory}
+                      onChange={(e) => setSubcategory(e.target.value)}
+                      className="appearance-none bg-white border border-cream-400 rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                    >
+                      <option value="all">Select Subcategory</option>
 
+                      {currentCategory?.subcategories?.map((sub) => (
+                        <option key={sub.id} value={sub.name}>
+                          {sub.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute sm:right-2 right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                  </div>
                   {/* Price Range Filter */}
                   <div className="relative">
                     <select
@@ -197,7 +237,6 @@ export default function ProductsPage() {
                     </select>
                     <ChevronDown className="absolute sm:right-2 right-8 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
                   </div>
-
                   {/* Sort Filter */}
                   <div className="relative">
                     <select
@@ -247,7 +286,28 @@ export default function ProductsPage() {
               </div>
             </div>
           </motion.div>
-
+          <div className="flex items-center justify-center mb-8 gap-4 sm:hidden ">
+            <button
+              onClick={() => setColumn(1)}
+              className={`${
+                column === 1
+                  ? "bg-luxury-500  text-black"
+                  : "bg-charcoal-800 text-white"
+              } px-4 py-3 rounded-md font-semibold text-sm`}
+            >
+              1 per row
+            </button>{" "}
+            <button
+              className={`${
+                column === 2
+                  ? "bg-luxury-500  text-black"
+                  : "bg-charcoal-800 text-white"
+              } px-4 py-3 rounded-md font-semibold text-sm`}
+              onClick={() => setColumn(2)}
+            >
+              2 per row
+            </button>
+          </div>
           {/* Products Grid/List */}
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
@@ -290,7 +350,7 @@ export default function ProductsPage() {
             <motion.div
               className={`grid sm:gap-8 gap-2 ${
                 viewMode === "grid"
-                  ? "grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+                  ? `grid-cols-${column} sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`
                   : "grid-cols-1"
               }`}
               initial={{ opacity: 0 }}

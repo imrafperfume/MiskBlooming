@@ -1,6 +1,5 @@
 import { prisma } from "@/src/lib/db";
 import { redis } from "@/src/lib/redis";
-import { ca } from "zod/v4/locales";
 import { Category, SubCategory } from "./categoryTypes";
 import { isAdmin } from "@/src/lib/isAdmin";
 

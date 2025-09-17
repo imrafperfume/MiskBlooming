@@ -70,9 +70,8 @@ const ProductCard = memo(
 
     return (
       <motion.div
-        className={`${
-          viewMode !== "grid" && "flex gap-5 justify-between"
-        } group relative bg-white rounded-md shadow-sm hover:shadow-luxury transition-all duration-700 overflow-hidden border border-cream-200`}
+        className={`group relative bg-white rounded-md shadow-sm hover:shadow-luxury transition-all duration-700 overflow-hidden border border-cream-200
+    ${viewMode === "list" ? "flex flex-row gap-5" : "flex flex-col"}`}
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -81,16 +80,20 @@ const ProductCard = memo(
       >
         {/* Image Container */}
         <div
-          className={`relative w-full overflow-hidden ${
-            viewMode === "grid" ? "aspect-square" : "aspect-[4/3]"
-          }`}
+          className={`relative overflow-hidden
+      ${
+        viewMode === "grid"
+          ? "w-full aspect-square"
+          : "w-1/2 aspect-square sm:h-64"
+      }
+    `}
         >
           <Image
             src={isValidUrl ? imageUrl : "/placeholder.svg"}
             alt={product.name}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-110"
+            className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-110"
             priority={index < 4}
           />
 
@@ -186,7 +189,11 @@ const ProductCard = memo(
         </div>
 
         {/* Content */}
-        <div className="sm:px-6 px-3 sm:py-3 py-1">
+        <div
+          className={`px-3 sm:px-6 py-3 flex flex-col justify-between
+      ${viewMode === "list" ? "w-2/3" : ""}
+    `}
+        >
           {/* Rating */}
           <div className="flex items-center justify-between sm:mb-3 mb-1 flex-wrap">
             <div className="flex items-center">

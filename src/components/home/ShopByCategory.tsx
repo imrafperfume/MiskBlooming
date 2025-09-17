@@ -3,7 +3,7 @@ import React, { useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "../ui/Button";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay } from "swiper/modules";
@@ -11,59 +11,15 @@ import { Autoplay } from "swiper/modules";
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/pagination";
-
-const categories = [
-  {
-    id: 1,
-    name: "Premium Roses",
-    description: "Elegant rose arrangements",
-    image: "/images/product1.jpg",
-    href: "/products?category=roses",
-    itemCount: 45,
-  },
-  {
-    id: 2,
-    name: "Mixed Arrangements",
-    description: "Beautiful seasonal bouquets",
-    image: "/images/product2.jpg",
-    href: "/products?category=mixed",
-    itemCount: 32,
-  },
-  {
-    id: 3,
-    name: "Luxury Chocolates",
-    description: "Premium Belgian chocolates",
-    image: "/images/product3.jpg",
-    href: "/products?category=chocolates",
-    itemCount: 28,
-  },
-  {
-    id: 4,
-    name: "Fresh Cakes",
-    description: "Made fresh daily",
-    image: "/images/product4.jpg",
-    href: "/products?category=cakes",
-    itemCount: 18,
-  },
-  {
-    id: 5,
-    name: "Gift Hampers",
-    description: "Curated gift collections",
-    image: "/images/product5.jpg",
-    href: "/products?category=hampers",
-    itemCount: 24,
-  },
-  {
-    id: 6,
-    name: "Indoor Plants",
-    description: "Beautiful houseplants",
-    image: "/images/product6.jpg",
-    href: "/products?category=plants",
-    itemCount: 36,
-  },
-];
+import { useCategories } from "@/src/hooks/useCategories";
+import { Category } from "@/src/modules/category/categoryTypes";
 
 const ShopByCategory = () => {
+  const {
+    data: categories,
+    isLoading,
+    error,
+  } = useCategories(["id", "name", "description", "imageUrl"]);
   return (
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -108,7 +64,7 @@ const ShopByCategory = () => {
           modules={[Autoplay]}
           className="mySwiper outline-none border-none"
         >
-          {categories.map((category, index) => (
+          {categories?.map((category: any, index) => (
             <SwiperSlide key={index}>
               <motion.div
                 key={category.id}
@@ -119,13 +75,17 @@ const ShopByCategory = () => {
                 viewport={{ once: true }}
               >
                 <Link
-                  href={category.href}
+                  href={
+                    category.name
+                      ? `/products?category=${category.name}`
+                      : "/products"
+                  }
                   className="overflow-hidden transition-all duration-500"
                 >
                   {/* Image Container */}
                   <div className="relative aspect-square overflow-hidden sm:rounded-full rounded-md">
                     <Image
-                      src={category.image}
+                      src={category?.imageUrl ?? "/placeholder.png"}
                       alt={category.name}
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"

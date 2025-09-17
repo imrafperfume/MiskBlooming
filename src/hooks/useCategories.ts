@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { Category } from "../types";
+import { Category } from "../modules/category/categoryTypes";
 
 const GRAPHQL_ENDPOINT = "/api/graphql"; // change this to your actual endpoint
 
 export const useCategories = (selectedFields: string[] = []) => {
-  return useQuery<Category[]>({
+  return useQuery({
     queryKey: ["categories", selectedFields],
     queryFn: async (): Promise<Category[]> => {
       const fields =
