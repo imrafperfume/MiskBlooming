@@ -11,6 +11,31 @@ export function formatPrice(price: number): string {
     currency: "AED",
   }).format(price);
 }
+// utils/date.ts
+export function formatTimestamp(timestamp: number | string | null | undefined) {
+  if (!timestamp) return "Invalid date";
+
+  let date: Date;
+
+  if (typeof timestamp === "number") {
+    // 10-digit number → assume seconds, 13-digit → milliseconds
+    date = timestamp < 1e12 ? new Date(timestamp * 1000) : new Date(timestamp);
+  } else if (typeof timestamp === "string") {
+    // Check if string is numeric
+    const num = Number(timestamp);
+    if (!isNaN(num)) {
+      date = num < 1e12 ? new Date(num * 1000) : new Date(num);
+    } else {
+      const parsed = Date.parse(timestamp);
+      if (isNaN(parsed)) return "Invalid date";
+      date = new Date(parsed);
+    }
+  } else {
+    return "Invalid date";
+  }
+
+  return date.toLocaleDateString();
+}
 
 export function formatDate(date: string | Date | number): string {
   if (!date) return "";

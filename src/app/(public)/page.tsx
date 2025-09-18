@@ -5,8 +5,7 @@ import { Suspense, lazy } from "react";
 import { Button } from "../../components/ui/Button";
 import { LazyWrapper } from "../../components/ui/LazyWrapper";
 import { useFeaturedProducts } from "../../hooks/useProducts";
-import { Truck, Shield, Headphones, Award, Crown } from "lucide-react";
-import Link from "next/link";
+import { Award } from "lucide-react";
 
 // Critical components loaded immediately
 import HeroSlider from "../../components/home/HeroSlider";
@@ -41,6 +40,7 @@ export default function HomePage() {
     "status",
     "tags",
     "featuredImage",
+    "Review {rating}",
   ]);
 
   const stats = [
