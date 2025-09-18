@@ -87,7 +87,7 @@ model Review {
     id        String   @id @default(cuid())
     userId    String
     productId String
-    rating    Int // 1 to 5
+    rating    Int
     comment   String?
     createdAt DateTime @default(now())
 

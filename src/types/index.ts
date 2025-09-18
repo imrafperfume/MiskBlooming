@@ -1,3 +1,15 @@
+import { User } from "../hooks/useAuth";
+
+export interface Review {
+  id: string;
+  rating: number;
+  comment: string;
+  userId: string;
+  productId: string;
+  user: User;
+  createdAt: string;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -14,15 +26,13 @@ export interface Product {
   quantity: number; // stock quantity
   lowStockThreshold?: number;
   featured: boolean;
-  rating?: number;
-  reviewCount?: number;
-  specifications?: Record<string, string>;
   careInstructions?: string[];
   deliveryInfo?: string;
   seoTitle?: string;
   seoDescription?: string;
   seoKeywords?: string[];
   status?: "draft" | "active" | "archived";
+  Review: Review[];
 }
 
 export interface Category {

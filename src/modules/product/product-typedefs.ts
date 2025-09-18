@@ -85,11 +85,12 @@ export const ProductTypeDefs = gql`
     personalization: Boolean!
     careInstructions: String
     occasions: [String!]!
+    Review: [Review!]
   }
 
   input ProductInput {
     # Basic Information
-    id:String
+    id: String
     name: String
     slug: String
     description: String
@@ -138,8 +139,8 @@ export const ProductTypeDefs = gql`
     personalization: Boolean
     careInstructions: String
     occasions: [String!]
-    createdAt:String
-    updatedAt:String
+    createdAt: String
+    updatedAt: String
   }
 
   input ProductFilter {
