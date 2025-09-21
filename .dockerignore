@@ -3,7 +3,7 @@ node_modules
 dist
 out
 *.log
-.env*
+.env
 .vscode/
 .idea/
 .git

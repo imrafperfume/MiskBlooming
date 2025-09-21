@@ -71,18 +71,18 @@ export default function ProductsPage() {
     "id",
     "name",
     "slug",
-    "description",
-    "shortDescription",
-    "quantity",
-    "price",
     "category",
+    "shortDescription",
+    "price",
     "compareAtPrice",
-    "subcategory",
-    "images { url }",
+    "quantity",
+    "images {url}",
     "featured",
-    "seoTitle",
-    "seoDescription",
+    "compareAtPrice",
+    "status",
     "tags",
+    "featuredImage",
+    "Review {rating}",
   ];
 
   const { data: products, isLoading } = useProducts(productFields);
@@ -187,7 +187,7 @@ export default function ProductsPage() {
     setSubcategory("all");
   }, []);
 
-  const handleCategoryChange = useCallback((e:any) => {
+  const handleCategoryChange = useCallback((e: any) => {
     setSelectedCategory(e.target.value);
     setSubcategory("all"); // Reset subcategory when category changes
   }, []);
@@ -415,7 +415,7 @@ export default function ProductsPage() {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              {filteredAndSortedProducts.map((product, index) => (
+              {filteredAndSortedProducts?.map((product, index) => (
                 <ProductCard
                   key={product.id}
                   product={product}

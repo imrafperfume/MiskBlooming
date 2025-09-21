@@ -369,7 +369,7 @@ export default function AdminLayout({
 
                         {notifications.map((n) => (
                           <Link
-                            href={`/dashboard/orders/${n.id}`}
+                            href={`/dashboard/orders/${n.orderId}`}
                             key={n.id}
                             // layout
                             // initial={{ opacity: 0, x: 20 }}

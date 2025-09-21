@@ -8,6 +8,7 @@ export interface Notification {
   message: string;
   read: boolean;
   createdAt: string;
+  orderId: string;
 }
 
 export function useNotifications() {
@@ -19,7 +20,6 @@ export function useNotifications() {
 
     eventSource.onmessage = (event) => {
       const data: Notification = JSON.parse(event.data);
-      console.log("🚀 ~ useNotifications ~ data:", data);
 
       // Only trigger toast/audio if unread
       if (!data.read) {

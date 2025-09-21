@@ -30,9 +30,9 @@ const ProductCard = memo(
 
     const isWishlisted = isInWishlist(product.id);
     const averageRating =
-      product.Review.length > 0
-        ? product.Review.reduce((acc, r) => acc + r.rating, 0) /
-          product.Review.length
+      product?.Review?.length > 0
+        ? product.Review?.reduce((acc, r) => acc + r.rating, 0) /
+          product.Review?.length
         : 0;
     const handleAddToCart = useCallback(
       (e: React.MouseEvent) => {
@@ -200,7 +200,7 @@ const ProductCard = memo(
     `}
         >
           {/* Rating */}
-          {product?.Review.length > 0 ? (
+          {product?.Review?.length > 0 ? (
             <div className="flex items-center justify-between sm:mb-3 mb-1 flex-wrap">
               <div className="flex items-center">
                 {[...Array(5)].map((_, i) => (

@@ -141,10 +141,6 @@ export default function AdminDashboard() {
   };
   return (
     <div className="space-y-8 overflow-x-hidden w-full">
-      <div className="p-4">
-        <h1 className="text-xl font-bold mb-4">Admin Panel</h1>
-      </div>
-
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between">
         <div>
