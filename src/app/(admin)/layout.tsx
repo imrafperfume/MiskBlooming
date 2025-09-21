@@ -33,6 +33,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../../components/ui/Button";
 import { Suspense } from "react";
 import { useAuth } from "@/src/hooks/useAuth";
+import { useNotifications } from "@/src/hooks/useNotifications";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@radix-ui/react-dropdown-menu";
 
 export default function AdminLayout({
   children,
@@ -41,6 +47,9 @@ export default function AdminLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const { notifications, unreadCount, markAllRead } = useNotifications();
+  const [open, setOpen] = useState(false);
+  console.log("🚀 ~ AdminDashboard ~ notifications:", notifications);
   const pathname = usePathname();
   // const searchParams = useSearchParams()
   const { data: user, isLoading } = useAuth();
@@ -332,10 +341,60 @@ export default function AdminLayout({
                 </div>
 
                 {/* Notifications */}
-                <button className="relative p-2 text-gray-400 hover:text-gray-500 hover:bg-gray-100 rounded-lg">
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div className="relative p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full cursor-pointer transition-colors">
+                      <Bell className="w-6 h-6" />
+                      {unreadCount > 0 && (
+                        <span className="absolute top-1 right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
+                      )}
+                    </div>
+                  </DropdownMenuTrigger>
+
+                  <AnimatePresence>
+                    <DropdownMenuContent asChild>
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute right-0 mt-2 w-80 max-h-[80vh] overflow-y-auto flex flex-col gap-2 bg-white border rounded-xl shadow-lg p-4 z-50"
+                        onFocusCapture={() => markAllRead()} // mark read when opening
+                      >
+                        {notifications.length === 0 && (
+                          <div className="p-2 text-gray-500 text-sm">
+                            No notifications
+                          </div>
+                        )}
+
+                        {notifications.map((n) => (
+                          <Link
+                            href={`/dashboard/orders/${n.id}`}
+                            key={n.id}
+                            // layout
+                            // initial={{ opacity: 0, x: 20 }}
+                            // animate={{ opacity: 1, x: 0 }}
+                            // exit={{ opacity: 0, x: 20 }}
+                            // transition={{ duration: 0.2 }}
+                            className={`p-3 rounded-lg cursor-pointer transition-colors text-sm ${
+                              n.read
+                                ? "bg-gray-100 hover:bg-gray-200"
+                                : "bg-blue-50 hover:bg-blue-100"
+                            }`}
+                          >
+                            {/* <strong className="block">{n.type}</strong> */}
+                            <span className="block text-gray-700">
+                              {n.message}
+                            </span>
+                            <span className="text-xs text-gray-400">
+                              {new Date(n.createdAt).toLocaleTimeString()}
+                            </span>
+                          </Link>
+                        ))}
+                      </motion.div>
+                    </DropdownMenuContent>
+                  </AnimatePresence>
+                </DropdownMenu>
 
                 {/* Quick Actions */}
                 <div className="hidden lg:flex items-center space-x-2">
@@ -354,7 +413,10 @@ export default function AdminLayout({
 
           {/* Page content */}
           <main className="p-6 top-0 overflow-x-hidden">
-            <Suspense fallback={<div>Loading...</div>}>{children}</Suspense>
+            <Suspense fallback={<div>Loading...</div>}>
+              {/* <AdminNotificationListener /> */}
+              {children}
+            </Suspense>
           </main>
         </div>
       </div>

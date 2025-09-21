@@ -21,7 +21,7 @@ import { ReviewResolvers } from "@/src/modules/review/review-resolvers";
 
 const typeDefs = mergeTypeDefs([
   `
-    type Query {
+  type Query {
       _empty: String
     }
     type Mutation {
@@ -58,13 +58,14 @@ const schema = createSchema<ContextType>({
 
 const yoga = createYoga<ContextType>({
   schema,
+  fetchAPI: { Request, Response },
   context: async ({ request }) => {
     try {
       const userId = await getSessionUserId();
       const ip = request.headers.get("x-forwarded-for") || "unknown";
       const key = `rate:${ip}`;
       const limit = userId ? 150 : 60;
-      const allowed = await rateLimit(key, limit, "1 m"); // 150 req / min if user login
+      const allowed = await rateLimit(key, limit, "1 m");
       if (!allowed) {
         throw new Error("Too many requests. Please try again later.");
       }
@@ -74,7 +75,7 @@ const yoga = createYoga<ContextType>({
       throw new Error("Internal Server Error");
     }
   },
-  graphiql: true,
+  graphiql: { subscriptionsProtocol: "SSE" },
 });
 
 // Use a single default export

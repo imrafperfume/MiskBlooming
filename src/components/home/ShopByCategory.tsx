@@ -12,7 +12,6 @@ import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import { useCategories } from "@/src/hooks/useCategories";
-import { Category } from "@/src/modules/category/categoryTypes";
 
 const ShopByCategory = () => {
   const {

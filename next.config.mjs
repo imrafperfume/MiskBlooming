@@ -1,18 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: true },
+  reactStrictMode: true,
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "res.cloudinary.com",
-        pathname: "/**",
-      },
+      { protocol: "https", hostname: "res.cloudinary.com", pathname: "/**" },
     ],
     formats: ["image/webp", "image/avif"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -27,12 +20,17 @@ const nextConfig = {
       "lucide-react",
       "react-icons",
       "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-toast",
+      "@radix-ui/react-scroll-area",
       "framer-motion",
+      "sonner",
+      "@tanstack/react-query",
+      "@apollo/client",
+      "zustand",
+      "date-fns",
     ],
   },
-  compiler: {
-    removeConsole: process.env.NODE_ENV === "production",
-  },
+  compiler: { removeConsole: process.env.NODE_ENV === "production" },
   compress: true,
 };
 

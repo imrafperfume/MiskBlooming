@@ -368,7 +368,13 @@ export const OrderResolvers = {
               data: { quantity: { decrement: item.quantity } },
             });
           }
-
+          await prisma.notification.create({
+            data: {
+              type: "order_created",
+              message: `New order received: ${createdOrder.id}`,
+              orderId: createdOrder.id,
+            },
+          });
           return createdOrder;
         });
 

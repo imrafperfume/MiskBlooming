@@ -22,9 +22,11 @@ import { Button } from "../../../components/ui/Button";
 import { useQuery } from "@apollo/client";
 import { DASHBOARD_METRICS } from "@/src/modules/dashboard/oprations";
 import Loading from "@/src/components/layout/Loading";
+import { useNotifications } from "@/src/hooks/useNotifications";
 
 export default function AdminDashboard() {
   const [timeRange, setTimeRange] = useState(7);
+
   const { data, loading, error } = useQuery(DASHBOARD_METRICS, {
     fetchPolicy: "cache-and-network",
     variables: { days: timeRange },
@@ -35,9 +37,9 @@ export default function AdminDashboard() {
   }
 
   const recentOrders = data?.dashboardMetrics.recentOrders;
-  console.log("🚀 ~ AdminDashboard ~ recentOrders:", recentOrders);
+  // console.log("🚀 ~ AdminDashboard ~ recentOrders:", recentOrders);
   const topProducts = data?.dashboardMetrics.topProducts;
-  console.log("🚀 ~ AdminDashboard ~ topProducts:", topProducts);
+  // console.log("🚀 ~ AdminDashboard ~ topProducts:", topProducts);
 
   const stats = [
     {
@@ -139,6 +141,10 @@ export default function AdminDashboard() {
   };
   return (
     <div className="space-y-8 overflow-x-hidden w-full">
+      <div className="p-4">
+        <h1 className="text-xl font-bold mb-4">Admin Panel</h1>
+      </div>
+
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between">
         <div>

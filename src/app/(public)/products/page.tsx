@@ -1,16 +1,73 @@
 "use client";
-import React, { Suspense } from "react";
-import { useState, useMemo, useEffect } from "react";
+import React, {
+  Suspense,
+  useMemo,
+  useEffect,
+  useState,
+  useCallback,
+} from "react";
 import { motion } from "framer-motion";
 import { Search, Grid3X3, List, ChevronDown } from "lucide-react";
-import { Button } from "../../../components/ui/Button";
-import ProductCard from "../../../components/product/ProductCard";
+import dynamic from "next/dynamic";
+
+// Dynamically import heavy components
+const Button = dynamic(() => import("../../../components/ui/Button"), {
+  loading: () => <button className="btn-loading">Loading...</button>,
+});
+
+const ProductCard = dynamic(
+  () => import("../../../components/product/ProductCard"),
+  {
+    loading: () => <div className="card-loading">Loading product...</div>,
+  }
+);
+
+// Custom hooks for data fetching
 import { useProducts } from "../../../hooks/useProducts";
-import categoriesData from "../../../data/categories.json";
-import { useSearchParams } from "next/navigation";
 import { useCategories } from "@/src/hooks/useCategories";
+import { useSearchParams } from "next/navigation";
+
+// Constants for better maintainability
+const PRICE_RANGES = [
+  { value: "all", label: "All Prices" },
+  { value: "under-100", label: "Under AED 100" },
+  { value: "100-300", label: "AED 100 - 300" },
+  { value: "300-500", label: "AED 300 - 500" },
+  { value: "over-500", label: "Over AED 500" },
+];
+
+const SORT_OPTIONS = [
+  { value: "featured", label: "Featured" },
+  { value: "newest", label: "Newest" },
+  { value: "price-low", label: "Price: Low to High" },
+  { value: "price-high", label: "Price: High to Low" },
+  { value: "rating", label: "Highest Rated" },
+];
+
+// Skeleton components for loading states
+const ProductSkeleton = () => (
+  <div className="bg-white rounded-2xl h-96 animate-pulse" />
+);
+
+const FilterSkeleton = () => (
+  <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
+);
+
 export default function ProductsPage() {
-  const { data: products, isLoading } = useProducts([
+  const searchParams = useSearchParams();
+  const category = searchParams.get("category");
+  const search = searchParams.get("search");
+
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [priceRange, setPriceRange] = useState("all");
+  const [sortBy, setSortBy] = useState("featured");
+  const [viewMode, setViewMode] = useState("grid");
+  const [searchQuery, setSearchQuery] = useState(search || "");
+  const [subCategory, setSubcategory] = useState("all");
+  const [column, setColumn] = useState(1);
+
+  // Product data with only necessary fields
+  const productFields = [
     "id",
     "name",
     "slug",
@@ -25,54 +82,51 @@ export default function ProductsPage() {
     "featured",
     "seoTitle",
     "seoDescription",
-  ]);
-  const searchParams = useSearchParams();
-  const category = searchParams.get("category");
-  const search = searchParams.get("search");
-  console.log("🚀 ~ ProductsPage ~ search:", search);
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  const [priceRange, setPriceRange] = useState("all");
-  const [sortBy, setSortBy] = useState("featured");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [searchQuery, setSearchQuery] = useState(search || "");
-  const [subCategory, setSubcategory] = useState("all");
+    "tags",
+  ];
+
+  const { data: products, isLoading } = useProducts(productFields);
   const { data: categories } = useCategories([
     "id",
     "name",
     "subcategories{id name}",
   ]);
-  const [column, setColumn] = useState(1);
 
   useEffect(() => {
     setSelectedCategory(category || "all");
   }, [category]);
-  const currentCategory = categories?.find(
-    (cat) => cat.name === selectedCategory
+
+  const currentCategory = useMemo(
+    () => categories?.find((cat) => cat.name === selectedCategory),
+    [categories, selectedCategory]
   );
 
+  // Memoized filter and sort function
   const filteredAndSortedProducts = useMemo(() => {
     if (!products) return [];
 
-    const filtered = products?.filter((product) => {
-      if (
-        searchQuery &&
-        !product?.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-        !product?.shortDescription
-          .toLowerCase()
-          .includes(searchQuery.toLowerCase()) &&
-        !product?.tags?.some((tag) =>
-          tag.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      ) {
-        return false;
+    const filtered = products.filter((product) => {
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch =
+          product?.name?.toLowerCase().includes(query) ||
+          product?.shortDescription?.toLowerCase().includes(query) ||
+          product?.tags?.some((tag) => tag.toLowerCase().includes(query));
+
+        if (!matchesSearch) return false;
       }
 
       // Category filter
       if (selectedCategory !== "all" && product.category !== selectedCategory) {
         return false;
       }
-      if (selectedCategory === "all") setSubcategory("all");
 
+      if (selectedCategory === "all") {
+        setSubcategory("all");
+      }
+
+      // Subcategory filter
       if (
         subCategory !== "all" &&
         product?.subcategory?.trim().toLowerCase() !==
@@ -102,14 +156,12 @@ export default function ProductsPage() {
     });
 
     // Sort products
-    filtered.sort((a, b) => {
+    return [...filtered].sort((a, b) => {
       switch (sortBy) {
         case "price-low":
           return a.price - b.price;
         case "price-high":
           return b.price - a.price;
-        // case "rating":
-        //   return b.rating - a.rating;
         case "newest":
           return b.id.localeCompare(a.id);
         case "featured":
@@ -117,8 +169,6 @@ export default function ProductsPage() {
           return b.featured === a.featured ? 0 : b.featured ? 1 : -1;
       }
     });
-
-    return filtered;
   }, [
     products,
     searchQuery,
@@ -127,27 +177,100 @@ export default function ProductsPage() {
     priceRange,
     sortBy,
   ]);
-  console.log("🚀 ~ ProductsPage ~ selectedCategory:", selectedCategory);
 
-  const priceRanges = [
-    { value: "all", label: "All Prices" },
-    { value: "under-100", label: "Under AED 100" },
-    { value: "100-300", label: "AED 100 - 300" },
-    { value: "300-500", label: "AED 300 - 500" },
-    { value: "over-500", label: "Over AED 500" },
-  ];
+  // Handler functions
+  const handleClearFilters = useCallback(() => {
+    setSearchQuery("");
+    setSelectedCategory("all");
+    setPriceRange("all");
+    setSortBy("featured");
+    setSubcategory("all");
+  }, []);
 
-  const sortOptions = [
-    { value: "featured", label: "Featured" },
-    { value: "newest", label: "Newest" },
-    { value: "price-low", label: "Price: Low to High" },
-    { value: "price-high", label: "Price: High to Low" },
-    { value: "rating", label: "Highest Rated" },
-  ];
+  const handleCategoryChange = useCallback((e:any) => {
+    setSelectedCategory(e.target.value);
+    setSubcategory("all"); // Reset subcategory when category changes
+  }, []);
+
+  const renderFilters = () => (
+    <div className="sm:flex grid grid-cols-2 sm:flex-wrap gap-4 items-center">
+      {/* Category Filter */}
+      <div className="relative">
+        <select
+          value={selectedCategory}
+          onChange={handleCategoryChange}
+          className="appearance-none bg-white border border-cream-400 rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+        >
+          <option value="all">All Categories</option>
+          {categories?.map((category) => (
+            <option key={category.id} value={category.name}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+        <ChevronDown className="absolute sm:right-2 right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+      </div>
+
+      {/* Subcategory Filter */}
+      <div className="relative">
+        <select
+          value={subCategory}
+          onChange={(e) => setSubcategory(e.target.value)}
+          className="appearance-none bg-white border border-cream-400 rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+        >
+          <option value="all">Select Subcategory</option>
+          {currentCategory?.subcategories?.map((sub) => (
+            <option key={sub.id} value={sub.name}>
+              {sub.name}
+            </option>
+          ))}
+        </select>
+        <ChevronDown className="absolute sm:right-2 right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+      </div>
+
+      {/* Price Range Filter */}
+      <div className="relative">
+        <select
+          value={priceRange}
+          onChange={(e) => setPriceRange(e.target.value)}
+          className="appearance-none bg-white border ext-sm sm:text-lg border-cream-400 rounded-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+        >
+          {PRICE_RANGES.map((range) => (
+            <option key={range.value} value={range.value}>
+              {range.label}
+            </option>
+          ))}
+        </select>
+        <ChevronDown className="absolute sm:right-2 right-8 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+      </div>
+
+      {/* Sort Filter */}
+      <div className="relative">
+        <select
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          className="appearance-none bg-white border text-sm sm:text-lg border-cream-400 rounded-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+        >
+          {SORT_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <ChevronDown className="absolute sm:right-2 right-8 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+      </div>
+    </div>
+  );
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <div className="min-h-screen  mt-16 bg-gradient-to-br from-cream-50 to-cream-100">
+    <Suspense
+      fallback={
+        <div className="min-h-screen mt-16 bg-gradient-to-br from-cream-50 to-cream-100">
+          Loading...
+        </div>
+      }
+    >
+      <div className="min-h-screen mt-16 bg-gradient-to-br from-cream-50 to-cream-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Header */}
           <motion.div
@@ -188,72 +311,16 @@ export default function ProductsPage() {
 
               {/* Filter Controls */}
               <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-                <div className="sm:flex grid grid-cols-2 sm:flex-wrap gap-4 items-center">
-                  {/* Category Filter */}
-                  <div className="relative">
-                    <select
-                      value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value)}
-                      className="appearance-none bg-white border border-cream-400 rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
-                    >
-                      <option value="all">All Categories</option>
-                      {categories?.map((category) => (
-                        <option key={category.id} value={category.name}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute sm:right-2 right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                  </div>{" "}
-                  <div className="relative">
-                    <select
-                      value={subCategory}
-                      onChange={(e) => setSubcategory(e.target.value)}
-                      className="appearance-none bg-white border border-cream-400 rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
-                    >
-                      <option value="all">Select Subcategory</option>
+                {isLoading ? (
+                  <div className="flex gap-4 w-full">
+                    <FilterSkeleton />
+                    <FilterSkeleton />
+                    <FilterSkeleton />
+                  </div>
+                ) : (
+                  renderFilters()
+                )}
 
-                      {currentCategory?.subcategories?.map((sub) => (
-                        <option key={sub.id} value={sub.name}>
-                          {sub.name}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute sm:right-2 right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                  </div>
-                  {/* Price Range Filter */}
-                  <div className="relative">
-                    <select
-                      value={priceRange}
-                      onChange={(e) => setPriceRange(e.target.value)}
-                      className="appearance-none bg-white border ext-sm sm:text-lg border-cream-400 rounded-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
-                    >
-                      {priceRanges.map((range) => (
-                        <option key={range.value} value={range.value}>
-                          {range.label}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute sm:right-2 right-8 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                  </div>
-                  {/* Sort Filter */}
-                  <div className="relative">
-                    <select
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
-                      className="appearance-none bg-white border text-sm sm:text-lg border-cream-400 rounded-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
-                    >
-                      {sortOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute sm:right-2 right-8 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                  </div>
-                </div>
-
-                {/* View Mode and Results */}
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-muted-foreground">
                     {filteredAndSortedProducts.length} products found
@@ -285,21 +352,23 @@ export default function ProductsPage() {
               </div>
             </div>
           </motion.div>
-          <div className="flex items-center justify-center mb-8 gap-4 sm:hidden ">
+
+          {/* Column selector for mobile */}
+          <div className="flex items-center justify-center mb-8 gap-4 sm:hidden">
             <button
               onClick={() => setColumn(1)}
               className={`${
                 column === 1
-                  ? "bg-luxury-500  text-black"
+                  ? "bg-luxury-500 text-black"
                   : "bg-charcoal-800 text-white"
               } px-4 py-3 rounded-md font-semibold text-sm`}
             >
               1 per row
-            </button>{" "}
+            </button>
             <button
               className={`${
                 column === 2
-                  ? "bg-luxury-500  text-black"
+                  ? "bg-luxury-500 text-black"
                   : "bg-charcoal-800 text-white"
               } px-4 py-3 rounded-md font-semibold text-sm`}
               onClick={() => setColumn(2)}
@@ -307,14 +376,12 @@ export default function ProductsPage() {
               2 per row
             </button>
           </div>
+
           {/* Products Grid/List */}
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {[...Array(8)].map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-white rounded-2xl h-96 animate-pulse"
-                />
+                <ProductSkeleton key={i} />
               ))}
             </div>
           ) : filteredAndSortedProducts.length === 0 ? (
@@ -333,15 +400,7 @@ export default function ProductsPage() {
               <p className="text-muted-foreground mb-8">
                 Try adjusting your search or filter criteria
               </p>
-              <Button
-                onClick={() => {
-                  setSearchQuery("");
-                  setSelectedCategory("all");
-                  setPriceRange("all");
-                  setSortBy("featured");
-                }}
-                variant="luxury"
-              >
+              <Button onClick={handleClearFilters} variant="luxury">
                 Clear All Filters
               </Button>
             </motion.div>

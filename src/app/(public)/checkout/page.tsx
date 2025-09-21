@@ -1,23 +1,75 @@
 "use client";
 
-import { JSX, useMemo } from "react";
+import { JSX, useMemo, Suspense } from "react";
+import dynamic from "next/dynamic";
 import { useCheckout } from "@/src/hooks/useCheckout";
 import { useCartStore } from "../../../store/cartStore";
-import {
-  CheckoutHeader,
-  CheckoutProgress,
-  PersonalInformationStep,
-  ShippingInformationStep,
-  PaymentStep,
-  OrderSummary,
-  EmptyCart,
-} from "@/src/components/checkout";
 import { useAuth } from "@/src/hooks/useAuth";
+
+// Dynamic imports for checkout components
+const CheckoutHeader = dynamic(
+  () =>
+    import("@/src/components/checkout/CheckoutHeader").then(
+      (mod) => mod.CheckoutHeader
+    ),
+  { ssr: false }
+);
+
+const ShippingInformationStep = dynamic(
+  () =>
+    import("@/src/components/checkout/ShippingInformationStep").then(
+      (mod) => mod.ShippingInformationStep
+    ),
+  { ssr: false }
+);
+const PersonalInformationStep = dynamic(
+  () =>
+    import("@/src/components/checkout/PersonalInformationStep").then(
+      (mod) => mod.PersonalInformationStep
+    ),
+  { ssr: false }
+);
+
+const PaymentStep = dynamic(
+  () =>
+    import("@/src/components/checkout/PaymentStep").then(
+      (mod) => mod.PaymentStep
+    ),
+  { ssr: false }
+);
+
+const OrderSummary = dynamic(
+  () =>
+    import("@/src/components/checkout/OrderSummary").then(
+      (mod) => mod.OrderSummary
+    ),
+  { ssr: false }
+);
+
+const EmptyCart = dynamic(
+  () =>
+    import("@/src/components/checkout/EmptyCart").then((mod) => mod.EmptyCart),
+  { ssr: false }
+);
+
+const CheckoutProgress = dynamic(
+  () =>
+    import("@/src/components/checkout/CheckoutProgress").then(
+      (mod) => mod.CheckoutProgress
+    ),
+  { ssr: false }
+);
+
+// Skeleton loaders for lazy loading
+function SkeletonBox({ className }: { className: string }) {
+  return <div className={`bg-gray-200 animate-pulse rounded ${className}`} />;
+}
 
 export default function CheckoutPage(): JSX.Element {
   const { items } = useCartStore();
-  const { data: user, isLoading } = useAuth();
+  const { data: user } = useAuth();
   const userId = user?.id;
+
   const {
     form,
     currentStep,
@@ -28,10 +80,10 @@ export default function CheckoutPage(): JSX.Element {
     handleSubmit,
     nextStep,
     prevStep,
-  } = useCheckout(userId || ""); // Always use guest checkout
-  // Memoize calculations to prevent unnecessary recalculations
+  } = useCheckout(userId || ""); // guest checkout
+
   const calculations = useMemo(() => calculateTotals(), [calculateTotals]);
-  // Show loading state during processing
+
   if (isProcessing) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cream-50 to-cream-100">
@@ -48,7 +100,6 @@ export default function CheckoutPage(): JSX.Element {
     );
   }
 
-  // Early return for empty cart
   if (items.length === 0) {
     return <EmptyCart />;
   }
@@ -56,8 +107,13 @@ export default function CheckoutPage(): JSX.Element {
   return (
     <div className="min-h-screen sm:mt-14 mt-20 bg-gradient-to-br from-cream-50 to-cream-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
-        <CheckoutHeader />
-        <CheckoutProgress currentStep={currentStep} />
+        {/* Lazy load header & progress with skeleton */}
+        <Suspense fallback={<SkeletonBox className="h-10 w-full mb-4" />}>
+          <CheckoutHeader />
+        </Suspense>
+        <Suspense fallback={<SkeletonBox className="h-2 w-full mb-6" />}>
+          <CheckoutProgress currentStep={currentStep} />
+        </Suspense>
 
         {/* Guest Checkout Notice */}
         <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -97,45 +153,53 @@ export default function CheckoutPage(): JSX.Element {
               onSubmit={form.handleSubmit(handleSubmit)}
               className="space-y-6 lg:space-y-8"
             >
-              {currentStep >= 1 && (
-                <PersonalInformationStep form={form} onNext={nextStep} />
-              )}
+              <Suspense fallback={<SkeletonBox className="h-40 w-full mb-4" />}>
+                {currentStep >= 1 && (
+                  <PersonalInformationStep form={form} onNext={nextStep} />
+                )}
+              </Suspense>
 
-              {currentStep >= 2 && (
-                <ShippingInformationStep
-                  form={form}
-                  onNext={nextStep}
-                  onBack={prevStep}
-                  userId={userId || ""}
-                  subtotal={calculations.subtotal}
-                />
-              )}
+              <Suspense fallback={<SkeletonBox className="h-40 w-full mb-4" />}>
+                {currentStep >= 2 && (
+                  <ShippingInformationStep
+                    form={form}
+                    onNext={nextStep}
+                    onBack={prevStep}
+                    userId={userId || ""}
+                    subtotal={calculations.subtotal}
+                  />
+                )}
+              </Suspense>
 
-              {currentStep >= 3 && (
-                <PaymentStep
-                  form={form}
-                  onBack={prevStep}
-                  onSubmit={() => form.handleSubmit(handleSubmit)()}
-                  isProcessing={isProcessing}
-                  total={calculations.total}
-                  clientSecret={clientSecret}
-                  orderId={orderId}
-                />
-              )}
+              <Suspense fallback={<SkeletonBox className="h-40 w-full mb-4" />}>
+                {currentStep >= 3 && (
+                  <PaymentStep
+                    form={form}
+                    onBack={prevStep}
+                    onSubmit={() => form.handleSubmit(handleSubmit)()}
+                    isProcessing={isProcessing}
+                    total={calculations.total}
+                    clientSecret={clientSecret}
+                    orderId={orderId}
+                  />
+                )}
+              </Suspense>
             </form>
           </div>
 
           {/* Order Summary */}
           <div className="xl:col-span-1">
-            <OrderSummary
-              items={items}
-              subtotal={calculations.subtotal}
-              deliveryFee={calculations.deliveryFee}
-              codFee={calculations.codFee}
-              tax={calculations.tax}
-              total={calculations.total}
-              couponDiscount={calculations.couponDiscount}
-            />
+            <Suspense fallback={<SkeletonBox className="h-80 w-full" />}>
+              <OrderSummary
+                items={items}
+                subtotal={calculations.subtotal}
+                deliveryFee={calculations.deliveryFee}
+                codFee={calculations.codFee}
+                tax={calculations.tax}
+                total={calculations.total}
+                couponDiscount={calculations.couponDiscount}
+              />
+            </Suspense>
           </div>
         </div>
       </div>

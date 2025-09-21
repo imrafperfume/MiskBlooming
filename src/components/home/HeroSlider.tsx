@@ -8,7 +8,12 @@ import { Button } from "../ui/Button";
 import { motion, AnimatePresence } from "framer-motion";
 import type { HeroSlide } from "../../types";
 import heroSlidesData from "../../data/hero-slides.json";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Autoplay } from "swiper/modules";
 
+// Import Swiper styles
+import "swiper/css";
+import "swiper/css/pagination";
 const HeroSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
@@ -216,3 +221,27 @@ const HeroSlider = () => {
 };
 
 export default HeroSlider;
+
+{
+  /* <Swiper
+  slidesPerView={5}
+  spaceBetween={30}
+  pagination={{ clickable: true }}
+  autoplay={{
+    delay: 2500,
+    disableOnInteraction: false,
+  }}
+  breakpoints={{
+    320: { slidesPerView: 3, spaceBetween: 10 }, // mobile
+    640: { slidesPerView: 3, spaceBetween: 20 }, // small devices
+    1024: { slidesPerView: 4, spaceBetween: 25 }, // tablet
+    1280: { slidesPerView: 5, spaceBetween: 30 }, // desktop
+  }}
+  modules={[Autoplay]}
+  className="mySwiper outline-none border-none"
+>
+  <SwiperSlide>
+
+  </SwiperSlide>
+</Swiper>; */
+}
