@@ -21,6 +21,7 @@ interface ProductCardProps {
 const ProductCard = memo(
   ({ product, index = 0, viewMode }: ProductCardProps) => {
     console.log("🚀 ~ product:", product);
+    console.log("🚀 ~ product:", product);
     const addItem = useCartStore((state) => state.addItem);
     const {
       addItem: addToWishlist,
@@ -222,9 +223,11 @@ const ProductCard = memo(
               </div>
             </div>
           ) : (
+          ) : (
             <div className="text-xs hidden sm:flex text-luxury-500 font-medium bg-luxury-50 sm:px-2 px-0 py-1 rounded-full">
               {product.category.replace("-", " ").toUpperCase()}
             </div>
+          )}
           )}
 
           {/* Title */}
