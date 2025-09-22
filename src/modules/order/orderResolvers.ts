@@ -1,5 +1,6 @@
 import { prisma } from "@/src/lib/db";
 import { isAdmin } from "@/src/lib/isAdmin";
+import { sendPushToAll } from "@/src/lib/notify";
 import { hashPassword } from "@/src/lib/password";
 import { redis } from "@/src/lib/redis";
 import { randomBytes } from "crypto";
@@ -368,13 +369,19 @@ export const OrderResolvers = {
               data: { quantity: { decrement: item.quantity } },
             });
           }
-          await prisma.notification.create({
+          const notification = await prisma.notification.create({
             data: {
               type: "order_created",
               message: `New order received: ${createdOrder.id}`,
               orderId: createdOrder.id,
             },
           });
+          // send push to all subscribers (background)
+          sendPushToAll({
+            title: "New Order",
+            body: notification.message,
+            url: `/dashboard/orders/${createdOrder.id}`,
+          }).catch((e) => console.error("sendPushToAll error:", e));
           return createdOrder;
         });
 

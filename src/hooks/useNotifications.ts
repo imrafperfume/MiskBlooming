@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { usePush } from "../lib/usePush";
 
 export interface Notification {
   id: string;
@@ -12,6 +13,7 @@ export interface Notification {
 }
 
 export function useNotifications() {
+  usePush();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 

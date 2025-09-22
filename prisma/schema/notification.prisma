@@ -6,3 +6,10 @@ model Notification {
     createdAt DateTime @default(now())
     read      Boolean  @default(false)
 }
+
+model PushSubscription {
+    id        String   @id @default(cuid())
+    endpoint  String   @unique
+    keys      Json
+    createdAt DateTime @default(now())
+}

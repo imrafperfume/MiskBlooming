@@ -6,9 +6,12 @@ export async function GET(req: Request) {
   const stream = new ReadableStream({
     async start(controller) {
       const interval = setInterval(async () => {
+        // stop if client disconnected
         if (req.signal.aborted) {
           clearInterval(interval);
-          controller.close();
+          try {
+            controller.close();
+          } catch {}
           return;
         }
 
@@ -19,6 +22,7 @@ export async function GET(req: Request) {
           });
 
           for (const n of notifications) {
+            if (req.signal.aborted) break;
             controller.enqueue(
               new TextEncoder().encode(
                 `data: ${JSON.stringify({
@@ -27,6 +31,7 @@ export async function GET(req: Request) {
                   message: n.message,
                   read: n.read,
                   createdAt: n.createdAt,
+                  orderId: n.orderId,
                 })}\n\n`
               )
             );
@@ -37,7 +42,6 @@ export async function GET(req: Request) {
         }
       }, 2000);
 
-      // cleanup on abort
       req.signal.addEventListener("abort", () => clearInterval(interval));
     },
   });
