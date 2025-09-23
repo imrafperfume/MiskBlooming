@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { gql, useQuery, useSubscription } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import Link from "next/link";
 import { Button } from "../../../../components/ui/Button";
 import {
@@ -14,7 +14,7 @@ import {
   RefreshCw,
   Download,
 } from "lucide-react";
-import { formatDate } from "@/src/lib/utils";
+import { formatDate, formatTimestamp } from "@/src/lib/utils";
 
 const ORDER_STATS = gql`
   query getOrderStats {
@@ -235,10 +235,12 @@ export default function OrdersPage() {
                   {order.status}
                 </td>
                 <td className="px-2 py-2">AED {order.totalAmount}</td>
-                <td className="px-2 py-2">{formatDate(order?.createdAt)}</td>
+                <td className="px-2 py-2">
+                  {formatTimestamp(Number(order?.createdAt))}
+                </td>
                 <td className="px-2 py-2">
                   {order?.deliveryDate
-                    ? formatDate(order?.deliveryDate)
+                    ? formatTimestamp(Number(order?.deliveryDate))
                     : "Not Scheduled"}
                 </td>
                 <td className="px-2 py-2">

@@ -134,7 +134,7 @@ export default function ProductsPage() {
             Manage your flower and gift inventory
           </p>
         </div>
-        <div className="flex items-center space-x-4 mt-4 lg:mt-0">
+        <div className="flex items-center sm:space-x-4 mt-4 gap-4 lg:mt-0 flex-wrap">
           <Button variant="outline">
             <Upload className="w-4 h-4 mr-2" />
             Import
@@ -224,7 +224,7 @@ export default function ProductsPage() {
 
       {/* Filters */}
       <motion.div
-        className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+        className="bg-white rounded-xl sm:p-6 shadow-sm border border-gray-100"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.4 }}
@@ -277,7 +277,7 @@ export default function ProductsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.5 }}
       >
-        <div className="p-6 border-b border-gray-100">
+        <div className="sm:p-6 border-b border-gray-100">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-charcoal-900">
               Products ({filteredProducts.length})
@@ -289,7 +289,7 @@ export default function ProductsPage() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="sm:px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Product
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -324,7 +324,7 @@ export default function ProductsPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
                 >
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="sm:px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0 h-12 w-12">
                         <Image

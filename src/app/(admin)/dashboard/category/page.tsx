@@ -215,14 +215,14 @@ export default function CategoryPage() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-gray-50 to-luxury-50 gap-6">
       {/* Sidebar */}
-      <aside className="md:w-[400px] w-full bg-white/90 backdrop-blur-md shadow rounded-2xl p-6 flex flex-col gap-6">
+      <aside className="md:w-[400px] w-full bg-white/90 backdrop-blur-md sm:shadow rounded-2xl sm:p-6 flex flex-col gap-6">
         <h1 className="text-2xl font-bold text-luxury-500">Categories</h1>
         <ul className="space-y-2 overflow-y-auto max-h-[50vh]">
           {categories.length > 0 ? (
             categories.map((cat) => (
               <li
                 key={cat.id}
-                className="flex items-center gap-3 group bg-white p-2 rounded-lg shadow-sm hover:shadow transition"
+                className="flex items-center gap-3 group bg-white sm:p-2 rounded-lg sm:shadow-sm hover:shadow transition"
               >
                 {cat.imageUrl && (
                   <Image
@@ -263,7 +263,7 @@ export default function CategoryPage() {
       {/* Main content */}
       <main className="w-full flex flex-col gap-6">
         {/* Category Form */}
-        <section className="bg-white rounded-xl shadow p-6 max-w-3xl mx-auto flex flex-col gap-4">
+        <section className="bg-white rounded-xl sm:shadow sm:p-6 max-w-3xl mx-auto flex flex-col gap-4">
           <h2 className="font-semibold text-lg text-luxury-500">
             {editingCatId ? "Edit Category" : "Add Category"}
           </h2>
@@ -315,7 +315,7 @@ export default function CategoryPage() {
         </section>
 
         {/* Subcategory Form */}
-        <section className="bg-white rounded-xl shadow p-6 max-w-3xl mx-auto flex flex-col gap-4">
+        <section className="bg-white rounded-xl sm:shadow sm:p-6 sm:max-w-3xl sm:mx-auto flex flex-col gap-4">
           <h2 className="font-semibold text-lg text-luxury-500">
             {editingSubId ? "Edit Subcategory" : "Add Subcategory"}
           </h2>
@@ -342,7 +342,7 @@ export default function CategoryPage() {
               <Button
                 variant={"luxury"}
                 size={"sm"}
-                className="bg-luxury-500 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-luxury-700 transition"
+                className="bg-luxury-500 text-white sm:px-4 py-2 rounded-lg font-semibold sm:shadow hover:bg-luxury-700 transition"
                 onClick={handleSaveSubCategory}
               >
                 {editingSubId ? "Save" : "Add"}
@@ -366,7 +366,7 @@ export default function CategoryPage() {
           {categories.map((cat) => (
             <div
               key={cat.id}
-              className="bg-white rounded-2xl shadow p-4 flex flex-col gap-3 hover:shadow-xl transform hover:scale-105 transition"
+              className="bg-white rounded-2xl sm:shadow sm:p-4 flex flex-col gap-3 hover:shadow-xl transform hover:scale-105 transition"
             >
               <div className="flex items-center gap-3">
                 {cat.imageUrl && (

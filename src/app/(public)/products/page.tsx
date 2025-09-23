@@ -326,7 +326,7 @@ export default function ProductsPage() {
                     {filteredAndSortedProducts.length} products found
                   </span>
 
-                  <div className="flex items-center border border-cream-400 rounded-lg">
+                  <div className="flex sm:hidden items-center border border-cream-400 rounded-lg">
                     <button
                       onClick={() => setViewMode("grid")}
                       className={`p-2 ${
@@ -352,30 +352,6 @@ export default function ProductsPage() {
               </div>
             </div>
           </motion.div>
-
-          {/* Column selector for mobile */}
-          <div className="flex items-center justify-center mb-8 gap-4 sm:hidden">
-            <button
-              onClick={() => setColumn(1)}
-              className={`${
-                column === 1
-                  ? "bg-luxury-500 text-black"
-                  : "bg-charcoal-800 text-white"
-              } px-4 py-3 rounded-md font-semibold text-sm`}
-            >
-              1 per row
-            </button>
-            <button
-              className={`${
-                column === 2
-                  ? "bg-luxury-500 text-black"
-                  : "bg-charcoal-800 text-white"
-              } px-4 py-3 rounded-md font-semibold text-sm`}
-              onClick={() => setColumn(2)}
-            >
-              2 per row
-            </button>
-          </div>
 
           {/* Products Grid/List */}
           {isLoading ? (
@@ -408,7 +384,7 @@ export default function ProductsPage() {
             <motion.div
               className={`grid sm:gap-8 gap-2 ${
                 viewMode === "grid"
-                  ? `grid-cols-${column} sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`
+                  ? `grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`
                   : "grid-cols-1"
               }`}
               initial={{ opacity: 0 }}

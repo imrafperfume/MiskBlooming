@@ -21,12 +21,11 @@ import {
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-// import { useToast } from "@/hooks/use-toast";
 import * as Dialog from "@radix-ui/react-dialog";
 import * as Select from "@radix-ui/react-select";
 import Loading from "@/src/components/layout/Loading";
 import { toast } from "sonner";
-import { formatDate, handleDownload } from "@/src/lib/utils";
+import { formatDate, formatTimestamp, handleDownload } from "@/src/lib/utils";
 import { GET_ORDER_BY_ID } from "@/src/modules/order/operations";
 import Button from "@/src/components/ui/Button";
 
@@ -147,7 +146,6 @@ const getPaymentStatusConfig = (status: string) => {
 export default function OrderDetails() {
   const params = useParams();
   const router = useRouter();
-  //   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [newStatus, setNewStatus] = useState("");
 
@@ -171,7 +169,6 @@ export default function OrderDetails() {
   );
 
   const order: Order = data?.orderById;
-  console.log("🚀 ~ OrderDetails ~ order:", order);
 
   if (loading) {
     return <Loading />;
@@ -180,7 +177,7 @@ export default function OrderDetails() {
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 flex items-center justify-center">
-        <div className="max-w-md bg-white rounded-xl shadow-xl border-0 p-8 text-center">
+        <div className="max-w-md bg-white rounded-xl shadow-xl border-0 sm:p-8 text-center">
           <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             Order Not Found
@@ -222,21 +219,21 @@ export default function OrderDetails() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
-      <div className="max-w-7xl mx-auto p-6 space-y-8">
+      <div className="max-w-7xl mx-auto sm:p-6 space-y-8">
         <div className="bg-white rounded-xl border-0 overflow-hidden">
-          <div className="bg-gradient-to-r from-luxury-600 via-luxury-500 to-luxury-400 p-8 text-white">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="bg-gradient-to-r from-luxury-600 via-luxury-500 to-luxury-400 sm:p-8 p-4 text-white">
+            <div className="flex flex-col  lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <Package className="h-8 w-8" />
-                  <h1 className="text-4xl font-bold tracking-tight text-balance">
+                  <h1 className="sm:text-4xl font-bold tracking-tight text-balance">
                     Order #{order.id}
                   </h1>
                 </div>
                 <p className="text-luxury-100 text-lg">
                   Placed on{" "}
                   {order?.createdAt
-                    ? formatDate(order?.createdAt)
+                    ? formatTimestamp(Number(order?.createdAt))
                     : "Not available"}
                 </p>
               </div>
@@ -258,8 +255,8 @@ export default function OrderDetails() {
         </div>
 
         <div className="bg-white rounded-xl  border-0">
-          <div className="p-6 pb-4 border-b border-gray-200">
-            <div className="flex items-center justify-between">
+          <div className="sm:p-6 pb-4 border-b border-gray-200">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <h3 className="flex items-center gap-2 text-luxury-700 text-xl font-semibold">
                 <Edit3 className="h-5 w-5" />
                 Order Management
@@ -388,13 +385,13 @@ export default function OrderDetails() {
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Customer Information */}
           <div className="bg-white rounded-xl border-0 hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
-            <div className="p-6 pb-4 border-b border-gray-200">
+            <div className="sm:p-6 pb-4 border-b border-gray-200">
               <h3 className="flex items-center gap-2 text-luxury-700 text-lg font-semibold">
                 <User className="h-5 w-5" />
                 Customer Information
               </h3>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="sm:p-6 space-y-4">
               <div>
                 <p className="font-semibold text-lg text-gray-900 text-balance">
                   {order.firstName} {order.lastName}
@@ -413,13 +410,13 @@ export default function OrderDetails() {
 
           {/* Shipping Address */}
           <div className="bg-white rounded-xl  border-0 hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
-            <div className="p-6 pb-4 border-b border-gray-200">
+            <div className="sm:p-6 pb-4 border-b border-gray-200">
               <h3 className="flex items-center gap-2 text-luxury-700 text-lg font-semibold">
                 <MapPin className="h-5 w-5" />
                 Shipping Address
               </h3>
             </div>
-            <div className="p-6 space-y-2">
+            <div className="sm:p-6 space-y-2">
               <p className="font-medium text-gray-900 text-balance">
                 {order.address}
               </p>
@@ -436,13 +433,13 @@ export default function OrderDetails() {
 
           {/* Payment Details */}
           <div className="bg-white rounded-xl border-0 hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
-            <div className="p-6 pb-4 border-b border-gray-200">
+            <div className="sm:p-6 pb-4 border-b border-gray-200">
               <h3 className="flex items-center gap-2 text-luxury-700 text-lg font-semibold">
                 <CreditCard className="h-5 w-5" />
                 Payment Details
               </h3>
             </div>
-            <div className="p-6 space-y-3">
+            <div className="sm:p-6 space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Method:</span>
                 <span className="font-medium">{order.paymentMethod}</span>
@@ -471,13 +468,13 @@ export default function OrderDetails() {
 
           {/* Delivery Information */}
           <div className="bg-white rounded-xl  border-0 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 md:col-span-2 lg:col-span-3">
-            <div className="p-6 pb-4 border-b border-gray-200">
+            <div className="sm:p-6 pb-4 border-b border-gray-200">
               <h3 className="flex items-center gap-2 text-luxury-700 text-lg font-semibold">
                 <Truck className="h-5 w-5" />
                 Delivery Information
               </h3>
             </div>
-            <div className="p-6">
+            <div className="sm:p-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-600">Type:</span>
@@ -526,13 +523,13 @@ export default function OrderDetails() {
         </div>
 
         <div className="bg-white rounded-xl border-0">
-          <div className="p-6 pb-4 border-b border-gray-200">
+          <div className="sm:p-6 pb-4 border-b border-gray-200">
             <h3 className="flex items-center gap-2 text-luxury-700 text-lg font-semibold">
               <Package className="h-5 w-5" />
               Order Items ({order.items.length})
             </h3>
           </div>
-          <div className="p-4">
+          <div className="sm:p-4">
             <div className="space-y-2">
               {order.items.map((item: any, index: number) => (
                 <div key={item.id}>
@@ -542,8 +539,8 @@ export default function OrderDetails() {
                         {item.product.name}
                       </h4>
                     </div>
-                    <div className="text-left sm:text-right sm:ml-6 space-y-1">
-                      <p className="font-medium text-lg">
+                    <div className="text-left flex items-center justify-between sm:inline-block sm:text-right sm:ml-6 space-y-1">
+                      <p className="font-medium sm:text-lg">
                         {item.quantity} × AED {item.price.toFixed(2)}
                       </p>
                       <p className="text-luxury-600 font-semibold">
@@ -592,11 +589,11 @@ export default function OrderDetails() {
                   </p>
                 )}
 
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 bg-luxury-50 rounded-xl mt-4 pt-4 border-t border-gray-200">
-                  <span className="text-lg font-cormorant font-semibold text-gray-900">
+                <div className="flex justify-between items-center sm:flex-row sm:justify-between sm:items-center gap-4 bg-luxury-50 rounded-xl mt-4 pt-4 border-t border-gray-200">
+                  <span className="sm:text-lg text-xl font-cormorant font-semibold text-gray-900">
                     Total Amount:
                   </span>
-                  <span className="text-3xl font-bold text-luxury-600">
+                  <span className="sm:text-3xl text-xl font-bold text-luxury-600">
                     AED {order.totalAmount.toFixed(2)}
                   </span>
                 </div>

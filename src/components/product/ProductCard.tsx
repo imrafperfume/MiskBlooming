@@ -20,7 +20,6 @@ interface ProductCardProps {
 
 const ProductCard = memo(
   ({ product, index = 0, viewMode }: ProductCardProps) => {
-    console.log("🚀 ~ product:", product);
     const addItem = useCartStore((state) => state.addItem);
     const {
       addItem: addToWishlist,
@@ -31,19 +30,16 @@ const ProductCard = memo(
     const isWishlisted = isInWishlist(product.id);
     const averageRating =
       product?.Review?.length > 0
-        ? product.Review?.reduce((acc, r) => acc + r.rating, 0) /
-          product.Review?.length
+        ? product.Review.reduce((acc, r) => acc + r.rating, 0) /
+          product.Review.length
         : 0;
+
     const handleAddToCart = useCallback(
       (e: React.MouseEvent) => {
         e.preventDefault();
         const result = addItem(product);
 
-        if (result.success) {
-          toast.success(result.message);
-        } else {
-          toast.error(result.message);
-        }
+        toast[result.success ? "success" : "error"](result.message);
       },
       [addItem, product]
     );
@@ -63,20 +59,19 @@ const ProductCard = memo(
     );
 
     const hasComparePrice =
-      product?.compareAtPrice && product?.compareAtPrice > product.price;
+      product?.compareAtPrice && product.compareAtPrice > product.price;
     const discountPercentage = hasComparePrice
-      ? calculateDiscount(product?.compareAtPrice ?? 0, product?.price)
+      ? calculateDiscount(product.compareAtPrice ?? 0, product.price)
       : 0;
-    const feayturedImageIndex = product?.featuredImage || 0;
 
-    const imageUrl = product.images?.[feayturedImageIndex]?.url;
+    const featuredImageIndex = product?.featuredImage || 0;
+    const imageUrl = product.images?.[featuredImageIndex]?.url;
     const isValidUrl =
-      imageUrl.startsWith("http://") || imageUrl.startsWith("https://");
+      imageUrl?.startsWith("http://") || imageUrl?.startsWith("https://");
 
     return (
       <motion.div
-        className={`group relative bg-white rounded-md shadow-sm hover:shadow-luxury transition-all duration-700 overflow-hidden border border-cream-200
-    ${viewMode === "list" ? "flex flex-row gap-5" : "flex flex-col"}`}
+        className={`group relative bg-white rounded-md shadow-sm hover:shadow-luxury transition-all duration-700 overflow-hidden border border-cream-200`}
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -85,13 +80,8 @@ const ProductCard = memo(
       >
         {/* Image Container */}
         <div
-          className={`relative overflow-hidden
-      ${
-        viewMode === "grid"
-          ? "w-full aspect-square"
-          : "w-1/2 aspect-square sm:h-64"
-      }
-    `}
+          className={`relative overflow-hidden 
+            "w-full aspect-square`}
         >
           <Image
             src={isValidUrl ? imageUrl : "/placeholder.svg"}
@@ -174,17 +164,8 @@ const ProductCard = memo(
             <Button
               onClick={handleAddToCart}
               variant="luxury"
-              className="w-full shadow-luxury hidden sm:flex"
-              disabled={!product.quantity}
-            >
-              <ShoppingBag className="w-4 h-4 mr-2" />
-              {product.quantity ? "Add to Cart" : "Out of Stock"}
-            </Button>{" "}
-            <Button
-              onClick={handleAddToCart}
-              variant="luxury"
-              size={"sm"}
-              className="w-full shadow-luxury flex sm:hidden"
+              className="w-full shadow-luxury flex sm:flex"
+              size="sm"
               disabled={!product.quantity}
             >
               <ShoppingBag className="w-4 h-4 mr-2" />
@@ -194,11 +175,7 @@ const ProductCard = memo(
         </div>
 
         {/* Content */}
-        <div
-          className={`px-3 sm:px-6 py-3 flex flex-col justify-between
-      ${viewMode === "list" ? "w-2/3" : ""}
-    `}
-        >
+        <div className={`px-3 sm:px-6 py-3 flex flex-col justify-between`}>
           {/* Rating */}
           {product?.Review?.length > 0 ? (
             <div className="flex items-center justify-between sm:mb-3 mb-1 flex-wrap">
@@ -207,14 +184,14 @@ const ProductCard = memo(
                   <Star
                     key={i}
                     className={`w-4 h-4 ${
-                      i < Math.floor(4)
+                      i < Math.round(averageRating)
                         ? "text-luxury-500 fill-current"
                         : "text-cream-300"
                     }`}
                   />
                 ))}
                 <span className="text-sm text-muted-foreground ml-2">
-                  {averageRating.toFixed(1) ?? 0}
+                  {averageRating.toFixed(1)}
                 </span>
               </div>
               <div className="text-xs hidden sm:flex text-luxury-500 font-medium bg-luxury-50 sm:px-2 px-0 py-1 rounded-full">
@@ -240,7 +217,7 @@ const ProductCard = memo(
           </p>
 
           {/* Price */}
-          <div className="flex items-center justify-between  mb-4">
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center flex-wrap sm:space-x-2">
               <span className="sm:text-xl text-lg font-bold text-charcoal-900">
                 {formatPrice(product.price)}

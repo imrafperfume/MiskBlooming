@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 // import { useSearchParams } from "next/navigation"
@@ -48,8 +48,7 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { notifications, unreadCount, markAllRead } = useNotifications();
-  const [open, setOpen] = useState(false);
-  console.log("🚀 ~ AdminDashboard ~ notifications:", notifications);
+  // const [open, setOpen] = useState(false);
   const pathname = usePathname();
   // const searchParams = useSearchParams()
   const { data: user, isLoading } = useAuth();
@@ -76,6 +75,12 @@ export default function AdminLayout({
     {
       name: "Products",
       href: "/dashboard/products",
+      icon: Package,
+      description: "Manage Inventory",
+    },
+    {
+      name: "Categories",
+      href: "/dashboard/category",
       icon: Package,
       description: "Manage Inventory",
     },
@@ -177,7 +182,7 @@ export default function AdminLayout({
         <motion.div
           className={`fixed top-0 inset-y-0 left-0 z-50 w-72 bg-white shadow-xl transform ${
             sidebarOpen ? "translate-x-0" : "-translate-x-full"
-          } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
+          } transition-transform duration-300 overflow-y-auto ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
           initial={false}
         >
           <div className="flex flex-col w-full">
@@ -244,16 +249,14 @@ export default function AdminLayout({
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="w-full flex items-center p-3 rounded-xl hover:bg-white transition-colors"
                 >
-                  <div className="w-10 h-10 bg-gradient-to-br from-luxury-400 to-luxury-600 rounded-full flex items-center justify-center">
-                    <User className="w-5 h-5 text-white" />
+                  <div className="w-10 h-10  rounded-full flex items-center justify-center">
+                    <User className="w-5 h-5 text-black" />
                   </div>
                   <div className="ml-3 flex-1 text-left">
                     <p className="text-sm font-medium text-gray-900">
-                      Admin User
+                      {user?.firstName} {user?.lastName}
                     </p>
-                    <p className="text-xs text-gray-500">
-                      admin@miskblooming.ae
-                    </p>
+                    <p className="text-xs text-gray-500">{user?.email}</p>
                   </div>
                   <ChevronDown
                     className={`w-4 h-4 text-gray-400 transition-transform ${

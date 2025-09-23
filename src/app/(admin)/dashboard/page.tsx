@@ -22,11 +22,11 @@ import { Button } from "../../../components/ui/Button";
 import { useQuery } from "@apollo/client";
 import { DASHBOARD_METRICS } from "@/src/modules/dashboard/oprations";
 import Loading from "@/src/components/layout/Loading";
-import { useNotifications } from "@/src/hooks/useNotifications";
+import { useRouter } from "next/navigation";
 
 export default function AdminDashboard() {
   const [timeRange, setTimeRange] = useState(7);
-
+  const router = useRouter();
   const { data, loading, error } = useQuery(DASHBOARD_METRICS, {
     fetchPolicy: "cache-and-network",
     variables: { days: timeRange },
@@ -244,7 +244,7 @@ export default function AdminDashboard() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
-          <div className="p-6 border-b border-gray-100">
+          <div className="sm:p-6 border-b border-gray-100">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-charcoal-900">
                 Recent Orders
@@ -255,7 +255,7 @@ export default function AdminDashboard() {
               </Button>
             </div>
           </div>
-          <div className="p-6">
+          <div className="sm:p-6">
             <div className="space-y-4">
               {recentOrders?.map((order: any, index: any) => (
                 <motion.div
@@ -265,14 +265,9 @@ export default function AdminDashboard() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                 >
-                  <div className="flex items-center space-x-4">
-                    <div className="w-10 h-10 bg-gradient-to-br from-luxury-400 to-luxury-600 rounded-full flex items-center justify-center">
-                      <span className="text-white font-medium text-sm">
-                        {order.avatar}
-                      </span>
-                    </div>
+                  <div className="flex flex-wrap items-center space-x-4">
                     <div>
-                      <p className="font-medium text-charcoal-900">
+                      <p className="font-medium text-sm sm:text-base text-charcoal-900">
                         #{order.id}
                       </p>
                       <p className="text-sm text-gray-600">
@@ -306,29 +301,29 @@ export default function AdminDashboard() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
-          <div className="p-6 border-b border-gray-100">
+          <div className="sm:p-6 border-b border-gray-100">
             <h2 className="text-xl font-semibold text-charcoal-900">
               Top Products
             </h2>
           </div>
-          <div className="p-6">
-            <div className="space-y-4">
+          <div className="sm:p-6">
+            <div className="space-y-4 mt-4 sm:mt-0">
               {topProducts?.map((product: any, index: any) => (
                 <motion.div
                   key={product.name}
-                  className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between sm:p-4 py-1 sm:py-0 rounded-xl hover:bg-gray-50 transition-colors"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                 >
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center  sm:space-x-4 space-x-2">
                     <div className="w-10 h-10 bg-luxury-100 rounded-lg flex items-center justify-center">
                       <span className="text-luxury-700 font-medium text-sm">
                         {index + 1}
                       </span>
                     </div>
                     <div>
-                      <p className="font-medium text-charcoal-900">
+                      <p className="font-medium text-sm sm:text-base text-charcoal-900">
                         {product.name}
                       </p>
                       <p className="text-sm text-gray-600">
@@ -377,6 +372,7 @@ export default function AdminDashboard() {
         </h2>
         <div className="grid grid-cols-1 overflow-hidden md:grid-cols-3 gap-4">
           <Button
+            onClick={() => router.push("/dashboard/products/add")}
             variant="outline"
             className="justify-start h-auto p-6 bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200 hover:from-blue-100 hover:to-blue-200"
           >
@@ -389,6 +385,7 @@ export default function AdminDashboard() {
             </div>
           </Button>
           <Button
+            onClick={() => router.push("/dashboard/orders")}
             variant="outline"
             className="justify-start h-auto p-6 bg-gradient-to-r from-green-50 to-green-100 border-green-200 hover:from-green-100 hover:to-green-200"
           >

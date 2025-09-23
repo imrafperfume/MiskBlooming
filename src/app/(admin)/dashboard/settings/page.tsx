@@ -50,12 +50,7 @@ export default function SettingsPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [roles, setRoles] = useState<{ [key: string]: string }>({});
   const [loadingIds, setLoadingIds] = useState<{ [key: string]: boolean }>({});
-  const {
-    data: adminUsers,
-    loading,
-    error,
-    refetch,
-  } = useQuery(ADMIN_USERS, {
+  const { data: adminUsers, refetch } = useQuery(ADMIN_USERS, {
     fetchPolicy: "cache-and-network",
   });
 
@@ -162,7 +157,7 @@ export default function SettingsPage() {
               {adminUsersList?.map((user: any) => (
                 <div
                   key={user.id}
-                  className="p-4 border border-gray-200 rounded-lg flex items-center justify-between"
+                  className="sm:p-4 border border-gray-200 rounded-lg flex items-center flex-wrap gap-2 justify-between"
                 >
                   <div className="space-y-1">
                     <p className="font-medium text-charcoal-900">
@@ -448,7 +443,7 @@ export default function SettingsPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between">
+      <div className="flex flex-col gap-2 lg:flex-row lg:items-center justify-between">
         <div>
           <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">
             Settings
@@ -458,7 +453,7 @@ export default function SettingsPage() {
           </p>
         </div>
         <Button variant="luxury">
-          <Save className="w-4 h-4 mr-2" />
+          <Save className="w-4 h-4 mr-2 " />
           Save Changes
         </Button>
       </div>
@@ -467,7 +462,7 @@ export default function SettingsPage() {
         {/* Settings Navigation */}
         <div className="lg:col-span-1">
           <motion.div
-            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+            className="bg-white rounded-2xl sm:p-6 shadow-sm border border-gray-100"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6 }}

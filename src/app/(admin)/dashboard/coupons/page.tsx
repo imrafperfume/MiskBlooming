@@ -3,11 +3,11 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import { motion } from "framer-motion";
-import { 
-  Plus, 
-  Edit, 
-  Trash2, 
-  ToggleLeft, 
+import {
+  Plus,
+  Edit,
+  Trash2,
+  ToggleLeft,
   ToggleRight,
   Copy,
   Eye,
@@ -15,14 +15,14 @@ import {
   Users,
   Percent,
   DollarSign,
-  Truck
+  Truck,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import { toast } from "sonner";
-import { 
-  GET_ALL_COUPONS, 
-  DELETE_COUPON, 
-  TOGGLE_COUPON_STATUS 
+import {
+  GET_ALL_COUPONS,
+  DELETE_COUPON,
+  TOGGLE_COUPON_STATUS,
 } from "@/src/modules/coupon/operations";
 import { formatPrice } from "@/src/lib/utils";
 import { CreateCouponModal } from "@/src/components/dashboard/coupons/CreateCouponModal";
@@ -98,18 +98,34 @@ export default function CouponsPage() {
     const validUntil = new Date(coupon.validUntil);
 
     if (!coupon.isActive) {
-      return <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">Inactive</span>;
+      return (
+        <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+          Inactive
+        </span>
+      );
     }
 
     if (now < validFrom) {
-      return <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">Scheduled</span>;
+      return (
+        <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+          Scheduled
+        </span>
+      );
     }
 
     if (now > validUntil) {
-      return <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">Expired</span>;
+      return (
+        <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
+          Expired
+        </span>
+      );
     }
 
-    return <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">Active</span>;
+    return (
+      <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+        Active
+      </span>
+    );
   };
 
   if (loading) {
@@ -131,7 +147,7 @@ export default function CouponsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap gap-4 items-center justify-between">
         <div>
           <h1 className="font-cormorant text-3xl font-bold text-charcoal-900">
             Coupon Management
@@ -159,8 +175,12 @@ export default function CouponsPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Coupons</p>
-              <p className="text-2xl font-bold text-charcoal-900">{coupons.length}</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Total Coupons
+              </p>
+              <p className="text-2xl font-bold text-charcoal-900">
+                {coupons.length}
+              </p>
             </div>
             <div className="p-3 bg-blue-100 rounded-full">
               <Percent className="w-6 h-6 text-blue-600" />
@@ -176,9 +196,15 @@ export default function CouponsPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Active Coupons</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Active Coupons
+              </p>
               <p className="text-2xl font-bold text-charcoal-900">
-                {coupons.filter(c => c.isActive && new Date(c.validUntil) > new Date()).length}
+                {
+                  coupons.filter(
+                    (c) => c.isActive && new Date(c.validUntil) > new Date()
+                  ).length
+                }
               </p>
             </div>
             <div className="p-3 bg-green-100 rounded-full">
@@ -195,7 +221,9 @@ export default function CouponsPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Usage</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Total Usage
+              </p>
               <p className="text-2xl font-bold text-charcoal-900">
                 {coupons.reduce((sum, c) => sum + c.usageCount, 0)}
               </p>
@@ -214,9 +242,14 @@ export default function CouponsPage() {
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Expired Coupons</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Expired Coupons
+              </p>
               <p className="text-2xl font-bold text-charcoal-900">
-                {coupons.filter(c => new Date(c.validUntil) < new Date()).length}
+                {
+                  coupons.filter((c) => new Date(c.validUntil) < new Date())
+                    .length
+                }
               </p>
             </div>
             <div className="p-3 bg-red-100 rounded-full">
@@ -257,95 +290,115 @@ export default function CouponsPage() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-cream-200">
-              {coupons.map((coupon, index) => (
-                <motion.tr
-                  key={coupon.id}
-                  className="hover:bg-cream-50"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * index }}
-                >
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <span className="font-medium text-charcoal-900">{coupon.code}</span>
-                        <button
-                          onClick={() => copyCouponCode(coupon.code)}
-                          className="text-muted-foreground hover:text-charcoal-900"
-                        >
-                          <Copy className="w-4 h-4" />
-                        </button>
+            {coupons ? (
+              <tbody className="divide-y divide-cream-200">
+                {coupons.map((coupon, index) => (
+                  <motion.tr
+                    key={coupon.id}
+                    className="hover:bg-cream-50"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 * index }}
+                  >
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-medium text-charcoal-900">
+                            {coupon.code}
+                          </span>
+                          <button
+                            onClick={() => copyCouponCode(coupon.code)}
+                            className="text-muted-foreground hover:text-charcoal-900"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {coupon.name}
+                        </p>
                       </div>
-                      <p className="text-sm text-muted-foreground">{coupon.name}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center space-x-2">
-                      {getDiscountIcon(coupon.discountType)}
-                      <span className="font-medium">{getDiscountDisplay(coupon)}</span>
-                    </div>
-                    {coupon.minimumAmount && (
-                      <p className="text-xs text-muted-foreground">
-                        Min: {formatPrice(coupon.minimumAmount)}
-                      </p>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <p className="font-medium">{coupon.usageCount}</p>
-                      {coupon.usageLimit && (
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center space-x-2">
+                        {getDiscountIcon(coupon.discountType)}
+                        <span className="font-medium">
+                          {getDiscountDisplay(coupon)}
+                        </span>
+                      </div>
+                      {coupon.minimumAmount && (
                         <p className="text-xs text-muted-foreground">
-                          / {coupon.usageLimit}
+                          Min: {formatPrice(coupon.minimumAmount)}
                         </p>
                       )}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm">
-                      <p>{new Date(coupon.validFrom).toLocaleDateString()}</p>
-                      <p className="text-muted-foreground">
-                        to {new Date(coupon.validUntil).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {getStatusBadge(coupon)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="flex items-center space-x-2">
-                      <button
-                        onClick={() => setSelectedCoupon(coupon)}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSelectedCoupon(coupon);
-                          setShowEditModal(true);
-                        }}
-                        className="text-indigo-600 hover:text-indigo-900"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleToggleStatus(coupon.id)}
-                        className={coupon.isActive ? "text-green-600 hover:text-green-900" : "text-gray-400 hover:text-gray-600"}
-                      >
-                        {coupon.isActive ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCoupon(coupon.id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </motion.tr>
-              ))}
-            </tbody>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div>
+                        <p className="font-medium">{coupon.usageCount}</p>
+                        {coupon.usageLimit && (
+                          <p className="text-xs text-muted-foreground">
+                            / {coupon.usageLimit}
+                          </p>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm">
+                        <p>{new Date(coupon.validFrom).toLocaleDateString()}</p>
+                        <p className="text-muted-foreground">
+                          to {new Date(coupon.validUntil).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getStatusBadge(coupon)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div className="flex items-center space-x-2">
+                        <button
+                          onClick={() => setSelectedCoupon(coupon)}
+                          className="text-blue-600 hover:text-blue-900"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedCoupon(coupon);
+                            setShowEditModal(true);
+                          }}
+                          className="text-indigo-600 hover:text-indigo-900"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleToggleStatus(coupon.id)}
+                          className={
+                            coupon.isActive
+                              ? "text-green-600 hover:text-green-900"
+                              : "text-gray-400 hover:text-gray-600"
+                          }
+                        >
+                          {coupon.isActive ? (
+                            <ToggleRight className="w-6 h-6" />
+                          ) : (
+                            <ToggleLeft className="w-6 h-6" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteCoupon(coupon.id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))}
+              </tbody>
+            ) : (
+              <tbody className="flex items-center justify-center mt-7 h-44">
+                <p className="text-display-sm">No Coupon Found</p>
+              </tbody>
+            )}
           </table>
         </div>
       </motion.div>

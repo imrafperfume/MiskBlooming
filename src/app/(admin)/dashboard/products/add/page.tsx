@@ -654,7 +654,7 @@ export default function AddProductPage() {
     <Suspense fallback={<div>Loading query...</div>}>
       <div className="space-y-6 w-full overflow-x-hidden">
         {/* Header */}
-        <div className="flex items-center gap-5 justify-between w-full">
+        <div className="flex flex-wrap items-center gap-5 justify-between w-full">
           <div className="flex items-center space-x-4">
             <Button
               variant="ghost"
@@ -750,7 +750,7 @@ export default function AddProductPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-12 gap-6">
+        <div className="sm:grid sm:grid-cols-12 gap-6">
           {/* Sidebar Navigation */}
           <div className="col-span-3">
             <div className="bg-white rounded-xl shadow-sm border border-cream-200 p-4 sticky top-6">

@@ -158,7 +158,7 @@ export default function CartPage() {
               {items.map((item, index) => (
                 <motion.div
                   key={item.product.id}
-                  className="bg-white border border-cream-200 rounded-2xl sm:p-6 sm:shadow-sm hover:shadow-lg transition-all duration-300"
+                  className="bg-white  rounded-2xl transition-all duration-300"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -100, scale: 0.95 }}
@@ -212,7 +212,7 @@ export default function CartPage() {
                             ))}
                           </div>
                           <span className="text-xs text-muted-foreground ml-2">
-                            ({item?.product.reviewCount || 0})
+                            ({item?.product.Review?.length || 0})
                           </span>
                         </div>
 
@@ -318,7 +318,7 @@ export default function CartPage() {
                         ))}
                       </div>
                       <span className="text-xs text-muted-foreground ml-2">
-                        ({item.product.reviewCount})
+                        ({item.product.Review?.length})
                       </span>
                     </div>
 

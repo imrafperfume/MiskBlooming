@@ -203,7 +203,7 @@ export default function CustomersPage() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between">
+      <div className="flex flex-col flex-wrap lg:flex-row lg:items-center justify-between">
         <div>
           <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">
             Customer Management
@@ -212,7 +212,10 @@ export default function CustomersPage() {
             Manage customer relationships and insights
           </p>
         </div>
-        <div className="flex items-center space-x-4 mt-4 lg:mt-0">
+        <div
+          className="flex flex-wrap
+         items-center sm:space-x-4 gap-4 mt-4 lg:mt-0"
+        >
           <Button variant="outline">
             <MessageSquare className="w-4 h-4 mr-2" />
             Send Newsletter
@@ -326,7 +329,7 @@ export default function CustomersPage() {
 
       {/* Filters */}
       <motion.div
-        className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+        className="bg-white rounded-xl sm:p-6 shadow-sm border border-gray-100"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.6 }}

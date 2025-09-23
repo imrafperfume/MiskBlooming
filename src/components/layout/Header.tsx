@@ -1,7 +1,11 @@
 "use client";
 
 import type React from "react";
-
+import { useState, useCallback, useMemo } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   LogOut,
   Settings,
@@ -20,13 +24,9 @@ import {
   LayoutDashboard,
   House,
 } from "lucide-react";
-import { useState } from "react";
-import Link from "next/link";
 import { Button } from "../ui/Button";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
-import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 import { useAuth, useLogout } from "@/src/hooks/useAuth";
 import {
   DropdownMenu,
@@ -39,183 +39,385 @@ import { useRouter } from "next/navigation";
 import { useCategories } from "@/src/hooks/useCategories";
 
 const Header = () => {
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const router = useRouter();
-  const totalItems = useCartStore((state) => state.getTotalItems());
-  const wishlistItems = useWishlistStore((state) => state.getTotalItems());
+
+  // Memoized store values
+  const totalItems = useCartStore(
+    useCallback((state) => state.getTotalItems(), [])
+  );
+  const wishlistItems = useWishlistStore(
+    useCallback((state) => state.getTotalItems(), [])
+  );
+
   const { data: user, isLoading } = useAuth();
   const { data: categories } = useCategories(["id", "name", "description"]);
 
-  const navigation = [
-    { name: "Home", href: "/" },
-    {
-      name: "Collections",
-      href: "/products",
-      dropdown:
-        categories?.map((cat) => ({
-          name: cat.name,
-          href: `/products?category=${cat.name}`,
-          description: cat.description || "",
-        })) ?? [],
-    },
-    {
-      name: "Occasions",
-      href: "/occasions",
-      dropdown: [
-        {
-          name: "Valentine's Day",
-          href: "/occasions/valentines",
-          description: "Romantic arrangements",
-        },
-        {
-          name: "Mother's Day",
-          href: "/occasions/mothers-day",
-          description: "Show your love",
-        },
-        {
-          name: "Birthday",
-          href: "/occasions/birthday",
-          description: "Celebration essentials",
-        },
-        {
-          name: "Anniversary",
-          href: "/occasions/anniversary",
-          description: "Memorable moments",
-        },
-        {
-          name: "Congratulations",
-          href: "/occasions/congratulations",
-          description: "Success celebrations",
-        },
-        {
-          name: "Sympathy",
-          href: "/occasions/sympathy",
-          description: "Thoughtful condolences",
-        },
-      ],
-    },
-    // {
-    //   name: "Same Day Delivery",
-    //   href: "/same-day-delivery",
-    //   dropdown: [
-    //     {
-    //       name: "Express Delivery",
-    //       href: "/delivery/express",
-    //       description: "2-4 hours delivery",
-    //     },
-    //     {
-    //       name: "Standard Delivery",
-    //       href: "/delivery/standard",
-    //       description: "Same day delivery",
-    //     },
-    //     {
-    //       name: "Scheduled Delivery",
-    //       href: "/delivery/scheduled",
-    //       description: "Choose your time",
-    //     },
-    //     {
-    //       name: "Corporate Delivery",
-    //       href: "/delivery/corporate",
-    //       description: "Business solutions",
-    //     },
-    //   ],
-    // },
-    { name: "About", href: "/about" },
-    { name: "Track Order", href: "/track-order" },
-    { name: "Contact", href: "/contact" },
-  ];
+  // Memoized navigation with active state detection
+  const navigation = useMemo(() => {
+    const baseNav = [
+      {
+        name: "Home",
+        href: "/",
+        isActive: pathname === "/",
+        dropdown: undefined,
+      },
+      {
+        name: "Collections",
+        href: "/products",
+        isActive: pathname.startsWith("/products"),
+        dropdown:
+          categories?.map((cat) => ({
+            name: cat.name,
+            href: `/products?category=${cat.name}`,
+            description: cat.description || "",
+          })) ?? [],
+      },
+      {
+        name: "Occasions",
+        href: "/occasions",
+        isActive: pathname.startsWith("/occasions"),
+        dropdown: [
+          {
+            name: "Valentine's Day",
+            href: "/occasions/valentines",
+            description: "Romantic arrangements",
+          },
+          {
+            name: "Mother's Day",
+            href: "/occasions/mothers-day",
+            description: "Show your love",
+          },
+          {
+            name: "Birthday",
+            href: "/occasions/birthday",
+            description: "Celebration essentials",
+          },
+          {
+            name: "Anniversary",
+            href: "/occasions/anniversary",
+            description: "Memorable moments",
+          },
+          {
+            name: "Congratulations",
+            href: "/occasions/congratulations",
+            description: "Success celebrations",
+          },
+          {
+            name: "Sympathy",
+            href: "/occasions/sympathy",
+            description: "Thoughtful condolences",
+          },
+        ],
+      },
+      {
+        name: "About",
+        href: "/about",
+        isActive: pathname.startsWith("/about"),
+        dropdown: undefined,
+      },
+      {
+        name: "Track Order",
+        href: "/track-order",
+        isActive: pathname.startsWith("/track-order"),
+        dropdown: undefined,
+      },
+      {
+        name: "Contact",
+        href: "/contact",
+        isActive: pathname.startsWith("/contact"),
+        dropdown: undefined,
+      },
+    ];
+    return baseNav;
+  }, [categories, pathname]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/products?search=${encodeURIComponent(searchQuery)}`);
-    }
-  };
+  // Memoized search handler
+  const handleSearch = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      if (searchQuery.trim()) {
+        router.push(`/products?search=${encodeURIComponent(searchQuery)}`);
+      }
+    },
+    [searchQuery, router]
+  );
 
-  const handleDropdownToggle = (itemName: string) => {
-    setActiveDropdown(activeDropdown === itemName ? null : itemName);
-  };
+  // Memoized dropdown handlers
+  const handleDropdownToggle = useCallback(
+    (itemName: string) => {
+      setActiveDropdown(activeDropdown === itemName ? null : itemName);
+    },
+    [activeDropdown]
+  );
+
+  const handleDropdownEnter = useCallback((itemName: string) => {
+    setActiveDropdown(itemName);
+  }, []);
+
+  const handleDropdownLeave = useCallback(() => {
+    setActiveDropdown(null);
+  }, []);
 
   const logout = useLogout("/");
+
+  // Memoized logo component
+  const Logo = useMemo(
+    () => (
+      <Link
+        href="/"
+        className="relative w-40 h-14 lg:w-48 lg:h-24 md:w-40 md:h-20 text-xl font-cormorant font-bold text-charcoal-900"
+      >
+        <Image
+          src="/images/logo.jpg"
+          alt="Miskblooming"
+          fill
+          priority
+          style={{ objectFit: "contain" }}
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        />
+      </Link>
+    ),
+    []
+  );
+
+  // Memoized mobile menu buttons
+  const MobileMenuButtons = useMemo(
+    () => (
+      <div className="flex items-center space-x-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsSearchOpen(!isSearchOpen)}
+          className="md:hidden"
+        >
+          <Search className="w-5 h-5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className="sm:hidden"
+        >
+          {isMenuOpen ? (
+            <X className="w-5 h-5" />
+          ) : (
+            <Menu className="w-5 h-5" />
+          )}
+        </Button>
+      </div>
+    ),
+    [isSearchOpen, isMenuOpen]
+  );
+
+  // Memoized cart icon with badge
+  const CartIcon = useMemo(
+    () => (
+      <Link href="/cart">
+        <Button variant="ghost" size="icon" className="relative">
+          <ShoppingBag className="w-5 h-5" />
+          {totalItems > 0 && (
+            <motion.span
+              className="absolute -top-1 -right-1 bg-luxury-500 text-charcoal-900 text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            >
+              {totalItems}
+            </motion.span>
+          )}
+        </Button>
+      </Link>
+    ),
+    [totalItems]
+  );
+
+  // Memoized wishlist icon with badge
+  const WishlistIcon = useMemo(
+    () => (
+      <Link href="/wishlist">
+        <Button variant="ghost" size="icon" className="relative">
+          <Heart className="w-5 h-5" />
+          {wishlistItems > 0 && (
+            <motion.span
+              className="absolute -top-1 -right-1 bg-luxury-500 text-charcoal-900 text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            >
+              {wishlistItems}
+            </motion.span>
+          )}
+        </Button>
+      </Link>
+    ),
+    [wishlistItems]
+  );
+
+  // Memoized user dropdown content
+  const UserDropdownContent = useMemo(() => {
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-slate-600"></div>
+        </div>
+      );
+    }
+
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative hover:bg-slate-100 transition-colors duration-200 rounded-full"
+          >
+            <UserIcon className="w-5 h-5 text-slate-700" />
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent
+          align="end"
+          className="w-64 bg-white border border-slate-200 shadow-lg rounded-xl p-2 mt-2"
+          sideOffset={8}
+        >
+          {user ? (
+            <>
+              <div className="px-3 py-3 border-b border-slate-100">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
+                    <UserIcon className="w-5 h-5 text-slate-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-900 truncate">
+                      {user.firstName} {user.lastName}
+                    </p>
+                    <p className="text-xs text-slate-500 truncate">
+                      {user.email}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {user?.role === "ADMIN" ? (
+                <div className="py-1">
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                    >
+                      <LayoutDashboard className="w-4 h-4 text-slate-500" />
+                      <span>Dashboard</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/dashboard/account/settings"
+                      className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                    >
+                      <ShieldCheck className="w-4 h-4 text-slate-500" />
+                      <span>Manage Admin</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/dashboard/users"
+                      className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                    >
+                      <Users className="w-4 h-4 text-slate-500" />
+                      <span>Users</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/dashboard/payments"
+                      className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                    >
+                      <CreditCard className="w-4 h-4 text-slate-500" />
+                      <span>Payments</span>
+                    </Link>
+                  </DropdownMenuItem>
+                </div>
+              ) : (
+                <div className="py-1">
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/account/orders"
+                      className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                    >
+                      <ShoppingCart className="w-4 h-4 text-slate-500" />
+                      <span>My Orders</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href="/account/settings"
+                      className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                    >
+                      <Settings className="w-4 h-4 text-slate-500" />
+                      <span>Account Settings</span>
+                    </Link>
+                  </DropdownMenuItem>
+                </div>
+              )}
+
+              <DropdownMenuSeparator className="my-1 bg-slate-100" />
+
+              <div className="py-1">
+                <DropdownMenuItem
+                  onClick={logout}
+                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-150 cursor-pointer focus:bg-red-50"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="py-1">
+                <DropdownMenuItem asChild>
+                  <Link
+                    href="/auth/login"
+                    className="flex items-center justify-center px-3 py-2.5 text-sm font-medium text-white bg-luxury-500 hover:bg-luxury-800 rounded-lg transition-colors duration-150 cursor-pointer"
+                  >
+                    Sign In
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link
+                    href="/auth/register"
+                    className="flex items-center justify-center px-3 py-2.5 mt-2 text-sm font-medium text-charcoal-700 border border-charcoal-300 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                  >
+                    Create Account
+                  </Link>
+                </DropdownMenuItem>
+              </div>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }, [user, isLoading, logout]);
 
   return (
     <div
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white`}
     >
-      {/* Top Bar */}
-      {/* <div className="bg-charcoal-900 text-cream-50 py-2">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center text-sm">
-            <motion.span
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              🚚 Free Same-Day Delivery on Orders Above AED 500 | 📞 Call: +971
-              4 123 4567
-            </motion.span>
-            <motion.div
-              className="flex items-center space-x-4"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <span className="flex items-center">
-                <span className="mr-1">💎</span>
-                AED
-              </span>
-            </motion.div>
-          </div>
-        </div>
-      </div> */}
-
-      {/* Main Header */}
+      {/* Main Header - EXACTLY YOUR ORIGINAL STRUCTURE */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 shadow-md border-b">
-        <div className="flex flex-col sm:flex-row  justify-between items-center py-2">
-          {/* Logo */}
-          <div className="flex items-center sm:w-auto w-full space-x-4 justify-between sm:justify-normal sm:border-none  group">
-            <Link
-              href="/"
-              className="relative  w-40 h-14 lg:w-48 lg:h-24 md:w-40 md:h-20 text-xl font-cormorant font-bold text-charcoal-900"
-            >
-              <Image
-                src="/images/logo.jpg"
-                alt="Miskblooming"
-                fill
-                priority
-                style={{ objectFit: "contain" }}
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              />
-            </Link>
-            {/* Mobile Menu Button */}
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="md:hidden"
-              >
-                <Search className="w-5 h-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="sm:hidden"
-              >
-                {isMenuOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
-              </Button>
-            </div>
+        <div className="flex flex-col sm:flex-row justify-between items-center py-2">
+          {/* Logo Section - Same as yours */}
+          <div className="flex items-center sm:w-auto w-full space-x-4 justify-between sm:justify-normal sm:border-none group">
+            {Logo}
+            {MobileMenuButtons}
           </div>
 
-          {/* Search Bar - Desktop */}
+          {/* Search Bar - Desktop - Same as yours */}
           <div className="hidden md:flex flex-1 max-w-2xl mx-8">
             <form onSubmit={handleSearch} className="relative w-full">
               <input
@@ -229,9 +431,9 @@ const Header = () => {
             </form>
           </div>
 
-          {/* Right Side */}
-          <div className="flex px-4 py-2 sm:shadow-none sm:border-none border-t border-gray-300  shadow-[0_-2px_4px_rgba(0,0,0,0.1)]  sm:py-0 sm:px-0 sm:relative bg-white fixed bottom-0 left-0  sm:w-auto w-full items-center md:space-x-4 lg:space-x-4 gap-4 sm:gap-0 sm:justify-end justify-between mt-4 sm:mt-0">
-            {/* Delivery Location */}
+          {/* Right Side - Same as yours */}
+          <div className="flex px-4 py-2 sm:shadow-none sm:border-none border-t border-gray-300 shadow-[0_-2px_4px_rgba(0,0,0,0.1)] sm:py-0 sm:px-0 sm:relative bg-white fixed bottom-0 left-0 sm:w-auto w-full items-center md:space-x-4 lg:space-x-4 gap-4 sm:gap-0 sm:justify-end justify-between mt-4 sm:mt-0">
+            {/* Delivery Location - Same as yours */}
             <div className="hidden lg:flex items-center text-sm">
               <MapPin className="w-4 h-4 mr-1 text-luxury-500" />
               <span className="">Deliver To</span>
@@ -242,201 +444,232 @@ const Header = () => {
                 Dubai <ChevronDown className="w-4 h-4 ml-1" />
               </Button>
             </div>
-            {/* Icons */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.push("/")}
-              className="md:hidden"
-            >
-              <House className="w-5 h-5" />
-            </Button>
-            <Link href="/wishlist">
-              <Button variant="ghost" size="icon" className="relative">
-                <Heart className="w-5 h-5" />
-                {wishlistItems > 0 && (
-                  <motion.span
-                    className="absolute -top-1 -right-1 bg-luxury-500 text-charcoal-900 text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  >
-                    {wishlistItems}
-                  </motion.span>
-                )}
-              </Button>
-            </Link>
-            <Link href="/cart">
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingBag className="w-5 h-5" />
-                {totalItems > 0 && (
-                  <motion.span
-                    className="absolute -top-1 -right-1 bg-luxury-500 text-charcoal-900 text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                  >
-                    {totalItems}
-                  </motion.span>
-                )}
-              </Button>
-            </Link>
 
-            <>
-              {isLoading ? (
-                <div className="flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-slate-600"></div>
-                </div>
-              ) : (
-                <div className="sm:flex">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="relative hover:bg-slate-100 transition-colors duration-200 rounded-full"
+            {/* Mobile Bottom Navigation Bar */}
+            <div className="sm:hidden flex items-center justify-around shadow-[0_-2px_6px_rgba(0,0,0,0.1)] w-full absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2">
+              {/* Home */}
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => router.push("/")}
+                className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 flex-1 ${
+                  pathname === "/"
+                    ? "text-luxury-600 bg-luxury-50"
+                    : "text-gray-500 hover:text-luxury-500"
+                }`}
+              >
+                <House className="w-5 h-5" />
+                <span className="text-xs mt-1 font-medium">Home</span>
+                {pathname === "/" && (
+                  <motion.div
+                    className="w-1 h-1 bg-luxury-600 rounded-full mt-1"
+                    layoutId="activeDot"
+                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                  />
+                )}
+              </motion.button>
+
+              {/* Wishlist */}
+              <motion.div
+                whileTap={{ scale: 0.95 }}
+                className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 flex-1 ${
+                  pathname === "/wishlist"
+                    ? "text-luxury-600 bg-luxury-50"
+                    : "text-gray-500 hover:text-luxury-500"
+                }`}
+              >
+                <Link
+                  href="/wishlist"
+                  className="flex flex-col items-center w-full"
+                >
+                  <div className="relative">
+                    <Heart className="w-5 h-5" />
+                    {wishlistItems > 0 && (
+                      <motion.span
+                        className="absolute -top-1 -right-1 bg-luxury-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
                       >
-                        <UserIcon className="w-5 h-5 text-slate-700" />
-                      </Button>
-                    </DropdownMenuTrigger>
+                        {wishlistItems}
+                      </motion.span>
+                    )}
+                  </div>
+                  <span className="text-xs mt-1 font-medium">Wishlist</span>
+                  {pathname === "/wishlist" && (
+                    <motion.div
+                      className="w-1 h-1 bg-luxury-600 rounded-full mt-1"
+                      layoutId="activeDot"
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 30,
+                      }}
+                    />
+                  )}
+                </Link>
+              </motion.div>
 
-                    <DropdownMenuContent
-                      align="end"
-                      className="w-64 bg-white border border-slate-200 shadow-lg rounded-xl p-2 mt-2"
-                      sideOffset={8}
+              {/* Cart */}
+              <motion.div
+                whileTap={{ scale: 0.95 }}
+                className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 flex-1 ${
+                  pathname === "/cart"
+                    ? "text-luxury-600 bg-luxury-50"
+                    : "text-gray-500 hover:text-luxury-500"
+                }`}
+              >
+                <Link
+                  href="/cart"
+                  className="flex flex-col items-center w-full"
+                >
+                  <div className="relative">
+                    <ShoppingBag className="w-5 h-5" />
+                    {totalItems > 0 && (
+                      <motion.span
+                        className="absolute -top-1 -right-1 bg-luxury-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold"
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                      >
+                        {totalItems}
+                      </motion.span>
+                    )}
+                  </div>
+                  <span className="text-xs mt-1 font-medium">Cart</span>
+                  {pathname === "/cart" && (
+                    <motion.div
+                      className="w-1 h-1 bg-luxury-600 rounded-full mt-1"
+                      layoutId="activeDot"
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 30,
+                      }}
+                    />
+                  )}
+                </Link>
+              </motion.div>
+
+              {/* Account - Fixed Alignment */}
+              <div
+                className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 flex-1`}
+              >
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="relative hover:bg-transparent text-gray-500 flex flex-col items-center"
                     >
-                      {user ? (
-                        <>
-                          <div className="px-3 py-3 border-b border-slate-100">
-                            <div className="flex items-center space-x-3">
-                              <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center">
-                                <UserIcon className="w-5 h-5 text-slate-600" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-slate-900 truncate">
-                                  {user.firstName} {user.lastName}
-                                </p>
-                                <p className="text-xs text-slate-500 truncate">
-                                  {user.email}
-                                </p>
-                              </div>
+                      <UserIcon className="w-5 h-5" />
+                      <span className="text-xs mt-1 font-medium">Account</span>
+                    </Button>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent
+                    align="center"
+                    side="top"
+                    className="w-56 bg-white border border-slate-200 shadow-lg rounded-xl p-2 mb-2"
+                    sideOffset={8}
+                  >
+                    {user ? (
+                      <>
+                        <div className="px-3 py-3 border-b border-slate-100">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center">
+                              <UserIcon className="w-4 h-4 text-slate-600" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-slate-900 truncate">
+                                {user.firstName} {user.lastName}
+                              </p>
+                              <p className="text-xs text-slate-500 truncate">
+                                {user.email}
+                              </p>
                             </div>
                           </div>
+                        </div>
 
-                          {user?.role === "ADMIN" ? (
-                            <div className="py-1">
-                              {/* Dashboard */}
-                              <DropdownMenuItem asChild>
-                                <Link
-                                  href="/dashboard"
-                                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
-                                >
-                                  <LayoutDashboard className="w-4 h-4 text-slate-500" />
-                                  <span>Dashboard</span>
-                                </Link>
-                              </DropdownMenuItem>
-
-                              {/* Manage Admin */}
-                              <DropdownMenuItem asChild>
-                                <Link
-                                  href="/dashboard/account/settings"
-                                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
-                                >
-                                  <ShieldCheck className="w-4 h-4 text-slate-500" />
-                                  <span>Manage Admin</span>
-                                </Link>
-                              </DropdownMenuItem>
-
-                              {/* Users */}
-                              <DropdownMenuItem asChild>
-                                <Link
-                                  href="/dashboard/users"
-                                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
-                                >
-                                  <Users className="w-4 h-4 text-slate-500" />
-                                  <span>Users</span>
-                                </Link>
-                              </DropdownMenuItem>
-
-                              {/* Payments */}
-                              <DropdownMenuItem asChild>
-                                <Link
-                                  href="/dashboard/payments"
-                                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
-                                >
-                                  <CreditCard className="w-4 h-4 text-slate-500" />
-                                  <span>Payments</span>
-                                </Link>
-                              </DropdownMenuItem>
-                            </div>
-                          ) : (
-                            <div className="py-1">
-                              <DropdownMenuItem asChild>
-                                <Link
-                                  href="/account/orders"
-                                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
-                                >
-                                  <ShoppingCart className="w-4 h-4 text-slate-500" />
-                                  <span>My Orders</span>
-                                </Link>
-                              </DropdownMenuItem>
-
-                              <DropdownMenuItem asChild>
-                                <Link
-                                  href="/account/settings"
-                                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
-                                >
-                                  <Settings className="w-4 h-4 text-slate-500" />
-                                  <span>Account Settings</span>
-                                </Link>
-                              </DropdownMenuItem>
-                            </div>
-                          )}
-
-                          <DropdownMenuSeparator className="my-1 bg-slate-100" />
-
-                          <div className="py-1">
-                            <DropdownMenuItem
-                              onClick={logout}
-                              className="flex items-center gap-3 px-3 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-150 cursor-pointer focus:bg-red-50"
-                            >
-                              <LogOut className="w-4 h-4" />
-                              <span>Sign Out</span>
-                            </DropdownMenuItem>
-                          </div>
-                        </>
-                      ) : (
-                        <>
+                        {user?.role === "ADMIN" ? (
                           <div className="py-1">
                             <DropdownMenuItem asChild>
                               <Link
-                                href="/auth/login"
-                                className="flex items-center justify-center px-3 py-2.5 text-sm font-medium text-white bg-luxury-500 hover:bg-luxury-800 rounded-lg transition-colors duration-150 cursor-pointer"
+                                href="/dashboard"
+                                className="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
                               >
-                                Sign In
-                              </Link>
-                            </DropdownMenuItem>
-
-                            <DropdownMenuItem asChild>
-                              <Link
-                                href="/auth/register"
-                                className="flex items-center justify-center px-3 py-2.5 mt-2 text-sm font-medium text-charcoal-700 border border-charcoal-300 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
-                              >
-                                Create Account
+                                <LayoutDashboard className="w-4 h-4 text-slate-500" />
+                                <span>Dashboard</span>
                               </Link>
                             </DropdownMenuItem>
                           </div>
-                        </>
-                      )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              )}
-            </>
+                        ) : (
+                          <div className="py-1">
+                            <DropdownMenuItem asChild>
+                              <Link
+                                href="/account/orders"
+                                className="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                              >
+                                <ShoppingCart className="w-4 h-4 text-slate-500" />
+                                <span>My Orders</span>
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link
+                                href="/account/settings"
+                                className="flex items-center gap-3 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                              >
+                                <Settings className="w-4 h-4 text-slate-500" />
+                                <span>Settings</span>
+                              </Link>
+                            </DropdownMenuItem>
+                          </div>
+                        )}
+
+                        <DropdownMenuSeparator className="my-1 bg-slate-100" />
+
+                        <div className="py-1">
+                          <DropdownMenuItem
+                            onClick={logout}
+                            className="flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            <span>Sign Out</span>
+                          </DropdownMenuItem>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="py-1 space-y-1">
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href="/auth/login"
+                            className="flex items-center justify-center px-3 py-2 text-sm font-medium text-white bg-luxury-500 hover:bg-luxury-600 rounded-lg transition-colors duration-150 cursor-pointer"
+                          >
+                            Sign In
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href="/auth/register"
+                            className="flex items-center justify-center px-3 py-2 mt-1 text-sm font-medium text-charcoal-700 border border-charcoal-300 hover:bg-slate-50 rounded-lg transition-colors duration-150 cursor-pointer"
+                          >
+                            Create Account
+                          </Link>
+                        </DropdownMenuItem>
+                      </div>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+
+            {/* Desktop Icons (hidden on mobile) */}
+            <div className="hidden sm:flex items-center space-x-2">
+              {WishlistIcon}
+              {CartIcon}
+              <div className="sm:flex">{UserDropdownContent}</div>
+            </div>
           </div>
         </div>
 
-        {/* Navigation - Desktop */}
+        {/* Navigation - Desktop - Enhanced with active states */}
         <nav className="hidden md:flex items-center justify-center space-x-8 pt-1 pb-4 relative">
           {navigation.map((item, index) => (
             <motion.div
@@ -445,22 +678,30 @@ const Header = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 * index }}
-              onMouseEnter={() => item.dropdown && setActiveDropdown(item.name)}
-              onMouseLeave={() => setActiveDropdown(null)}
+              onMouseEnter={() =>
+                item.dropdown && handleDropdownEnter(item.name)
+              }
+              onMouseLeave={handleDropdownLeave}
             >
               <Link
                 href={item.href}
-                className="text-charcoal-900 hover:text-luxury-500 transition-colors font-medium relative group flex items-center"
+                className={`text-charcoal-900 hover:text-luxury-500 transition-colors font-medium relative group flex items-center ${
+                  item.isActive ? "text-luxury-600 font-semibold" : ""
+                }`}
               >
                 {item.name}
                 {item.dropdown && <ChevronDown className="w-4 h-4 ml-1" />}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-luxury-500 transition-all duration-300 group-hover:w-full"></span>
+                <span
+                  className={`absolute -bottom-1 left-0 h-0.5 bg-luxury-500 transition-all duration-300 ${
+                    item.isActive ? "w-full" : "w-0 group-hover:w-full"
+                  }`}
+                ></span>
               </Link>
 
-              {/* Dropdown Menu */}
+              {/* Dropdown Menu - Same as yours */}
               {item.dropdown && activeDropdown === item.name && (
                 <motion.div
-                  className="absolute  top-full left-0 mt-2 min-w-full bg-white rounded-xl shadow-xl border border-gray-200 p-4  z-50"
+                  className="absolute top-full left-0 mt-2 min-w-full bg-white rounded-xl shadow-xl border border-gray-200 p-4 z-50"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
@@ -488,7 +729,7 @@ const Header = () => {
           ))}
         </nav>
 
-        {/* Mobile Search */}
+        {/* Mobile Search - Same as yours */}
         <AnimatePresence>
           {isSearchOpen && (
             <motion.div
@@ -511,7 +752,7 @@ const Header = () => {
           )}
         </AnimatePresence>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation - Enhanced with active states */}
         <AnimatePresence>
           {isMenuOpen && (
             <motion.nav
@@ -538,6 +779,9 @@ const Header = () => {
                         <Link
                           href={item.href}
                           onClick={() => setIsMenuOpen(false)}
+                          className={
+                            item.isActive ? "text-luxury-600 font-semibold" : ""
+                          }
                         >
                           {item.name}
                         </Link>
@@ -550,7 +794,7 @@ const Header = () => {
                         )}
                       </button>
 
-                      {/* Mobile Dropdown */}
+                      {/* Mobile Dropdown - Same as yours */}
                       {item.dropdown && activeDropdown === item.name && (
                         <motion.div
                           className="mt-2 ml-4 space-y-2"

@@ -75,7 +75,6 @@ const yoga = createYoga<ContextType>({
       throw new Error("Internal Server Error");
     }
   },
-  graphiql: { subscriptionsProtocol: "SSE" },
 });
 
 // Use a single default export

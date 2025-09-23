@@ -376,12 +376,14 @@ export const OrderResolvers = {
               orderId: createdOrder.id,
             },
           });
+          console.log("🚀 ~ notification:", notification);
           // send push to all subscribers (background)
-          sendPushToAll({
+          const send = sendPushToAll({
             title: "New Order",
             body: notification.message,
             url: `/dashboard/orders/${createdOrder.id}`,
           }).catch((e) => console.error("sendPushToAll error:", e));
+          console.log("🚀 ~ send:", send);
           return createdOrder;
         });
 
