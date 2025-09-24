@@ -47,7 +47,10 @@ export async function POST(req: NextRequest) {
   try {
     switch (event.type) {
       case "payment_intent.succeeded": {
-        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        const paymentIntent = event.data.object as Stripe.PaymentIntent & {
+          charges?: Stripe.ApiList<Stripe.Charge>;
+        };
+
         const orderId = paymentIntent.metadata?.orderId;
 
         if (!orderId) {
@@ -58,16 +61,11 @@ export async function POST(req: NextRequest) {
 
         let last4: string | null = null;
 
-        if (paymentIntent.payment_method_types?.includes("card")) {
-          const paymentIntentWithCharges =
-            (await stripe.paymentIntents.retrieve(paymentIntent.id, {
-              expand: ["charges.data.payment_method"],
-            })) as any;
-
-          last4 =
-            paymentIntentWithCharges.charges.data[0]?.payment_method?.card
-              ?.last4 || null;
+        const charge = paymentIntent.charges?.data?.[0];
+        if (charge?.payment_method_details?.type === "card") {
+          last4 = charge.payment_method_details.card?.last4 || null;
         }
+
         try {
           await prisma.order.update({
             where: { id: orderId },

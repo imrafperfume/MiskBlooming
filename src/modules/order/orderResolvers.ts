@@ -207,63 +207,56 @@ export const OrderResolvers = {
     createOrder: async (_: any, { input }: { input: CreateOrderInput }) => {
       try {
         const { isGuest, couponCode, ...orderInput } = input;
+        console.log("🚀 ~ couponCode:", couponCode);
         let userId = input.userId;
-        const password = randomBytes(4).toString("hex");
-        const passwordHash = await hashPassword(password);
+
+        // Guest user creation or find
         if (isGuest && !userId) {
-          let user = await prisma.user.findUnique({
+          const password = randomBytes(4).toString("hex");
+          const passwordHash = await hashPassword(password);
+
+          const user = await prisma.user.upsert({
             where: { email: input.email },
+            update: {},
+            create: {
+              firstName: input.firstName,
+              lastName: input.lastName,
+              phoneNumber: input.phone,
+              email: input.email,
+              passwordHash,
+              isGuest: true,
+            },
           });
-
-          if (!user) {
-            const { email, firstName, lastName, phone } = input;
-
-            user = await prisma.user.create({
-              data: {
-                firstName,
-                lastName,
-                phoneNumber: phone,
-                email,
-                passwordHash,
-                isGuest: true,
-              },
-            });
-          }
 
           userId = user.id;
         }
 
-        // Validate that all products exist before creating the order
+        // Validate products
         const productIds = input.items.map((item) => item.productId);
         const existingProducts = await prisma.product.findMany({
           where: { id: { in: productIds } },
-          select: { id: true, name: true, status: true },
+          select: { id: true, name: true, status: true, quantity: true },
         });
 
-        if (existingProducts.length !== productIds.length) {
-          const existingProductIds = existingProducts.map((p) => p.id);
-          const missingProductIds = productIds.filter(
-            (id) => !existingProductIds.includes(id)
-          );
+        const missingProductIds = productIds.filter(
+          (id) => !existingProducts.find((p) => p.id === id)
+        );
+        if (missingProductIds.length > 0)
           throw new Error(
             `Products not found: ${missingProductIds.join(", ")}`
           );
-        }
 
-        // Check if any products are not active
         const inactiveProducts = existingProducts.filter(
           (p) => p.status !== "active"
         );
-        if (inactiveProducts.length > 0) {
-          const inactiveProductNames = inactiveProducts
-            .map((p) => p.name)
-            .join(", ");
+        if (inactiveProducts.length > 0)
           throw new Error(
-            `Products are not available: ${inactiveProductNames}`
+            `Products are not available: ${inactiveProducts
+              .map((p) => p.name)
+              .join(", ")}`
           );
-        }
 
-        // Handle coupon validation and usage
+        // Coupon validation
         let couponUsage = null;
         if (couponCode) {
           const coupon = await prisma.coupon.findUnique({
@@ -281,20 +274,15 @@ export const OrderResolvers = {
             throw new Error("Coupon is not valid or has expired");
           }
 
-          if (
-            coupon.minimumAmount &&
-            input.totalAmount < coupon.minimumAmount
-          ) {
+          if (coupon.minimumAmount && input.totalAmount < coupon.minimumAmount)
             throw new Error(
               `Minimum order amount of ${coupon.minimumAmount} AED required for this coupon`
             );
-          }
 
-          if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
+          if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit)
             throw new Error("This coupon has reached its usage limit");
-          }
 
-          // Calculate discount
+          // Discount calculation
           let discountAmount = 0;
           if (coupon.discountType === "PERCENTAGE") {
             discountAmount = (input.totalAmount * coupon.discountValue) / 100;
@@ -307,21 +295,18 @@ export const OrderResolvers = {
           } else if (coupon.discountType === "FIXED_AMOUNT") {
             discountAmount = coupon.discountValue;
           }
-
           discountAmount = Math.min(discountAmount, input.totalAmount);
-          console.log("🚀 ~ discountAmount:", discountAmount);
 
           couponUsage = {
             couponId: coupon.id,
             discountAmount,
             orderAmount: input.totalAmount,
-            userId: userId || null,
+            userId: userId,
             email: input.email,
           };
-          console.log("🚀 ~ couponUsage:", couponUsage);
         }
 
-        // Build orderData safely with nested creates
+        // Build orderData
         const orderData: any = {
           ...orderInput,
           userId,
@@ -335,15 +320,14 @@ export const OrderResolvers = {
               price: item.price,
             })),
           },
+          couponUsage: couponUsage ? { create: { ...couponUsage } } : undefined,
         };
 
-        if (couponUsage) {
-          orderData.couponUsage = { create: couponUsage };
-        }
+        console.log("orderData", orderData);
 
-        const order = await prisma.$transaction(async (prismaTx) => {
-          // 1 Create the order
-          const createdOrder = await prismaTx.order.create({
+        // Transaction: create order, update stock, send notification
+        const order = await prisma.$transaction(async (tx) => {
+          const createdOrder = await tx.order.create({
             data: orderData,
             include: {
               items: { include: { product: true } },
@@ -352,41 +336,46 @@ export const OrderResolvers = {
             },
           });
 
-          // 2 Stock update (quantity minus)
-          for (const item of createdOrder.items) {
-            const product = await prismaTx.product.findUnique({
-              where: { id: item.productId },
-            });
+          console.log("🚀 ~ createdOrder:", createdOrder);
 
-            if (!product)
-              throw new Error(`Product not found: ${item.productId}`);
-            if (product.quantity < item.quantity) {
-              throw new Error(`Insufficient stock for ${product.name}`);
-            }
+          // Stock update
+          await Promise.all(
+            createdOrder.items.map(async (item) => {
+              const product = existingProducts.find(
+                (p) => p.id === item.productId
+              );
+              if (!product)
+                throw new Error(`Product not found: ${item.productId}`);
+              if (product.quantity < item.quantity)
+                throw new Error(`Insufficient stock for ${product.name}`);
 
-            await prismaTx.product.update({
-              where: { id: item.productId },
-              data: { quantity: { decrement: item.quantity } },
-            });
-          }
-          const notification = await prisma.notification.create({
+              await tx.product.update({
+                where: { id: item.productId },
+                data: { quantity: { decrement: item.quantity } },
+              });
+            })
+          );
+
+          // Notification
+          const notification = await tx.notification.create({
             data: {
               type: "order_created",
               message: `New order received: ${createdOrder.id}`,
               orderId: createdOrder.id,
             },
           });
-          console.log("🚀 ~ notification:", notification);
-          // send push to all subscribers (background)
-          const send = sendPushToAll({
+
+          // Push notification (background)
+          sendPushToAll({
             title: "New Order",
             body: notification.message,
             url: `/dashboard/orders/${createdOrder.id}`,
           }).catch((e) => console.error("sendPushToAll error:", e));
-          console.log("🚀 ~ send:", send);
+
           return createdOrder;
         });
 
+        // Clear Redis caches
         await redis.del("allOrders");
         await redis.del("orderStats");
         await redis.del(`orderById:${order.id}`);
@@ -394,9 +383,8 @@ export const OrderResolvers = {
         await Promise.all(
           order.items.map((i) => redis.del(`product:${i.product.slug}`))
         );
-        if (userId) {
-          await redis.del(`ordersByUser:${userId}`);
-        }
+        if (userId) await redis.del(`ordersByUser:${userId}`);
+
         // Update coupon usage count
         if (couponUsage) {
           await prisma.coupon.update({
@@ -408,13 +396,11 @@ export const OrderResolvers = {
         return order;
       } catch (error) {
         console.error(error);
-        if (error instanceof Error) {
+        if (error instanceof Error)
           throw new Error(`Failed to create order: ${error.message}`);
-        }
         throw new Error("Failed to create order");
       }
     },
-
     updateOrderStatus: async (
       _: any,
       args: UpdateOrderStatusArgs,

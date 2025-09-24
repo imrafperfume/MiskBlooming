@@ -51,6 +51,24 @@ export default function ProductInfo({
     totalReviews > 0
       ? reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews
       : 0;
+  const handleShare = async () => {
+    const shareData = {
+      title: product?.name,
+      text: `Check out this product: ${product?.name}`,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error("Share failed:", err);
+      }
+    } else {
+      // Fallback for unsupported browsers
+      navigator.clipboard.writeText(shareData.url);
+    }
+  };
 
   return (
     <motion.div
@@ -201,6 +219,7 @@ export default function ProductInfo({
         </Button>
 
         <Button
+          onClick={() => handleShare()}
           variant="outline"
           size="xl"
           className="flex-1 sm:flex-none bg-white"

@@ -2,7 +2,7 @@ import { gql } from "@apollo/client";
 
 export const dashboardTypeDefs = gql`
   type Query {
-    dashboardMetrics: DashboardMetrics
+    dashboardMetrics(timeRange: Int): DashboardMetrics!
   }
 
   type DashboardMetrics {

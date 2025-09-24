@@ -29,7 +29,7 @@ export default function AdminDashboard() {
   const router = useRouter();
   const { data, loading, error } = useQuery(DASHBOARD_METRICS, {
     fetchPolicy: "cache-and-network",
-    variables: { days: timeRange },
+    variables: { timeRange },
   });
 
   if (loading) {

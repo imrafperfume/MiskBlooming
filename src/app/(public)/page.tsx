@@ -1,41 +1,36 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Suspense, lazy, useState, useEffect } from "react";
+import { Award } from "lucide-react";
+import dynamic from "next/dynamic";
 import { Button } from "../../components/ui/Button";
 import { LazyWrapper } from "../../components/ui/LazyWrapper";
-import { Award } from "lucide-react";
 
-// Critical components loaded immediately
+// Critical above-the-fold components (direct import)
 import HeroSlider from "../../components/home/HeroSlider";
 import ShopByCategory from "../../components/home/ShopByCategory";
 import { useFeaturedProducts } from "@/src/hooks/useProducts";
 
-// Optimized lazy loading with preloading
+// Non-critical sections (dynamic imports with suspense)
 const FeaturedProducts = lazy(
   () => import("../../components/home/FeaturedProducts")
 );
-const SpecialOccasions = lazy(
-  () => import("../../components/home/SpecialOccasions")
+const SpecialOccasions = dynamic(
+  () => import("../../components/home/SpecialOccasions"),
+  { ssr: false, loading: () => <SectionLoader /> }
 );
-const InSeason = lazy(() => import("../../components/home/InSeason"));
-const TestimonialSection = lazy(
-  () => import("../../components/home/TestimonialSection")
-);
-// Simple loading components
-const SectionLoader = ({ height = "h-96" }: { height?: string }) => (
-  <div className={`${height} bg-cream-200 animate-pulse rounded-lg`} />
+const InSeason = dynamic(() => import("../../components/home/InSeason"), {
+  ssr: false,
+  loading: () => <SectionLoader />,
+});
+const TestimonialSection = dynamic(
+  () => import("../../components/home/TestimonialSection"),
+  { ssr: false, loading: () => <SectionLoader height="h-64" /> }
 );
 
-const StatsLoader = () => (
-  <div className="grid grid-cols-1 md:grid-cols-4 gap-8 py-24">
-    {[...Array(4)].map((_, i) => (
-      <div key={i} className="text-center">
-        <div className="h-12 bg-cream-200 rounded mb-2 mx-auto w-32"></div>
-        <div className="h-6 bg-cream-200 rounded w-24 mx-auto"></div>
-      </div>
-    ))}
-  </div>
+// Skeleton loaders (fast paint, avoids CLS)
+const SectionLoader = ({ height = "h-96" }: { height?: string }) => (
+  <div className={`${height} bg-cream-200 animate-pulse rounded-lg`} />
 );
 
 export default function HomePage() {
@@ -50,7 +45,6 @@ export default function HomePage() {
     "quantity",
     "images {url}",
     "featured",
-    "compareAtPrice",
     "status",
     "tags",
     "featuredImage",
@@ -64,39 +58,30 @@ export default function HomePage() {
     testimonial: false,
   });
 
-  // Intersection Observer for strategic loading
+  // Intersection Observer (lazy hydration strategy)
   useEffect(() => {
+    const sections = Object.keys(isVisible) as (keyof typeof isVisible)[];
     const observers: IntersectionObserver[] = [];
 
-    const createObserver = (key: keyof typeof isVisible, threshold = 0.1) => {
-      const element = document.getElementById(key);
-      if (!element) return;
+    sections.forEach((key) => {
+      const el = document.getElementById(key);
+      if (!el) return;
 
       const observer = new IntersectionObserver(
         (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              setIsVisible((prev) => ({ ...prev, [key]: true }));
-              observer.disconnect();
-            }
-          });
+          if (entries[0].isIntersecting) {
+            setIsVisible((prev) => ({ ...prev, [key]: true }));
+            observer.disconnect();
+          }
         },
-        { threshold }
+        { threshold: 0.1 }
       );
 
-      observer.observe(element);
+      observer.observe(el);
       observers.push(observer);
-    };
+    });
 
-    // Create observers for each section
-    createObserver("featured");
-    createObserver("special", 0.05);
-    createObserver("season", 0.05);
-    createObserver("testimonial", 0.1);
-
-    return () => {
-      observers.forEach((observer) => observer.disconnect());
-    };
+    return () => observers.forEach((o) => o.disconnect());
   }, []);
 
   const stats = [
@@ -108,13 +93,11 @@ export default function HomePage() {
 
   return (
     <div className="overflow-hidden">
-      {/* Hero Slider - Critical */}
+      {/* Hero + Category (critical, above the fold) */}
       <HeroSlider />
-
-      {/* Shop by Category - Critical */}
       <ShopByCategory />
 
-      {/* Featured Products - Lazy with intersection observer */}
+      {/* Featured Products */}
       <div id="featured">
         <LazyWrapper>
           <Suspense fallback={<SectionLoader height="h-80" />}>
@@ -130,118 +113,81 @@ export default function HomePage() {
         </LazyWrapper>
       </div>
 
-      {/* Special Occasions - Lazy with intersection observer */}
-      <div id="special">
+      {/* Special Occasions */}
+      {/* <div id="special">
         <LazyWrapper>
-          <Suspense fallback={<SectionLoader />}>
-            {isVisible.special ? <SpecialOccasions /> : <SectionLoader />}
-          </Suspense>
+          {isVisible.special ? <SpecialOccasions /> : <SectionLoader />}
         </LazyWrapper>
-      </div>
+      </div> */}
 
-      {/* In Season - Lazy with intersection observer */}
+      {/* In Season */}
       <div id="season">
         <LazyWrapper>
-          <Suspense fallback={<SectionLoader />}>
-            {isVisible.season ? <InSeason /> : <SectionLoader />}
-          </Suspense>
+          {isVisible.season ? <InSeason /> : <SectionLoader />}
         </LazyWrapper>
       </div>
 
-      {/* Stats Section - Optimized with minimal motion */}
+      {/* Stats (static, no motion for better TBT) */}
       <section className="py-24 luxury-gradient">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="font-cormorant text-display-md font-bold text-charcoal-900 mb-6">
-              A Legacy of <span className="text-charcoal-900">Excellence</span>
-            </h2>
-          </div>
-
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="font-cormorant text-display-md font-bold text-charcoal-900 mb-16">
+            A Legacy of <span className="text-charcoal-900">Excellence</span>
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
+            {stats.map((s, i) => (
+              <div key={i}>
                 <div className="text-4xl lg:text-5xl font-bold text-charcoal-900 mb-2">
-                  {stat.number}
+                  {s.number}
                 </div>
-                <div className="text-charcoal-700 font-medium">
-                  {stat.label}
-                </div>
+                <p className="text-charcoal-700 font-medium">{s.label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials - Lazy with intersection observer */}
+      {/* Testimonials */}
       <div id="testimonial">
         <LazyWrapper>
-          <Suspense fallback={<SectionLoader height="h-64" />}>
-            {isVisible.testimonial ? (
-              <TestimonialSection />
-            ) : (
-              <SectionLoader height="h-64" />
-            )}
-          </Suspense>
+          {isVisible.testimonial ? (
+            <TestimonialSection />
+          ) : (
+            <SectionLoader height="h-64" />
+          )}
         </LazyWrapper>
       </div>
 
-      {/* Newsletter - Optimized with conditional motion */}
+      {/* Newsletter */}
       <section className="py-24 bg-gradient-to-br from-cream-50 to-cream-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex items-center justify-center mb-6">
-            <Award className="w-8 h-8 text-luxury-500 mr-3" />
+            <Award className="w-8 h-8 text-luxury-500 mx-3" />
             <h2 className="font-cormorant text-display-sm font-bold text-charcoal-900">
               Join Our Exclusive Circle
             </h2>
-            <Award className="w-8 h-8 text-luxury-500 ml-3" />
+            <Award className="w-8 h-8 text-luxury-500 mx-3" />
           </div>
           <p className="text-muted-foreground text-xl mb-8 max-w-2xl mx-auto">
             Be the first to discover our latest collections, exclusive offers,
             and seasonal inspirations
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+          <form
+            className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
+            onSubmit={(e) => e.preventDefault()}
+          >
             <input
               type="email"
-              placeholder="Enter your email address"
-              className="flex-1 px-6 py-4 rounded-xl border border-cream-400 focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 bg-white"
+              placeholder="Enter your email"
+              className="flex-1 px-6 py-4 rounded-xl border border-cream-400 
+              focus:ring-2 focus:ring-luxury-500 transition-all bg-white"
+              required
             />
-            <Button variant="luxury" size="lg">
+            <Button variant="luxury" size="lg" type="submit">
               Subscribe
             </Button>
-          </div>
+          </form>
         </div>
       </section>
-    </div>
-  );
-}
-
-// Optimized motion components for better performance
-const OptimizedMotion = {
-  div: motion.div,
-};
-
-// Alternative version without motion for maximum performance
-export function HomePageStatic() {
-  const { data: featuredProducts, isLoading } = useFeaturedProducts([
-    "id",
-    "name",
-    "slug",
-    "category",
-  ]);
-
-  return (
-    <div className="overflow-hidden">
-      <HeroSlider />
-      <ShopByCategory />
-
-      <Suspense fallback={<SectionLoader height="h-80" />}>
-        <FeaturedProducts
-          featuredProducts={featuredProducts ?? []}
-          isLoading={isLoading}
-        />
-      </Suspense>
-
-      {/* Rest of the static content */}
     </div>
   );
 }

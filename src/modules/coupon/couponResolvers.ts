@@ -187,93 +187,79 @@ export const CouponResolvers = {
       _: any,
       args: { code: string; orderAmount: number; userId: string }
     ) => {
-      try {
-        const { code, orderAmount, userId } = args;
+      const { code, orderAmount, userId } = args;
 
-        // Only logged-in users can use coupons
-        if (!userId) throw new Error("User not authenticated");
+      if (!userId) {
+        return { isValid: false, error: "User not authenticated" };
+      }
 
-        // Find the coupon
-        const coupon = await prisma.coupon.findUnique({
-          where: { code: code.toUpperCase() },
-        });
-        if (!coupon) return { isValid: false, error: "Invalid coupon code" };
+      const coupon = await prisma.coupon.findUnique({
+        where: { code: code.toUpperCase() },
+      });
+      if (!coupon) {
+        return { isValid: false, error: "Invalid coupon code" };
+      }
 
-        const now = new Date();
+      const now = new Date();
+      const validFrom = new Date(coupon.validFrom);
+      const validUntil = new Date(coupon.validUntil);
 
-        // Check coupon validity period and active status
-        if (
-          !coupon.isActive ||
-          now < new Date(coupon.validFrom) ||
-          now > new Date(coupon.validUntil)
-        ) {
-          return {
-            isValid: false,
-            error: "This coupon is not valid or has expired",
-          };
-        }
+      // Coupon active & valid period check
+      if (!coupon.isActive || now < validFrom || now > validUntil) {
+        return { isValid: false, error: "Coupon is not valid or has expired" };
+      }
 
-        // Minimum order amount check
-        if (coupon.minimumAmount && orderAmount < coupon.minimumAmount) {
-          return {
-            isValid: false,
-            error: `Minimum order amount of ${coupon.minimumAmount} required`,
-          };
-        }
-
-        // Global usage limit
-        if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
-          return {
-            isValid: false,
-            error: "This coupon has reached its usage limit",
-          };
-        }
-
-        // Per-user usage limit
-        if (coupon.userUsageLimit) {
-          const userUsageCount = await prisma.couponUsage.count({
-            where: { couponId: coupon.id, userId },
-          });
-          if (userUsageCount >= coupon.userUsageLimit) {
-            return {
-              isValid: false,
-              error: "You have already used this coupon",
-            };
-          }
-        }
-
-        // New users only
-        if (coupon.newUsersOnly) {
-          const userOrderCount = await prisma.order.count({
-            where: { userId },
-          });
-          if (userOrderCount > 0) {
-            return {
-              isValid: false,
-              error: "This coupon is only for new customers",
-            };
-          }
-        }
-
-        // Calculate discount
-        let discountAmount = 0;
-        if (coupon.discountType === "PERCENTAGE") {
-          discountAmount = (orderAmount * coupon.discountValue) / 100;
-          if (coupon.maximumDiscount)
-            discountAmount = Math.min(discountAmount, coupon.maximumDiscount);
-        } else if (coupon.discountType === "FIXED_AMOUNT") {
-          discountAmount = coupon.discountValue;
-        }
-
-        discountAmount = Math.min(discountAmount, orderAmount);
-
-        return { isValid: true, coupon, discountAmount };
-      } catch (error: any) {
+      // Minimum order amount
+      if (coupon.minimumAmount && orderAmount < coupon.minimumAmount) {
         return {
           isValid: false,
-          error: error.message || "Coupon validation failed",
+          error: `Minimum order amount of ${coupon.minimumAmount} required`,
         };
       }
+
+      // Global usage limit
+      if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
+        return {
+          isValid: false,
+          error: "This coupon has reached its usage limit",
+        };
+      }
+
+      // Per-user usage & new users only check
+      let userUsageCount = 0;
+      let userOrderCount = 0;
+
+      if (coupon.userUsageLimit || coupon.newUsersOnly) {
+        await prisma.$transaction(async (tx) => {
+          if (coupon.userUsageLimit) {
+            userUsageCount = await tx.couponUsage.count({
+              where: { couponId: coupon.id, userId },
+            });
+          }
+          if (coupon.newUsersOnly) {
+            userOrderCount = await tx.order.count({ where: { userId } });
+          }
+        });
+      }
+      if (userOrderCount || userUsageCount)
+        return {
+          isValid: false,
+          error: "This coupon only for new user or already applied",
+        };
+      // Calculate discount
+      let discountAmount = 0;
+      if (coupon.discountType === "PERCENTAGE") {
+        discountAmount = (orderAmount * coupon.discountValue) / 100;
+        if (coupon.maximumDiscount) {
+          discountAmount = Math.min(discountAmount, coupon.maximumDiscount);
+        }
+      } else if (coupon.discountType === "FIXED_AMOUNT") {
+        discountAmount = coupon.discountValue;
+      }
+
+      discountAmount = Math.min(discountAmount, orderAmount);
+
+      return { isValid: true, coupon, discountAmount };
     },
   },
 

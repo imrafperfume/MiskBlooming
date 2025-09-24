@@ -23,6 +23,7 @@ export function useCheckout(userId?: string) {
 
   const { items, getTotalPrice, clearCart, appliedCoupon, couponDiscount } =
     useCartStore();
+  console.log("🚀 ~ useCheckout ~ appliedCoupon:", appliedCoupon);
   const router = useRouter();
   const [createOrder, { loading, error }] = useMutation(CREATE_ORDER);
 
@@ -79,7 +80,9 @@ export function useCheckout(userId?: string) {
         const isGuest = !userId || userId === "";
         const checkoutData = {
           ...data,
+
           userId: isGuest ? undefined : userId,
+          couponCode: appliedCoupon?.code,
           totalAmount: Number(total.toFixed(2)),
           items: items.map((item: any) => ({
             productId: item.product.id,

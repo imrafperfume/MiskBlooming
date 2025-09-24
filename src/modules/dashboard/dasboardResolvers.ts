@@ -1,110 +1,125 @@
 import { prisma } from "@/src/lib/db";
 import { isAdmin } from "@/src/lib/isAdmin";
+import { redis } from "@/src/lib/redis"; // Redis client
 
 export const DashboardResolvers = {
   Query: {
-    dashboardMetrics: async (_: any, __: any, context: { userId: string }) => {
+    dashboardMetrics: async (
+      _: any,
+      args: { timeRange?: number },
+      context: { userId: string }
+    ) => {
+      const timeRange = args.timeRange || 7; // default last 7 days
+      const { userId } = context;
+
+      if (!userId) throw new Error("user ID not found");
+
+      const userRole = await isAdmin(userId);
+      if (userRole.role !== "ADMIN") throw new Error("Not authorized");
+
+      const cacheKey = `dashboard:metrics:${timeRange}`;
+      const cached = await redis.get(cacheKey);
+      if (cached) return cached;
+
       try {
-        const { userId } = context;
-        if (!userId) throw new Error("user ID not found");
+        const now = new Date();
+        const startDate = new Date();
+        startDate.setDate(now.getDate() - timeRange);
+        startDate.setHours(0, 0, 0, 0);
 
-        const userRole = await isAdmin(userId);
-        if (userRole.role !== "ADMIN") throw new Error("Not authorized");
-
-        // Date ranges
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
 
         const yesterdayStart = new Date(todayStart);
         yesterdayStart.setDate(todayStart.getDate() - 1);
 
-        // Total Revenue
-        const revenueCurrentAgg = await prisma.order.aggregate({
-          _sum: { totalAmount: true },
-        });
-        const revenueYesterdayAgg = await prisma.order.aggregate({
-          _sum: { totalAmount: true },
-          where: { createdAt: { gte: yesterdayStart, lt: todayStart } },
-        });
+        // Parallel queries
+        const [
+          revenueAgg,
+          revenueYesterdayAgg,
+          totalOrders,
+          ordersYesterday,
+          totalCustomers,
+          customersYesterday,
+          activeProducts,
+          productsYesterday,
+          pendingOrders,
+          lowStockItems,
+          newReviews,
+          completedToday,
+          recentOrdersRaw,
+          topProductStats,
+        ] = await prisma.$transaction([
+          prisma.order.aggregate({
+            _sum: { totalAmount: true },
+            where: { createdAt: { gte: startDate, lte: now } },
+          }),
+          prisma.order.aggregate({
+            _sum: { totalAmount: true },
+            where: { createdAt: { gte: yesterdayStart, lt: todayStart } },
+          }),
+          prisma.order.count({
+            where: { createdAt: { gte: startDate, lte: now } },
+          }),
+          prisma.order.count({
+            where: { createdAt: { gte: yesterdayStart, lt: todayStart } },
+          }),
+          prisma.user.count({ where: { role: { in: ["USER", "GUEST"] } } }),
+          prisma.user.count({
+            where: {
+              role: "USER",
+              createdAt: { gte: yesterdayStart, lt: todayStart },
+            },
+          }),
+          prisma.product.count({ where: { status: "active" } }),
+          prisma.product.count({
+            where: {
+              status: "active",
+              createdAt: { gte: yesterdayStart, lt: todayStart },
+            },
+          }),
+          prisma.order.count({ where: { status: "PENDING" } }),
+          prisma.product.count({ where: { quantity: { lte: 10 } } }),
+          prisma.review.count({ where: { createdAt: { gte: startDate } } }),
+          prisma.order.count({
+            where: { status: "DELIVERED", createdAt: { gte: todayStart } },
+          }),
+          prisma.order.findMany({
+            where: { createdAt: { gte: startDate, lte: now } },
+            orderBy: { createdAt: "desc" },
+            take: 5,
+            include: { user: true, items: { include: { product: true } } },
+          }),
+          prisma.orderItem.groupBy({
+            by: ["productId"],
+            _count: { id: true },
+            _sum: { quantity: true },
+            orderBy: { _count: { id: "desc" } },
+            take: 5,
+          }),
+        ]);
 
-        const totalRevenue = revenueCurrentAgg._sum.totalAmount || 0;
+        // Growth calculations
+        const totalRevenue = revenueAgg._sum.totalAmount || 0;
         const revenueYesterday = revenueYesterdayAgg._sum.totalAmount || 0;
         const revenueGrowth =
           revenueYesterday > 0
             ? ((totalRevenue - revenueYesterday) / revenueYesterday) * 100
             : 0;
-
-        // Orders
-        const totalOrders = await prisma.order.count();
-        const ordersYesterday = await prisma.order.count({
-          where: { createdAt: { gte: yesterdayStart, lt: todayStart } },
-        });
         const ordersGrowth =
           ordersYesterday > 0
             ? ((totalOrders - ordersYesterday) / ordersYesterday) * 100
             : 0;
-
-        // Customers
-        const totalCustomers = await prisma.user.count({
-          where: {
-            role: {
-              in: ["USER", "GUEST"],
-            },
-          },
-        });
-        const customersYesterday = await prisma.user.count({
-          where: {
-            role: "USER",
-            createdAt: { gte: yesterdayStart, lt: todayStart },
-          },
-        });
         const customersGrowth =
           customersYesterday > 0
             ? ((totalCustomers - customersYesterday) / customersYesterday) * 100
             : 0;
-
-        // Active Products
-        const activeProducts = await prisma.product.count({
-          where: { status: "active" },
-        });
-        const productsYesterday = await prisma.product.count({
-          where: {
-            status: "active",
-            createdAt: { gte: yesterdayStart, lt: todayStart },
-          },
-        });
         const productsGrowth =
           productsYesterday > 0
             ? ((activeProducts - productsYesterday) / productsYesterday) * 100
             : 0;
 
-        // Pending Orders
-        const pendingOrders = await prisma.order.count({
-          where: { status: "PENDING" },
-        });
-
-        // Low Stock Items
-        const lowStockItems = await prisma.product.count({
-          where: { quantity: { lte: 10 } },
-        });
-
-        // New Reviews
-        const newReviews = await prisma.review.count({
-          where: { createdAt: { gte: todayStart } },
-        });
-
-        // Completed Today
-        const completedToday = await prisma.order.count({
-          where: { status: "DELIVERED", createdAt: { gte: todayStart } },
-        });
-
         // Recent Orders
-        const recentOrdersRaw = await prisma.order.findMany({
-          orderBy: { createdAt: "desc" },
-          take: 5,
-          include: { user: true, items: { include: { product: true } } },
-        });
-
         const recentOrders = recentOrdersRaw.map((o) => ({
           id: o.id,
           orderNumber: o.id,
@@ -124,21 +139,19 @@ export const DashboardResolvers = {
           })),
         }));
 
-        // Top Products
-        const topProductStats = await prisma.orderItem.groupBy({
-          by: ["productId"],
-          _count: { id: true },
-          _sum: { quantity: true },
-          orderBy: { _count: { id: "desc" } },
-          take: 5,
+        // Top Products with growth
+        const productIds = topProductStats.map((p) => p.productId);
+        const products = await prisma.product.findMany({
+          where: { id: { in: productIds } },
         });
 
         const topProducts = await Promise.all(
           topProductStats.map(async (p) => {
-            const product = await prisma.product.findUnique({
-              where: { id: p.productId },
-            });
+            const product = products.find((pr) => pr.id === p.productId)!;
+            const currentRevenue =
+              (p._sum?.quantity || 0) * (product?.price || 0);
 
+            // Yesterday revenue for growth
             const yesterdayRevenueAgg = await prisma.orderItem.aggregate({
               _sum: { quantity: true },
               where: {
@@ -148,25 +161,22 @@ export const DashboardResolvers = {
             });
             const yesterdayRevenue =
               (yesterdayRevenueAgg._sum.quantity || 0) * (product?.price || 0);
-            const currentRevenue =
-              (p._sum.quantity || 0) * (product?.price || 0);
-
             const growthPercent =
               yesterdayRevenue > 0
                 ? ((currentRevenue - yesterdayRevenue) / yesterdayRevenue) * 100
                 : 0;
 
             return {
-              id: product!.id,
-              name: product!.name,
-              sales: p._count.id,
+              id: product.id,
+              name: product.name,
+              sales: (p._count as any).id || 0,
               revenue: currentRevenue,
               growthPercent: parseFloat(growthPercent.toFixed(1)),
             };
           })
         );
 
-        return {
+        const metrics = {
           totalRevenue,
           revenueGrowth: parseFloat(revenueGrowth.toFixed(1)),
           totalOrders,
@@ -182,6 +192,11 @@ export const DashboardResolvers = {
           recentOrders,
           topProducts,
         };
+
+        // Cache for 30 sec
+        await redis.set(cacheKey, JSON.stringify(metrics), { ex: 30 });
+
+        return metrics;
       } catch (error: any) {
         console.error("Dashboard resolver error:", error);
         throw new Error("Failed to fetch dashboard data");

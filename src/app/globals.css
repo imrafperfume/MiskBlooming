@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Base Layer */
 @layer base {
   :root {
     --background: 254 252 248;
@@ -54,6 +55,12 @@
 
   body {
     @apply bg-background text-foreground font-inter antialiased;
+    -webkit-font-smoothing: antialiased;
+    /* crisp text */
+    text-rendering: optimizeLegibility;
+    /* faster rendering */
+    overflow-x: hidden;
+    /* avoids horizontal CLS */
   }
 
   h1,
@@ -66,6 +73,7 @@
   }
 }
 
+/* Components Layer */
 @layer components {
   .luxury-gradient {
     @apply bg-gradient-to-br from-luxury-400 via-luxury-500 to-luxury-600;
@@ -77,6 +85,8 @@
 
   .glass-effect {
     @apply backdrop-blur-md bg-white/80 border border-white/20;
+    will-change: transform;
+    /* better perf on animations */
   }
 
   .luxury-shadow {
@@ -90,10 +100,13 @@
   .shimmer::after {
     @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent;
     content: "";
-    animation: shimmer 2s infinite;
+    animation: shimmer 2s infinite linear;
+    will-change: transform;
+    /* GPU accel */
   }
 }
 
+/* Swiper styles */
 .swiper-pagination-bullet {
   @apply bg-luxury-500 opacity-50;
 }
@@ -107,7 +120,32 @@
   @apply text-luxury-500;
 }
 
-/* Custom scrollbar */
+.swiper {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+}
+
+.swiper-slide {
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  outline: none;
+}
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: none;
+  outline: none;
+}
+
+/* Custom scrollbar (perf-friendly) */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -124,7 +162,7 @@
   @apply bg-luxury-600;
 }
 
-
+/* Utility classes */
 .all-unset {
   all: unset;
   display: block;
@@ -134,44 +172,9 @@
   all: revert;
 }
 
-.safe-html h1 {
-  font-family: Cormorant Garamond, serif;
-  all: revert;
-  font-size: revert;
-  font-weight: revert;
-}
-
+.safe-html h1,
 .safe-html p {
-  font-family: Cormorant Garamond, serif;
+  font-family: "Cormorant Garamond", serif;
   all: revert;
   font-size: revert;
-}
-
-
-.swiper {
-  width: 100%;
-  height: 100%;
-  border: none;
-  outline: none;
-}
-
-.swiper-slide {
-  text-align: center;
-  border: none;
-  outline: none;
-
-  /* Center slide text vertically */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: none;
-}
-
-.swiper-slide img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border: none;
-  outline: none;
 }

@@ -28,6 +28,8 @@ import {
   Calendar,
   HelpCircle,
   Ticket,
+  List,
+  Store,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../../components/ui/Button";
@@ -48,9 +50,7 @@ export default function AdminLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { notifications, unreadCount, markAllRead } = useNotifications();
-  // const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  // const searchParams = useSearchParams()
   const { data: user, isLoading } = useAuth();
   if (isLoading) {
     return (
@@ -81,7 +81,7 @@ export default function AdminLayout({
     {
       name: "Categories",
       href: "/dashboard/category",
-      icon: Package,
+      icon: List,
       description: "Manage Inventory",
     },
     {
@@ -274,19 +274,26 @@ export default function AdminLayout({
                       exit={{ opacity: 0, y: 10 }}
                     >
                       <Link
+                        href="/"
+                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                      >
+                        <Store className="w-4 h-4 mr-3" />
+                        Visit Store
+                      </Link>{" "}
+                      {/* <Link
                         href="/dashboard/profile"
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       >
                         <User className="w-4 h-4 mr-3" />
                         Profile Settings
-                      </Link>
-                      <Link
+                      </Link> */}
+                      {/* <Link
                         href="/dashboard/help"
                         className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
                       >
                         <HelpCircle className="w-4 h-4 mr-3" />
                         Help & Support
-                      </Link>
+                      </Link> */}
                       <hr className="my-2" />
                       <button className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50">
                         <LogOut className="w-4 h-4 mr-3" />
@@ -401,14 +408,18 @@ export default function AdminLayout({
 
                 {/* Quick Actions */}
                 <div className="hidden lg:flex items-center space-x-2">
-                  <Button variant="outline" size="sm">
-                    <Package className="w-4 h-4 mr-2" />
-                    Add Product
-                  </Button>
-                  <Button variant="luxury" size="sm">
-                    <ShoppingCart className="w-4 h-4 mr-2" />
-                    New Order
-                  </Button>
+                  <Link href="/dashboard/products/add">
+                    <Button variant="outline" size="sm">
+                      <Package className="w-4 h-4 mr-2" />
+                      Add Product
+                    </Button>
+                  </Link>
+                  <Link href="/dashboard/orders">
+                    <Button variant="luxury" size="sm">
+                      <ShoppingCart className="w-4 h-4 mr-2" />
+                      New Order
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>

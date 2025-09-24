@@ -1,28 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import {
-  Minus,
-  Plus,
-  Trash2,
-  ShoppingBag,
-  ArrowLeft,
-  Heart,
-  Star,
-  Gift,
-  Truck,
-  Shield,
-} from "lucide-react";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../../../components/ui/Button";
 import { useCartStore } from "../../../store/cartStore";
-import { useWishlistStore } from "../../../store/wishlistStore";
 import { useCoupon } from "../../../hooks/useCoupon";
-import { formatPrice } from "../../../lib/utils";
 import { toast } from "sonner";
 import { useAuth } from "@/src/hooks/useAuth";
+import { ShoppingBag, ArrowLeft, Gift, Truck, Shield } from "lucide-react";
+import { formatPrice } from "../../../lib/utils";
+
+// Lazy load CartItem
+const CartItem = dynamic(() => import("../../../components/CartItem"), {
+  ssr: false,
+});
 
 export default function CartPage() {
   const {
@@ -36,7 +29,7 @@ export default function CartPage() {
     applyCoupon,
     removeCoupon,
   } = useCartStore();
-  const { addItem: addToWishlist } = useWishlistStore();
+
   const { validateCouponCode, isValidating } = useCoupon();
   const [removingItems, setRemovingItems] = useState<Set<string>>(new Set());
   const [couponCode, setCouponCode] = useState("");
@@ -51,7 +44,7 @@ export default function CartPage() {
     updateQuantity(productId, newQuantity);
   };
 
-  const handleRemoveItem = async (productId: string) => {
+  const handleRemoveItem = (productId: string) => {
     setRemovingItems((prev) => new Set(prev).add(productId));
     setTimeout(() => {
       removeItem(productId);
@@ -62,20 +55,12 @@ export default function CartPage() {
       });
     }, 300);
   };
-  const handleMoveToWishlist = (productId: string) => {
-    const item = items.find((item) => item.product.id === productId);
-    if (item) {
-      addToWishlist(item.product);
-      removeItem(productId);
-    }
-  };
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
       toast.error("Please enter a coupon code");
       return;
     }
-
     const subtotal = getTotalPrice();
     const result = await validateCouponCode(couponCode, subtotal, userId ?? "");
 
@@ -90,7 +75,7 @@ export default function CartPage() {
 
   const subtotal = getTotalPrice();
   const shipping = subtotal > 1000 ? 0 : 25;
-  const tax = (subtotal - couponDiscount) * 0.05; // 5% VAT
+  const tax = (subtotal - couponDiscount) * 0.05;
   const total = subtotal - couponDiscount + shipping + tax;
 
   if (items.length === 0) {
@@ -155,197 +140,14 @@ export default function CartPage() {
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             <AnimatePresence>
-              {items.map((item, index) => (
-                <motion.div
+              {items.map((item) => (
+                <CartItem
                   key={item.product.id}
-                  className="bg-white  rounded-2xl transition-all duration-300"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, x: -100, scale: 0.95 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                  layout
-                >
-                  <div className="flex items-start space-x-4">
-                    {/* Product Image */}
-                    <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
-                      <Image
-                        src={item.product.images[0].url || "/placeholder.svg"}
-                        alt={item.product.name}
-                        fill
-                        className="object-cover"
-                      />
-                      {item.product.featured && (
-                        <div className="absolute top-1 left-1 bg-luxury-500 text-charcoal-900 text-xs px-2 py-1 rounded-full font-bold">
-                          Featured
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Product Details */}
-                    <div className="flex-1 min-w-0">
-                      <Link
-                        href={`/products/${item.product.id}`}
-                        className=" hidden sm:block"
-                      >
-                        <h3 className="font-cormorant text-lg font-semibold text-charcoal-900 hover:text-luxury-500 transition-colors line-clamp-2">
-                          {item.product.name}
-                        </h3>
-                      </Link>
-
-                      <p className="text-muted-foreground hidden sm:block text-sm mt-1 line-clamp-2">
-                        {item.product.shortDescription}
-                      </p>
-
-                      <div className="sm:block hidden">
-                        {/* Rating */}
-                        <div className="flex  items-center mt-2">
-                          <div className="flex items-center">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-3 h-3 ${
-                                  i < Math.floor(5)
-                                    ? "text-luxury-500 fill-current"
-                                    : "text-cream-300"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-xs text-muted-foreground ml-2">
-                            ({item?.product.Review?.length || 0})
-                          </span>
-                        </div>
-
-                        {/* Price */}
-                        <div className="flex flex-wrap sm:flex-nowrap items-center mt-2">
-                          <span className="text-lg font-bold text-charcoal-900">
-                            {formatPrice(item.product.price)}
-                          </span>
-                          {item.product.price && (
-                            <span className="text-sm text-muted-foreground line-through ml-2">
-                              {formatPrice(item.product.price)}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex items-center space-x-4 mt-3">
-                          <button
-                            onClick={() =>
-                              handleMoveToWishlist(item.product.id)
-                            }
-                            className="flex items-center text-sm text-luxury-500 hover:text-luxury-600 transition-colors"
-                          >
-                            <Heart className="w-4 h-4 mr-1" />
-                            Save for Later
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Quantity Controls */}
-                    <div className="flex flex-col items-center space-y-3">
-                      <div className="flex items-center border border-cream-300 rounded-lg">
-                        <button
-                          onClick={() =>
-                            handleUpdateQuantity(
-                              item.product.id,
-                              item.quantity - 1
-                            )
-                          }
-                          className="p-2 hover:bg-cream-100 transition-colors rounded-l-lg"
-                          disabled={removingItems.has(item.product.id)}
-                        >
-                          <Minus className="w-4 h-4" />
-                        </button>
-                        <span className="px-4 py-2 font-medium min-w-[3rem] text-center">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => {
-                            if (item.quantity < item.product.quantity) {
-                              handleUpdateQuantity(
-                                item.product.id,
-                                item.quantity + 1
-                              );
-                            } else {
-                              toast.error(
-                                `Only ${item.product.quantity} items available in stock.`
-                              );
-                            }
-                          }}
-                          className="p-2 hover:bg-cream-100 transition-colors rounded-r-lg"
-                          disabled={removingItems.has(item.product.id)}
-                        >
-                          <Plus className="w-4 h-4" />
-                        </button>
-                      </div>
-
-                      <div className="text-center">
-                        <p className="text-sm font-medium text-charcoal-900">
-                          {formatPrice(item.product.price * item.quantity)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Total</p>
-                      </div>
-                    </div>
-
-                    {/* Remove Button */}
-                    <button
-                      onClick={() => handleRemoveItem(item.product.id)}
-                      disabled={removingItems.has(item.product.id)}
-                      className="p-2 text-muted-foreground hover:text-red-600 transition-colors"
-                    >
-                      {removingItems.has(item.product.id) ? (
-                        <div className="w-5 h-5 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
-                      ) : (
-                        <Trash2 className="w-5 h-5" />
-                      )}
-                    </button>
-                  </div>
-                  <div className="block sm:hidden">
-                    {/* Rating */}
-                    <div className="flex  items-center mt-2">
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-3 h-3 ${
-                              i < Math.floor(5)
-                                ? "text-luxury-500 fill-current"
-                                : "text-cream-300"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                      <span className="text-xs text-muted-foreground ml-2">
-                        ({item.product.Review?.length})
-                      </span>
-                    </div>
-
-                    {/* Price */}
-                    <div className="flex flex-wrap sm:flex-nowrap items-center mt-2">
-                      <span className="text-lg font-bold text-charcoal-900">
-                        {formatPrice(item.product.price)}
-                      </span>
-                      {item.product.compareAtPrice && (
-                        <span className="text-sm text-muted-foreground line-through ml-2">
-                          {formatPrice(item.product.compareAtPrice)}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center space-x-4 mt-3">
-                      <button
-                        onClick={() => handleMoveToWishlist(item.product.id)}
-                        className="flex items-center text-sm text-luxury-500 hover:text-luxury-600 transition-colors"
-                      >
-                        <Heart className="w-4 h-4 mr-1" />
-                        Save for Later
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
+                  item={item}
+                  removingItems={removingItems}
+                  handleUpdateQuantity={handleUpdateQuantity}
+                  handleRemoveItem={handleRemoveItem}
+                />
               ))}
             </AnimatePresence>
 
@@ -386,7 +188,7 @@ export default function CartPage() {
                     </button>
                   </div>
                 ) : (
-                  <div className="sm:flex sm:space-x-3 ">
+                  <div className="sm:flex sm:space-x-3">
                     <input
                       type="text"
                       placeholder="Enter promo code"
@@ -482,58 +284,58 @@ export default function CartPage() {
                     </span>
                   </div>
                 </div>
-              </div>
 
-              <Link href="/checkout">
-                <Button variant="luxury" size="lg" className="w-full mt-6">
-                  Proceed to Checkout
-                </Button>
-              </Link>
+                <Link href="/checkout">
+                  <Button variant="luxury" size="lg" className="w-full mt-6">
+                    Proceed to Checkout
+                  </Button>
+                </Link>
 
-              {/* Trust Badges */}
-              <div className="mt-6 pt-6 border-t border-cream-300">
-                <div className="grid sm:grid-cols-3 gap-4 text-center">
-                  <div className="py-4  border border-cream-400 rounded-md">
-                    <Shield className="w-6 h-6 text-green-600 mx-auto mb-1" />
-                    <p className="text-xs text-muted-foreground">
-                      Secure Payment
-                    </p>
-                  </div>
-                  <div className="py-4  border border-cream-400 rounded-md">
-                    <Truck className="w-6 h-6 text-blue-600 mx-auto mb-1" />
-                    <p className="text-xs text-muted-foreground">
-                      Fast Delivery
-                    </p>
-                  </div>
-                  <div className="py-4  border border-cream-400 rounded-md">
-                    <Gift className="w-6 h-6 text-purple-600 mx-auto mb-1" />
-                    <p className="text-xs text-muted-foreground">
-                      Gift Wrapping
-                    </p>
+                {/* Trust Badges */}
+                <div className="mt-6 pt-6 border-t border-cream-300">
+                  <div className="grid sm:grid-cols-3 gap-4 text-center">
+                    <div className="py-4 border border-cream-400 rounded-md">
+                      <Shield className="w-6 h-6 text-green-600 mx-auto mb-1" />
+                      <p className="text-xs text-muted-foreground">
+                        Secure Payment
+                      </p>
+                    </div>
+                    <div className="py-4 border border-cream-400 rounded-md">
+                      <Truck className="w-6 h-6 text-blue-600 mx-auto mb-1" />
+                      <p className="text-xs text-muted-foreground">
+                        Fast Delivery
+                      </p>
+                    </div>
+                    <div className="py-4 border border-cream-400 rounded-md">
+                      <Gift className="w-6 h-6 text-purple-600 mx-auto mb-1" />
+                      <p className="text-xs text-muted-foreground">
+                        Gift Wrapping
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Estimated Delivery */}
-              <div className="mt-4 p-4 bg-luxury-50 rounded-lg">
-                <div className="flex items-center mb-2">
-                  <Truck className="w-4 h-4 text-luxury-600 mr-2" />
-                  <span className="font-medium text-charcoal-900 text-sm">
-                    Estimated Delivery
-                  </span>
+                {/* Estimated Delivery */}
+                <div className="mt-4 p-4 bg-luxury-50 rounded-lg">
+                  <div className="flex items-center mb-2">
+                    <Truck className="w-4 h-4 text-luxury-600 mr-2" />
+                    <span className="font-medium text-charcoal-900 text-sm">
+                      Estimated Delivery
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {new Date(
+                      Date.now() + 1 * 24 * 60 * 60 * 1000
+                    ).toLocaleDateString("en-US", {
+                      weekday: "long",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </p>
+                  <p className="text-xs text-luxury-600 mt-1">
+                    Same-day delivery available in Dubai
+                  </p>
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {new Date(
-                    Date.now() + 1 * 24 * 60 * 60 * 1000
-                  ).toLocaleDateString("en-US", {
-                    weekday: "long",
-                    month: "long",
-                    day: "numeric",
-                  })}
-                </p>
-                <p className="text-xs text-luxury-600 mt-1">
-                  Same-day delivery available in Dubai
-                </p>
               </div>
             </motion.div>
           </div>

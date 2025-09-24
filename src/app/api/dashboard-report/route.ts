@@ -6,46 +6,56 @@ import fetch from "node-fetch";
 
 export async function GET(req: Request) {
   const url = new URL(req.url);
-  const days = parseInt(url.searchParams.get("days") || "7"); // Default last 7 days
+  const days = parseInt(url.searchParams.get("days") || "7"); // default 7 days
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
+  startDate.setHours(0, 0, 0, 0);
 
   // Aggregate data
-  const totalRevenue = await prisma.order.aggregate({
+  const totalRevenueAgg = await prisma.order.aggregate({
     _sum: { totalAmount: true },
     where: { createdAt: { gte: startDate } },
   });
+  const totalRevenue = totalRevenueAgg._sum.totalAmount || 0;
 
   const ordersCount = await prisma.order.count({
     where: { createdAt: { gte: startDate } },
   });
-
   const customersCount = await prisma.user.count({
     where: { createdAt: { gte: startDate } },
   });
-
   const productsCount = await prisma.product.count();
 
-  const topProducts = await prisma.orderItem.groupBy({
+  const topProductsStats = await prisma.orderItem.groupBy({
     by: ["productId"],
-    _sum: { quantity: true, price: true },
-    where: {
-      order: {
-        createdAt: { gte: startDate },
-      },
-    },
+    _sum: { quantity: true },
+    where: { order: { createdAt: { gte: startDate } } },
     orderBy: { _sum: { quantity: "desc" } },
     take: 20,
   });
 
-  // Revenue Trend & Orders per Day
+  const topProducts = await Promise.all(
+    topProductsStats.map(async (item) => {
+      const product = await prisma.product.findUnique({
+        where: { id: item.productId },
+      });
+      const revenue = (item._sum.quantity || 0) * (product?.price || 0);
+      return {
+        name: product?.name || "-",
+        sales: item._sum.quantity || 0,
+        revenue: revenue.toFixed(2),
+      };
+    })
+  );
+
+  // Revenue & Orders per day
   const revenueTrend: number[] = [];
   const ordersPerDay: number[] = [];
   const labels: string[] = [];
 
   for (let i = 0; i < days; i++) {
-    const day = new Date();
-    day.setDate(day.getDate() - (days - 1 - i));
+    const day = new Date(startDate);
+    day.setDate(startDate.getDate() + i);
     const nextDay = new Date(day);
     nextDay.setDate(day.getDate() + 1);
 
@@ -67,7 +77,12 @@ export async function GET(req: Request) {
   const boldFont = path.join(process.cwd(), "public/fonts/Poppins-Bold.ttf");
 
   const pdfBuffer: Buffer = await new Promise(async (resolve) => {
-    const doc = new PDFDocument({ size: "A4", margin: 50, font: regularFont });
+    const doc = new PDFDocument({
+      size: "A4",
+      margin: 50,
+      font: regularFont,
+    });
+
     const chunks: Buffer[] = [];
 
     doc.registerFont("Poppins", regularFont);
@@ -76,11 +91,9 @@ export async function GET(req: Request) {
 
     doc.on("data", (chunk: any) => chunks.push(chunk));
     doc.on("end", () => resolve(Buffer.concat(chunks)));
-
-    // -------- Helper: Footer --------
+    // Footer helper
     const addFooter = () => {
-      const footerHeight = 50;
-      const footerY = doc.page.height - doc.page.margins.bottom - footerHeight;
+      const footerY = doc.page.height - doc.page.margins.bottom - 40;
       doc
         .moveTo(50, footerY)
         .lineTo(550, footerY)
@@ -95,48 +108,38 @@ export async function GET(req: Request) {
           width: 500,
         });
     };
-
     doc.on("pageAdded", addFooter);
 
-    // -------- Header --------
-    const headerTop = 50;
+    // Header
     doc
       .font("Poppins-Bold")
       .fontSize(22)
       .fillColor("#1F2937")
-      .text("Miskblooming Dashboard Report", 50, headerTop);
+      .text("Miskblooming Dashboard Report", 50, 50);
     doc
       .font("Poppins")
       .fontSize(10)
       .fillColor("#4B5563")
-      .text(`Period: Last ${days} days`, 50, headerTop + 30)
-      .text(
-        `Generated on: ${new Date().toLocaleDateString()}`,
-        50,
-        headerTop + 45
-      );
+      .text(`Period: Last ${days} days`, 50, 80)
+      .text(`Generated on: ${new Date().toLocaleDateString()}`, 50, 95);
 
     doc.moveDown(2);
 
-    // -------- Summary KPIs --------
+    // Summary KPIs
     let y = doc.y;
     const addKPI = (label: string, value: string) => {
       doc.font("Poppins-Bold").fontSize(12).text(label, 50, y);
       doc.font("Poppins").text(value, 180, y);
       y += 20;
     };
-
-    addKPI(
-      "Total Revenue:",
-      `$${totalRevenue._sum.totalAmount?.toFixed(2) || 0}`
-    );
+    addKPI("Total Revenue:", `$${totalRevenue.toFixed(2)}`);
     addKPI("Total Orders:", ordersCount.toString());
     addKPI("Total Products:", productsCount.toString());
     addKPI("Total Customers:", customersCount.toString());
 
     y += 20;
 
-    // -------- Revenue Trend Chart --------
+    // Revenue Chart
     const revenueChartUrl = `https://quickchart.io/chart?c=${encodeURIComponent(
       JSON.stringify({
         type: "line",
@@ -158,7 +161,7 @@ export async function GET(req: Request) {
     doc.image(revenueBuffer, 50, y, { width: 500, height: 200 });
     y += 220;
 
-    // -------- Orders Per Day Chart --------
+    // Orders Chart
     const ordersChartUrl = `https://quickchart.io/chart?c=${encodeURIComponent(
       JSON.stringify({
         type: "bar",
@@ -175,31 +178,25 @@ export async function GET(req: Request) {
     doc.image(ordersBuffer, 50, y, { width: 500, height: 200 });
     y += 220;
 
-    // -------- Top Products Table --------
+    // Top Products Table
     doc.addPage();
     y = 50;
     doc.font("Poppins-Bold").text("Top Selling Products:", 50, y);
     y += 20;
-
     doc.font("Poppins-Bold").text("Product Name", 50, y);
     doc.text("Sales", 300, y);
     doc.text("Revenue", 400, y);
     y += 20;
 
     for (const item of topProducts) {
-      const product = await prisma.product.findUnique({
-        where: { id: item.productId },
-      });
       if (y > doc.page.height - 100) doc.addPage() && (y = 50);
-      doc.font("Poppins").text(product?.name || "-", 50, y);
-      doc.text(item._sum.quantity?.toString() || "0", 300, y);
-      doc.text(item._sum.price?.toFixed(2) || "0.00", 400, y);
+      doc.font("Poppins").text(item.name, 50, y);
+      doc.text(item.sales.toString(), 300, y);
+      doc.text(`$${item.revenue}`, 400, y);
       y += 20;
     }
 
-    // -------- Footer on last page --------
     addFooter();
-
     doc.end();
   });
 

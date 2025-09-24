@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client";
 
 export const DASHBOARD_METRICS = gql`
-  query GetDashboard {
-    dashboardMetrics {
+  query GetDashboard($timeRange: Int) {
+    dashboardMetrics(timeRange: $timeRange) {
       totalRevenue
       revenueGrowth
       totalOrders

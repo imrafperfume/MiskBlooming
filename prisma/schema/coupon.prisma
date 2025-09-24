@@ -42,11 +42,11 @@ model Coupon {
 }
 
 model CouponUsage {
-    id       String  @id @default(cuid())
+    id       String @id @default(cuid())
     couponId String
-    orderId  String  @unique
-    userId   String? // null for guest users
-    email    String? // for guest users
+    orderId  String @unique
+    userId   String
+    email    String
 
     // Usage Details
     discountAmount Float
