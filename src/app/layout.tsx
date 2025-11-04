@@ -38,13 +38,14 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://misk-blooming.vercel.app"),
+  metadataBase: new URL("https://www.miskblooming.com"),
   title: {
     default: "MiskBlooming - Luxury Flowers & Exquisite Gifts",
     template: "%s | MiskBlooming",
   },
-  description:
-    "Experience the pinnacle of floral artistry with MiskBlooming. Premium flower arrangements, luxury gifts, and bespoke creations delivered with unparalleled elegance.",
+  description: `Order Premium flowers & chocolates. Same Day delivery in Dubai with Misk Blooming.
+Fresh blooms, gourmet chocolates, elegant packaging & same-day delivery across UAE.
+Perfect for every occasion`,
 };
 
 export const viewport: Viewport = {
@@ -86,6 +87,24 @@ export default function RootLayout({
           as="image"
           type="image/jpeg"
         />
+
+        {/* newley added */}
+        <link
+          rel="alternate"
+          href="https://www.miskblooming.com/"
+          hrefLang="en-ae"
+        />
+        <link
+          rel="alternate"
+          href="https://www.miskblooming.com/ar/"
+          hrefLang="ar-ae"
+        />
+        <link
+          rel="alternate"
+          href="https://www.miskblooming.com/"
+          hrefLang="x-default"
+        />
+        <link rel="canonical" href="https://www.miskblooming.com/" />
       </head>
 
       <body className="min-h-screen overflow-x-hidden bg-gradient-to-br from-cream-50 to-cream-100 antialiased">

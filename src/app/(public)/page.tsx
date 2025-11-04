@@ -130,8 +130,11 @@ export default function HomePage() {
       {/* Stats (static, no motion for better TBT) */}
       <section className="py-24 luxury-gradient">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-cormorant text-display-md font-bold text-charcoal-900 mb-16">
-            A Legacy of <span className="text-charcoal-900">Excellence</span>
+          <h2 className="font-cormorant flex flex-col items-center gap-1 justify-center text-2xl font-bold text-charcoal-100 mb-16">
+            Why Dubai Loves MiskBlooming
+            <span className="text-charcoal-900 text-display-md ">
+              A Legacy of Floral Excellence
+            </span>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {stats.map((s, i) => (
@@ -163,7 +166,7 @@ export default function HomePage() {
           <div className="flex items-center justify-center mb-6">
             <Award className="w-8 h-8 text-luxury-500 mx-3" />
             <h2 className="font-cormorant text-display-sm font-bold text-charcoal-900">
-              Join Our Exclusive Circle
+              Join Our Exclusive Circle for Offers & Same-Day Delivery
             </h2>
             <Award className="w-8 h-8 text-luxury-500 mx-3" />
           </div>

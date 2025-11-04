@@ -178,7 +178,7 @@ export async function GET(
     let y = doc.y;
     let calculatedSubtotal = 0;
 
-    order.items.forEach((item) => {
+    order.items.forEach((item: any) => {
       const itemTotal = item.product.price * item.quantity;
       calculatedSubtotal += itemTotal;
 

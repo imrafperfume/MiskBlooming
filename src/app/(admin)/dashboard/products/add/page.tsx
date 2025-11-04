@@ -227,7 +227,6 @@ export default function AddProductPage() {
     "description",
     "subcategories {id name}",
   ]);
-  console.log("🚀 ~ AddProductPage ~ categories:", categories);
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "saving" | "saved" | "error" | "update"
   >("idle");

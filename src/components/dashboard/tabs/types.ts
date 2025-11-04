@@ -5,6 +5,10 @@ type CloudinaryFile = {
   url: string;
   publicId: string;
 };
+type SubCategory = {
+  id: string;
+  name: string;
+};
 export interface TabProps {
   formData: ProductFormData;
   handleInputChange: (field: keyof ProductFormData, value: any) => void;
@@ -12,14 +16,14 @@ export interface TabProps {
   categories?: {
     id: string;
     name: string;
-    description: string;
-    subcategories?: string[];
+    description?: string;
+    subcategories?: SubCategory[];
   }[];
   selectedCategory?: {
     id: string;
     name: string;
-    desription: string;
-    subcategories: string[];
+    desription?: string | undefined;
+    subcategories?: string[] | undefined;
   };
   removeTag?: (tag: string) => void;
   newTag?: string;

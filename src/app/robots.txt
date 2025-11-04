@@ -1,0 +1,13 @@
+# robots.txt for MiskBlooming
+
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+Disallow: /cgi-bin/
+Disallow: /node_modules/
+Disallow: /src/
+Disallow: /.env
+Allow: /
+
+Sitemap: https://www.miskblooming.com/sitemap.xml

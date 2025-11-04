@@ -149,3 +149,14 @@ export const UPDATE_PRODUCT = gql`
     }
   }
 `;
+
+export const GET_PRODUCTS = gql`
+  query GetProducts {
+    products {
+      id
+      slug
+      images
+      updatedAt
+    }
+  }
+`;

@@ -30,6 +30,7 @@ import {
   Ticket,
   List,
   Store,
+  GalleryHorizontal,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../../components/ui/Button";
@@ -71,6 +72,12 @@ export default function AdminLayout({
       href: "/dashboard",
       icon: LayoutDashboard,
       description: "Overview & Analytics",
+    },
+    {
+      name: "Hero Manage",
+      href: "/dashboard/hero",
+      icon: GalleryHorizontal,
+      description: "Manage Hero Section",
     },
     {
       name: "Products",
@@ -159,8 +166,8 @@ export default function AdminLayout({
   ];
 
   return (
-    <div className="flex relative max-w-screen-2xl justify-center overflow-x-hidden  bg-gray-50">
-      <div className="  flex justify-between max-w-full overflow-x-hidden">
+    <div className="flex relative  mx-auto justify-center overflow-x-hidden  bg-gray-50">
+      <div className="  flex justify-between w-full  overflow-x-hidden">
         {/* Mobile sidebar backdrop */}
         <AnimatePresence>
           {sidebarOpen && (
