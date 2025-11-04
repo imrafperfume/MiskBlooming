@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { ApolloProvider } from "@apollo/client";
 import { client } from "../lib/graphql-client";
+import ScrollToTopWrapper from "../components/layout/ScrollToTopWrapper";
 
 export function QueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -23,7 +24,7 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
   return (
     <ApolloProvider client={client}>
       <QueryClientProvider client={queryClient}>
-        {children}
+        <ScrollToTopWrapper>{children}</ScrollToTopWrapper>
         {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       </QueryClientProvider>
     </ApolloProvider>

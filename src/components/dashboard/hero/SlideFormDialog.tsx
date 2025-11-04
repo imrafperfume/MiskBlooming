@@ -1,4 +1,5 @@
 "use client";
+import { uploadToCloudinary } from "@/src/lib/cloudinary";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -15,6 +16,7 @@ export default function SlideFormDialog({ slide, onSaved }: SlideFormProps) {
       subtitle: "",
       description: "",
       imageUrl: "",
+      order: 1,
       buttons: [],
       alignment: "center",
       published: false,
@@ -24,7 +26,6 @@ export default function SlideFormDialog({ slide, onSaved }: SlideFormProps) {
   const [preview, setPreview] = useState<string>("");
   const [buttons, setButtons] = useState<any[]>([]);
 
-  // sync form when editing a slide
   useEffect(() => {
     if (slide) {
       reset(slide);
@@ -47,22 +48,27 @@ export default function SlideFormDialog({ slide, onSaved }: SlideFormProps) {
     setButtons(buttons.filter((_, idx) => idx !== i));
   }
 
+  /**Upload with Cloudinary function */
   async function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const fd = new FormData();
-    fd.append("file", file);
+    try {
+      toast.loading("Uploading image...");
 
-    const res = await fetch("/api/upload", { method: "POST", body: fd });
-    const data = await res.json();
+      const result = await uploadToCloudinary(file, {
+        folder: "misk/hero", // optional
+        tags: ["hero", "slider"],
+      });
 
-    if (data.secure_url) {
-      setPreview(data.secure_url);
-      setValue("imageUrl", data.secure_url);
-      toast.success("Image uploaded");
-    } else {
-      toast.error("Upload failed");
+      setPreview(result.secure_url);
+      setValue("imageUrl", result.secure_url);
+      toast.success("Image uploaded ");
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "Upload failed ");
+    } finally {
+      toast.dismiss();
     }
   }
 
@@ -78,7 +84,7 @@ export default function SlideFormDialog({ slide, onSaved }: SlideFormProps) {
       body: JSON.stringify(payload),
     });
 
-    toast.success(slide ? "Slide Updated ✅" : "Slide Created ✅");
+    toast.success(slide ? "Slide Updated " : "Slide Created ");
     onSaved?.();
   }
 
@@ -103,12 +109,26 @@ export default function SlideFormDialog({ slide, onSaved }: SlideFormProps) {
       <div>
         <label className="block text-sm">Image</label>
         <input type="file" accept="image/*" onChange={onUpload} />
+
         {preview && (
-          <img src={preview} alt="preview" className="w-48 mt-2 rounded" />
+          <img
+            src={preview}
+            alt="preview"
+            className="w-48 h-28 object-cover mt-2 rounded"
+          />
         )}
         <input {...register("imageUrl")} type="hidden" />
       </div>
+      <label className="block text-sm">Order (1 for first slide)</label>
 
+      <input
+        {...register("order")}
+        type="number"
+        className="w-full p-2 border rounded"
+        placeholder="Order (1 for first slide)"
+      />
+
+      {/* CTA Buttons */}
       <div>
         <div className="flex justify-between items-center">
           <h4 className="font-medium">CTA Buttons</h4>
@@ -155,7 +175,7 @@ export default function SlideFormDialog({ slide, onSaved }: SlideFormProps) {
 
       <button
         type="submit"
-        className="bg-blue-600 text-white px-4 py-2 rounded"
+        className="bg-luxury-500 text-white px-4 py-2 rounded"
       >
         Save
       </button>

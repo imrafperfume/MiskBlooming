@@ -72,9 +72,7 @@ export default function HeroTable() {
   return (
     <>
       <div className="flex relative justify-between items-center mb-4">
-        <div className="text-sm text-gray-600">
-          Manage slides — drag to reorder
-        </div>
+        <div className="text-sm text-gray-600">Manage slides</div>
         <Dialog.Root open={openCreate} onOpenChange={setOpenCreate}>
           <Dialog.Trigger className="inline-flex items-center gap-2 bg-luxury-500 text-white px-3 py-2 rounded">
             <PlusIcon /> New Slide
@@ -107,20 +105,20 @@ export default function HeroTable() {
               <th className="p-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody id="sortableBody">
+          <tbody>
             {slides.map((s) => (
               <tr
                 key={s.id}
                 data-id={s.id}
-                className="border-b hover:bg-gray-50"
+                className="border-b text-center hover:bg-gray-50"
               >
-                <td className="p-3 drag-handle cursor-grab text-sm text-gray-500">
+                <td className="p-3 text-sm text-center text-gray-500">
                   {s.order}
                 </td>
-                <td className="p-3">
+                <td className="p-3 text-center items-center">
                   <img
                     src={s.imageUrl}
-                    className="w-28 h-16 object-cover rounded"
+                    className="w-28 h-16 items-center object-cover rounded"
                     alt=""
                   />
                 </td>
@@ -134,16 +132,13 @@ export default function HeroTable() {
                     />
                   </label>
                 </td>
-                <td className="p-3 text-right space-x-2">
+                <td className="p-3 text-right space-x-4">
                   <button
                     onClick={() => {
                       setEditing(s);
                     }}
                   >
                     <PencilIcon />
-                  </button>
-                  <button onClick={() => duplicateSlide(s.id)}>
-                    <CopyIcon />
                   </button>
                   <button onClick={() => deleteSlide(s.id)}>
                     <TrashIcon />

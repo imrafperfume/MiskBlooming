@@ -15,38 +15,36 @@ const InSeason = () => {
       id: 1,
       name: "Spring Tulip Bouquet",
       description: "Fresh tulips in vibrant spring colors",
-      price: 180,
-      originalPrice: 220,
-      image: "/placeholder.svg?height=400&width=400&text=Spring+Tulips",
+      image: "/images/occasions/Congratulations.jpg",
       category: "Seasonal Flowers",
       badge: "Limited Time",
     },
     {
       id: 2,
-      name: "Mother's Day Special Cake",
+      name: "Mother's Day Special",
       description: "Strawberry vanilla cake with fresh berries",
       price: 250,
-      image: "/placeholder.svg?height=400&width=400&text=Mothers+Day+Cake",
-      category: "Fresh Cakes",
+      image: "/images/occasions/mothersday.jpg",
+      category: "Fresh Flowers & Cakes",
       badge: "Pre-Order",
     },
     {
       id: 3,
-      name: "Spring Garden Plant Set",
+      name: "Birthday special gift set",
       description: "Collection of flowering plants for spring",
       price: 280,
       originalPrice: 320,
-      image: "/placeholder.svg?height=400&width=400&text=Spring+Plants",
-      category: "Plants",
+      image: "/images/occasions/birthday.jpg",
+      category: "Birthday Gifts",
       badge: "New Arrival",
     },
     {
       id: 4,
-      name: "Easter Chocolate Collection",
+      name: "Anniversary Easter Chocolates",
       description: "Artisanal chocolates in Easter themes",
       price: 150,
-      image: "/placeholder.svg?height=400&width=400&text=Easter+Chocolates",
-      category: "Chocolates",
+      image: "/images/occasions/Anniversary.jpg",
+      category: "Aniversary & Chocolates",
       badge: "Seasonal",
     },
   ];
@@ -132,29 +130,6 @@ const InSeason = () => {
                 <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
                   {item.description}
                 </p>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <span className="text-lg font-bold text-charcoal-900">
-                      AED {item.price}
-                    </span>
-                    {item.originalPrice && (
-                      <span className="text-sm text-muted-foreground line-through">
-                        AED {item.originalPrice}
-                      </span>
-                    )}
-                  </div>
-
-                  <motion.div
-                    animate={{
-                      x: hoveredItem === item.id ? 5 : 0,
-                      scale: hoveredItem === item.id ? 1.1 : 1,
-                    }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <ArrowRight className="w-5 h-5 text-luxury-500" />
-                  </motion.div>
-                </div>
               </div>
             </motion.div>
           ))}

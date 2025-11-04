@@ -84,9 +84,11 @@ export interface HeroSlide {
   title: string;
   subtitle: string;
   description: string;
-  image: string;
-  cta: {
+  imageUrl: string;
+  buttons: {
     text: string;
     link: string;
   };
+  order: number;
+  published: boolean;
 }
