@@ -52,20 +52,14 @@ export default function HeroTable() {
     fetchSlides();
   }
 
-  async function duplicateSlide(id: string) {
-    await fetch("/api/hero-slides/duplicate", {
-      method: "POST",
-      body: JSON.stringify({ id }),
-    });
-    toast.success("Duplicated");
-    fetchSlides();
-  }
-
   async function togglePublish(id: string, publish: boolean) {
-    await fetch("/api/hero-slides/publish", {
-      method: "POST",
-      body: JSON.stringify({ id, publish }),
+    await fetch(`/api/hero-slides/${id}/publish`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ published: publish }),
     });
+
+    toast.success(publish ? "Slide Published " : "Slide Unpublished ");
     fetchSlides();
   }
 
@@ -115,7 +109,7 @@ export default function HeroTable() {
                 <td className="p-3 text-sm text-center text-gray-500">
                   {s.order}
                 </td>
-                <td className="p-3 text-center items-center">
+                <td className="p-3 flex justify-center text-center items-center">
                   <img
                     src={s.imageUrl}
                     className="w-28 h-16 items-center object-cover rounded"

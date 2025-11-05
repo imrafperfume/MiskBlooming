@@ -107,7 +107,10 @@ export default function RootLayout({
         <link rel="canonical" href="https://www.miskblooming.com/" />
       </head>
 
-      <body className="min-h-screen overflow-x-hidden bg-gradient-to-br from-cream-50 to-cream-100 antialiased">
+      <body
+        suppressHydrationWarning={true}
+        className="min-h-screen overflow-x-hidden bg-gradient-to-br from-cream-50 to-cream-100 antialiased"
+      >
         <Toaster position="top-center" richColors />
         <QueryProvider>{children}</QueryProvider>
       </body>

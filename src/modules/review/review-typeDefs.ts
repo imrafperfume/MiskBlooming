@@ -27,7 +27,7 @@ export const ReviewTypeDefs = gql`
   }
 
   type Query {
-    reviews(id: String!): [Review!]!
+    reviews: [Review!]!
   }
 
   type Mutation {

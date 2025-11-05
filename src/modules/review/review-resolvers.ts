@@ -4,19 +4,17 @@ import { redis } from "@/src/lib/redis";
 
 export const ReviewResolvers = {
   Query: {
-    reviews: async (_: any, args: { id: string }) => {
+    reviews: async (_: any) => {
       try {
-        const id = args.id;
-        if (!id) throw new Error("Id not found");
-        const cache = await redis.get(`reviews:${id}`);
+        const cache = await redis.get(`reviews`);
         if (cache) {
           return cache;
         }
         const reviews = await prisma.review.findMany({
-          where: { productId: id },
           include: { user: true },
         });
-        await redis.set(`reviews:${id}`, JSON.stringify(reviews), {
+        console.log(reviews);
+        await redis.set(`reviews`, JSON.stringify(reviews), {
           ex: 60 * 60,
         });
         return reviews;

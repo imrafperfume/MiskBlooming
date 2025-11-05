@@ -18,10 +18,11 @@ const HeroSlider = () => {
   // Sort slides by order
   const slides = useMemo(() => {
     return heroSlides.length > 0
-      ? [...heroSlides].sort((a, b) => a.order - b.order)
+      ? [...heroSlides]
+          .filter((slide) => slide.published === true) // Filter unpublished slides
+          .sort((a, b) => a.order - b.order) // Sort by order
       : [];
   }, [heroSlides]);
-
   useEffect(() => {
     fetchHeroSlides();
   }, []);
@@ -31,15 +32,21 @@ const HeroSlider = () => {
     try {
       const res = await fetch("/api/hero-slides");
       if (!res.ok) throw new Error("Failed to fetch slides");
+
       const data: HeroSlide[] = await res.json();
-      setHeroSlides(data);
+
+      // ✅ Filter & sort here too for safe measure
+      setHeroSlides(
+        data
+          .filter((s) => s.published === true)
+          .sort((a, b) => a.order - b.order)
+      );
     } catch (error) {
       console.error("Fetch HeroSlides Error:", error);
     } finally {
       setLoading(false);
     }
   };
-
   // Auto-play
   useEffect(() => {
     if (!isAutoPlaying || slides.length === 0) return;

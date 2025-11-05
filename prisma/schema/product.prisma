@@ -16,6 +16,7 @@ model Product {
     price          Float
     compareAtPrice Float
     costPerItem    Float
+    // vatPercentage  Float
 
     // Inventory
     sku               String? @unique
@@ -57,6 +58,8 @@ model Product {
     @@index([category])
     @@index([status])
     @@index([price])
+    @@index([id])
+    @@index([slug])
 }
 
 model ProductDimension {

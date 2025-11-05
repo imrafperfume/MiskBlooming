@@ -108,11 +108,14 @@ const InSeason = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                 {/* Quick Action */}
-                <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
+                <Link
+                  href={`/products?category=${item.category}`}
+                  className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0"
+                >
                   <Button variant="luxury" size="sm" className="w-full">
                     Quick View
                   </Button>
-                </div>
+                </Link>
               </div>
 
               <div className="p-6">

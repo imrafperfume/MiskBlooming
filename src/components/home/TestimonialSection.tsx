@@ -6,10 +6,19 @@ import { Star, Quote } from "lucide-react";
 import { motion } from "framer-motion";
 import type { Testimonial } from "../../types";
 import testimonialsData from "../../data/testimonials.json";
+import { useQuery } from "@apollo/client";
+import { GET_REVIEWS } from "@/src/modules/review/reviewType";
+import Loading from "../layout/Loading";
 
 const TestimonialSection = () => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-  const testimonials = testimonialsData as Testimonial[];
+  // const testimonials = testimonialsData as Testimonial[];
+  const { data, loading, error } = useQuery(GET_REVIEWS);
+  const testimonials = data?.reviews;
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <section className="py-24 bg-gradient-to-br from-charcoal-900 to-charcoal-800 relative overflow-hidden">
@@ -53,7 +62,10 @@ const TestimonialSection = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                "{testimonials[activeTestimonial].content}"
+                "
+                {testimonials?.[activeTestimonial]?.comment ||
+                  "No testimonial available."}
+                "
               </motion.blockquote>
             </div>
 
@@ -64,7 +76,7 @@ const TestimonialSection = () => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             >
-              <div className="relative w-16 h-16 rounded-full overflow-hidden">
+              {/* <div className="relative w-16 h-16 rounded-full overflow-hidden">
                 <Image
                   src={"/placeholder.jpg"}
                   alt={"Testimonial"}
@@ -74,27 +86,22 @@ const TestimonialSection = () => {
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   className="object-cover"
                 />
-              </div>
+              </div> */}
               <div>
                 <h4 className="font-cormorant text-xl font-semibold text-cream-50">
-                  {testimonials[activeTestimonial].name}
+                  {testimonials[activeTestimonial]?.user.firstName}
+                  {testimonials[activeTestimonial]?.user.lastName}
                 </h4>
-                <p className="text-luxury-400 font-medium">
-                  {testimonials[activeTestimonial].role}
-                  {testimonials[activeTestimonial].company && (
-                    <span className="text-cream-300">
-                      {" "}
-                      • {testimonials[activeTestimonial].company}
-                    </span>
-                  )}
-                </p>
+
                 <div className="flex items-center mt-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-4 h-4 text-luxury-500 fill-current"
-                    />
-                  ))}
+                  {[...Array(testimonials[activeTestimonial]?.rating)].map(
+                    (_, i) => (
+                      <Star
+                        key={i}
+                        className="w-4 h-4 text-luxury-500 fill-current"
+                      />
+                    )
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -108,35 +115,35 @@ const TestimonialSection = () => {
             transition={{ duration: 0.6, delay: 0.4 }}
             viewport={{ once: true }}
           >
-            {testimonials.map((testimonial, index) => (
+            {testimonials?.map((testimonial: any, index: any) => (
               <motion.button
                 key={testimonial.id}
                 onClick={() => setActiveTestimonial(index)}
                 className={`w-full text-left p-6 rounded-xl transition-all duration-300 ${
                   index === activeTestimonial
-                    ? "glass-effect border border-luxury-500/30"
-                    : "bg-charcoal-800/50 hover:bg-charcoal-700/50"
+                    ? "glass-effect border  border-luxury-500/30"
+                    : "bg-charcoal-800/50  hover:bg-charcoal-700/50"
                 }`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <div className="flex items-center space-x-4">
-                  <div className="relative w-12 h-12 rounded-full overflow-hidden">
+                  {/* <div className="relative w-12 h-12 rounded-full overflow-hidden">
                     <Image
                       src={testimonial?.image || "/placeholder.svg"}
                       alt={testimonial.name}
                       fill
                       className="object-cover"
                     />
-                  </div>
+                  </div> */}
                   <div className="flex-1">
-                    <h5 className="font-semibold text-cream-50 text-sm">
-                      {testimonial.name}
+                    <h5 className="font-semibold text-charcoal-900 text-sm">
+                      {testimonial.user.firstName} {testimonial.user.lastName}
                     </h5>
-                    <p className="text-cream-300 text-xs">{testimonial.role}</p>
+                    {/* <p className="text-cream-300 text-xs">{testimonial.role}</p> */}
                   </div>
                   <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
+                    {[...Array(testimonial?.rating)].map((_, i) => (
                       <Star
                         key={i}
                         className="w-3 h-3 text-luxury-500 fill-current"
