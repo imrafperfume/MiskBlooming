@@ -1,24 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { Star, Quote } from "lucide-react";
 import { motion } from "framer-motion";
-import type { Testimonial } from "../../types";
-import testimonialsData from "../../data/testimonials.json";
 import { useQuery } from "@apollo/client";
 import { GET_REVIEWS } from "@/src/modules/review/reviewType";
 import Loading from "../layout/Loading";
 
 const TestimonialSection = () => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-  // const testimonials = testimonialsData as Testimonial[];
   const { data, loading, error } = useQuery(GET_REVIEWS);
   const testimonials = data?.reviews;
 
-  if (loading) {
-    return <Loading />;
-  }
+  if (loading) return <Loading />;
 
   return (
     <section className="py-24 bg-gradient-to-br from-charcoal-900 to-charcoal-800 relative overflow-hidden">

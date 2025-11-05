@@ -1,8 +1,8 @@
-// app/sitemap.xml/route.ts
-import { NextResponse } from "next/server";
+// app/sitemap.ts
+import { MetadataRoute } from "next";
+import { GET_PRODUCTS_SITEMAP } from "../modules/product/operations";
+import { GET_CATEGORIES_SITEMAP } from "../modules/category/categoryTypes";
 import { yogaFetch } from "../lib/graphql-client";
-import { GET_PRODUCTS } from "../modules/product/operations";
-import { GET_CATEGORIES } from "../modules/category/categoryTypes";
 
 interface Product {
   slug: string;
@@ -15,78 +15,47 @@ interface Category {
   updatedAt: string;
 }
 
-export async function GET() {
-  const BASE_URL = "https://www.miskblooming.com";
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // const BASE_URL = "https://www.miskblooming.com";
+  const BASE_URL = "http://localhost:3001";
 
   const [{ data: productsData }, { data: categoriesData }] = await Promise.all([
-    yogaFetch<{ data: { products: Product[] } }>(GET_PRODUCTS),
-    yogaFetch<{ data: { categories: Category[] } }>(GET_CATEGORIES),
+    yogaFetch<{ data: { products: Product[] } }>(GET_PRODUCTS_SITEMAP),
+    yogaFetch<{ data: { categories: Category[] } }>(GET_CATEGORIES_SITEMAP),
   ]);
-
-  const urls: string[] = [];
-
-  // Home
-  urls.push(`
-    <url>
-      <loc>${BASE_URL}</loc>
-      <lastmod>${new Date().toISOString()}</lastmod>
-      <changefreq>daily</changefreq>
-      <priority>1.0</priority>
-    </url>
-  `);
-
-  // Static Pages
-  const pages = ["/about", "/contact", "/blog", "/terms", "/privacy"];
-  pages.forEach((p) =>
-    urls.push(`
-      <url>
-        <loc>${BASE_URL}${p}</loc>
-        <lastmod>${new Date().toISOString()}</lastmod>
-        <changefreq>monthly</changefreq>
-        <priority>0.5</priority>
-      </url>
-    `)
-  );
-
-  // Categories
-  categoriesData.categories.forEach((c) =>
-    urls.push(`
-      <url>
-        <loc>${BASE_URL}/categories/${c.slug}</loc>
-        <lastmod>${c.updatedAt}</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.8</priority>
-      </url>
-    `)
-  );
-
-  // Products (with image tag)
-  productsData.products.forEach((p) =>
-    urls.push(`
-      <url>
-        <loc>${BASE_URL}/products/${p.slug}</loc>
-        <lastmod>${p.updatedAt}</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.9</priority>
-        <image:image>
-          <image:loc>${BASE_URL}${p.images[0]?.url}</image:loc>
-          <image:caption>${p.slug}</image:caption>
-        </image:image>
-      </url>
-    `)
-  );
-
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-  <urlset 
-    xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-    xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-      ${urls.join("\n")}
-  </urlset>`;
-
-  return new NextResponse(xml, {
-    headers: {
-      "Content-Type": "application/xml",
-      "Cache-Control": "s-maxage=3600, stale-while-revalidate",
+  const routes: MetadataRoute.Sitemap = [
+    {
+      url: BASE_URL,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 1.0,
     },
-  });
+    { url: `${BASE_URL}/about`, priority: 0.5 },
+    { url: `${BASE_URL}/contact`, priority: 0.5 },
+    { url: `${BASE_URL}/blog`, priority: 0.5 },
+    { url: `${BASE_URL}/terms`, priority: 0.5 },
+    { url: `${BASE_URL}/privacy`, priority: 0.5 },
+  ];
+
+  categoriesData?.categories.forEach((c: any) =>
+    routes.push({
+      url: `${BASE_URL}/categories/${c.name}`,
+      lastModified: c.updatedAt,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    })
+  );
+
+  (productsData?.products || [])
+    .filter((p) => p?.slug)
+    .forEach((p: any) =>
+      routes.push({
+        url: `${BASE_URL}/products/${encodeURIComponent(p.slug)}`, // spaces/special chars safe
+        lastModified: p.updatedAt,
+        changeFrequency: "weekly",
+        priority: 0.9,
+      })
+    );
+
+  return routes;
 }

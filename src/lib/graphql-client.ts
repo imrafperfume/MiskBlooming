@@ -6,7 +6,7 @@ export const client = new ApolloClient({
 });
 
 export async function yogaFetch<T>(
-  query: any,
+  query: string,
   variables?: Record<string, any>
 ): Promise<T> {
   const res = await fetch(process.env.YOGA_ENDPOINT as string, {

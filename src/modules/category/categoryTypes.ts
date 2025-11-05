@@ -30,7 +30,17 @@ export const GET_CATEGORIES = gql`
     }
   }
 `;
-
+export const GET_CATEGORIES_SITEMAP = `
+  query GetCategories {
+    categories {
+      id
+      name
+      description
+      imageUrl
+      updatedAt
+    }
+  }
+`;
 export const CREATE_CATEGORY = gql`
   mutation CreateCategory($input: CreateCategoryInput!) {
     createCategory(input: $input) {
