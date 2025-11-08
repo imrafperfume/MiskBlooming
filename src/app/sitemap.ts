@@ -17,7 +17,7 @@ interface Category {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // const BASE_URL = "https://www.miskblooming.com";
-  const BASE_URL = "http://localhost:3001";
+  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
   const [{ data: productsData }, { data: categoriesData }] = await Promise.all([
     yogaFetch<{ data: { products: Product[] } }>(GET_PRODUCTS_SITEMAP),

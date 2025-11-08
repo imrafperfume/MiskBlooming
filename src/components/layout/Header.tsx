@@ -77,43 +77,43 @@ const Header = () => {
             description: cat.description || "",
           })) ?? [],
       },
-      {
-        name: "Occasions",
-        href: "/occasions",
-        isActive: pathname.startsWith("/occasions"),
-        dropdown: [
-          {
-            name: "Valentine's Day",
-            href: "/occasions/valentines",
-            description: "Romantic arrangements",
-          },
-          {
-            name: "Mother's Day",
-            href: "/occasions/mothers-day",
-            description: "Show your love",
-          },
-          {
-            name: "Birthday",
-            href: "/occasions/birthday",
-            description: "Celebration essentials",
-          },
-          {
-            name: "Anniversary",
-            href: "/occasions/anniversary",
-            description: "Memorable moments",
-          },
-          {
-            name: "Congratulations",
-            href: "/occasions/congratulations",
-            description: "Success celebrations",
-          },
-          {
-            name: "Sympathy",
-            href: "/occasions/sympathy",
-            description: "Thoughtful condolences",
-          },
-        ],
-      },
+      // {
+      //   name: "Occasions",
+      //   href: "/occasions",
+      //   isActive: pathname.startsWith("/occasions"),
+      //   dropdown: [
+      //     {
+      //       name: "Valentine's Day",
+      //       href: "/occasions/valentines",
+      //       description: "Romantic arrangements",
+      //     },
+      //     {
+      //       name: "Mother's Day",
+      //       href: "/occasions/mothers-day",
+      //       description: "Show your love",
+      //     },
+      //     {
+      //       name: "Birthday",
+      //       href: "/occasions/birthday",
+      //       description: "Celebration essentials",
+      //     },
+      //     {
+      //       name: "Anniversary",
+      //       href: "/occasions/anniversary",
+      //       description: "Memorable moments",
+      //     },
+      //     {
+      //       name: "Congratulations",
+      //       href: "/occasions/congratulations",
+      //       description: "Success celebrations",
+      //     },
+      //     {
+      //       name: "Sympathy",
+      //       href: "/occasions/sympathy",
+      //       description: "Thoughtful condolences",
+      //     },
+      //   ],
+      // },
       {
         name: "About",
         href: "/about",
