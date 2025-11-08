@@ -7,26 +7,25 @@ import { yogaFetch } from "../lib/graphql-client";
 interface Product {
   slug: string;
   updatedAt: string;
-  images: { url: string }[];
 }
 
 interface Category {
-  slug: string;
+  name: string;
   updatedAt: string;
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // const BASE_URL = "https://www.miskblooming.com";
-  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const BASE_URL = process.env.NEXT_PUBLIC_URL || "http://localhost:3000";
 
   const [{ data: productsData }, { data: categoriesData }] = await Promise.all([
     yogaFetch<{ data: { products: Product[] } }>(GET_PRODUCTS_SITEMAP),
     yogaFetch<{ data: { categories: Category[] } }>(GET_CATEGORIES_SITEMAP),
   ]);
+
   const routes: MetadataRoute.Sitemap = [
     {
       url: BASE_URL,
-      lastModified: new Date(),
+      lastModified: new Date().toISOString(),
       changeFrequency: "daily",
       priority: 1.0,
     },
@@ -37,21 +36,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/privacy`, priority: 0.5 },
   ];
 
-  categoriesData?.categories.forEach((c: any) =>
+  categoriesData?.categories?.forEach((c: Category) =>
     routes.push({
-      url: `${BASE_URL}/categories/${c.name}`,
-      lastModified: c.updatedAt,
+      url: `${BASE_URL}/categories/${encodeURIComponent(c.name)}`,
+      lastModified: c.updatedAt
+        ? new Date(c.updatedAt).toISOString()
+        : new Date().toISOString(),
       changeFrequency: "weekly",
       priority: 0.8,
     })
   );
 
-  (productsData?.products || [])
-    .filter((p) => p?.slug)
-    .forEach((p: any) =>
+  productsData?.products
+    ?.filter((p) => p.slug)
+    .forEach((p: Product) =>
       routes.push({
-        url: `${BASE_URL}/products/${encodeURIComponent(p.slug)}`, // spaces/special chars safe
-        lastModified: p.updatedAt,
+        url: `${BASE_URL}/products/${encodeURIComponent(p.slug)}`,
+        lastModified: p.updatedAt
+          ? new Date(p.updatedAt).toISOString()
+          : new Date().toISOString(),
         changeFrequency: "weekly",
         priority: 0.9,
       })
