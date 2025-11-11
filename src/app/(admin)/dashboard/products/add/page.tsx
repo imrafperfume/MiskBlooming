@@ -268,6 +268,19 @@ export default function AddProductPage() {
       .padStart(3, "0");
     return `MB-${categoryCode}${nameCode}-${randomNum}`;
   };
+  function generateUniqueBarcode(length: number = 6): string {
+    const timestamp = Date.now().toString(); // current milliseconds
+    let randomPart = "";
+
+    const digits = "0123456789";
+    for (let i = 0; i < length; i++) {
+      randomPart += digits.charAt(Math.floor(Math.random() * digits.length));
+    }
+
+    // Combine last 6 digits of timestamp + random part
+    const uniqueBarcode = timestamp.slice(-6) + randomPart;
+    return uniqueBarcode;
+  }
 
   const handleInputChange = (field: keyof ProductFormData, value: any) => {
     setFormData((prev) => {
@@ -279,6 +292,9 @@ export default function AddProductPage() {
         updated.seoTitle = value;
         if (!prev.sku) {
           updated.sku = generateSKU(value, prev.category || "GEN");
+        }
+        if (!prev.barcode) {
+          updated.barcode = generateUniqueBarcode();
         }
       }
 

@@ -7,6 +7,7 @@ import { Input } from "../ui/Input";
 import { CheckoutStep } from "./CheckoutStep";
 import { CouponInput } from "./CouponInput";
 import type { CheckoutFormData } from "../../types/checkout";
+import { useEffect } from "react";
 
 interface ShippingInformationStepProps {
   form: UseFormReturn<CheckoutFormData>;
@@ -35,10 +36,53 @@ export function ShippingInformationStep({
 }: ShippingInformationStepProps) {
   const {
     register,
+    setValue,
     formState: { errors },
     watch,
   } = form;
   const deliveryType = watch("deliveryType");
+  useEffect(() => {
+    handleCurrentLocation();
+  }, []);
+  const handleCurrentLocation = () => {
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const { latitude, longitude } = pos.coords;
+
+      // OpenStreetMap Reverse Geocode (Free)
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+      );
+      const data = await res.json();
+      console.log("🚀 ~ handleCurrentLocation ~ data:", data);
+
+      const address = data.address;
+
+      //Extracting individual parts safely
+      const street =
+        address.road ||
+        address.residential ||
+        address.neighbourhood ||
+        data.display_name ||
+        "";
+      console.log("🚀 ~ handleCurrentLocation ~ street:", street);
+
+      const city =
+        address.city ||
+        address.town ||
+        address.village ||
+        address.countsy ||
+        "";
+
+      const emirate = address.state || "";
+      console.log("🚀 ~ handleCurrentLocation ~ emirate:", emirate);
+
+      const postalCode = address.postcode || "";
+      setValue("emirate", emirate);
+      setValue("address", street);
+      setValue("city", city);
+      setValue("postalCode", postalCode);
+    });
+  };
 
   return (
     <CheckoutStep>
@@ -66,23 +110,25 @@ export function ShippingInformationStep({
             <label className="block text-sm font-medium text-charcoal-900 mb-2">
               Emirate
             </label>
+
             <select
               {...register("emirate")}
+              value={watch("emirate") || ""}
+              onChange={(e) => setValue("emirate", e.target.value)}
               className="w-full px-4 py-3 border border-cream-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300"
             >
-              <option value="">Select Emirate</option>
-              {emirates.map((emirate) => (
-                <option key={emirate} value={emirate}>
-                  {emirate}
-                </option>
-              ))}
+              {watch("emirate") && (
+                <option value={watch("emirate")}>{watch("emirate")}</option>
+              )}
             </select>
+
             {errors.emirate && (
               <p className="mt-1 text-sm text-red-600">
                 {errors.emirate.message}
               </p>
             )}
           </div>
+
           <Input label="Postal Code (Optional)" {...register("postalCode")} />
         </div>
 

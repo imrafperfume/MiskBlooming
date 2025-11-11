@@ -62,6 +62,7 @@ export default function CheckoutPage() {
   const calculations = useMemo(() => calculateTotals(), [calculateTotals]);
 
   if (isProcessing) {
+    window.scrollTo(0, 0);
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cream-50 to-cream-100">
         <div className="text-center">
