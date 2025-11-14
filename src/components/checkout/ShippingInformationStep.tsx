@@ -48,13 +48,11 @@ export function ShippingInformationStep({
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const { latitude, longitude } = pos.coords;
 
-      // OpenStreetMap Reverse Geocode (Free)
+      // OpenStreetMap Reverse Geocode
       const res = await fetch(
         `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
       );
       const data = await res.json();
-      console.log("🚀 ~ handleCurrentLocation ~ data:", data);
-
       const address = data.address;
 
       //Extracting individual parts safely
@@ -64,8 +62,6 @@ export function ShippingInformationStep({
         address.neighbourhood ||
         data.display_name ||
         "";
-      console.log("🚀 ~ handleCurrentLocation ~ street:", street);
-
       const city =
         address.city ||
         address.town ||
@@ -74,7 +70,6 @@ export function ShippingInformationStep({
         "";
 
       const emirate = address.state || "";
-      console.log("🚀 ~ handleCurrentLocation ~ emirate:", emirate);
 
       const postalCode = address.postcode || "";
       setValue("emirate", emirate);
