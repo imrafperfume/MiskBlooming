@@ -16,9 +16,13 @@ interface CreateCouponModalProps {
   onSuccess: () => void;
 }
 
-export function CreateCouponModal({ isOpen, onClose, onSuccess }: CreateCouponModalProps) {
+export function CreateCouponModal({
+  isOpen,
+  onClose,
+  onSuccess,
+}: CreateCouponModalProps) {
   const [createCoupon, { loading }] = useMutation(CREATE_COUPON);
-  
+
   const [formData, setFormData] = useState<CreateCouponInput>({
     code: "",
     name: "",
@@ -29,8 +33,10 @@ export function CreateCouponModal({ isOpen, onClose, onSuccess }: CreateCouponMo
     maximumDiscount: 0,
     usageLimit: 0,
     userUsageLimit: 1,
-    validFrom: new Date().toISOString().split('T')[0],
-    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
+    validFrom: new Date().toISOString().split("T")[0],
+    validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .split("T")[0], // 30 days from now
     applicableProducts: [],
     applicableCategories: [],
     applicableUsers: [],
@@ -39,7 +45,7 @@ export function CreateCouponModal({ isOpen, onClose, onSuccess }: CreateCouponMo
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       // Convert date strings to ISO DateTime strings
       const inputData = {
@@ -51,11 +57,11 @@ export function CreateCouponModal({ isOpen, onClose, onSuccess }: CreateCouponMo
       await createCoupon({
         variables: { input: inputData },
       });
-      
+
       toast.success("Coupon created successfully!");
       onSuccess();
       onClose();
-      
+
       // Reset form
       setFormData({
         code: "",
@@ -67,8 +73,10 @@ export function CreateCouponModal({ isOpen, onClose, onSuccess }: CreateCouponMo
         maximumDiscount: 0,
         usageLimit: 0,
         userUsageLimit: 1,
-        validFrom: new Date().toISOString().split('T')[0],
-        validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        validFrom: new Date().toISOString().split("T")[0],
+        validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
         applicableProducts: [],
         applicableCategories: [],
         applicableUsers: [],
@@ -80,7 +88,7 @@ export function CreateCouponModal({ isOpen, onClose, onSuccess }: CreateCouponMo
   };
 
   const handleInputChange = (field: keyof CreateCouponInput, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
@@ -96,17 +104,19 @@ export function CreateCouponModal({ isOpen, onClose, onSuccess }: CreateCouponMo
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-background rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto"
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
       >
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-charcoal-900">Create New Coupon</h2>
+            <h2 className="text-2xl font-bold text-foreground ">
+              Create New Coupon
+            </h2>
             <button
               onClick={onClose}
-              className="text-muted-foreground hover:text-charcoal-900"
+              className="text-muted-foreground hover:text-foreground "
             >
               <X className="w-6 h-6" />
             </button>
@@ -115,24 +125,28 @@ export function CreateCouponModal({ isOpen, onClose, onSuccess }: CreateCouponMo
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Basic Information */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-charcoal-900">Basic Information</h3>
-              
+              <h3 className="text-lg font-semibold text-foreground ">
+                Basic Information
+              </h3>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                  <label className="block text-sm font-medium text-foreground  mb-2">
                     Coupon Code *
                   </label>
                   <Input
                     type="text"
                     value={formData.code}
-                    onChange={(e) => handleInputChange("code", e.target.value.toUpperCase())}
+                    onChange={(e) =>
+                      handleInputChange("code", e.target.value.toUpperCase())
+                    }
                     placeholder="e.g., WELCOME10"
                     required
                   />
                 </div>
-                
+
                 <div>
-                  <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                  <label className="block text-sm font-medium text-foreground  mb-2">
                     Coupon Name *
                   </label>
                   <Input
@@ -146,14 +160,16 @@ export function CreateCouponModal({ isOpen, onClose, onSuccess }: CreateCouponMo
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                <label className="block text-sm font-medium text-foreground  mb-2">
                   Description
                 </label>
                 <textarea
                   value={formData.description}
-                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
                   placeholder="Describe the coupon..."
-                  className="w-full px-3 py-2 border border-cream-400 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
                   rows={3}
                 />
               </div>
@@ -161,17 +177,21 @@ export function CreateCouponModal({ isOpen, onClose, onSuccess }: CreateCouponMo
 
             {/* Discount Configuration */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-charcoal-900">Discount Configuration</h3>
-              
+              <h3 className="text-lg font-semibold text-foreground ">
+                Discount Configuration
+              </h3>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                  <label className="block text-sm font-medium text-foreground  mb-2">
                     Discount Type *
                   </label>
                   <select
                     value={formData.discountType}
-                    onChange={(e) => handleInputChange("discountType", e.target.value)}
-                    className="w-full px-3 py-2 border border-cream-400 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                    onChange={(e) =>
+                      handleInputChange("discountType", e.target.value)
+                    }
+                    className="w-full px-3 py-2 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
                     required
                   >
                     <option value="PERCENTAGE">Percentage</option>
@@ -181,14 +201,21 @@ export function CreateCouponModal({ isOpen, onClose, onSuccess }: CreateCouponMo
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                  <label className="block text-sm font-medium text-foreground  mb-2">
                     Discount Value *
                   </label>
                   <Input
                     type="number"
                     value={formData.discountValue}
-                    onChange={(e) => handleInputChange("discountValue", parseFloat(e.target.value) || 0)}
-                    placeholder={formData.discountType === "PERCENTAGE" ? "10" : "20"}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "discountValue",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
+                    placeholder={
+                      formData.discountType === "PERCENTAGE" ? "10" : "20"
+                    }
                     min="0"
                     step={formData.discountType === "PERCENTAGE" ? "1" : "0.01"}
                     required
@@ -198,13 +225,18 @@ export function CreateCouponModal({ isOpen, onClose, onSuccess }: CreateCouponMo
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                  <label className="block text-sm font-medium text-foreground  mb-2">
                     Minimum Order Amount
                   </label>
                   <Input
                     type="number"
                     value={formData.minimumAmount}
-                    onChange={(e) => handleInputChange("minimumAmount", parseFloat(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "minimumAmount",
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
                     placeholder="0"
                     min="0"
                     step="0.01"
@@ -213,13 +245,18 @@ export function CreateCouponModal({ isOpen, onClose, onSuccess }: CreateCouponMo
 
                 {formData.discountType === "PERCENTAGE" && (
                   <div>
-                    <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                    <label className="block text-sm font-medium text-foreground  mb-2">
                       Maximum Discount Amount
                     </label>
                     <Input
                       type="number"
                       value={formData.maximumDiscount}
-                      onChange={(e) => handleInputChange("maximumDiscount", parseFloat(e.target.value) || 0)}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "maximumDiscount",
+                          parseFloat(e.target.value) || 0
+                        )
+                      }
                       placeholder="0"
                       min="0"
                       step="0.01"
@@ -231,30 +268,42 @@ export function CreateCouponModal({ isOpen, onClose, onSuccess }: CreateCouponMo
 
             {/* Usage Limits */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-charcoal-900">Usage Limits</h3>
-              
+              <h3 className="text-lg font-semibold text-foreground ">
+                Usage Limits
+              </h3>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                  <label className="block text-sm font-medium text-foreground  mb-2">
                     Total Usage Limit
                   </label>
                   <Input
                     type="number"
                     value={formData.usageLimit}
-                    onChange={(e) => handleInputChange("usageLimit", parseInt(e.target.value) || 0)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "usageLimit",
+                        parseInt(e.target.value) || 0
+                      )
+                    }
                     placeholder="0 (unlimited)"
                     min="0"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                  <label className="block text-sm font-medium text-foreground  mb-2">
                     Per User Usage Limit
                   </label>
                   <Input
                     type="number"
                     value={formData.userUsageLimit}
-                    onChange={(e) => handleInputChange("userUsageLimit", parseInt(e.target.value) || 1)}
+                    onChange={(e) =>
+                      handleInputChange(
+                        "userUsageLimit",
+                        parseInt(e.target.value) || 1
+                      )
+                    }
                     placeholder="1"
                     min="1"
                   />
@@ -266,10 +315,15 @@ export function CreateCouponModal({ isOpen, onClose, onSuccess }: CreateCouponMo
                   type="checkbox"
                   id="newUsersOnly"
                   checked={formData.newUsersOnly}
-                  onChange={(e) => handleInputChange("newUsersOnly", e.target.checked)}
-                  className="rounded border-cream-400 text-luxury-500 focus:ring-luxury-500"
+                  onChange={(e) =>
+                    handleInputChange("newUsersOnly", e.target.checked)
+                  }
+                  className="rounded border-border  text-primary  focus:ring-luxury-500"
                 />
-                <label htmlFor="newUsersOnly" className="text-sm font-medium text-charcoal-900">
+                <label
+                  htmlFor="newUsersOnly"
+                  className="text-sm font-medium text-foreground "
+                >
                   Only for new users
                 </label>
               </div>
@@ -277,29 +331,35 @@ export function CreateCouponModal({ isOpen, onClose, onSuccess }: CreateCouponMo
 
             {/* Validity Period */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-charcoal-900">Validity Period</h3>
-              
+              <h3 className="text-lg font-semibold text-foreground ">
+                Validity Period
+              </h3>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                  <label className="block text-sm font-medium text-foreground  mb-2">
                     Valid From *
                   </label>
                   <Input
                     type="date"
                     value={formData.validFrom}
-                    onChange={(e) => handleInputChange("validFrom", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("validFrom", e.target.value)
+                    }
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                  <label className="block text-sm font-medium text-foreground  mb-2">
                     Valid Until *
                   </label>
                   <Input
                     type="date"
                     value={formData.validUntil}
-                    onChange={(e) => handleInputChange("validUntil", e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("validUntil", e.target.value)
+                    }
                     required
                   />
                 </div>

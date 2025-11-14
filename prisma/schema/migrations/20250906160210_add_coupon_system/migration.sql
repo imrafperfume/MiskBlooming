@@ -25,7 +25,7 @@ CREATE TABLE "public"."Coupon" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "createdBy" TEXT,
 
-    CONSTRAINT "Coupon_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Coupon_pkey"  KEY ("id")
 );
 
 -- CreateTable
@@ -39,7 +39,7 @@ CREATE TABLE "public"."CouponUsage" (
     "orderAmount" DOUBLE PRECISION NOT NULL,
     "usedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "CouponUsage_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "CouponUsage_pkey"  KEY ("id")
 );
 
 -- CreateIndex

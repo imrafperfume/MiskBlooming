@@ -31,7 +31,7 @@ export default function CartItem({
   return (
     <motion.div
       key={item.product.id}
-      className="bg-white rounded-2xl transition-all duration-300"
+      className="bg-background rounded-2xl transition-all duration-300"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -100, scale: 0.95 }}
@@ -47,7 +47,7 @@ export default function CartItem({
             className="object-cover"
           />
           {item.product.featured && (
-            <div className="absolute top-1 left-1 bg-luxury-500 text-charcoal-900 text-xs px-2 py-1 rounded-full font-bold">
+            <div className="absolute top-1 left-1 bg-foreground 0 text-foreground  text-xs px-2 py-1 rounded-full font-bold">
               Featured
             </div>
           )}
@@ -56,7 +56,7 @@ export default function CartItem({
         {/* Product Info */}
         <div className="flex-1 min-w-0">
           <Link href={`/products/${item.product.id}`}>
-            <h3 className="font-cormorant text-lg font-semibold text-charcoal-900 hover:text-luxury-500 transition-colors line-clamp-2">
+            <h3 className="font-cormorant text-lg font-semibold text-foreground  hover:text-primary  transition-colors line-clamp-2">
               {item.product.name}
             </h3>
           </Link>
@@ -70,7 +70,7 @@ export default function CartItem({
                 key={i}
                 className={`w-3 h-3 ${
                   i < Math.floor(5)
-                    ? "text-luxury-500 fill-current"
+                    ? "text-primary  fill-current"
                     : "text-cream-300"
                 }`}
               />
@@ -81,7 +81,7 @@ export default function CartItem({
           </div>
 
           <div className="flex items-center mt-2">
-            <span className="text-lg font-bold text-charcoal-900">
+            <span className="text-lg font-bold text-foreground ">
               {formatPrice(item.product.price)}
             </span>
             {item.product.compareAtPrice && (
@@ -93,7 +93,7 @@ export default function CartItem({
 
           <button
             onClick={handleMoveToWishlist}
-            className="flex items-center text-sm text-luxury-500 hover:text-luxury-600 transition-colors mt-3"
+            className="flex items-center text-sm text-primary  hover:text-primary transition-colors mt-3"
           >
             <Heart className="w-4 h-4 mr-1" />
             Save for Later
@@ -102,7 +102,7 @@ export default function CartItem({
 
         {/* Quantity Controls */}
         <div className="flex flex-col items-center space-y-2">
-          <div className="flex items-center border border-cream-300 rounded-lg">
+          <div className="flex items-center border border-border  rounded-lg">
             <button
               onClick={() =>
                 handleUpdateQuantity(item.product.id, item.quantity - 1)
@@ -132,7 +132,7 @@ export default function CartItem({
             </button>
           </div>
 
-          <p className="text-sm font-medium text-charcoal-900">
+          <p className="text-sm font-medium text-foreground ">
             {formatPrice(item.product.price * item.quantity)}
           </p>
 

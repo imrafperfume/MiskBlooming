@@ -1,0 +1,5 @@
+model SystemSetting {
+    id        String   @id @default(cuid())
+    theme     String   @default("light") // "light" or "dark"
+    updatedAt DateTime @updatedAt
+}

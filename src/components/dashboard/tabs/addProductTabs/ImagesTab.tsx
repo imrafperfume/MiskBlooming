@@ -13,14 +13,14 @@ function ImagesTab({
   return (
     <div className="space-y-6 l">
       <div>
-        <h2 className="text-xl font-cormorant font-bold text-charcoal-900 mb-4 flex items-center">
+        <h2 className="text-xl font-cormorant font-bold text-foreground  mb-4 flex items-center">
           Product Images
           <Cloud className="w-6 h-6 ml-2 text-blue-500" />
           {errors?.images && (
             <span className="text-red-500 ml-2 text-sm">{errors.images}</span>
           )}
         </h2>
-        <p className="text-gray-600">
+        <p className="text-foreground ">
           Upload high-quality images with automatic Cloudinary optimization
         </p>
       </div>
@@ -52,7 +52,7 @@ function ImagesTab({
               <Cloud className="w-5 h-5 ml-2 text-blue-500" />
               <Zap className="w-4 h-4 ml-1 text-yellow-500" />
             </h3>
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-foreground ">
               {formData.images.length} of 10 images
             </div>
           </div>

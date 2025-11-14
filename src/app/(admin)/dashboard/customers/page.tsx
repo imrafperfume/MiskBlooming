@@ -205,10 +205,10 @@ export default function CustomersPage() {
       {/* Header */}
       <div className="flex flex-col flex-wrap lg:flex-row lg:items-center justify-between">
         <div>
-          <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">
+          <h1 className="text-3xl font-cormorant font-bold text-foreground ">
             Customer Management
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-foreground  mt-2">
             Manage customer relationships and insights
           </p>
         </div>
@@ -230,15 +230,15 @@ export default function CustomersPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Customers</p>
-              <p className="text-xl font-bold text-charcoal-900">
+              <p className="text-sm text-foreground ">Total Customers</p>
+              <p className="text-xl font-bold text-foreground ">
                 {users?.length}
               </p>
             </div>
@@ -247,14 +247,14 @@ export default function CustomersPage() {
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">VIP Customers</p>
+              <p className="text-sm text-foreground ">VIP Customers</p>
               <p className="text-xl font-bold text-purple-600">{stats?.vip}</p>
             </div>
             <Star className="w-6 h-6 text-purple-500" />
@@ -262,14 +262,14 @@ export default function CustomersPage() {
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Regular</p>
+              <p className="text-sm text-foreground ">Regular</p>
               <p className="text-xl font-bold text-blue-600">
                 {stats?.regular}
               </p>
@@ -279,14 +279,14 @@ export default function CustomersPage() {
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">New This Month</p>
+              <p className="text-sm text-foreground ">New This Month</p>
               <p className="text-xl font-bold text-green-600">{stats.new}</p>
             </div>
             <TrendingUp className="w-6 h-6 text-green-500" />
@@ -294,15 +294,15 @@ export default function CustomersPage() {
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-2">
-              <p className="text-sm text-gray-600">Avg Order Value</p>
-              <div className="text-xl  font-bold text-luxury-600">
+              <p className="text-sm text-foreground ">Avg Order Value</p>
+              <div className="text-xl  font-bold text-primary ">
                 <p>AED {stats.averageOrderValue}</p>
               </div>
             </div>
@@ -310,14 +310,14 @@ export default function CustomersPage() {
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Revenue</p>
+              <p className="text-sm text-foreground ">Total Revenue</p>
               <p className="text-xl font-bold text-green-600">
                 AED {stats?.totalRevenue}
               </p>
@@ -329,7 +329,7 @@ export default function CustomersPage() {
 
       {/* Filters */}
       <motion.div
-        className="bg-white rounded-xl sm:p-6 shadow-sm border border-gray-100"
+        className="bg-background rounded-xl sm:p-6 shadow-sm border border-gray-100"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.6 }}
@@ -378,26 +378,26 @@ export default function CustomersPage() {
         {paginatedCustomers.map((customer: Customer, index: any) => (
           <motion.div
             key={customer.id}
-            className="bg-white rounded-xl relative overflow-hidden p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+            className="bg-background rounded-xl relative overflow-hidden p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-luxury-400 to-luxury-600 rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-luxury-400 to-primary rounded-full flex items-center justify-center">
                   <span className="text-white font-medium">
                     {(customer?.firstName?.[0] || "M") +
                       (customer?.lastName?.[0] || "B")}
                   </span>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-charcoal-900">
+                  <h3 className="font-semibold text-foreground ">
                     {(customer?.firstName || "Random") +
                       " " +
                       (customer?.lastName || "")}
                   </h3>
-                  <p className="text-sm text-gray-600">{customer.email}</p>
+                  <p className="text-sm text-foreground ">{customer.email}</p>
                 </div>
               </div>
               <span
@@ -411,15 +411,15 @@ export default function CustomersPage() {
             </div>
 
             <div className="space-y-3 mb-4">
-              <div className="flex items-center text-sm text-gray-600">
+              <div className="flex items-center text-sm text-foreground ">
                 <Phone className="w-4 h-4 mr-2" />
                 {customer.phoneNumber}
               </div>
-              <div className="flex items-center text-sm text-gray-600">
+              <div className="flex items-center text-sm text-foreground ">
                 <MapPin className="w-4 h-4 mr-2" />
                 {/* {customer?.location | "Not available"} */} Not Availabe
               </div>
-              <div className="flex items-center text-sm text-gray-600">
+              <div className="flex items-center text-sm text-foreground ">
                 <Calendar className="w-4 h-4 mr-2" />
                 Joined{" "}
                 {customer.createdAt
@@ -430,23 +430,23 @@ export default function CustomersPage() {
 
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <p className="text-lg font-bold text-charcoal-900">
+                <p className="text-lg font-bold text-foreground ">
                   {customer.stats.totalOrders}
                 </p>
-                <p className="text-xs text-gray-600">Total Orders</p>
+                <p className="text-xs text-foreground ">Total Orders</p>
               </div>
               <div className="text-center p-3 bg-gray-50 rounded-lg">
-                <p className="text-lg font-bold text-luxury-600">
+                <p className="text-lg font-bold text-primary ">
                   AED {customer.stats.totalSpent.toLocaleString()}
                   {/* AED {customer.stats.totalSpent.toLocaleString()} */}
                 </p>
-                <p className="text-xs text-gray-600">Total Spent</p>
+                <p className="text-xs text-foreground ">Total Spent</p>
               </div>
             </div>
 
             <div className="space-y-2 mb-4">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Avg Order Value:</span>
+                <span className="text-foreground ">Avg Order Value:</span>
                 <span className="font-medium">
                   AED{" "}
                   {customer.stats.totalOrders
@@ -457,19 +457,19 @@ export default function CustomersPage() {
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Loyalty Points:</span>
-                <span className="font-medium text-luxury-600">
+                <span className="text-foreground ">Loyalty Points:</span>
+                <span className="font-medium text-primary ">
                   {/* {customer.loyaltyPoints} 0 pts */} 0 pts
                 </span>
               </div>
               {/* <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Preferred Category:</span>
+                <span className="text-foreground ">Preferred Category:</span>
                 <span className="font-medium">
                   {customer.preferredCategory}
                 </span>
               </div> */}
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Last Order:</span>
+                <span className="text-foreground ">Last Order:</span>
                 <span className="font-medium">
                   {customer.lastOrder
                     ? new Date(
@@ -511,10 +511,10 @@ export default function CustomersPage() {
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
               {selectedCustomerId === customer.id && ( // Only show the menu for the selected user
-                <div className="absolute flex flex-col gap-1 p-4 shadow right-6 bottom-14 bg-white border border-gray-200 rounded-lg z-10">
+                <div className="absolute flex flex-col gap-1 p-4 shadow right-6 bottom-14 bg-background border border-border  rounded-lg z-10">
                   <span
                     onClick={() => handleMakeAdmin(customer.id)}
-                    className="text-sm text-gray-600 mb-2 cursor-pointer hover:scale-105 transition-transform"
+                    className="text-sm text-foreground  mb-2 cursor-pointer hover:scale-105 transition-transform"
                   >
                     Make Admin
                   </span>
@@ -534,10 +534,10 @@ export default function CustomersPage() {
       {filteredCustomers.length === 0 && (
         <div className="text-center py-12">
           <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-charcoal-900 mb-2">
+          <h3 className="text-lg font-medium text-foreground  mb-2">
             No customers found
           </h3>
-          <p className="text-gray-600">
+          <p className="text-foreground ">
             Try adjusting your search or filter criteria
           </p>
         </div>
@@ -546,7 +546,7 @@ export default function CustomersPage() {
       {/* Pagination */}
       {filteredCustomers.length > 0 && (
         <div className="flex items-center justify-between mt-6">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-foreground ">
             Showing {(currentPage - 1) * pageSize + 1}–
             {Math.min(currentPage * pageSize, filteredCustomers.length)} of{" "}
             {filteredCustomers.length} customers
@@ -568,7 +568,7 @@ export default function CustomersPage() {
                 variant="outline"
                 size="sm"
                 className={
-                  page === currentPage ? "bg-luxury-500 text-white" : ""
+                  page === currentPage ? "bg-foreground 0 text-white" : ""
                 }
                 onClick={() => setCurrentPage(page)}
               >

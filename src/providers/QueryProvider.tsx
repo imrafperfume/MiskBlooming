@@ -7,6 +7,7 @@ import { useState } from "react";
 import { ApolloProvider } from "@apollo/client";
 import { client } from "../lib/graphql-client";
 import ScrollToTopWrapper from "../components/layout/ScrollToTopWrapper";
+import { ThemeProvider } from "../components/themeProvider";
 
 export function QueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -24,7 +25,11 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
   return (
     <ApolloProvider client={client}>
       <QueryClientProvider client={queryClient}>
-        <ScrollToTopWrapper>{children}</ScrollToTopWrapper>
+        <ScrollToTopWrapper>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+            {children}
+          </ThemeProvider>
+        </ScrollToTopWrapper>
         {/* <ReactQueryDevtools initialIsOpen={false} /> */}
       </QueryClientProvider>
     </ApolloProvider>

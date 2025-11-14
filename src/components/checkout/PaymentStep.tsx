@@ -68,8 +68,8 @@ PaymentStepProps) {
   return (
     <CheckoutStep>
       <div className="flex items-center mb-6">
-        <CreditCard className="w-5 h-5 lg:w-6 lg:h-6 text-luxury-500 mr-3" />
-        <h2 className="font-cormorant text-xl lg:text-2xl font-bold text-charcoal-900">
+        <CreditCard className="w-5 h-5 lg:w-6 lg:h-6 text-primary  mr-3" />
+        <h2 className="font-cormorant text-xl lg:text-2xl font-bold text-foreground ">
           Payment Method
         </h2>
       </div>
@@ -77,7 +77,7 @@ PaymentStepProps) {
       <div className="space-y-4 lg:space-y-6">
         {/* Payment Method Selection */}
         <div>
-          <label className="block text-sm font-medium text-charcoal-900 mb-4">
+          <label className="block text-sm font-medium text-foreground  mb-4">
             Choose Payment Method
           </label>
           <div className="space-y-3 relative">
@@ -87,21 +87,21 @@ PaymentStepProps) {
                   key={method.id}
                   className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
                     paymentMethod === method.id
-                      ? "border-luxury-500 bg-luxury-50"
-                      : "border-cream-300 hover:bg-cream-50 hover:border-luxury-300"
+                      ? "border-luxury-500 bg-foreground "
+                      : "border-border  hover:bg-cream-50 hover:border-luxury-300"
                   }`}
                 >
                   <input
                     type="radio"
                     value={method.id}
                     {...register("paymentMethod")}
-                    className="mr-3 text-luxury-500 focus:ring-luxury-500"
+                    className="mr-3 text-primary  focus:ring-luxury-500"
                     onChange={() => setValue("paymentMethod", method.id as any)}
                   />
                   <method.icon className="w-6 h-6 text-charcoal-700 mr-3" />
                   <div className="flex-1">
                     <div className="flex items-center">
-                      <span className="font-medium text-charcoal-900 text-xs sm:text-base">
+                      <span className="font-medium text-foreground  text-xs sm:text-base">
                         {method.name}
                       </span>
                       {method.popular && (

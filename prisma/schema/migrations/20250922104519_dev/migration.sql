@@ -5,7 +5,7 @@ CREATE TABLE "public"."PushSubscription" (
     "keys" JSONB NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "PushSubscription_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "PushSubscription_pkey"  KEY ("id")
 );
 
 -- CreateIndex

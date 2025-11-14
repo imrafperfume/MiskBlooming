@@ -79,7 +79,7 @@ export default function ProductInfo({
     >
       {/* Category & Stock Status */}
       <div className="flex items-center justify-between">
-        <span className="text-luxury-500 font-medium text-sm uppercase tracking-wide">
+        <span className="text-primary  font-medium text-sm uppercase tracking-wide">
           {product.category.replace("-", " ")}
         </span>
         {product.quantity ? (
@@ -103,7 +103,7 @@ export default function ProductInfo({
               key={index}
               className={`w-5 h-5 ${
                 index < Math.floor(averageRating)
-                  ? "text-luxury-500 fill-current"
+                  ? "text-primary  fill-current"
                   : "text-cream-400"
               }`}
             />
@@ -113,13 +113,13 @@ export default function ProductInfo({
       </div>
 
       {/* Title */}
-      <h1 className="font-cormorant text-display-sm font-bold text-charcoal-900 leading-tight">
+      <h1 className="font-cormorant text-display-sm font-bold text-foreground  leading-tight">
         {product.name}
       </h1>
 
       {/* Price */}
       <div className="flex flex-wrap items-center sm:space-x-4 gap-2">
-        <span className="sm:text-3xl text-xl font-bold text-charcoal-900">
+        <span className="sm:text-3xl text-xl font-bold text-foreground ">
           {formatPrice(product.price)}
         </span>
         {product.compareAtPrice && (
@@ -155,8 +155,8 @@ export default function ProductInfo({
       <div className="flex flex-wrap sm:flex-nowrap col-span-2 items-center sm:space-x-6">
         <div className="flex-1 sm:flex-none sm:mr-0 mr-2">
           <div className="flex items-center space-x-3">
-            <span className="font-medium text-charcoal-900">Quantity:</span>
-            <div className="flex items-center border border-cream-300 rounded-lg">
+            <span className="font-medium text-foreground ">Quantity:</span>
+            <div className="flex items-center border border-border  rounded-lg">
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 className="p-3 hover:bg-cream-100 transition-colors rounded-l-lg"
@@ -188,7 +188,7 @@ export default function ProductInfo({
 
         <div className="sm:text-right flex-1 sm:flex-none sm:w-auto w-full">
           <p className="text-sm text-muted-foreground">Total Price</p>
-          <p className="text-xl font-bold text-charcoal-900">
+          <p className="text-xl font-bold text-foreground ">
             {formatPrice(product.price * quantity)}
           </p>
         </div>
@@ -212,7 +212,9 @@ export default function ProductInfo({
           variant="outline"
           size="xl"
           className={`flex-1 sm:flex-none ${
-            isWishlisted ? "bg-red-50 border-red-200 text-red-600" : "bg-white"
+            isWishlisted
+              ? "bg-red-50 border-red-200 text-red-600"
+              : "bg-background"
           }`}
         >
           <Heart className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`} />
@@ -222,29 +224,29 @@ export default function ProductInfo({
           onClick={() => handleShare()}
           variant="outline"
           size="xl"
-          className="flex-1 sm:flex-none bg-white"
+          className="flex-1 sm:flex-none bg-background"
         >
           <Share2 className="w-5 h-5" />
         </Button>
       </div>
 
       {/* Features */}
-      <div className="grid sm:grid-cols-3 gap-4 pt-6 border-t border-cream-300">
-        <div className="text-center border py-3 rounded-md border-cream-400">
-          <Truck className="w-6 h-6 text-luxury-500 mx-auto mb-2" />
-          <p className="text-sm font-medium text-charcoal-900">Free Delivery</p>
+      <div className="grid sm:grid-cols-3 gap-4 pt-6 border-t border-border ">
+        <div className="text-center border py-3 rounded-md border-border ">
+          <Truck className="w-6 h-6 text-primary  mx-auto mb-2" />
+          <p className="text-sm font-medium text-foreground ">Free Delivery</p>
           <p className="text-xs text-muted-foreground">Orders over AED 500</p>
         </div>
-        <div className="text-center border py-3 rounded-md border-cream-400">
-          <Shield className="w-6 h-6 text-luxury-500 mx-auto mb-2" />
-          <p className="text-sm font-medium text-charcoal-900">
+        <div className="text-center border py-3 rounded-md border-border ">
+          <Shield className="w-6 h-6 text-primary  mx-auto mb-2" />
+          <p className="text-sm font-medium text-foreground ">
             Freshness Guarantee
           </p>
           <p className="text-xs text-muted-foreground">100% fresh flowers</p>
         </div>
-        <div className="text-center border py-3 rounded-md border-cream-400">
-          <Gift className="w-6 h-6 text-luxury-500 mx-auto mb-2" />
-          <p className="text-sm font-medium text-charcoal-900">Gift Wrapping</p>
+        <div className="text-center border py-3 rounded-md border-border ">
+          <Gift className="w-6 h-6 text-primary  mx-auto mb-2" />
+          <p className="text-sm font-medium text-foreground ">Gift Wrapping</p>
           <p className="text-xs text-muted-foreground">
             Luxury packaging included
           </p>

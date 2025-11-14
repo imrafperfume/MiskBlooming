@@ -149,7 +149,7 @@ export default function CouponsPage() {
       {/* Header */}
       <div className="flex flex-wrap gap-4 items-center justify-between">
         <div>
-          <h1 className="font-cormorant text-3xl font-bold text-charcoal-900">
+          <h1 className="font-cormorant text-3xl font-bold text-foreground ">
             Coupon Management
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -168,7 +168,7 @@ export default function CouponsPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <motion.div
-          className="bg-white p-6 rounded-lg shadow-sm border"
+          className="bg-background p-6 rounded-lg shadow-sm border"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -178,7 +178,7 @@ export default function CouponsPage() {
               <p className="text-sm font-medium text-muted-foreground">
                 Total Coupons
               </p>
-              <p className="text-2xl font-bold text-charcoal-900">
+              <p className="text-2xl font-bold text-foreground ">
                 {coupons.length}
               </p>
             </div>
@@ -189,7 +189,7 @@ export default function CouponsPage() {
         </motion.div>
 
         <motion.div
-          className="bg-white p-6 rounded-lg shadow-sm border"
+          className="bg-background p-6 rounded-lg shadow-sm border"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
@@ -199,7 +199,7 @@ export default function CouponsPage() {
               <p className="text-sm font-medium text-muted-foreground">
                 Active Coupons
               </p>
-              <p className="text-2xl font-bold text-charcoal-900">
+              <p className="text-2xl font-bold text-foreground ">
                 {
                   coupons.filter(
                     (c) => c.isActive && new Date(c.validUntil) > new Date()
@@ -214,7 +214,7 @@ export default function CouponsPage() {
         </motion.div>
 
         <motion.div
-          className="bg-white p-6 rounded-lg shadow-sm border"
+          className="bg-background p-6 rounded-lg shadow-sm border"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
@@ -224,7 +224,7 @@ export default function CouponsPage() {
               <p className="text-sm font-medium text-muted-foreground">
                 Total Usage
               </p>
-              <p className="text-2xl font-bold text-charcoal-900">
+              <p className="text-2xl font-bold text-foreground ">
                 {coupons.reduce((sum, c) => sum + c.usageCount, 0)}
               </p>
             </div>
@@ -235,7 +235,7 @@ export default function CouponsPage() {
         </motion.div>
 
         <motion.div
-          className="bg-white p-6 rounded-lg shadow-sm border"
+          className="bg-background p-6 rounded-lg shadow-sm border"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
@@ -245,7 +245,7 @@ export default function CouponsPage() {
               <p className="text-sm font-medium text-muted-foreground">
                 Expired Coupons
               </p>
-              <p className="text-2xl font-bold text-charcoal-900">
+              <p className="text-2xl font-bold text-foreground ">
                 {
                   coupons.filter((c) => new Date(c.validUntil) < new Date())
                     .length
@@ -261,7 +261,7 @@ export default function CouponsPage() {
 
       {/* Coupons Table */}
       <motion.div
-        className="bg-white rounded-lg shadow-sm border"
+        className="bg-background rounded-lg shadow-sm border"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
@@ -303,12 +303,12 @@ export default function CouponsPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="flex items-center space-x-2">
-                          <span className="font-medium text-charcoal-900">
+                          <span className="font-medium text-foreground ">
                             {coupon.code}
                           </span>
                           <button
                             onClick={() => copyCouponCode(coupon.code)}
-                            className="text-muted-foreground hover:text-charcoal-900"
+                            className="text-muted-foreground hover:text-foreground "
                           >
                             <Copy className="w-4 h-4" />
                           </button>
@@ -374,7 +374,7 @@ export default function CouponsPage() {
                           className={
                             coupon.isActive
                               ? "text-green-600 hover:text-green-900"
-                              : "text-gray-400 hover:text-gray-600"
+                              : "text-gray-400 hover:text-foreground "
                           }
                         >
                           {coupon.isActive ? (

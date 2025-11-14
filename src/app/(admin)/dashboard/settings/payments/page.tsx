@@ -46,7 +46,7 @@ export default function AdminToggles() {
   }
 
   return (
-    <div className="max-w-md p-6 bg-white rounded-2xl shadow-md">
+    <div className="max-w-md p-6 bg-background rounded-2xl shadow-md">
       <h2 className="text-xl font-semibold mb-4">Payment Setting</h2>
 
       {error && (
@@ -56,7 +56,7 @@ export default function AdminToggles() {
       <div className="flex items-center justify-between py-3">
         <div>
           <div className="text-sm font-medium">Stripe Enabled</div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-foreground ">
             Enable Stripe payment gateway.
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function AdminToggles() {
             aria-label="Toggle Stripe"
           >
             <span
-              className={`block w-5 h-5 bg-white rounded-full shadow transform transition-transform absolute top-0.5 left-0.5 ${
+              className={`block w-5 h-5 bg-background rounded-full shadow transform transition-transform absolute top-0.5 left-0.5 ${
                 payments.stripeEnabled ? "translate-x-5" : "translate-x-0"
               }`}
             />
@@ -84,7 +84,7 @@ export default function AdminToggles() {
       <div className="flex items-center justify-between py-3">
         <div>
           <div className="text-sm font-medium">COD Enabled</div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-foreground ">
             Cash on Delivery option for orders.
           </div>
         </div>
@@ -99,7 +99,7 @@ export default function AdminToggles() {
             aria-label="Toggle COD"
           >
             <span
-              className={`block w-5 h-5 bg-white rounded-full shadow transform transition-transform absolute top-0.5 left-0.5 ${
+              className={`block w-5 h-5 bg-background rounded-full shadow transform transition-transform absolute top-0.5 left-0.5 ${
                 payments.codEnabled ? "translate-x-5" : "translate-x-0"
               }`}
             />

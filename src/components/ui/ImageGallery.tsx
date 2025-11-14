@@ -101,7 +101,7 @@ export function ImageGallery({
 
   if (images.length === 0) {
     return (
-      <div className={`text-center py-12 text-gray-500 ${className}`}>
+      <div className={`text-center py-12 text-foreground ${className}`}>
         <ImageIcon className="w-12 h-12 mx-auto mb-4 text-gray-300" />
         <p>No images uploaded yet</p>
       </div>
@@ -124,7 +124,7 @@ export function ImageGallery({
               ${
                 featuredIndex === index
                   ? "border-luxury-400 ring-2 ring-luxury-200"
-                  : "border-gray-200 hover:border-gray-300"
+                  : "border-border  hover:border-gray-300"
               }
               ${draggedIndex === index ? "opacity-50 scale-95" : ""}
             `}
@@ -141,7 +141,7 @@ export function ImageGallery({
 
             {/* Featured Badge */}
             {featuredIndex === index && (
-              <div className="absolute top-2 left-2 bg-luxury-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center">
+              <div className="absolute top-2 left-2 bg-foreground 0 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center">
                 <Star className="w-3 h-3 mr-1 fill-current" />
                 Featured
               </div>
@@ -162,7 +162,7 @@ export function ImageGallery({
                   type="button"
                   size="sm"
                   variant="outline"
-                  className="bg-white text-gray-900 hover:bg-gray-100"
+                  className="bg-background text-gray-900 hover:bg-gray-100"
                   onClick={() => setSelectedImage(image)}
                 >
                   <Eye className="w-4 h-4" />
@@ -174,7 +174,7 @@ export function ImageGallery({
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="bg-white text-gray-900 hover:bg-gray-100"
+                    className="bg-background text-gray-900 hover:bg-gray-100"
                     onClick={() => setFeatured(index)}
                   >
                     <Star className="w-4 h-4" />
@@ -186,7 +186,7 @@ export function ImageGallery({
                   type="button"
                   size="sm"
                   variant="outline"
-                  className="bg-white text-gray-900 hover:bg-gray-100"
+                  className="bg-background text-gray-900 hover:bg-gray-100"
                   onClick={() => downloadImage(image, index)}
                 >
                   <Download className="w-4 h-4" />
@@ -197,7 +197,7 @@ export function ImageGallery({
                   type="button"
                   size="sm"
                   variant="outline"
-                  className="bg-white text-red-600 hover:bg-red-50 border-red-200"
+                  className="bg-background text-red-600 hover:bg-red-50 border-red-200"
                   onClick={() => removeImage(index)}
                 >
                   <Trash2 className="w-4 h-4" />
@@ -226,7 +226,7 @@ export function ImageGallery({
               type="button"
               variant="outline"
               size="sm"
-              className="absolute top-4 right-4 bg-white"
+              className="absolute top-4 right-4 bg-background"
               onClick={() => setSelectedImage(null)}
             >
               <X className="w-4 h-4" />
@@ -236,7 +236,7 @@ export function ImageGallery({
       )}
 
       {/* Gallery Info */}
-      <div className="flex items-center justify-between text-sm text-gray-600 bg-gray-50 rounded-lg p-3">
+      <div className="flex items-center justify-between text-sm text-foreground  bg-gray-50 rounded-lg p-3">
         <div className="flex items-center space-x-4">
           <span>
             {images.length} image{images.length !== 1 ? "s" : ""} uploaded
@@ -244,7 +244,7 @@ export function ImageGallery({
           <span>•</span>
           <span>Featured: Image {featuredIndex + 1}</span>
         </div>
-        <div className="text-xs text-gray-500">Drag images to reorder</div>
+        <div className="text-xs text-foreground ">Drag images to reorder</div>
       </div>
     </div>
   );

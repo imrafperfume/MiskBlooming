@@ -144,18 +144,18 @@ function TrackOrderPage(): JSX.Element {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-luxury-100 mb-4">
-            <Search className="h-8 w-8 text-luxury-600" />
+            <Search className="h-8 w-8 text-primary " />
           </div>
-          <h1 className="text-3xl font-cormorant font-bold text-charcoal-900 mb-2">
+          <h1 className="text-3xl font-cormorant font-bold text-foreground  mb-2">
             Track Your Order
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-foreground ">
             Enter your order ID and email address to track your order status
           </p>
         </div>
 
         {/* Search Form */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+        <div className="bg-background rounded-lg shadow-lg p-6 mb-6">
           <form onSubmit={handleSearch} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
@@ -201,9 +201,9 @@ function TrackOrderPage(): JSX.Element {
         {orderDetails && (
           <div className="space-y-6">
             {/* Order Status */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
+            <div className="bg-background rounded-lg shadow-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-cormorant font-bold text-charcoal-900">
+                <h2 className="text-xl font-cormorant font-bold text-foreground ">
                   Order Status
                 </h2>
                 <span
@@ -218,31 +218,31 @@ function TrackOrderPage(): JSX.Element {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">
+                  <p className="text-sm text-foreground  mb-1">
                     <span className="font-medium">Order ID:</span>{" "}
                     {orderDetails.id}
                   </p>
-                  <p className="text-sm text-gray-600 mb-1">
+                  <p className="text-sm text-foreground  mb-1">
                     <span className="font-medium">Order Date:</span>{" "}
                     {formatDate(orderDetails?.createdAt)}
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-foreground ">
                     <span className="font-medium">Total Amount:</span> AED{" "}
                     {orderDetails.totalAmount.toFixed(2)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">
+                  <p className="text-sm text-foreground  mb-1">
                     <span className="font-medium">Payment Method:</span>{" "}
                     {orderDetails.paymentMethod}
                   </p>
-                  <p className="text-sm text-gray-600 mb-1">
+                  <p className="text-sm text-foreground  mb-1">
                     <span className="font-medium">Payment Status:</span>
                     <span className="ml-1 px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
                       {orderDetails.paymentStatus}
                     </span>
                   </p>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-foreground ">
                     <span className="font-medium">Delivery Type:</span>{" "}
                     {orderDetails.deliveryType}
                   </p>
@@ -251,8 +251,8 @@ function TrackOrderPage(): JSX.Element {
             </div>
 
             {/* Customer Information */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h2 className="text-xl font-cormorant font-bold text-charcoal-900 mb-4">
+            <div className="bg-background rounded-lg shadow-lg p-6">
+              <h2 className="text-xl font-cormorant font-bold text-foreground  mb-4">
                 Customer Information
               </h2>
 
@@ -260,13 +260,13 @@ function TrackOrderPage(): JSX.Element {
                 <div>
                   <div className="flex items-center mb-2">
                     <Mail className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-foreground ">
                       {orderDetails.email}
                     </span>
                   </div>
                   <div className="flex items-center mb-2">
                     <Phone className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-foreground ">
                       {orderDetails.phone}
                     </span>
                   </div>
@@ -274,7 +274,7 @@ function TrackOrderPage(): JSX.Element {
                 <div>
                   <div className="flex items-start">
                     <MapPin className="h-4 w-4 text-gray-400 mr-2 mt-0.5" />
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-foreground ">
                       {orderDetails.address}, {orderDetails.city},{" "}
                       {orderDetails.emirate}
                       {orderDetails.postalCode &&
@@ -286,8 +286,8 @@ function TrackOrderPage(): JSX.Element {
             </div>
 
             {/* Delivery Information */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h2 className="text-xl font-cormorant font-bold text-charcoal-900 mb-4">
+            <div className="bg-background rounded-lg shadow-lg p-6">
+              <h2 className="text-xl font-cormorant font-bold text-foreground  mb-4">
                 Delivery Information
               </h2>
 
@@ -296,7 +296,7 @@ function TrackOrderPage(): JSX.Element {
                   {orderDetails.deliveryType && (
                     <div className="flex items-center mb-2">
                       <Package className="h-4 w-4 text-gray-400 mr-2" />
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-foreground ">
                         Delivery Type: {orderDetails.deliveryType}
                       </span>
                     </div>
@@ -306,7 +306,7 @@ function TrackOrderPage(): JSX.Element {
                   {orderDetails.deliveryDate && (
                     <div className="flex items-center mb-2">
                       <Calendar className="h-4 w-4 text-gray-400 mr-2" />
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-foreground ">
                         Delivery Date: {formatDate(orderDetails.deliveryDate)}
                       </span>
                     </div>
@@ -314,7 +314,7 @@ function TrackOrderPage(): JSX.Element {
                   {orderDetails.deliveryTime && (
                     <div className="flex items-center mb-2">
                       <Clock className="h-4 w-4 text-gray-400 mr-2" />
-                      <span className="text-sm text-gray-600">
+                      <span className="text-sm text-foreground ">
                         Delivery Time: {formatTime(orderDetails.deliveryTime)}
                       </span>
                     </div>
@@ -326,7 +326,7 @@ function TrackOrderPage(): JSX.Element {
                       <h4 className="font-medium text-gray-900 mb-2">
                         Special Instructions
                       </h4>
-                      <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm text-foreground  bg-gray-50 p-3 rounded-lg">
                         {orderDetails.specialInstructions}
                       </p>
                     </div>
@@ -336,8 +336,8 @@ function TrackOrderPage(): JSX.Element {
             </div>
 
             {/* Order Items */}
-            <div className="bg-white rounded-lg shadow-lg p-6">
-              <h2 className="text-xl font-cormorant font-bold text-charcoal-900 mb-4">
+            <div className="bg-background rounded-lg shadow-lg p-6">
+              <h2 className="text-xl font-cormorant font-bold text-foreground  mb-4">
                 Order Items
               </h2>
 
@@ -345,13 +345,13 @@ function TrackOrderPage(): JSX.Element {
                 {orderDetails.items.map((item) => (
                   <div
                     key={item.id}
-                    className="flex justify-between items-center py-3 border-b border-gray-200 last:border-b-0"
+                    className="flex justify-between items-center py-3 border-b border-border  last:border-b-0"
                   >
                     <div>
                       <h4 className="font-medium text-gray-900">
                         {item.product.name}
                       </h4>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-foreground ">
                         Quantity: {item.quantity}
                       </p>
                     </div>
@@ -359,7 +359,7 @@ function TrackOrderPage(): JSX.Element {
                       <p className="font-medium text-gray-900">
                         AED {(item.price * item.quantity).toFixed(2)}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-foreground ">
                         AED {item.price.toFixed(2)} each
                       </p>
                     </div>

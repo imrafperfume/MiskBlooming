@@ -144,7 +144,7 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="font-cormorant text-3xl font-bold text-charcoal-900 mb-4">
+          <h1 className="font-cormorant text-3xl font-bold text-foreground  mb-4">
             Product Not Found
           </h1>
           <Link href="/products">

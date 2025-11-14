@@ -161,7 +161,7 @@ const Footer = () => {
                 placeholder="Enter your email address"
                 className="flex-1 px-4 py-3 bg-charcoal-800 border border-charcoal-600 rounded-lg text-cream-50 placeholder-cream-400 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
               />
-              <button className="px-6 py-3 luxury-gradient text-charcoal-900 font-semibold rounded-lg hover:scale-105 transition-transform duration-300">
+              <button className="px-6 py-3 luxury-gradient text-foreground  font-semibold rounded-lg hover:scale-105 transition-transform duration-300">
                 Subscribe
               </button>
             </div>
@@ -195,9 +195,9 @@ const Footer = () => {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 bg-charcoal-800 hover:bg-luxury-500 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
+                  className="w-10 h-10 bg-charcoal-800 hover:bg-foreground 0 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110"
                 >
-                  <social.icon className="w-5 h-5 text-cream-200 hover:text-charcoal-900" />
+                  <social.icon className="w-5 h-5 text-cream-200 hover:text-foreground " />
                 </a>
               ))}
             </div>

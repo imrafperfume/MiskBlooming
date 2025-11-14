@@ -132,14 +132,14 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-cormorant flex flex-col items-center gap-1 justify-center text-2xl font-bold text-charcoal-100 mb-16">
             Why Dubai Loves MiskBlooming
-            <span className="text-charcoal-900 text-display-md ">
+            <span className="text-foreground  text-display-md ">
               A Legacy of Floral Excellence
             </span>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {stats.map((s, i) => (
               <div key={i}>
-                <div className="text-4xl lg:text-5xl font-bold text-charcoal-900 mb-2">
+                <div className="text-4xl lg:text-5xl font-bold text-foreground  mb-2">
                   {s.number}
                 </div>
                 <p className="text-charcoal-700 font-medium">{s.label}</p>
@@ -164,11 +164,11 @@ export default function HomePage() {
       <section className="py-24 bg-gradient-to-br from-cream-50 to-cream-100">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex items-center justify-center mb-6">
-            <Award className="w-8 h-8 text-luxury-500 mx-3" />
-            <h2 className="font-cormorant text-display-sm font-bold text-charcoal-900">
+            <Award className="w-8 h-8 text-primary  mx-3" />
+            <h2 className="font-cormorant text-display-sm font-bold text-foreground ">
               Join Our Exclusive Circle for Offers & Same-Day Delivery
             </h2>
-            <Award className="w-8 h-8 text-luxury-500 mx-3" />
+            <Award className="w-8 h-8 text-primary  mx-3" />
           </div>
           <p className="text-muted-foreground text-xl mb-8 max-w-2xl mx-auto">
             Be the first to discover our latest collections, exclusive offers,
@@ -181,8 +181,8 @@ export default function HomePage() {
             <input
               type="email"
               placeholder="Enter your email"
-              className="flex-1 px-6 py-4 rounded-xl border border-cream-400 
-              focus:ring-2 focus:ring-luxury-500 transition-all bg-white"
+              className="flex-1 px-6 py-4 rounded-xl border border-border  
+              focus:ring-2 focus:ring-luxury-500 transition-all bg-background"
               required
             />
             <Button variant="luxury" size="lg" type="submit">

@@ -66,14 +66,14 @@ export default function HeroTable() {
   return (
     <>
       <div className="flex relative justify-between items-center mb-4">
-        <div className="text-sm text-gray-600">Manage slides</div>
+        <div className="text-sm text-foreground ">Manage slides</div>
         <Dialog.Root open={openCreate} onOpenChange={setOpenCreate}>
-          <Dialog.Trigger className="inline-flex items-center gap-2 bg-luxury-500 text-white px-3 py-2 rounded">
+          <Dialog.Trigger className="inline-flex items-center gap-2 bg-foreground 0 text-white px-3 py-2 rounded">
             <PlusIcon /> New Slide
           </Dialog.Trigger>
           <Dialog.Portal>
             <Dialog.Overlay className="fixed inset-0 bg-black/40" />
-            <Dialog.Content className="fixed sm:ml-24 ml-0 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow w-full max-w-[720px] sm:w-[720px]">
+            <Dialog.Content className="fixed sm:ml-24 ml-0 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background p-4 rounded shadow w-full max-w-[720px] sm:w-[720px]">
               <Dialog.Title className="text-lg font-semibold mb-2">
                 Create Slide
               </Dialog.Title>
@@ -88,7 +88,7 @@ export default function HeroTable() {
         </Dialog.Root>
       </div>
 
-      <div className="bg-white rounded shadow overflow-x-auto">
+      <div className="bg-background rounded shadow overflow-x-auto">
         <table className="w-full min-w-[600px]">
           <thead className="bg-gray-50">
             <tr>
@@ -106,7 +106,7 @@ export default function HeroTable() {
                 data-id={s.id}
                 className="border-b text-center hover:bg-gray-50"
               >
-                <td className="p-3 text-sm text-center text-gray-500">
+                <td className="p-3 text-sm text-center text-foreground ">
                   {s.order}
                 </td>
                 <td className="p-3 flex justify-center text-center items-center">
@@ -148,7 +148,7 @@ export default function HeroTable() {
       <Dialog.Root open={!!editing} onOpenChange={() => setEditing(null)}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-black/40" />
-          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-4 rounded shadow w-full max-w-[720px] sm:w-[720px]">
+          <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-background p-4 rounded shadow w-full max-w-[720px] sm:w-[720px]">
             <Dialog.Title className="text-lg font-semibold mb-2">
               Edit Slide
             </Dialog.Title>

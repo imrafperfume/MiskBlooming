@@ -49,11 +49,11 @@ export default function ReviewsTab({
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="bg-white rounded-2xl p-8 shadow-sm">
+      <div className="bg-background rounded-2xl p-8 shadow-sm">
         {/* Write Review Form */}
         {user ? (
           <div className="mt-10 border-t pt-8">
-            <h3 className="font-cormorant text-2xl font-bold text-charcoal-900 mb-4">
+            <h3 className="font-cormorant text-2xl font-bold text-foreground  mb-4">
               Write a Review
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -64,7 +64,7 @@ export default function ReviewsTab({
                     key={star}
                     className={`w-6 h-6 cursor-pointer transition ${
                       (hover || rating) >= star
-                        ? "text-luxury-500 fill-current"
+                        ? "text-primary  fill-current"
                         : "text-cream-500"
                     }`}
                     onMouseEnter={() => setHover(star)}
@@ -108,13 +108,13 @@ export default function ReviewsTab({
         {reviews.length > 0 ? (
           <>
             <div className="flex items-center mt-9 justify-between mb-6">
-              <h3 className="font-cormorant text-2xl font-bold text-charcoal-900">
+              <h3 className="font-cormorant text-2xl font-bold text-foreground ">
                 Customer Reviews
               </h3>
               <div className="flex items-center space-x-4">
                 <div className="flex items-center">
-                  <Star className="w-5 h-5 text-luxury-500 fill-current mr-1" />
-                  <span className="font-semibold text-charcoal-900">
+                  <Star className="w-5 h-5 text-primary  fill-current mr-1" />
+                  <span className="font-semibold text-foreground ">
                     {averageRating.toFixed(1)}
                   </span>
                   <span className="text-muted-foreground ml-1">
@@ -125,7 +125,7 @@ export default function ReviewsTab({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
               <div>
-                <h4 className="font-semibold text-charcoal-900 mb-4">
+                <h4 className="font-semibold text-foreground  mb-4">
                   Rating Breakdown
                 </h4>
                 {ratingCounts.map(({ star, percentage, count }) => (
@@ -133,10 +133,10 @@ export default function ReviewsTab({
                     <span className="text-sm text-muted-foreground w-8">
                       {star}
                     </span>
-                    <Star className="w-4 h-4 text-luxury-500 fill-current mr-2" />
+                    <Star className="w-4 h-4 text-primary  fill-current mr-2" />
                     <div className="flex-1 bg-cream-200 rounded-full h-2 mr-3">
                       <div
-                        className="bg-luxury-500 h-2 rounded-full"
+                        className="bg-foreground 0 h-2 rounded-full"
                         style={{ width: `${percentage}%` }}
                       ></div>
                     </div>
@@ -146,8 +146,8 @@ export default function ReviewsTab({
                   </div>
                 ))}
               </div>
-              <div className="bg-luxury-50 rounded-xl p-6">
-                <h4 className="font-semibold text-charcoal-900 mb-3">
+              <div className="bg-foregroundrounded-xl p-6">
+                <h4 className="font-semibold text-foreground  mb-3">
                   What customers love:
                 </h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
@@ -169,7 +169,7 @@ export default function ReviewsTab({
                   <div className="flex items-start justify-between mb-3">
                     <div>
                       <div className="flex items-center mb-2">
-                        <span className="font-medium text-sm text-charcoal-900 mr-3">
+                        <span className="font-medium text-sm text-foreground  mr-3">
                           {review.user?.firstName}
                         </span>
                         {review.user?.emailVerified && (
@@ -185,7 +185,7 @@ export default function ReviewsTab({
                             key={starRating}
                             className={`w-4 h-4 ${
                               starRating <= review.rating
-                                ? "text-luxury-500 fill-current"
+                                ? "text-primary  fill-current"
                                 : "text-cream-500"
                             }`}
                           />

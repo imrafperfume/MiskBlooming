@@ -50,7 +50,7 @@ const InSeason = () => {
   ];
 
   return (
-    <section className="py-24 bg-white">
+    <section className="py-24 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           className="text-center mb-16"
@@ -60,13 +60,13 @@ const InSeason = () => {
           viewport={{ once: true }}
         >
           <div className="flex items-center justify-center mb-4">
-            <Sparkles className="w-6 h-6 text-luxury-500 mr-2" />
-            <span className="text-luxury-500 font-medium tracking-wide">
+            <Sparkles className="w-6 h-6 text-primary  mr-2" />
+            <span className="text-primary  font-medium tracking-wide">
               SEASONAL COLLECTION
             </span>
-            <Sparkles className="w-6 h-6 text-luxury-500 ml-2" />
+            <Sparkles className="w-6 h-6 text-primary  ml-2" />
           </div>
-          <h2 className="font-cormorant text-display-md font-bold text-charcoal-900 mb-6">
+          <h2 className="font-cormorant text-display-md font-bold text-foreground  mb-6">
             Fresh <span className="luxury-text">In Season</span>
           </h2>
           <p className="text-muted-foreground text-xl max-w-3xl mx-auto">
@@ -79,7 +79,7 @@ const InSeason = () => {
           {seasonalItems.map((item, index) => (
             <motion.div
               key={item.id}
-              className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-luxury transition-all duration-500"
+              className="group relative bg-background rounded-2xl overflow-hidden shadow-lg hover:shadow-luxury transition-all duration-500"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -99,7 +99,7 @@ const InSeason = () => {
 
                 {/* Badge */}
                 <div className="absolute top-4 left-4">
-                  <span className="bg-luxury-500 text-charcoal-900 px-3 py-1 rounded-full text-sm font-bold">
+                  <span className="bg-primary text-foreground  px-3 py-1 rounded-full text-sm font-bold">
                     {item.badge}
                   </span>
                 </div>
@@ -120,13 +120,13 @@ const InSeason = () => {
 
               <div className="p-6">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-luxury-500 font-medium uppercase tracking-wide">
+                  <span className="text-xs text-primary  font-medium uppercase tracking-wide">
                     {item.category}
                   </span>
-                  <Calendar className="w-4 h-4 text-luxury-500" />
+                  <Calendar className="w-4 h-4 text-primary " />
                 </div>
 
-                <h3 className="font-cormorant text-lg font-semibold text-charcoal-900 mb-2 group-hover:text-luxury-500 transition-colors">
+                <h3 className="font-cormorant text-lg font-semibold text-foreground  mb-2 group-hover:text-primary  transition-colors">
                   {item.name}
                 </h3>
 

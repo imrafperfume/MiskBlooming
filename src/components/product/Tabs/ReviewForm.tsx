@@ -39,7 +39,7 @@ export default function ReviewForm({ productId }: ReviewFormProps) {
             key={star}
             className={`w-6 h-6 cursor-pointer ${
               (hover || rating) >= star
-                ? "text-luxury-500 fill-current"
+                ? "text-primary  fill-current"
                 : "text-cream-500"
             }`}
             onMouseEnter={() => setHover(star)}

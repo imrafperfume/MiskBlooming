@@ -23,11 +23,11 @@ export default function DeleteAlert({
     <AlertDialog.Root>
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="fixed inset-0 bg-black/30" />
-        <AlertDialog.Content className="fixed left-1/2 top-1/2 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 shadow-lg">
+        <AlertDialog.Content className="fixed left-1/2 top-1/2 w-[90%] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-background p-6 shadow-lg">
           <AlertDialog.Title className="text-lg font-semibold text-gray-900">
             {title}
           </AlertDialog.Title>
-          <AlertDialog.Description className="mt-2 text-sm text-gray-600">
+          <AlertDialog.Description className="mt-2 text-sm text-foreground ">
             {description}
           </AlertDialog.Description>
 

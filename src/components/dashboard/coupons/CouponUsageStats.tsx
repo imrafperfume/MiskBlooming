@@ -2,13 +2,13 @@
 
 import { useQuery } from "@apollo/client";
 import { motion } from "framer-motion";
-import { 
-  TrendingUp, 
-  Users, 
-  DollarSign, 
+import {
+  TrendingUp,
+  Users,
+  DollarSign,
   Calendar,
   Award,
-  Target
+  Target,
 } from "lucide-react";
 import { GET_COUPON_STATS } from "@/src/modules/coupon/operations";
 import { formatPrice } from "@/src/lib/utils";
@@ -20,7 +20,10 @@ export function CouponUsageStats() {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="bg-white p-6 rounded-lg shadow-sm border animate-pulse">
+          <div
+            key={i}
+            className="bg-background p-6 rounded-lg shadow-sm border animate-pulse"
+          >
             <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
             <div className="h-8 bg-gray-200 rounded w-1/2"></div>
           </div>
@@ -32,7 +35,9 @@ export function CouponUsageStats() {
   if (error) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-600">Error loading coupon stats: {error.message}</p>
+        <p className="text-red-600">
+          Error loading coupon stats: {error.message}
+        </p>
       </div>
     );
   }
@@ -101,15 +106,19 @@ export function CouponUsageStats() {
         {statCards.map((stat, index) => (
           <motion.div
             key={stat.title}
-            className="bg-white p-6 rounded-lg shadow-sm border"
+            className="bg-background p-6 rounded-lg shadow-sm border"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 * index }}
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                <p className="text-2xl font-bold text-charcoal-900">{stat.value}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  {stat.title}
+                </p>
+                <p className="text-2xl font-bold text-foreground ">
+                  {stat.value}
+                </p>
               </div>
               <div className={`p-3 rounded-full ${stat.bgColor}`}>
                 <stat.icon className={`w-6 h-6 ${stat.iconColor}`} />
@@ -122,32 +131,38 @@ export function CouponUsageStats() {
       {/* Top Coupons */}
       {stats.topCoupons.length > 0 && (
         <motion.div
-          className="bg-white rounded-lg shadow-sm border"
+          className="bg-background rounded-lg shadow-sm border"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
         >
           <div className="p-6">
-            <h3 className="text-lg font-semibold text-charcoal-900 mb-4">
+            <h3 className="text-lg font-semibold text-foreground  mb-4">
               Top Performing Coupons
             </h3>
             <div className="space-y-4">
-              {stats.topCoupons.map((coupon:any, index:any) => (
+              {stats.topCoupons.map((coupon: any, index: any) => (
                 <div
                   key={coupon.code}
                   className="flex items-center justify-between p-4 bg-cream-50 rounded-lg"
                 >
                   <div className="flex items-center space-x-4">
-                    <div className="flex items-center justify-center w-8 h-8 bg-luxury-100 text-luxury-600 rounded-full font-bold">
+                    <div className="flex items-center justify-center w-8 h-8 bg-luxury-100 text-primary rounded-full font-bold">
                       {index + 1}
                     </div>
                     <div>
-                      <p className="font-medium text-charcoal-900">{coupon.code}</p>
-                      <p className="text-sm text-muted-foreground">{coupon.name}</p>
+                      <p className="font-medium text-foreground ">
+                        {coupon.code}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {coupon.name}
+                      </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-charcoal-900">{coupon.usageCount} uses</p>
+                    <p className="font-medium text-foreground ">
+                      {coupon.usageCount} uses
+                    </p>
                     <p className="text-sm text-muted-foreground">
                       {formatPrice(coupon.totalDiscount)} saved
                     </p>

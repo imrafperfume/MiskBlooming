@@ -31,14 +31,14 @@ export default function VerifyPendingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="bg-white p-8 rounded-2xl shadow-luxury text-center"
+          className="bg-background p-8 rounded-2xl shadow-luxury text-center"
         >
           {/* Logo/Header */}
           <div className="mb-8">
             <div className="w-16 h-16 mx-auto mb-4 bg-luxury-100 rounded-full flex items-center justify-center">
-              <Mail className="w-8 h-8 text-luxury-600" />
+              <Mail className="w-8 h-8 text-primary " />
             </div>
-            <h2 className="text-3xl font-cormorant font-bold text-charcoal-900 mb-2">
+            <h2 className="text-3xl font-cormorant font-bold text-foreground  mb-2">
               Check Your Email
             </h2>
             <p className="text-sm text-muted-foreground">
@@ -49,7 +49,7 @@ export default function VerifyPendingPage() {
           {/* Main Content */}
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold text-charcoal-900 mb-3">
+              <h3 className="text-lg font-semibold text-foreground  mb-3">
                 Almost there!
               </h3>
               <p className="text-muted-foreground mb-4">
@@ -104,7 +104,7 @@ export default function VerifyPendingPage() {
                 help, contact us at{" "}
                 <a
                   href="mailto:support@miskblooming.com"
-                  className="text-luxury-500 hover:text-luxury-600"
+                  className="text-primary  hover:text-primary "
                 >
                   support@miskblooming.com
                 </a>

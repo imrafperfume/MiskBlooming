@@ -6,5 +6,5 @@ CREATE TABLE "public"."Notification" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "read" BOOLEAN NOT NULL DEFAULT false,
 
-    CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Notification_pkey"  KEY ("id")
 );

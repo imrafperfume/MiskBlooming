@@ -55,7 +55,7 @@ export default function WishlistPage() {
               transition={{ duration: 0.6 }}
             >
               <Heart className="w-24 h-24 text-cream-300 mx-auto mb-6" />
-              <h1 className="font-cormorant text-3xl font-bold text-charcoal-900 mb-4">
+              <h1 className="font-cormorant text-3xl font-bold text-foreground  mb-4">
                 Your Wishlist is Empty
               </h1>
               <p className="text-muted-foreground mb-8 max-w-md mx-auto">
@@ -88,13 +88,13 @@ export default function WishlistPage() {
             <div className="flex flex-col sm:flex-row  items-center justify-center">
               <Link
                 href="/products"
-                className="flex items-center text-luxury-500 hover:text-luxury-600 transition-colors mr-6"
+                className="flex items-center text-primary  hover:text-primary transition-colors mr-6"
               >
                 <ArrowLeft className="w-5 h-5 mr-2" />
                 Continue Shopping
               </Link>
               <div className="flex sm:block sm:mt-0 mt-4 flex-col items-center justify-center">
-                <h1 className="font-cormorant sm:text-3xl text-xl font-bold text-charcoal-900">
+                <h1 className="font-cormorant sm:text-3xl text-xl font-bold text-foreground ">
                   My Wishlist ({items.length} items)
                 </h1>
                 <p className="text-muted-foreground mt-1">
@@ -109,7 +109,7 @@ export default function WishlistPage() {
               <Button
                 variant="outline"
                 onClick={handleMoveAllToCart}
-                className="bg-white"
+                className="bg-background"
               >
                 <ShoppingBag className="w-4 h-4 mr-2" />
                 Move All to Cart
@@ -117,7 +117,7 @@ export default function WishlistPage() {
               <Button
                 variant="outline"
                 onClick={clearWishlist}
-                className="bg-white text-red-600 hover:text-red-700"
+                className="bg-background text-red-600 hover:text-red-700"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Clear All
@@ -132,7 +132,7 @@ export default function WishlistPage() {
             {items.map((product, index) => (
               <motion.div
                 key={product.id}
-                className="group bg-white rounded-md shadow-md hover:shadow-luxury transition-all duration-500 overflow-hidden"
+                className="group bg-background rounded-md shadow-md hover:shadow-luxury transition-all duration-500 overflow-hidden"
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.8, y: -30 }}
@@ -154,7 +154,7 @@ export default function WishlistPage() {
 
                   {/* Discount Badge */}
                   {product.price && (
-                    <div className="absolute top-4 sm:left-4 left-2 bg-luxury-500 text-charcoal-900 px-3 py-1 rounded-full sm:text-sm text-xs font-bold">
+                    <div className="absolute top-4 sm:left-4 left-2 bg-foreground 0 text-foreground  px-3 py-1 rounded-full sm:text-sm text-xs font-bold">
                       Save{" "}
                       {Math.round(
                         ((product.price - (product.compareAtPrice ?? 0)) /
@@ -169,7 +169,7 @@ export default function WishlistPage() {
                   <button
                     onClick={() => handleRemoveItem(product.id)}
                     disabled={removingItems.has(product.id)}
-                    className="absolute top-4 sm:right-4 right-2 sm:w-10 sm:h-10 w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-red-600 hover:text-red-700 transition-all duration-300 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0"
+                    className="absolute top-4 sm:right-4 right-2 sm:w-10 sm:h-10 w-8 h-8 bg-background/90 hover:bg-background rounded-full flex items-center justify-center text-red-600 hover:text-red-700 transition-all duration-300 opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0"
                   >
                     {removingItems.has(product.id) ? (
                       <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
@@ -212,7 +212,7 @@ export default function WishlistPage() {
                           key={i}
                           className={`w-4 h-4 ${
                             i < Math.floor(4)
-                              ? "text-luxury-500 fill-current"
+                              ? "text-primary  fill-current"
                               : "text-cream-300"
                           }`}
                         />
@@ -221,14 +221,14 @@ export default function WishlistPage() {
                         ({product.reviewCount || 0})
                       </span>
                     </div>
-                    <div className="text-xs hidden sm:flex text-luxury-500 font-medium bg-luxury-50 sm:px-2 px-0 py-1 rounded-full">
+                    <div className="text-xs hidden sm:flex text-primary  font-medium bg-foregroundsm:px-2 px-0 py-1 rounded-full">
                       {product.category.replace("-", " ").toUpperCase()}
                     </div>
                   </div>
 
                   {/* Title */}
                   <Link href={`/products/${product.slug}`}>
-                    <h3 className="font-cormorant sm:text-xl text-base font-semibold text-charcoal-900 sm:mb-2 mb-0 hover:text-luxury-500 transition-colors line-clamp-2 group-hover:text-luxury-600">
+                    <h3 className="font-cormorant sm:text-xl text-base font-semibold text-foreground  sm:mb-2 mb-0 hover:text-primary  transition-colors line-clamp-2 group-hover:text-primary ">
                       {product.name}
                     </h3>
                   </Link>
@@ -241,7 +241,7 @@ export default function WishlistPage() {
                   {/* Price */}
                   <div className="flex items-center justify-between  mb-4">
                     <div className="flex items-center flex-wrap sm:space-x-2">
-                      <span className="sm:text-xl text-lg font-bold text-charcoal-900">
+                      <span className="sm:text-xl text-lg font-bold text-foreground ">
                         {formatPrice(product.price)}
                       </span>
                       {product.compareAtPrice && (
@@ -264,14 +264,14 @@ export default function WishlistPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <h2 className="font-cormorant text-2xl font-bold text-charcoal-900 mb-4">
+          <h2 className="font-cormorant text-2xl font-bold text-foreground  mb-4">
             You Might Also Like
           </h2>
           <p className="text-muted-foreground mb-8">
             Discover more luxury arrangements curated just for you
           </p>
           <Link href="/products">
-            <Button variant="outline" size="lg" className="bg-white">
+            <Button variant="outline" size="lg" className="bg-background">
               Explore More Collections
             </Button>
           </Link>

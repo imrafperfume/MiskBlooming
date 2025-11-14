@@ -175,7 +175,7 @@ export default function SlideFormDialog({ slide, onSaved }: SlideFormProps) {
 
       <button
         type="submit"
-        className="bg-luxury-500 text-white px-4 py-2 rounded"
+        className="bg-foreground 0 text-white px-4 py-2 rounded"
       >
         Save
       </button>

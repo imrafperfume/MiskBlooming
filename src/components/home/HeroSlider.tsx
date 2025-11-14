@@ -187,8 +187,8 @@ const HeroSlider = () => {
             onClick={() => goToSlide(index)}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${
               index === currentSlide
-                ? "bg-luxury-500 scale-125"
-                : "bg-white/50 hover:bg-white/70"
+                ? "bg-foreground 0 scale-125"
+                : "bg-background/50 hover:bg-background/70"
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />
@@ -210,13 +210,13 @@ const HeroSlider = () => {
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute sm:inline-block hidden left-6 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full glass-effect bg-white/20 hover:bg-white/30"
+        className="absolute sm:inline-block hidden left-6 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full glass-effect bg-background/20 hover:bg-background/30"
       >
         <ChevronLeft className="w-6 h-6 text-cream-50 hover:text-luxury-400" />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute sm:inline-block hidden right-6 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full glass-effect bg-gray-600/20 hover:bg-white/30"
+        className="absolute sm:inline-block hidden right-6 top-1/2 -translate-y-1/2 z-20 p-3 rounded-full glass-effect bg-gray-600/20 hover:bg-background/30"
       >
         <ChevronRight className="w-6 h-6 text-cream-50 hover:text-luxury-400" />
       </button>

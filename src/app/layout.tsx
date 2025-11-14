@@ -109,7 +109,7 @@ export default function RootLayout({
 
       <body
         suppressHydrationWarning={true}
-        className="min-h-screen overflow-x-hidden bg-gradient-to-br from-cream-50 to-cream-100 antialiased"
+        className="min-h-screen bg-background text-foreground overflow-x-hidden  antialiased"
       >
         <Toaster position="top-center" richColors />
         <QueryProvider>{children}</QueryProvider>

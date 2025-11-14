@@ -11,7 +11,7 @@ interface CheckoutStepProps {
 export function CheckoutStep({ children, className = "" }: CheckoutStepProps) {
   return (
     <motion.div
-      className={`bg-white rounded-2xl p-6 lg:p-8 shadow-lg ${className}`}
+      className={`bg-background rounded-2xl p-6 lg:p-8 shadow-lg ${className}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}

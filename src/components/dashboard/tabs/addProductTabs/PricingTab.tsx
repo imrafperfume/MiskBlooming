@@ -7,10 +7,10 @@ function PricingTab({ formData, handleInputChange, errors }: TabProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-cormorant font-bold text-charcoal-900 mb-4">
+        <h2 className="text-xl font-cormorant font-bold text-foreground  mb-4">
           Pricing Information
         </h2>
-        <p className="text-gray-600">
+        <p className="text-foreground ">
           Set competitive pricing for your product
         </p>
       </div>
@@ -76,7 +76,7 @@ function PricingTab({ formData, handleInputChange, errors }: TabProps) {
           {errors?.compareAtPrice && (
             <p className="text-red-500 text-sm mt-1">{errors.compareAtPrice}</p>
           )}
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-foreground mt-1">
             Original price for showing discounts
           </p>
         </div>
@@ -106,7 +106,7 @@ function PricingTab({ formData, handleInputChange, errors }: TabProps) {
               className="pl-10"
             />
           </div>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-foreground mt-1">
             Your cost for profit calculations
           </p>
         </div>
@@ -114,18 +114,18 @@ function PricingTab({ formData, handleInputChange, errors }: TabProps) {
 
       {/* Pricing Summary */}
       {formData.price > 0 && (
-        <div className="bg-luxury-50 border border-luxury-200 rounded-lg p-4">
+        <div className="bg-foregroundborder border-luxury-200 rounded-lg p-4">
           <h3 className="font-medium text-luxury-900 mb-3">Pricing Summary</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
-              <span className="text-gray-600">Regular Price:</span>
+              <span className="text-foreground ">Regular Price:</span>
               <p className="font-medium text-luxury-900">
                 AED {formData.price.toFixed(2)}
               </p>
             </div>
             {formData.compareAtPrice > 0 && (
               <div>
-                <span className="text-gray-600">Discount:</span>
+                <span className="text-foreground ">Discount:</span>
                 <p className="font-medium text-green-600">
                   {Math.round(
                     ((formData.compareAtPrice - formData.price) /
@@ -138,7 +138,7 @@ function PricingTab({ formData, handleInputChange, errors }: TabProps) {
             )}
             {formData.costPerItem > 0 && (
               <div>
-                <span className="text-gray-600">Profit Margin:</span>
+                <span className="text-foreground ">Profit Margin:</span>
                 <p className="font-medium text-blue-600">
                   {Math.round(
                     ((formData.price - formData.costPerItem) / formData.price) *
@@ -150,7 +150,7 @@ function PricingTab({ formData, handleInputChange, errors }: TabProps) {
             )}
             {formData.costPerItem > 0 && (
               <div>
-                <span className="text-gray-600">Profit per Sale:</span>
+                <span className="text-foreground ">Profit per Sale:</span>
                 <p className="font-medium text-green-600">
                   AED {(formData.price - formData.costPerItem).toFixed(2)}
                 </p>

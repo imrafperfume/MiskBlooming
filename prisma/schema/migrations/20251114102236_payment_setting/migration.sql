@@ -5,7 +5,7 @@ CREATE TABLE "public"."PaymentSetting" (
     "codEnabled" BOOLEAN NOT NULL DEFAULT false,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "PaymentSetting_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "PaymentSetting_pkey"  KEY ("id")
 );
 
 -- CreateIndex

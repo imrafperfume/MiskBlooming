@@ -15,27 +15,27 @@ export default function CareTab({ product }: CareTabProps) {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="bg-white rounded-2xl p-8 shadow-sm">
-        <h3 className="font-cormorant text-2xl font-bold text-charcoal-900 mb-6">
+      <div className="bg-background rounded-2xl p-8 shadow-sm">
+        <h3 className="font-cormorant text-2xl font-bold text-foreground  mb-6">
           Care Instructions
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
-            <h4 className="font-semibold text-charcoal-900 mb-4 flex items-center">
+            <h4 className="font-semibold text-foreground  mb-4 flex items-center">
               <Leaf className="w-5 h-5 text-green-500 mr-2" />
               Daily Care
             </h4>
             <ul className="space-y-3">
               <li className="flex items-start">
-                <span className="w-2 h-2 bg-luxury-500 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                <span className="w-2 h-2 bg-foreground 0 rounded-full mt-2 mr-3 flex-shrink-0"></span>
                 <span className="text-muted-foreground">
                   {product.careInstructions}
                 </span>
               </li>
             </ul>
           </div>
-          <div className="bg-luxury-50 rounded-xl p-6">
-            <h4 className="font-semibold text-charcoal-900 mb-4">Pro Tips</h4>
+          <div className="bg-foregroundrounded-xl p-6">
+            <h4 className="font-semibold text-foreground  mb-4">Pro Tips</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li>• Use lukewarm water for best results</li>
               <li>• Trim stems every 2-3 days</li>

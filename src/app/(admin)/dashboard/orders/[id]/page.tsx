@@ -96,7 +96,7 @@ const getStatusConfig = (status: string) => {
         variant: "default" as const,
         className: "bg-luxury-100 text-luxury-800 border-luxury-200",
         icon: AlertCircle,
-        color: "text-luxury-600",
+        color: "text-primary ",
       };
     case "cancelled":
     case "failed":
@@ -109,9 +109,9 @@ const getStatusConfig = (status: string) => {
     default:
       return {
         variant: "outline" as const,
-        className: "bg-gray-100 text-gray-800 border-gray-200",
+        className: "bg-gray-100 text-gray-800 border-border ",
         icon: AlertCircle,
-        color: "text-gray-600",
+        color: "text-foreground ",
       };
   }
 };
@@ -137,7 +137,7 @@ const getPaymentStatusConfig = (status: string) => {
       };
     default:
       return {
-        className: "bg-gray-100 text-gray-800 border-gray-200",
+        className: "bg-gray-100 text-gray-800 border-border ",
         icon: AlertCircle,
       };
   }
@@ -177,12 +177,12 @@ export default function OrderDetails() {
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 flex items-center justify-center">
-        <div className="max-w-md bg-white rounded-xl shadow-xl border-0 sm:p-8 text-center">
+        <div className="max-w-md bg-background rounded-xl shadow-xl border-0 sm:p-8 text-center">
           <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             Order Not Found
           </h2>
-          <p className="text-gray-600 mb-4">{error.message}</p>
+          <p className="text-foreground  mb-4">{error.message}</p>
           <button
             onClick={() => window.history.back()}
             className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
@@ -220,8 +220,8 @@ export default function OrderDetails() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
       <div className="max-w-7xl mx-auto sm:p-6 space-y-8">
-        <div className="bg-white rounded-xl border-0 overflow-hidden">
-          <div className="bg-gradient-to-r from-luxury-600 via-luxury-500 to-luxury-400 sm:p-8 p-4 text-white">
+        <div className="bg-background rounded-xl border-0 overflow-hidden">
+          <div className="bg-gradient-to-r from-primary via-luxury-500 to-luxury-400 sm:p-8 p-4 text-white">
             <div className="flex flex-col  lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
@@ -254,8 +254,8 @@ export default function OrderDetails() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl  border-0">
-          <div className="sm:p-6 pb-4 border-b border-gray-200">
+        <div className="bg-background rounded-xl  border-0">
+          <div className="sm:p-6 pb-4 border-b border-border ">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h3 className="flex items-center gap-2 text-luxury-700 text-xl font-semibold">
                 <Edit3 className="h-5 w-5" />
@@ -274,7 +274,7 @@ export default function OrderDetails() {
                   <Button
                     variant={"luxury"}
                     size={"sm"}
-                    className="px-4 py-2 border border-luxury-200 text-luxury-100 hover:bg-luxury-50 hover:border-luxury-300 bg-transparent rounded-md text-sm font-medium transition-colors flex items-center gap-2"
+                    className="px-4 py-2 border border-luxury-200 text-luxury-100 hover:bg-foregroundhover:border-luxury-300 bg-transparent rounded-md text-sm font-medium transition-colors flex items-center gap-2"
                   >
                     <Edit3 className="h-4 w-4" />
                     Update Status
@@ -282,7 +282,7 @@ export default function OrderDetails() {
                 </Dialog.Trigger>
                 <Dialog.Portal>
                   <Dialog.Overlay className="fixed inset-0 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
-                  <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 bg-white p-6 shadow-2xl rounded-xl border-0 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
+                  <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 bg-background p-6 shadow-2xl rounded-xl border-0 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]">
                     <Dialog.Title className="text-xl font-semibold text-gray-900 mb-4">
                       Update Order Status
                     </Dialog.Title>
@@ -295,7 +295,7 @@ export default function OrderDetails() {
                           value={newStatus}
                           onValueChange={setNewStatus}
                         >
-                          <Select.Trigger className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-luxury-500 focus:ring-1 focus:ring-luxury-500 bg-white text-left flex items-center justify-between">
+                          <Select.Trigger className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-luxury-500 focus:ring-1 focus:ring-luxury-500 bg-background text-left flex items-center justify-between">
                             <Select.Value placeholder="Select new status" />
                             <Select.Icon>
                               <svg
@@ -314,7 +314,7 @@ export default function OrderDetails() {
                             </Select.Icon>
                           </Select.Trigger>
                           <Select.Portal>
-                            <Select.Content className="bg-white border border-gray-200 rounded-md  z-50 overflow-hidden">
+                            <Select.Content className="bg-background border border-border  rounded-md  z-50 overflow-hidden">
                               <Select.Viewport className="p-1">
                                 <Select.Item
                                   value="PENDING"
@@ -358,7 +358,7 @@ export default function OrderDetails() {
                         size={"sm"}
                         onClick={handleStatusUpdate}
                         disabled={!newStatus || updating}
-                        className="bg-luxury-600 hover:bg-luxury-700 text-white px-4 py-2 rounded-md font-medium flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="bg-primary hover:bg-luxury-700 text-white px-4 py-2 rounded-md font-medium flex-1 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         <Save className="h-4 w-4" />
                         {updating ? "Updating..." : "Update Order"}
@@ -384,8 +384,8 @@ export default function OrderDetails() {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {/* Customer Information */}
-          <div className="bg-white rounded-xl border-0 hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
-            <div className="sm:p-6 pb-4 border-b border-gray-200">
+          <div className="bg-background rounded-xl border-0 hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
+            <div className="sm:p-6 pb-4 border-b border-border ">
               <h3 className="flex items-center gap-2 text-luxury-700 text-lg font-semibold">
                 <User className="h-5 w-5" />
                 Customer Information
@@ -397,20 +397,20 @@ export default function OrderDetails() {
                   {order.firstName} {order.lastName}
                 </p>
               </div>
-              <div className="flex items-center gap-3 text-gray-600">
-                <Mail className="h-4 w-4 text-luxury-500 flex-shrink-0" />
+              <div className="flex items-center gap-3 text-foreground ">
+                <Mail className="h-4 w-4 text-primary  flex-shrink-0" />
                 <span className="text-sm break-all">{order.email}</span>
               </div>
-              <div className="flex items-center gap-3 text-gray-600">
-                <Phone className="h-4 w-4 text-luxury-500 flex-shrink-0" />
+              <div className="flex items-center gap-3 text-foreground ">
+                <Phone className="h-4 w-4 text-primary  flex-shrink-0" />
                 <span className="text-sm">{order.phone}</span>
               </div>
             </div>
           </div>
 
           {/* Shipping Address */}
-          <div className="bg-white rounded-xl  border-0 hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
-            <div className="sm:p-6 pb-4 border-b border-gray-200">
+          <div className="bg-background rounded-xl  border-0 hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
+            <div className="sm:p-6 pb-4 border-b border-border ">
               <h3 className="flex items-center gap-2 text-luxury-700 text-lg font-semibold">
                 <MapPin className="h-5 w-5" />
                 Shipping Address
@@ -420,11 +420,11 @@ export default function OrderDetails() {
               <p className="font-medium text-gray-900 text-balance">
                 {order.address}
               </p>
-              <p className="text-gray-600">
+              <p className="text-foreground ">
                 {order?.city}, {order?.emirate}
               </p>
               {order.postalCode && (
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-foreground ">
                   Postal Code: {order.postalCode}
                 </p>
               )}
@@ -432,8 +432,8 @@ export default function OrderDetails() {
           </div>
 
           {/* Payment Details */}
-          <div className="bg-white rounded-xl border-0 hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
-            <div className="sm:p-6 pb-4 border-b border-gray-200">
+          <div className="bg-background rounded-xl border-0 hover:shadow-xl transition-all duration-200 hover:-translate-y-1">
+            <div className="sm:p-6 pb-4 border-b border-border ">
               <h3 className="flex items-center gap-2 text-luxury-700 text-lg font-semibold">
                 <CreditCard className="h-5 w-5" />
                 Payment Details
@@ -441,11 +441,11 @@ export default function OrderDetails() {
             </div>
             <div className="sm:p-6 space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Method:</span>
+                <span className="text-foreground ">Method:</span>
                 <span className="font-medium">{order.paymentMethod}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-gray-600">Status:</span>
+                <span className="text-foreground ">Status:</span>
                 <div className="flex items-center gap-2">
                   <PaymentIcon className="h-4 w-4" />
                   <span
@@ -457,7 +457,7 @@ export default function OrderDetails() {
               </div>
               {order.cardLast4 && (
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Card:</span>
+                  <span className="text-foreground ">Card:</span>
                   <span className="font-mono text-sm">
                     **** {order.cardLast4}
                   </span>
@@ -467,8 +467,8 @@ export default function OrderDetails() {
           </div>
 
           {/* Delivery Information */}
-          <div className="bg-white rounded-xl  border-0 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 md:col-span-2 lg:col-span-3">
-            <div className="sm:p-6 pb-4 border-b border-gray-200">
+          <div className="bg-background rounded-xl  border-0 hover:shadow-xl transition-all duration-200 hover:-translate-y-1 md:col-span-2 lg:col-span-3">
+            <div className="sm:p-6 pb-4 border-b border-border ">
               <h3 className="flex items-center gap-2 text-luxury-700 text-lg font-semibold">
                 <Truck className="h-5 w-5" />
                 Delivery Information
@@ -477,12 +477,12 @@ export default function OrderDetails() {
             <div className="sm:p-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Type:</span>
+                  <span className="text-foreground ">Type:</span>
                   <span className="font-medium">{order.deliveryType}</span>
                 </div>
                 {order.deliveryDate && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Calendar className="h-4 w-4 text-luxury-500 flex-shrink-0" />
+                  <div className="flex items-center gap-2 text-foreground ">
+                    <Calendar className="h-4 w-4 text-primary  flex-shrink-0" />
                     <span>
                       {order.deliveryDate
                         ? new Date(
@@ -497,21 +497,21 @@ export default function OrderDetails() {
                   </div>
                 )}
                 {order.deliveryTime && (
-                  <div className="flex items-center gap-2 text-gray-600">
-                    <Clock className="h-4 w-4 text-luxury-500 flex-shrink-0" />
+                  <div className="flex items-center gap-2 text-foreground ">
+                    <Clock className="h-4 w-4 text-primary  flex-shrink-0" />
                     <span>{order.deliveryTime}</span>
                   </div>
                 )}
               </div>
               {order.specialInstructions && (
-                <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="mt-6 pt-6 border-t border-border ">
                   <div className="flex items-center gap-2 mb-3">
-                    <FileText className="h-4 w-4 text-luxury-500" />
+                    <FileText className="h-4 w-4 text-primary " />
                     <span className="font-medium text-gray-900">
                       Special Instructions:
                     </span>
                   </div>
-                  <div className="bg-luxury-50 border border-luxury-200 rounded-lg p-4">
+                  <div className="bg-foregroundborder border-luxury-200 rounded-lg p-4">
                     <p className="text-gray-700 text-pretty">
                       {order.specialInstructions}
                     </p>
@@ -522,8 +522,8 @@ export default function OrderDetails() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border-0">
-          <div className="sm:p-6 pb-4 border-b border-gray-200">
+        <div className="bg-background rounded-xl border-0">
+          <div className="sm:p-6 pb-4 border-b border-border ">
             <h3 className="flex items-center gap-2 text-luxury-700 text-lg font-semibold">
               <Package className="h-5 w-5" />
               Order Items ({order.items.length})
@@ -543,13 +543,13 @@ export default function OrderDetails() {
                       <p className="font-medium sm:text-lg">
                         {item.quantity} × AED {item.price.toFixed(2)}
                       </p>
-                      <p className="text-luxury-600 font-semibold">
+                      <p className="text-primary font-semibold">
                         = AED {(item.quantity * item.price).toFixed(2)}
                       </p>
                     </div>
                   </div>
                   {index < order.items.length - 1 && (
-                    <div className="border-t border-gray-200 my-4" />
+                    <div className="border-t border-border  my-4" />
                   )}
                 </div>
               ))}
@@ -589,11 +589,11 @@ export default function OrderDetails() {
                   </p>
                 )}
 
-                <div className="flex justify-between items-center sm:flex-row sm:justify-between sm:items-center gap-4 bg-luxury-50 rounded-xl mt-4 pt-4 border-t border-gray-200">
+                <div className="flex justify-between items-center sm:flex-row sm:justify-between sm:items-center gap-4 bg-foregroundrounded-xl mt-4 pt-4 border-t border-border ">
                   <span className="sm:text-lg text-xl font-cormorant font-semibold text-gray-900">
                     Total Amount:
                   </span>
-                  <span className="sm:text-3xl text-xl font-bold text-luxury-600">
+                  <span className="sm:text-3xl text-xl font-bold text-primary ">
                     AED {order.totalAmount.toFixed(2)}
                   </span>
                 </div>

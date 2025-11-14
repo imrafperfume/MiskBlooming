@@ -22,5 +22,5 @@ CREATE TABLE "public"."HeroSlide" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "HeroSlide_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "HeroSlide_pkey"  KEY ("id")
 );

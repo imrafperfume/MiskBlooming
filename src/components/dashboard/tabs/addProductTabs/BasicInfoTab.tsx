@@ -20,10 +20,10 @@ function BasicInfoTab({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-cormorant font-bold text-charcoal-900 mb-4">
+        <h2 className="text-xl font-cormorant font-bold text-foreground  mb-4">
           Basic Information
         </h2>
-        <p className="text-gray-600">
+        <p className="text-foreground ">
           Essential product details and categorization
         </p>
       </div>
@@ -63,7 +63,7 @@ function BasicInfoTab({
             onChange={(e) => handleInputChange("slug", e.target.value)}
             placeholder="premium-red-rose-bouquet"
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-foreground mt-1">
             Auto-generated from product name
           </p>
         </div>
@@ -155,7 +155,7 @@ function BasicInfoTab({
             {errors?.shortDescription && (
               <p className="text-red-500 text-sm">{errors.shortDescription}</p>
             )}
-            <p className="text-xs text-gray-500 ml-auto">
+            <p className="text-xs text-foreground ml-auto">
               {formData.shortDescription.length}/160
             </p>
           </div>
@@ -196,7 +196,7 @@ function BasicInfoTab({
               <button
                 type="button"
                 onClick={() => removeTag && removeTag(tag)}
-                className="ml-2 text-luxury-600 hover:text-luxury-800"
+                className="ml-2 text-primary hover:text-luxury-800"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -242,7 +242,7 @@ function BasicInfoTab({
               type="checkbox"
               checked={formData.featured}
               onChange={(e) => handleInputChange("featured", e.target.checked)}
-              className="rounded border-gray-300 text-luxury-600 focus:ring-luxury-500"
+              className="rounded border-gray-300 text-primary focus:ring-luxury-500"
             />
             <span className="ml-2 text-sm font-medium text-gray-700 flex items-center">
               <Heart className="w-4 h-4 mr-1" />

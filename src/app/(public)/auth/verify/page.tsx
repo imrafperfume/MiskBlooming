@@ -63,11 +63,11 @@ function VerifyEmailPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="bg-white p-8 rounded-2xl shadow-luxury text-center"
+          className="bg-background p-8 rounded-2xl shadow-luxury text-center"
         >
           {/* Logo/Header */}
           <div className="mb-8">
-            <h2 className="text-3xl font-cormorant font-bold text-charcoal-900 mb-2">
+            <h2 className="text-3xl font-cormorant font-bold text-foreground  mb-2">
               Email Verification
             </h2>
             <p className="text-sm text-muted-foreground">
@@ -83,7 +83,7 @@ function VerifyEmailPage() {
                   <div className="w-16 h-16 border-4 border-luxury-500 border-t-transparent rounded-full animate-spin" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-charcoal-900 mb-2">
+                  <h3 className="text-lg font-semibold text-foreground  mb-2">
                     Verifying your email...
                   </h3>
                   <p className="text-muted-foreground">
@@ -99,7 +99,7 @@ function VerifyEmailPage() {
                   <CheckCircle className="w-16 h-16 text-green-500" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-charcoal-900 mb-2">
+                  <h3 className="text-lg font-semibold text-foreground  mb-2">
                     Email Verified Successfully!
                   </h3>
                   <p className="text-muted-foreground mb-6">{message}</p>
@@ -122,7 +122,7 @@ function VerifyEmailPage() {
                   <XCircle className="w-16 h-16 text-red-500" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-charcoal-900 mb-2">
+                  <h3 className="text-lg font-semibold text-foreground  mb-2">
                     Verification Failed
                   </h3>
                   <p className="text-muted-foreground mb-6">{message}</p>
@@ -156,7 +156,7 @@ function VerifyEmailPage() {
               Need help? Contact our support team at{" "}
               <a
                 href="mailto:support@miskblooming.com"
-                className="text-luxury-500 hover:text-luxury-600"
+                className="text-primary  hover:text-primary "
               >
                 support@miskblooming.com
               </a>

@@ -58,7 +58,7 @@ export default function RegisterPage() {
       toast.success(
         "Account created successfully! Please check your email to verify your account."
       );
-      
+
       // Redirect to a verification pending page or show verification info
       router.push("/auth/verify-pending");
     } catch (error) {
@@ -79,7 +79,7 @@ export default function RegisterPage() {
         >
           {/* Logo */}
           <div className="text-center">
-            <h2 className="mt-6 text-3xl font-cormorant font-bold text-charcoal-900">
+            <h2 className="mt-6 text-3xl font-cormorant font-bold text-foreground ">
               Create Account
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -89,7 +89,7 @@ export default function RegisterPage() {
 
           {/* Form */}
           <motion.form
-            className="mt-8 space-y-6 bg-white p-8 rounded-2xl shadow-luxury"
+            className="mt-8 space-y-6 bg-background p-8 rounded-2xl shadow-luxury"
             onSubmit={handleSubmit(onSubmit)}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -101,7 +101,7 @@ export default function RegisterPage() {
                 <div>
                   <label
                     htmlFor="firstName"
-                    className="block text-sm font-medium text-charcoal-900 mb-2"
+                    className="block text-sm font-medium text-foreground  mb-2"
                   >
                     First Name
                   </label>
@@ -113,7 +113,7 @@ export default function RegisterPage() {
                       {...register("firstName")}
                       type="text"
                       className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 ${
-                        errors.firstName ? "border-red-500" : "border-cream-300"
+                        errors.firstName ? "border-red-500" : "border-border "
                       }`}
                       placeholder="First name"
                     />
@@ -128,7 +128,7 @@ export default function RegisterPage() {
                 <div>
                   <label
                     htmlFor="lastName"
-                    className="block text-sm font-medium text-charcoal-900 mb-2"
+                    className="block text-sm font-medium text-foreground  mb-2"
                   >
                     Last Name
                   </label>
@@ -136,7 +136,7 @@ export default function RegisterPage() {
                     {...register("lastName")}
                     type="text"
                     className={`block w-full px-3 py-3 border rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 ${
-                      errors.lastName ? "border-red-500" : "border-cream-300"
+                      errors.lastName ? "border-red-500" : "border-border "
                     }`}
                     placeholder="Last name"
                   />
@@ -152,7 +152,7 @@ export default function RegisterPage() {
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-charcoal-900 mb-2"
+                  className="block text-sm font-medium text-foreground  mb-2"
                 >
                   Email Address
                 </label>
@@ -164,7 +164,7 @@ export default function RegisterPage() {
                     {...register("email")}
                     type="email"
                     className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 ${
-                      errors.email ? "border-red-500" : "border-cream-300"
+                      errors.email ? "border-red-500" : "border-border "
                     }`}
                     placeholder="Enter your email"
                   />
@@ -180,7 +180,7 @@ export default function RegisterPage() {
               <div>
                 <label
                   htmlFor="phone"
-                  className="block text-sm font-medium text-charcoal-900 mb-2"
+                  className="block text-sm font-medium text-foreground  mb-2"
                 >
                   Phone Number
                 </label>
@@ -192,7 +192,7 @@ export default function RegisterPage() {
                     {...register("phoneNumber")}
                     type="tel"
                     className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 ${
-                      errors.phoneNumber ? "border-red-500" : "border-cream-300"
+                      errors.phoneNumber ? "border-red-500" : "border-border "
                     }`}
                     placeholder="+971 50 123 4567"
                   />
@@ -208,7 +208,7 @@ export default function RegisterPage() {
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-charcoal-900 mb-2"
+                  className="block text-sm font-medium text-foreground  mb-2"
                 >
                   Password
                 </label>
@@ -220,7 +220,7 @@ export default function RegisterPage() {
                     {...register("password")}
                     type={showPassword ? "text" : "password"}
                     className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 ${
-                      errors.password ? "border-red-500" : "border-cream-300"
+                      errors.password ? "border-red-500" : "border-border "
                     }`}
                     placeholder="Create a password"
                   />
@@ -230,9 +230,9 @@ export default function RegisterPage() {
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-muted-foreground hover:text-charcoal-900" />
+                      <EyeOff className="h-5 w-5 text-muted-foreground hover:text-foreground " />
                     ) : (
-                      <Eye className="h-5 w-5 text-muted-foreground hover:text-charcoal-900" />
+                      <Eye className="h-5 w-5 text-muted-foreground hover:text-foreground " />
                     )}
                   </button>
                 </div>
@@ -247,7 +247,7 @@ export default function RegisterPage() {
               <div>
                 <label
                   htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-charcoal-900 mb-2"
+                  className="block text-sm font-medium text-foreground  mb-2"
                 >
                   Confirm Password
                 </label>
@@ -261,7 +261,7 @@ export default function RegisterPage() {
                     className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 ${
                       errors.confirmPassword
                         ? "border-red-500"
-                        : "border-cream-300"
+                        : "border-border "
                     }`}
                     placeholder="Confirm your password"
                   />
@@ -271,9 +271,9 @@ export default function RegisterPage() {
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   >
                     {showConfirmPassword ? (
-                      <EyeOff className="h-5 w-5 text-muted-foreground hover:text-charcoal-900" />
+                      <EyeOff className="h-5 w-5 text-muted-foreground hover:text-foreground " />
                     ) : (
-                      <Eye className="h-5 w-5 text-muted-foreground hover:text-charcoal-900" />
+                      <Eye className="h-5 w-5 text-muted-foreground hover:text-foreground " />
                     )}
                   </button>
                 </div>
@@ -289,23 +289,23 @@ export default function RegisterPage() {
                 <input
                   {...register("terms")}
                   type="checkbox"
-                  className="h-4 w-4 text-luxury-500 focus:ring-luxury-500 border-cream-300 rounded mt-1"
+                  className="h-4 w-4 text-primary  focus:ring-luxury-500 border-border  rounded mt-1"
                 />
                 <label
                   htmlFor="terms"
-                  className="ml-2 block text-sm text-charcoal-900"
+                  className="ml-2 block text-sm text-foreground "
                 >
                   I agree to the{" "}
                   <Link
                     href="/terms"
-                    className="text-luxury-500 hover:text-luxury-600"
+                    className="text-primary  hover:text-primary "
                   >
                     Terms of Service
                   </Link>{" "}
                   and{" "}
                   <Link
                     href="/privacy"
-                    className="text-luxury-500 hover:text-luxury-600"
+                    className="text-primary  hover:text-primary "
                   >
                     Privacy Policy
                   </Link>
@@ -345,7 +345,7 @@ export default function RegisterPage() {
                 Already have an account?{" "}
                 <Link
                   href="/auth/login"
-                  className="font-medium text-luxury-500 hover:text-luxury-600"
+                  className="font-medium text-primary  hover:text-primary "
                 >
                   Sign in here
                 </Link>

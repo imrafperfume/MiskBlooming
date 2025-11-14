@@ -10,42 +10,42 @@ export default function DeliveryTab() {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="bg-white rounded-2xl p-8 shadow-sm">
-        <h3 className="font-cormorant text-2xl font-bold text-charcoal-900 mb-6">
+      <div className="bg-background rounded-2xl p-8 shadow-sm">
+        <h3 className="font-cormorant text-2xl font-bold text-foreground  mb-6">
           Delivery Information
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="text-center p-6 bg-luxury-50 rounded-xl">
-            <Truck className="w-8 h-8 text-luxury-500 mx-auto mb-3" />
-            <h4 className="font-semibold text-charcoal-900 mb-2">
+          <div className="text-center p-6 bg-foregroundrounded-xl">
+            <Truck className="w-8 h-8 text-primary  mx-auto mb-3" />
+            <h4 className="font-semibold text-foreground  mb-2">
               Standard Delivery
             </h4>
             <p className="text-sm text-muted-foreground mb-2">
               Next day across UAE
             </p>
-            <p className="text-sm font-medium text-luxury-600">
+            <p className="text-sm font-medium text-primary ">
               Free over AED 500
             </p>
           </div>
-          <div className="text-center p-6 bg-luxury-50 rounded-xl">
-            <Clock className="w-8 h-8 text-luxury-500 mx-auto mb-3" />
-            <h4 className="font-semibold text-charcoal-900 mb-2">
+          <div className="text-center p-6 bg-foregroundrounded-xl">
+            <Clock className="w-8 h-8 text-primary  mx-auto mb-3" />
+            <h4 className="font-semibold text-foreground  mb-2">
               Same Day Delivery
             </h4>
             <p className="text-sm text-muted-foreground mb-2">
               Fresh flowers today in Dubai
             </p>
-            <p className="text-sm font-medium text-luxury-600">AED 50</p>
+            <p className="text-sm font-medium text-primary ">AED 50</p>
           </div>
-          <div className="text-center p-6 bg-luxury-50 rounded-xl">
-            <Calendar className="w-8 h-8 text-luxury-500 mx-auto mb-3" />
-            <h4 className="font-semibold text-charcoal-900 mb-2">
+          <div className="text-center p-6 bg-foregroundrounded-xl">
+            <Calendar className="w-8 h-8 text-primary  mx-auto mb-3" />
+            <h4 className="font-semibold text-foreground  mb-2">
               Scheduled Delivery
             </h4>
             <p className="text-sm text-muted-foreground mb-2">
               Perfect for special occasions
             </p>
-            <p className="text-sm font-medium text-luxury-600">AED 25</p>
+            <p className="text-sm font-medium text-primary ">AED 25</p>
           </div>
         </div>
         <div className="mt-6 p-4 bg-green-50 rounded-lg">

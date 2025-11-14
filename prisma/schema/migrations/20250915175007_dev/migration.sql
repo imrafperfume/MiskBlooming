@@ -7,7 +7,7 @@ CREATE TABLE "public"."Category" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Category_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Category_pkey"  KEY ("id")
 );
 
 -- CreateTable
@@ -18,7 +18,7 @@ CREATE TABLE "public"."SubCategory" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "SubCategory_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "SubCategory_pkey"  KEY ("id")
 );
 
 -- CreateIndex

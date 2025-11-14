@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, useMemo } from "react"
+import { useState, useMemo } from "react";
 import {
   Search,
   Filter,
@@ -16,10 +16,10 @@ import {
   Download,
   RefreshCw,
   MoreHorizontal,
-} from "lucide-react"
-import { motion } from "framer-motion"
-import { Button } from "../../../../components/ui/Button"
-import { Input } from "../../../../components/ui/Input"
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { Button } from "../../../../components/ui/Button";
+import { Input } from "../../../../components/ui/Input";
 
 // Mock payments data
 const mockPayments = [
@@ -93,13 +93,13 @@ const mockPayments = [
     currency: "AED",
     refunded: 150,
   },
-]
+];
 
 export default function PaymentsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [methodFilter, setMethodFilter] = useState("all")
-  const [dateRange, setDateRange] = useState("7d")
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [methodFilter, setMethodFilter] = useState("all");
+  const [dateRange, setDateRange] = useState("7d");
 
   const filteredPayments = useMemo(() => {
     return mockPayments.filter((payment) => {
@@ -107,17 +107,21 @@ export default function PaymentsPage() {
         payment.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         payment.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
         payment.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        payment.transactionId.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesStatus = statusFilter === "all" || payment.status === statusFilter
-      const matchesMethod = methodFilter === "all" || payment.method === methodFilter
-      return matchesSearch && matchesStatus && matchesMethod
-    })
-  }, [searchTerm, statusFilter, methodFilter])
+        payment.transactionId.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus =
+        statusFilter === "all" || payment.status === statusFilter;
+      const matchesMethod =
+        methodFilter === "all" || payment.method === methodFilter;
+      return matchesSearch && matchesStatus && matchesMethod;
+    });
+  }, [searchTerm, statusFilter, methodFilter]);
 
   const stats = useMemo(() => {
-    const totalRevenue = mockPayments.filter((p) => p.status === "completed").reduce((sum, p) => sum + p.amount, 0)
-    const totalFees = mockPayments.reduce((sum, p) => sum + p.fee, 0)
-    const totalRefunds = mockPayments.reduce((sum, p) => sum + p.refunded, 0)
+    const totalRevenue = mockPayments
+      .filter((p) => p.status === "completed")
+      .reduce((sum, p) => sum + p.amount, 0);
+    const totalFees = mockPayments.reduce((sum, p) => sum + p.fee, 0);
+    const totalRefunds = mockPayments.reduce((sum, p) => sum + p.refunded, 0);
 
     return {
       total: mockPayments.length,
@@ -128,63 +132,67 @@ export default function PaymentsPage() {
       totalFees,
       totalRefunds,
       netRevenue: totalRevenue - totalFees - totalRefunds,
-    }
-  }, [])
+    };
+  }, []);
 
-  const paymentMethods = Array.from(new Set(mockPayments.map((p) => p.method)))
+  const paymentMethods = Array.from(new Set(mockPayments.map((p) => p.method)));
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       case "pending":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-100 text-yellow-800";
       case "failed":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       case "refunded":
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "completed":
-        return <CheckCircle className="w-4 h-4" />
+        return <CheckCircle className="w-4 h-4" />;
       case "pending":
-        return <Clock className="w-4 h-4" />
+        return <Clock className="w-4 h-4" />;
       case "failed":
-        return <XCircle className="w-4 h-4" />
+        return <XCircle className="w-4 h-4" />;
       case "refunded":
-        return <AlertTriangle className="w-4 h-4" />
+        return <AlertTriangle className="w-4 h-4" />;
       default:
-        return <Clock className="w-4 h-4" />
+        return <Clock className="w-4 h-4" />;
     }
-  }
+  };
 
   const getMethodIcon = (method: string) => {
     switch (method) {
       case "credit_card":
-        return <CreditCard className="w-4 h-4" />
+        return <CreditCard className="w-4 h-4" />;
       case "digital_wallet":
-        return <DollarSign className="w-4 h-4" />
+        return <DollarSign className="w-4 h-4" />;
       case "bank_transfer":
-        return <TrendingUp className="w-4 h-4" />
+        return <TrendingUp className="w-4 h-4" />;
       case "cash_on_delivery":
-        return <DollarSign className="w-4 h-4" />
+        return <DollarSign className="w-4 h-4" />;
       default:
-        return <CreditCard className="w-4 h-4" />
+        return <CreditCard className="w-4 h-4" />;
     }
-  }
+  };
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between">
         <div>
-          <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">Payment Management</h1>
-          <p className="text-gray-600 mt-2">Track and manage payment transactions</p>
+          <h1 className="text-3xl font-cormorant font-bold text-foreground ">
+            Payment Management
+          </h1>
+          <p className="text-foreground  mt-2">
+            Track and manage payment transactions
+          </p>
         </div>
         <div className="flex items-center space-x-4 mt-4 lg:mt-0">
           <select
@@ -210,16 +218,20 @@ export default function PaymentsPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <motion.div
-          className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-6 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Revenue</p>
-              <p className="text-2xl font-bold text-charcoal-900">AED {stats.totalRevenue.toLocaleString()}</p>
-              <p className="text-xs text-green-600 mt-1">+12.5% vs last period</p>
+              <p className="text-sm text-foreground ">Total Revenue</p>
+              <p className="text-2xl font-bold text-foreground ">
+                AED {stats.totalRevenue.toLocaleString()}
+              </p>
+              <p className="text-xs text-green-600 mt-1">
+                +12.5% vs last period
+              </p>
             </div>
             <div className="p-3 rounded-xl bg-green-50">
               <DollarSign className="w-6 h-6 text-green-600" />
@@ -228,35 +240,42 @@ export default function PaymentsPage() {
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-6 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Net Revenue</p>
-              <p className="text-2xl font-bold text-luxury-600">AED {stats.netRevenue.toLocaleString()}</p>
-              <p className="text-xs text-gray-500 mt-1">After fees & refunds</p>
+              <p className="text-sm text-foreground ">Net Revenue</p>
+              <p className="text-2xl font-bold text-primary ">
+                AED {stats.netRevenue.toLocaleString()}
+              </p>
+              <p className="text-xs text-foreground mt-1">
+                After fees & refunds
+              </p>
             </div>
-            <div className="p-3 rounded-xl bg-luxury-50">
-              <TrendingUp className="w-6 h-6 text-luxury-600" />
+            <div className="p-3 rounded-xl bg-foreground ">
+              <TrendingUp className="w-6 h-6 text-primary " />
             </div>
           </div>
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-6 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Transaction Fees</p>
-              <p className="text-2xl font-bold text-orange-600">AED {stats.totalFees.toLocaleString()}</p>
-              <p className="text-xs text-gray-500 mt-1">
-                {((stats.totalFees / stats.totalRevenue) * 100).toFixed(1)}% of revenue
+              <p className="text-sm text-foreground ">Transaction Fees</p>
+              <p className="text-2xl font-bold text-orange-600">
+                AED {stats.totalFees.toLocaleString()}
+              </p>
+              <p className="text-xs text-foreground mt-1">
+                {((stats.totalFees / stats.totalRevenue) * 100).toFixed(1)}% of
+                revenue
               </p>
             </div>
             <div className="p-3 rounded-xl bg-orange-50">
@@ -266,17 +285,20 @@ export default function PaymentsPage() {
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-6 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Refunds</p>
-              <p className="text-2xl font-bold text-red-600">AED {stats.totalRefunds.toLocaleString()}</p>
-              <p className="text-xs text-gray-500 mt-1">
-                {((stats.totalRefunds / stats.totalRevenue) * 100).toFixed(1)}% of revenue
+              <p className="text-sm text-foreground ">Total Refunds</p>
+              <p className="text-2xl font-bold text-red-600">
+                AED {stats.totalRefunds.toLocaleString()}
+              </p>
+              <p className="text-xs text-foreground mt-1">
+                {((stats.totalRefunds / stats.totalRevenue) * 100).toFixed(1)}%
+                of revenue
               </p>
             </div>
             <div className="p-3 rounded-xl bg-red-50">
@@ -289,44 +311,48 @@ export default function PaymentsPage() {
       {/* Quick Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Completed</p>
-              <p className="text-xl font-bold text-green-600">{stats.completed}</p>
+              <p className="text-sm text-foreground ">Completed</p>
+              <p className="text-xl font-bold text-green-600">
+                {stats.completed}
+              </p>
             </div>
             <CheckCircle className="w-6 h-6 text-green-500" />
           </div>
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Pending</p>
-              <p className="text-xl font-bold text-yellow-600">{stats.pending}</p>
+              <p className="text-sm text-foreground ">Pending</p>
+              <p className="text-xl font-bold text-yellow-600">
+                {stats.pending}
+              </p>
             </div>
             <Clock className="w-6 h-6 text-yellow-500" />
           </div>
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Failed</p>
+              <p className="text-sm text-foreground ">Failed</p>
               <p className="text-xl font-bold text-red-600">{stats.failed}</p>
             </div>
             <XCircle className="w-6 h-6 text-red-500" />
@@ -334,15 +360,17 @@ export default function PaymentsPage() {
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.7 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Success Rate</p>
-              <p className="text-xl font-bold text-blue-600">{((stats.completed / stats.total) * 100).toFixed(1)}%</p>
+              <p className="text-sm text-foreground ">Success Rate</p>
+              <p className="text-xl font-bold text-blue-600">
+                {((stats.completed / stats.total) * 100).toFixed(1)}%
+              </p>
             </div>
             <TrendingUp className="w-6 h-6 text-blue-500" />
           </div>
@@ -351,7 +379,7 @@ export default function PaymentsPage() {
 
       {/* Filters */}
       <motion.div
-        className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+        className="bg-background rounded-xl p-6 shadow-sm border border-gray-100"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.8 }}
@@ -399,41 +427,45 @@ export default function PaymentsPage() {
 
       {/* Payments Table */}
       <motion.div
-        className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden"
+        className="bg-background rounded-xl shadow-sm border border-gray-100 overflow-hidden"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.9 }}
       >
         <div className="p-6 border-b border-gray-100">
-          <h2 className="text-lg font-semibold text-charcoal-900">Payment Transactions ({filteredPayments.length})</h2>
+          <h2 className="text-lg font-semibold text-foreground ">
+            Payment Transactions ({filteredPayments.length})
+          </h2>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Payment ID
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Customer
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Amount
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Method
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-medium text-foreground uppercase tracking-wider">
+                  Date
+                </th>
+                <th className="px-6 py-4 text-right text-xs font-medium text-foreground uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-background divide-y divide-gray-200">
               {filteredPayments.map((payment, index) => (
                 <motion.tr
                   key={payment.id}
@@ -444,21 +476,29 @@ export default function PaymentsPage() {
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <p className="font-medium text-charcoal-900">{payment.id}</p>
-                      <p className="text-sm text-gray-500">Order: {payment.orderId}</p>
-                      <p className="text-xs text-gray-400 font-mono">{payment.transactionId}</p>
+                      <p className="font-medium text-foreground ">
+                        {payment.id}
+                      </p>
+                      <p className="text-sm text-foreground ">
+                        Order: {payment.orderId}
+                      </p>
+                      <p className="text-xs text-gray-400 font-mono">
+                        {payment.transactionId}
+                      </p>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <p className="font-medium text-charcoal-900">{payment.customer}</p>
+                    <p className="font-medium text-foreground ">
+                      {payment.customer}
+                    </p>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <p className="font-medium text-charcoal-900">
+                      <p className="font-medium text-foreground ">
                         {payment.currency} {payment.amount.toLocaleString()}
                       </p>
                       {payment.fee > 0 && (
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-foreground ">
                           Fee: {payment.currency} {payment.fee.toFixed(2)}
                         </p>
                       )}
@@ -473,16 +513,20 @@ export default function PaymentsPage() {
                     <div className="flex items-center">
                       {getMethodIcon(payment.method)}
                       <div className="ml-2">
-                        <p className="text-sm font-medium text-charcoal-900 capitalize">
+                        <p className="text-sm font-medium text-foreground  capitalize">
                           {payment.method.replace("_", " ")}
                         </p>
-                        <p className="text-xs text-gray-500">{payment.provider}</p>
+                        <p className="text-xs text-foreground ">
+                          {payment.provider}
+                        </p>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(payment.status)}`}
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(
+                        payment.status
+                      )}`}
                     >
                       {getStatusIcon(payment.status)}
                       <span className="ml-1 capitalize">{payment.status}</span>
@@ -490,10 +534,12 @@ export default function PaymentsPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
-                      <p className="text-sm font-medium text-charcoal-900">
+                      <p className="text-sm font-medium text-foreground ">
                         {new Date(payment.date).toLocaleDateString()}
                       </p>
-                      <p className="text-xs text-gray-500">{new Date(payment.date).toLocaleTimeString()}</p>
+                      <p className="text-xs text-foreground ">
+                        {new Date(payment.date).toLocaleTimeString()}
+                      </p>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -515,11 +561,15 @@ export default function PaymentsPage() {
         {filteredPayments.length === 0 && (
           <div className="text-center py-12">
             <CreditCard className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-charcoal-900 mb-2">No payments found</h3>
-            <p className="text-gray-600">Try adjusting your search or filter criteria</p>
+            <h3 className="text-lg font-medium text-foreground  mb-2">
+              No payments found
+            </h3>
+            <p className="text-foreground ">
+              Try adjusting your search or filter criteria
+            </p>
           </div>
         )}
       </motion.div>
     </div>
-  )
+  );
 }

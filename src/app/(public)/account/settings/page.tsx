@@ -145,7 +145,7 @@ export default function SettingsPage() {
           transition={{ duration: 0.6 }}
         >
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-cormorant font-bold text-charcoal-900 mb-4">
+            <h1 className="text-4xl md:text-5xl font-cormorant font-bold text-foreground  mb-4">
               Account Settings
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -156,17 +156,17 @@ export default function SettingsPage() {
           <div className="space-y-8">
             {/* Profile Information */}
             <motion.div
-              className="bg-white rounded-2xl shadow-luxury p-8"
+              className="bg-background rounded-2xl shadow-luxury p-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-3">
-                  <div className="bg-luxury-50 p-3 rounded-full">
-                    <User className="w-6 h-6 text-luxury-500" />
+                  <div className="bg-foregroundp-3 rounded-full">
+                    <User className="w-6 h-6 text-primary " />
                   </div>
-                  <h2 className="text-2xl font-cormorant font-bold text-charcoal-900">
+                  <h2 className="text-2xl font-cormorant font-bold text-foreground ">
                     Profile Information
                   </h2>
                 </div>
@@ -191,7 +191,7 @@ export default function SettingsPage() {
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                  <label className="block text-sm font-medium text-foreground  mb-2">
                     First Name
                   </label>
                   <div className="relative">
@@ -203,13 +203,13 @@ export default function SettingsPage() {
                         handleInputChange("firstName", e.target.value)
                       }
                       disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-3 border border-cream-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-gray-50"
+                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-gray-50"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                  <label className="block text-sm font-medium text-foreground  mb-2">
                     Last Name
                   </label>
                   <input
@@ -219,12 +219,12 @@ export default function SettingsPage() {
                       handleInputChange("lastName", e.target.value)
                     }
                     disabled={!isEditing}
-                    className="w-full px-4 py-3 border border-cream-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-gray-50"
+                    className="w-full px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-gray-50"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                  <label className="block text-sm font-medium text-foreground  mb-2">
                     Email Address
                   </label>
                   <div className="relative">
@@ -236,13 +236,13 @@ export default function SettingsPage() {
                         handleInputChange("email", e.target.value)
                       }
                       disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-3 border border-cream-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-gray-50"
+                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-gray-50"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                  <label className="block text-sm font-medium text-foreground  mb-2">
                     Phone Number
                   </label>
                   <div className="relative">
@@ -254,13 +254,13 @@ export default function SettingsPage() {
                         handleInputChange("phone", e.target.value)
                       }
                       disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-3 border border-cream-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-gray-50"
+                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-gray-50"
                     />
                   </div>
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                  <label className="block text-sm font-medium text-foreground  mb-2">
                     Address
                   </label>
                   <div className="relative">
@@ -272,7 +272,7 @@ export default function SettingsPage() {
                       }
                       disabled={!isEditing}
                       rows={3}
-                      className="w-full pl-10 pr-4 py-3 border border-cream-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-gray-50"
+                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-gray-50"
                     />
                   </div>
                 </div>
@@ -281,16 +281,16 @@ export default function SettingsPage() {
 
             {/* Notification Preferences */}
             <motion.div
-              className="bg-white rounded-2xl shadow-luxury p-8"
+              className="bg-background rounded-2xl shadow-luxury p-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
               <div className="flex items-center space-x-3 mb-6">
-                <div className="bg-luxury-50 p-3 rounded-full">
-                  <Bell className="w-6 h-6 text-luxury-500" />
+                <div className="bg-foregroundp-3 rounded-full">
+                  <Bell className="w-6 h-6 text-primary " />
                 </div>
-                <h2 className="text-2xl font-cormorant font-bold text-charcoal-900">
+                <h2 className="text-2xl font-cormorant font-bold text-foreground ">
                   Notification Preferences
                 </h2>
               </div>
@@ -298,7 +298,7 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-cream-50 rounded-lg">
                   <div>
-                    <h3 className="font-medium text-charcoal-900">
+                    <h3 className="font-medium text-foreground ">
                       Email Notifications
                     </h3>
                     <p className="text-sm text-muted-foreground">
@@ -314,13 +314,13 @@ export default function SettingsPage() {
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-luxury-500"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-foreground 0"></div>
                   </label>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-cream-50 rounded-lg">
                   <div>
-                    <h3 className="font-medium text-charcoal-900">
+                    <h3 className="font-medium text-foreground ">
                       SMS Notifications
                     </h3>
                     <p className="text-sm text-muted-foreground">
@@ -336,13 +336,13 @@ export default function SettingsPage() {
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-luxury-500"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-foreground 0"></div>
                   </label>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-cream-50 rounded-lg">
                   <div>
-                    <h3 className="font-medium text-charcoal-900">
+                    <h3 className="font-medium text-foreground ">
                       Push Notifications
                     </h3>
                     <p className="text-sm text-muted-foreground">
@@ -358,7 +358,7 @@ export default function SettingsPage() {
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-luxury-500"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-foreground 0"></div>
                   </label>
                 </div>
               </div>
@@ -366,16 +366,16 @@ export default function SettingsPage() {
 
             {/* Privacy Settings */}
             <motion.div
-              className="bg-white rounded-2xl shadow-luxury p-8"
+              className="bg-background rounded-2xl shadow-luxury p-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
               <div className="flex items-center space-x-3 mb-6">
-                <div className="bg-luxury-50 p-3 rounded-full">
-                  <Shield className="w-6 h-6 text-luxury-500" />
+                <div className="bg-foregroundp-3 rounded-full">
+                  <Shield className="w-6 h-6 text-primary " />
                 </div>
-                <h2 className="text-2xl font-cormorant font-bold text-charcoal-900">
+                <h2 className="text-2xl font-cormorant font-bold text-foreground ">
                   Privacy Settings
                 </h2>
               </div>
@@ -383,7 +383,7 @@ export default function SettingsPage() {
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-cream-50 rounded-lg">
                   <div>
-                    <h3 className="font-medium text-charcoal-900">
+                    <h3 className="font-medium text-foreground ">
                       Profile Visibility
                     </h3>
                     <p className="text-sm text-muted-foreground">
@@ -399,13 +399,13 @@ export default function SettingsPage() {
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-luxury-500"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-foreground 0"></div>
                   </label>
                 </div>
 
                 <div className="flex items-center justify-between p-4 bg-cream-50 rounded-lg">
                   <div>
-                    <h3 className="font-medium text-charcoal-900">
+                    <h3 className="font-medium text-foreground ">
                       Data Sharing
                     </h3>
                     <p className="text-sm text-muted-foreground">
@@ -422,7 +422,7 @@ export default function SettingsPage() {
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-luxury-500"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-foreground 0"></div>
                   </label>
                 </div>
               </div>
@@ -430,7 +430,7 @@ export default function SettingsPage() {
 
             {/* Danger Zone */}
             <motion.div
-              className="bg-white rounded-2xl shadow-luxury p-8 border-l-4 border-red-500"
+              className="bg-background rounded-2xl shadow-luxury p-8 border-l-4 border-red-500"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}

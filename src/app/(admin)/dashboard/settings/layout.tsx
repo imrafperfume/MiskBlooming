@@ -74,10 +74,10 @@ export default function SettingsLayout({
     <div className="min-h-screen bg-gray-50">
       <div className=" p-6">
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center border-gray-200  border-b pb-4 justify-between gap-4 mb-6">
+        <div className="flex flex-col lg:flex-row lg:items-center border-border   border-b pb-4 justify-between gap-4 mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
-            <p className="text-gray-600 mt-1">
+            <p className="text-foreground  mt-1">
               Manage your account and system preferences
             </p>
           </div>
@@ -86,7 +86,7 @@ export default function SettingsLayout({
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar */}
           <motion.nav
-            className="bg-white rounded-2xl shadow-sm border border-gray-200 "
+            className="bg-background rounded-2xl shadow-sm border border-border  "
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
@@ -97,8 +97,8 @@ export default function SettingsLayout({
                 href={tab.href}
                 className={`flex items-center gap-4 w-full px-3 py-2 rounded-lg transition-colors ${
                   pathname === tab.href
-                    ? "bg-luxury-50 text-luxury-700 border border-luxury-200"
-                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+                    ? "bg-foregroundtext-luxury-700 border border-luxury-200"
+                    : "text-foreground  hover:text-gray-900 hover:bg-gray-50"
                 }`}
               >
                 <tab.icon className="w-5 h-5" />

@@ -39,7 +39,7 @@ interface RichTextEditorProps {
 }
 
 const btnBase =
-  "p-2 rounded-xl border border-transparent hover:border-gray-300 transition shadow-sm bg-white disabled:opacity-40 disabled:cursor-not-allowed";
+  "p-2 rounded-xl border border-transparent hover:border-gray-300 transition shadow-sm bg-background disabled:opacity-40 disabled:cursor-not-allowed";
 const btnActive = "bg-gray-900 text-white hover:border-gray-900";
 const group = "flex items-center gap-1";
 
@@ -163,7 +163,7 @@ export default function RichTextEditor({
 
   return (
     <div
-      className={`rounded-2xl border border-gray-200 shadow-sm overflow-hidden bg-white ${className}`}
+      className={`rounded-2xl border border-border  shadow-sm overflow-hidden bg-background ${className}`}
     >
       <div className="flex flex-wrap items-center gap-2 p-2 border-b bg-gray-50">
         <div className={group}>
@@ -325,7 +325,7 @@ export default function RichTextEditor({
 
       <EditorContent editor={editor} />
 
-      <div className="flex items-center justify-between px-4 py-2 border-t bg-gray-50 text-xs text-gray-500">
+      <div className="flex items-center justify-between px-4 py-2 border-t bg-gray-50 text-xs text-foreground ">
         <span>Rich Text Editor</span>
         <span>{value?.length ?? 0} characters</span>
       </div>

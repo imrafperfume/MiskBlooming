@@ -41,7 +41,7 @@ CREATE TABLE "public"."Order" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Order_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Order_pkey"  KEY ("id")
 );
 
 -- CreateTable
@@ -52,7 +52,7 @@ CREATE TABLE "public"."OrderItem" (
     "quantity" INTEGER NOT NULL DEFAULT 1,
     "price" DOUBLE PRECISION NOT NULL,
 
-    CONSTRAINT "OrderItem_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "OrderItem_pkey"  KEY ("id")
 );
 
 -- CreateTable
@@ -100,7 +100,7 @@ CREATE TABLE "public"."ProductDimension" (
     "height" DOUBLE PRECISION NOT NULL,
     "productId" TEXT,
 
-    CONSTRAINT "ProductDimension_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "ProductDimension_pkey"  KEY ("id")
 );
 
 -- CreateTable
@@ -110,7 +110,7 @@ CREATE TABLE "public"."CloudinaryImage" (
     "publicId" TEXT NOT NULL,
     "productId" TEXT,
 
-    CONSTRAINT "CloudinaryImage_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "CloudinaryImage_pkey"  KEY ("id")
 );
 
 -- CreateTable
@@ -122,7 +122,7 @@ CREATE TABLE "public"."Review" (
     "comment" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Review_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Review_pkey"  KEY ("id")
 );
 
 -- CreateTable
@@ -138,7 +138,7 @@ CREATE TABLE "public"."User" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "User_pkey"  KEY ("id")
 );
 
 -- CreateTable
@@ -153,7 +153,7 @@ CREATE TABLE "public"."Session" (
     "userAgent" TEXT,
     "revoked" BOOLEAN NOT NULL DEFAULT false,
 
-    CONSTRAINT "Session_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Session_pkey"  KEY ("id")
 );
 
 -- CreateTable
@@ -165,7 +165,7 @@ CREATE TABLE "public"."EmailVerificationToken" (
     "usedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "EmailVerificationToken_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "EmailVerificationToken_pkey"  KEY ("id")
 );
 
 -- CreateTable
@@ -177,7 +177,7 @@ CREATE TABLE "public"."PasswordResetToken" (
     "usedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "PasswordResetToken_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "PasswordResetToken_pkey"  KEY ("id")
 );
 
 -- CreateIndex

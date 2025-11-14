@@ -16,8 +16,8 @@ export default function DescriptionTab({ product }: DescriptionTabProps) {
       transition={{ duration: 0.3 }}
       className="prose prose-lg max-w-none"
     >
-      <div className="bg-white rounded-2xl sm:p-8 shadow-sm">
-        <h3 className="font-cormorant text-2xl font-bold text-charcoal-900 mb-4">
+      <div className="bg-background rounded-2xl sm:p-8 shadow-sm">
+        <h3 className="font-cormorant text-2xl font-bold text-foreground  mb-4">
           Product Description
         </h3>
         <div
@@ -29,7 +29,7 @@ export default function DescriptionTab({ product }: DescriptionTabProps) {
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-semibold text-charcoal-900 mb-3">
+            <h4 className="font-semibold text-foreground  mb-3">
               Perfect For:
             </h4>
             <ul className="space-y-2 text-muted-foreground">
@@ -48,7 +48,7 @@ export default function DescriptionTab({ product }: DescriptionTabProps) {
             </ul>
           </div>
           <div>
-            <h4 className="font-semibold text-charcoal-900 mb-3">
+            <h4 className="font-semibold text-foreground  mb-3">
               What's Included:
             </h4>
             <ul className="space-y-2 text-muted-foreground">

@@ -144,10 +144,10 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between">
         <div>
-          <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">
+          <h1 className="text-3xl font-cormorant font-bold text-foreground ">
             Welcome back, Admin!
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-foreground  mt-2">
             Here's what's happening with your flower shop today.
           </p>
         </div>
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
         {stats.map((stat, index) => (
           <motion.div
             key={stat.name}
-            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+            className="bg-background rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -201,11 +201,11 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div>
-              <p className="text-2xl font-bold text-charcoal-900 mb-1">
+              <p className="text-2xl font-bold text-foreground  mb-1">
                 {stat.value}
               </p>
-              <p className="text-sm text-gray-600">{stat.name}</p>
-              <p className="text-xs text-gray-500 mt-1">{stat.description}</p>
+              <p className="text-sm text-foreground ">{stat.name}</p>
+              <p className="text-xs text-foreground mt-1">{stat.description}</p>
             </div>
           </motion.div>
         ))}
@@ -221,14 +221,14 @@ export default function AdminDashboard() {
         {quickStats.map((stat, index) => (
           <div
             key={stat.label}
-            className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+            className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-lg font-bold text-charcoal-900">
+                <p className="text-lg font-bold text-foreground ">
                   {stat.value}
                 </p>
-                <p className="text-sm text-gray-600">{stat.label}</p>
+                <p className="text-sm text-foreground ">{stat.label}</p>
               </div>
               <stat.icon className={`w-5 h-5 ${stat.color}`} />
             </div>
@@ -239,14 +239,14 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Orders */}
         <motion.div
-          className="bg-white rounded-2xl shadow-sm border border-gray-100"
+          className="bg-background rounded-2xl shadow-sm border border-gray-100"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
           <div className="sm:p-6 border-b border-gray-100">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-charcoal-900">
+              <h2 className="text-xl font-semibold text-foreground ">
                 Recent Orders
               </h2>
               <Button variant="outline" size="sm">
@@ -267,17 +267,19 @@ export default function AdminDashboard() {
                 >
                   <div className="flex flex-wrap items-center space-x-4">
                     <div>
-                      <p className="font-medium text-sm sm:text-base text-charcoal-900">
+                      <p className="font-medium text-sm sm:text-base text-foreground ">
                         #{order.id}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-foreground ">
                         {order.customer.name}
                       </p>
-                      <p className="text-xs text-gray-500">{order.product}</p>
+                      <p className="text-xs text-foreground ">
+                        {order.product}
+                      </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-charcoal-900">
+                    <p className="font-medium text-foreground ">
                       {order.amount}
                     </p>
                     <span
@@ -296,13 +298,13 @@ export default function AdminDashboard() {
 
         {/* Top Products */}
         <motion.div
-          className="bg-white rounded-2xl shadow-sm border border-gray-100"
+          className="bg-background rounded-2xl shadow-sm border border-gray-100"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
           <div className="sm:p-6 border-b border-gray-100">
-            <h2 className="text-xl font-semibold text-charcoal-900">
+            <h2 className="text-xl font-semibold text-foreground ">
               Top Products
             </h2>
           </div>
@@ -323,16 +325,16 @@ export default function AdminDashboard() {
                       </span>
                     </div>
                     <div>
-                      <p className="font-medium text-sm sm:text-base text-charcoal-900">
+                      <p className="font-medium text-sm sm:text-base text-foreground ">
                         {product.name}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-foreground ">
                         {product.sales} sales
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-charcoal-900">
+                    <p className="font-medium text-foreground ">
                       {product.revenue}
                     </p>
                     <div className="flex items-center">
@@ -362,12 +364,12 @@ export default function AdminDashboard() {
 
       {/* Quick Actions */}
       <motion.div
-        className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+        className="bg-background rounded-2xl shadow-sm border border-gray-100 p-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.7 }}
       >
-        <h2 className="text-xl font-semibold text-charcoal-900 mb-6">
+        <h2 className="text-xl font-semibold text-foreground  mb-6">
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 overflow-hidden md:grid-cols-3 gap-4">
@@ -378,8 +380,8 @@ export default function AdminDashboard() {
           >
             <Package className="w-6 h-6 mr-4 text-blue-600" />
             <div className="text-left overflow-hidden">
-              <p className="font-medium text-charcoal-900">Add New Product</p>
-              <p className="text-sm text-gray-600">
+              <p className="font-medium text-foreground ">Add New Product</p>
+              <p className="text-sm text-foreground ">
                 Create a new flower arrangement
               </p>
             </div>
@@ -391,8 +393,8 @@ export default function AdminDashboard() {
           >
             <ShoppingCart className="w-6 h-6 mr-4 text-green-600" />
             <div className="text-left">
-              <p className="font-medium text-charcoal-900">Process Orders</p>
-              <p className="text-sm text-gray-600">Review pending orders</p>
+              <p className="font-medium text-foreground ">Process Orders</p>
+              <p className="text-sm text-foreground ">Review pending orders</p>
             </div>
           </Button>
           <Button
@@ -401,8 +403,10 @@ export default function AdminDashboard() {
           >
             <TrendingUp className="w-6 h-6 mr-4 text-purple-600" />
             <div className="text-left">
-              <p className="font-medium text-charcoal-900">View Analytics</p>
-              <p className="text-sm text-gray-600">Check performance metrics</p>
+              <p className="font-medium text-foreground ">View Analytics</p>
+              <p className="text-sm text-foreground ">
+                Check performance metrics
+              </p>
             </div>
           </Button>
         </div>

@@ -12,7 +12,9 @@ import { Button } from "../ui/Button";
 import { Loader2, CreditCard, Shield } from "lucide-react";
 
 // Initialize Stripe
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
+);
 
 interface StripePaymentProps {
   clientSecret: string;
@@ -34,14 +36,14 @@ export function StripePayment({
     appearance: {
       theme: "stripe" as const,
       variables: {
-        colorPrimary: "#d4af37",
+        color: "#d4af37",
         colorBackground: "#fdf5e6",
         colorText: "#2c2c2c",
         borderRadius: "8px",
       },
     },
   };
-    console.log("🚀 ~ StripePayment ~ clientSecret:", clientSecret)
+  console.log("🚀 ~ StripePayment ~ clientSecret:", clientSecret);
   return (
     <Elements stripe={stripePromise} options={options}>
       <PaymentForm
@@ -106,15 +108,15 @@ function PaymentForm({
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center space-x-2">
-        <CreditCard className="w-5 h-5 text-luxury-500" />
-        <h3 className="text-lg font-semibold text-charcoal-900">
+        <CreditCard className="w-5 h-5 text-primary " />
+        <h3 className="text-lg font-semibold text-foreground ">
           Complete Your Payment
         </h3>
       </div>
 
       {/* Payment Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="p-4 bg-cream-50 border border-cream-300 rounded-xl">
+        <div className="p-4 bg-cream-50 border border-border  rounded-xl">
           <PaymentElement />
         </div>
 
@@ -125,7 +127,8 @@ function PaymentForm({
             <span className="font-medium text-green-800">Secure Payment</span>
           </div>
           <p className="text-green-700 text-sm">
-            Your payment information is encrypted and secure. We never store your card details.
+            Your payment information is encrypted and secure. We never store
+            your card details.
           </p>
         </div>
 

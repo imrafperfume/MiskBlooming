@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 
 // Loading skeletons
 const HeaderLoader = () => (
-  <div className="h-16 bg-white border-b animate-pulse">
+  <div className="h-16 bg-background border-b animate-pulse">
     <div className="container mx-auto h-full flex items-center px-4">
       <div className="w-32 h-8 bg-gray-200 rounded-md"></div>
     </div>
@@ -22,9 +22,9 @@ const FooterLoader = () => (
 
 // Error fallback components
 const HeaderFallback: React.FC = () => (
-  <header className="h-16 bg-white border-b flex items-center px-4">
+  <header className="h-16 bg-background border-b flex items-center px-4">
     <div className="container mx-auto text-center">
-      <span className="text-gray-600">Header failed to load</span>
+      <span className="text-foreground ">Header failed to load</span>
     </div>
   </header>
 );
@@ -32,7 +32,7 @@ const HeaderFallback: React.FC = () => (
 const FooterFallback: React.FC = () => (
   <footer className="h-20 bg-gray-50 border-t flex items-center px-4">
     <div className="container mx-auto text-center">
-      <span className="text-gray-600">Footer failed to load</span>
+      <span className="text-foreground ">Footer failed to load</span>
     </div>
   </footer>
 );
@@ -61,7 +61,7 @@ export default function PublicLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen overflow-x-hidden flex flex-col">
+    <div className="min-h-screen  overflow-x-hidden flex flex-col">
       {/* Header */}
       <Header />
 

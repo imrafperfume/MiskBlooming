@@ -27,7 +27,7 @@ const ProductCard = dynamic(
 
 // Skeleton components
 const ProductSkeleton = () => (
-  <div className="bg-white rounded-2xl h-96 animate-pulse" />
+  <div className="bg-background rounded-2xl h-96 animate-pulse" />
 );
 const FilterSkeleton = () => (
   <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
@@ -167,7 +167,7 @@ export default function ProductsPage() {
               setSelectedCategory(e.target.value);
               setSubcategory("all");
             }}
-            className="appearance-none bg-white border border-cream-400 rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="appearance-none bg-background border border-border  rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
           >
             <option value="all">All Categories</option>
             {categories?.map((cat) => (
@@ -184,7 +184,7 @@ export default function ProductsPage() {
           <select
             value={subCategory}
             onChange={(e) => setSubcategory(e.target.value)}
-            className="appearance-none bg-white border border-cream-400 rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="appearance-none bg-background border border-border  rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
           >
             <option value="all">Select Subcategory</option>
             {currentCategory?.subcategories?.map((sub) => (
@@ -201,7 +201,7 @@ export default function ProductsPage() {
           <select
             value={priceRange}
             onChange={(e) => setPriceRange(e.target.value)}
-            className="appearance-none bg-white border border-cream-400 rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="appearance-none bg-background border border-border  rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
           >
             {PRICE_RANGES.map((r) => (
               <option key={r.value} value={r.value}>
@@ -217,7 +217,7 @@ export default function ProductsPage() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="appearance-none bg-white border border-cream-400 rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="appearance-none bg-background border border-border  rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
           >
             {SORT_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -256,7 +256,7 @@ export default function ProductsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="font-cormorant text-4xl md:text-5xl font-bold text-luxury-500 mb-4">
+            <h1 className="font-cormorant text-4xl md:text-5xl font-bold text-primary  mb-4">
               Our Collections
             </h1>
             <p className="sm:text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -272,7 +272,7 @@ export default function ProductsPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <div className="bg-white rounded-2xl sm:p-6 py-4 sm:py-0">
+            <div className="bg-background rounded-2xl sm:p-6 py-4 sm:py-0">
               <div className="relative mb-6">
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
                 <input
@@ -280,7 +280,7 @@ export default function ProductsPage() {
                   placeholder="Search flowers, chocolates, cakes, gifts..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-cream-400 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                  className="w-full pl-12 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
                 />
               </div>
 
@@ -299,13 +299,13 @@ export default function ProductsPage() {
                   <span className="text-sm text-muted-foreground">
                     {filteredAndSortedProducts.length} products found
                   </span>
-                  <div className="flex sm:hidden items-center border border-cream-400 rounded-lg">
+                  <div className="flex sm:hidden items-center border border-border  rounded-lg">
                     <button
                       onClick={() => setViewMode("grid")}
                       className={`p-2 ${
                         viewMode === "grid"
-                          ? "bg-luxury-500 text-charcoal-900"
-                          : "text-muted-foreground hover:text-charcoal-900"
+                          ? "bg-foreground 0 text-foreground "
+                          : "text-muted-foreground hover:text-foreground "
                       } transition-colors`}
                     >
                       <Grid3X3 className="w-4 h-4" />
@@ -314,8 +314,8 @@ export default function ProductsPage() {
                       onClick={() => setViewMode("list")}
                       className={`p-2 ${
                         viewMode === "list"
-                          ? "bg-luxury-500 text-charcoal-900"
-                          : "text-muted-foreground hover:text-charcoal-900"
+                          ? "bg-foreground 0 text-foreground "
+                          : "text-muted-foreground hover:text-foreground "
                       } transition-colors`}
                     >
                       <List className="w-4 h-4" />
@@ -343,7 +343,7 @@ export default function ProductsPage() {
               <div className="w-24 h-24 bg-cream-200 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Search className="w-12 h-12 text-cream-400" />
               </div>
-              <h3 className="font-cormorant text-2xl font-bold text-charcoal-900 mb-4">
+              <h3 className="font-cormorant text-2xl font-bold text-foreground  mb-4">
                 No products found
               </h3>
               <p className="text-muted-foreground mb-8">

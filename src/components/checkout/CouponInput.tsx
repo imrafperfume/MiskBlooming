@@ -11,14 +11,14 @@ import { toast } from "sonner";
 export function CouponInput() {
   const [couponCode, setCouponCode] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
   const { validateCouponCode, isValidating } = useCoupon();
-  const { 
-    appliedCoupon, 
-    couponDiscount, 
-    applyCoupon, 
-    removeCoupon, 
-    getTotalPrice 
+  const {
+    appliedCoupon,
+    couponDiscount,
+    applyCoupon,
+    removeCoupon,
+    getTotalPrice,
   } = useCartStore();
 
   const handleApplyCoupon = async () => {
@@ -27,10 +27,7 @@ export function CouponInput() {
       return;
     }
 
-    const result = await validateCouponCode(
-      couponCode.trim(),
-      getTotalPrice()
-    );
+    const result = await validateCouponCode(couponCode.trim(), getTotalPrice());
 
     if (result.isValid && result.coupon) {
       applyCoupon(result.coupon);
@@ -49,20 +46,20 @@ export function CouponInput() {
 
   return (
     <motion.div
-      className="bg-white rounded-xl border border-cream-300 p-4"
+      className="bg-background rounded-xl border border-border  p-4"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center">
-          <Tag className="w-5 h-5 text-luxury-500 mr-2" />
-          <h3 className="font-medium text-charcoal-900">Promo Code</h3>
+          <Tag className="w-5 h-5 text-primary  mr-2" />
+          <h3 className="font-medium text-foreground ">Promo Code</h3>
         </div>
         {!appliedCoupon && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-sm text-luxury-600 hover:text-luxury-700 font-medium"
+            className="text-sm text-primary hover:text-luxury-700 font-medium"
           >
             {isExpanded ? "Cancel" : "Have a code?"}
           </button>
@@ -83,12 +80,11 @@ export function CouponInput() {
                 {appliedCoupon.code} Applied
               </p>
               <p className="text-sm text-green-600">
-                {appliedCoupon.discountType === 'PERCENTAGE' 
+                {appliedCoupon.discountType === "PERCENTAGE"
                   ? `${appliedCoupon.discountValue}% off`
-                  : appliedCoupon.discountType === 'FIXED_AMOUNT'
+                  : appliedCoupon.discountType === "FIXED_AMOUNT"
                   ? `AED ${appliedCoupon.discountValue} off`
-                  : 'Free shipping'
-                }
+                  : "Free shipping"}
               </p>
             </div>
           </div>
@@ -113,8 +109,8 @@ export function CouponInput() {
               placeholder="Enter promo code"
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-              className="flex-1 px-3 py-2 border border-cream-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent text-sm"
-              onKeyPress={(e) => e.key === 'Enter' && handleApplyCoupon()}
+              className="flex-1 px-3 py-2 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent text-sm"
+              onKeyPress={(e) => e.key === "Enter" && handleApplyCoupon()}
             />
             <Button
               onClick={handleApplyCoupon}
@@ -133,7 +129,7 @@ export function CouponInput() {
 
       {couponDiscount > 0 && (
         <motion.div
-          className="mt-3 p-2 bg-luxury-50 rounded-lg"
+          className="mt-3 p-2 bg-foregroundrounded-lg"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2, delay: 0.1 }}

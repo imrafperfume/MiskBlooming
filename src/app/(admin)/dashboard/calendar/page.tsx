@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { motion } from "framer-motion"
+import { useState } from "react";
+import { motion } from "framer-motion";
 import {
   Calendar,
   Plus,
@@ -14,13 +14,13 @@ import {
   Bell,
   Filter,
   Search,
-} from "lucide-react"
-import { Button } from "../../../../components/ui/Button"
-import { Input } from "../../../../components/ui/Input"
+} from "lucide-react";
+import { Button } from "../../../../components/ui/Button";
+import { Input } from "../../../../components/ui/Input";
 
 export default function CalendarPage() {
-  const [currentDate, setCurrentDate] = useState(new Date())
-  const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month")
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month");
 
   const events = [
     {
@@ -63,45 +63,49 @@ export default function CalendarPage() {
       description: "Customer service excellence training session",
       attendees: ["Customer Service Team"],
     },
-  ]
+  ];
 
   const getEventTypeColor = (type: string) => {
     switch (type) {
       case "marketing":
-        return "bg-purple-100 text-purple-800 border-purple-200"
+        return "bg-purple-100 text-purple-800 border-purple-200";
       case "delivery":
-        return "bg-blue-100 text-blue-800 border-blue-200"
+        return "bg-blue-100 text-blue-800 border-blue-200";
       case "meeting":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-green-100 text-green-800 border-green-200";
       case "training":
-        return "bg-orange-100 text-orange-800 border-orange-200"
+        return "bg-orange-100 text-orange-800 border-orange-200";
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-gray-100 text-gray-800 border-border ";
     }
-  }
+  };
 
   const getEventTypeIcon = (type: string) => {
     switch (type) {
       case "marketing":
-        return <Bell className="w-4 h-4" />
+        return <Bell className="w-4 h-4" />;
       case "delivery":
-        return <Truck className="w-4 h-4" />
+        return <Truck className="w-4 h-4" />;
       case "meeting":
-        return <Users className="w-4 h-4" />
+        return <Users className="w-4 h-4" />;
       case "training":
-        return <Package className="w-4 h-4" />
+        return <Package className="w-4 h-4" />;
       default:
-        return <Calendar className="w-4 h-4" />
+        return <Calendar className="w-4 h-4" />;
     }
-  }
+  };
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between">
         <div>
-          <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">Calendar & Events</h1>
-          <p className="text-gray-600 mt-2">Manage schedules, deliveries, and business events</p>
+          <h1 className="text-3xl font-cormorant font-bold text-foreground ">
+            Calendar & Events
+          </h1>
+          <p className="text-foreground  mt-2">
+            Manage schedules, deliveries, and business events
+          </p>
         </div>
         <div className="flex items-center space-x-4 mt-4 lg:mt-0">
           <div className="flex items-center space-x-2">
@@ -112,10 +116,18 @@ export default function CalendarPage() {
             >
               Month
             </Button>
-            <Button variant={viewMode === "week" ? "luxury" : "outline"} size="sm" onClick={() => setViewMode("week")}>
+            <Button
+              variant={viewMode === "week" ? "luxury" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("week")}
+            >
               Week
             </Button>
-            <Button variant={viewMode === "day" ? "luxury" : "outline"} size="sm" onClick={() => setViewMode("day")}>
+            <Button
+              variant={viewMode === "day" ? "luxury" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("day")}
+            >
               Day
             </Button>
           </div>
@@ -130,7 +142,7 @@ export default function CalendarPage() {
         {/* Calendar */}
         <div className="lg:col-span-3">
           <motion.div
-            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+            className="bg-background rounded-2xl p-6 shadow-sm border border-gray-100"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -141,8 +153,11 @@ export default function CalendarPage() {
                 <Button variant="ghost" size="sm">
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
-                <h2 className="text-xl font-semibold text-charcoal-900">
-                  {currentDate.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                <h2 className="text-xl font-semibold text-foreground ">
+                  {currentDate.toLocaleDateString("en-US", {
+                    month: "long",
+                    year: "numeric",
+                  })}
                 </h2>
                 <Button variant="ghost" size="sm">
                   <ChevronRight className="w-4 h-4" />
@@ -157,8 +172,12 @@ export default function CalendarPage() {
             <div className="h-96 flex items-center justify-center bg-gray-50 rounded-lg">
               <div className="text-center">
                 <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Calendar View</h3>
-                <p className="text-gray-600">Interactive calendar component would be integrated here</p>
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Calendar View
+                </h3>
+                <p className="text-foreground ">
+                  Interactive calendar component would be integrated here
+                </p>
               </div>
             </div>
           </motion.div>
@@ -168,22 +187,33 @@ export default function CalendarPage() {
         <div className="space-y-6">
           {/* Quick Actions */}
           <motion.div
-            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+            className="bg-background rounded-2xl p-6 shadow-sm border border-gray-100"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <h3 className="font-semibold text-charcoal-900 mb-4">Quick Actions</h3>
+            <h3 className="font-semibold text-foreground  mb-4">
+              Quick Actions
+            </h3>
             <div className="space-y-3">
-              <Button variant="outline" className="w-full justify-start bg-transparent">
+              <Button
+                variant="outline"
+                className="w-full justify-start bg-transparent"
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Schedule Delivery
               </Button>
-              <Button variant="outline" className="w-full justify-start bg-transparent">
+              <Button
+                variant="outline"
+                className="w-full justify-start bg-transparent"
+              >
                 <Users className="w-4 h-4 mr-2" />
                 Team Meeting
               </Button>
-              <Button variant="outline" className="w-full justify-start bg-transparent">
+              <Button
+                variant="outline"
+                className="w-full justify-start bg-transparent"
+              >
                 <Bell className="w-4 h-4 mr-2" />
                 Marketing Event
               </Button>
@@ -192,16 +222,20 @@ export default function CalendarPage() {
 
           {/* Event Filters */}
           <motion.div
-            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+            className="bg-background rounded-2xl p-6 shadow-sm border border-gray-100"
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <h3 className="font-semibold text-charcoal-900 mb-4">Event Types</h3>
+            <h3 className="font-semibold text-foreground  mb-4">Event Types</h3>
             <div className="space-y-2">
               {["marketing", "delivery", "meeting", "training"].map((type) => (
                 <label key={type} className="flex items-center">
-                  <input type="checkbox" className="rounded border-gray-300 mr-2" defaultChecked />
+                  <input
+                    type="checkbox"
+                    className="rounded border-gray-300 mr-2"
+                    defaultChecked
+                  />
                   <span className="text-sm capitalize">{type}</span>
                 </label>
               ))}
@@ -212,13 +246,15 @@ export default function CalendarPage() {
 
       {/* Upcoming Events */}
       <motion.div
-        className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
+        className="bg-background rounded-2xl p-6 shadow-sm border border-gray-100"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.3 }}
       >
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-charcoal-900">Upcoming Events</h2>
+          <h2 className="text-xl font-semibold text-foreground ">
+            Upcoming Events
+          </h2>
           <div className="flex items-center space-x-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -241,12 +277,18 @@ export default function CalendarPage() {
               transition={{ duration: 0.3, delay: index * 0.1 }}
             >
               <div className="flex items-center space-x-4">
-                <div className={`p-2 rounded-lg border ${getEventTypeColor(event.type)}`}>
+                <div
+                  className={`p-2 rounded-lg border ${getEventTypeColor(
+                    event.type
+                  )}`}
+                >
                   {getEventTypeIcon(event.type)}
                 </div>
                 <div>
-                  <h3 className="font-medium text-charcoal-900">{event.title}</h3>
-                  <div className="flex items-center space-x-4 text-sm text-gray-600 mt-1">
+                  <h3 className="font-medium text-foreground ">
+                    {event.title}
+                  </h3>
+                  <div className="flex items-center space-x-4 text-sm text-foreground  mt-1">
                     <div className="flex items-center">
                       <Calendar className="w-4 h-4 mr-1" />
                       {new Date(event.date).toLocaleDateString()}
@@ -275,5 +317,5 @@ export default function CalendarPage() {
         </div>
       </motion.div>
     </div>
-  )
+  );
 }

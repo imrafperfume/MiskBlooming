@@ -679,11 +679,11 @@ export default function AddProductPage() {
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className="text-3xl font-cormorant font-bold text-charcoal-900 flex items-center">
+              <h1 className="text-3xl font-cormorant font-bold text-foreground  flex items-center">
                 Add New Product
                 <Cloud className="w-8 h-8 ml-3 text-blue-500" />
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-foreground  mt-1">
                 Create a new product with Cloudinary-optimized images
               </p>
             </div>
@@ -768,7 +768,7 @@ export default function AddProductPage() {
         <div className="sm:grid sm:grid-cols-12 gap-6">
           {/* Sidebar Navigation */}
           <div className="col-span-3">
-            <div className="bg-white rounded-xl shadow-sm border border-cream-200 p-4 sticky top-6">
+            <div className="bg-background rounded-xl shadow-sm border border-cream-200 p-4 sticky top-6">
               <nav className="space-y-2">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
@@ -778,8 +778,8 @@ export default function AddProductPage() {
                       onClick={() => setActiveTab(tab.id)}
                       className={`w-full flex items-center justify-between space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
                         activeTab === tab.id
-                          ? "bg-luxury-50 text-luxury-600 border border-luxury-200"
-                          : "text-gray-600 hover:bg-gray-50"
+                          ? "bg-foregroundtext-primary border border-luxury-200"
+                          : "text-foreground  hover:bg-gray-50"
                       }`}
                     >
                       <div className="flex items-center space-x-3">
@@ -795,13 +795,13 @@ export default function AddProductPage() {
               </nav>
 
               {/* Progress Indicator */}
-              <div className="mt-6 pt-4 border-t border-gray-200">
-                <div className="text-sm text-gray-600 mb-2">
+              <div className="mt-6 pt-4 border-t border-border ">
+                <div className="text-sm text-foreground  mb-2">
                   Completion Progress
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
-                    className="bg-luxury-500 h-2 rounded-full transition-all duration-300"
+                    className="bg-foreground 0 h-2 rounded-full transition-all duration-300"
                     style={{
                       width: `${Math.round(
                         (tabs.filter((tab) => !tab.hasError).length /
@@ -811,7 +811,7 @@ export default function AddProductPage() {
                     }}
                   />
                 </div>
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="text-xs text-foreground mt-1">
                   {tabs.filter((tab) => !tab.hasError).length} of {tabs.length}{" "}
                   sections complete
                 </div>
@@ -826,7 +826,7 @@ export default function AddProductPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              className="bg-white rounded-xl shadow-sm border border-cream-200 p-6  w-full"
+              className="bg-background rounded-xl shadow-sm border border-cream-200 p-6  w-full"
             >
               {/* Basic Information Tab */}
               {activeTab === "basic" && (

@@ -40,7 +40,7 @@ export default function ImageModal({
             />
             <button
               onClick={() => setIsImageModalOpen(false)}
-              className="absolute top-4 right-4 w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white"
+              className="absolute top-4 right-4 w-10 h-10 bg-background/20 hover:bg-background/30 rounded-full flex items-center justify-center text-white"
             >
               ×
             </button>

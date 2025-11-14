@@ -215,14 +215,14 @@ export default function CategoryPage() {
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-gray-50 to-luxury-50 gap-6">
       {/* Sidebar */}
-      <aside className="md:w-[400px] w-full bg-white/90 backdrop-blur-md sm:shadow rounded-2xl sm:p-6 flex flex-col gap-6">
-        <h1 className="text-2xl font-bold text-luxury-500">Categories</h1>
+      <aside className="md:w-[400px] w-full bg-background/90 backdrop-blur-md sm:shadow rounded-2xl sm:p-6 flex flex-col gap-6">
+        <h1 className="text-2xl font-bold text-primary ">Categories</h1>
         <ul className="space-y-2 overflow-y-auto max-h-[50vh]">
           {categories.length > 0 ? (
             categories.map((cat) => (
               <li
                 key={cat.id}
-                className="flex items-center gap-3 group bg-white sm:p-2 rounded-lg sm:shadow-sm hover:shadow transition"
+                className="flex items-center gap-3 group bg-background sm:p-2 rounded-lg sm:shadow-sm hover:shadow transition"
               >
                 {cat.imageUrl && (
                   <Image
@@ -238,7 +238,7 @@ export default function CategoryPage() {
                   <button
                     onClick={() => handleEditCategory(cat)}
                     title="Edit"
-                    className="text-luxury-500 hover:text-luxury-700"
+                    className="text-primary  hover:text-luxury-700"
                   >
                     <Pencil size={16} />
                   </button>
@@ -253,7 +253,7 @@ export default function CategoryPage() {
               </li>
             ))
           ) : (
-            <p className="text-gray-500">
+            <p className="text-foreground ">
               {loading ? "Loading..." : "No categories available."}
             </p>
           )}
@@ -263,8 +263,8 @@ export default function CategoryPage() {
       {/* Main content */}
       <main className="w-full flex flex-col gap-6">
         {/* Category Form */}
-        <section className="bg-white rounded-xl sm:shadow sm:p-6 max-w-3xl mx-auto flex flex-col gap-4">
-          <h2 className="font-semibold text-lg text-luxury-500">
+        <section className="bg-background rounded-xl sm:shadow sm:p-6 max-w-3xl mx-auto flex flex-col gap-4">
+          <h2 className="font-semibold text-lg text-primary ">
             {editingCatId ? "Edit Category" : "Add Category"}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
@@ -294,7 +294,7 @@ export default function CategoryPage() {
               <Button
                 variant={"luxury"}
                 size={"sm"}
-                className="bg-luxury-500 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-luxury-700 transition"
+                className="bg-foreground 0 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-luxury-700 transition"
                 onClick={handleSaveCategory}
                 disabled={createLoading}
               >
@@ -315,8 +315,8 @@ export default function CategoryPage() {
         </section>
 
         {/* Subcategory Form */}
-        <section className="bg-white rounded-xl sm:shadow sm:p-6 sm:max-w-3xl sm:mx-auto flex flex-col gap-4">
-          <h2 className="font-semibold text-lg text-luxury-500">
+        <section className="bg-background rounded-xl sm:shadow sm:p-6 sm:max-w-3xl sm:mx-auto flex flex-col gap-4">
+          <h2 className="font-semibold text-lg text-primary ">
             {editingSubId ? "Edit Subcategory" : "Add Subcategory"}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -342,7 +342,7 @@ export default function CategoryPage() {
               <Button
                 variant={"luxury"}
                 size={"sm"}
-                className="bg-luxury-500 text-white sm:px-4 py-2 rounded-lg font-semibold sm:shadow hover:bg-luxury-700 transition"
+                className="bg-foreground 0 text-white sm:px-4 py-2 rounded-lg font-semibold sm:shadow hover:bg-luxury-700 transition"
                 onClick={handleSaveSubCategory}
               >
                 {editingSubId ? "Save" : "Add"}
@@ -366,7 +366,7 @@ export default function CategoryPage() {
           {categories.map((cat) => (
             <div
               key={cat.id}
-              className="bg-white rounded-2xl sm:shadow sm:p-4 flex flex-col gap-3 hover:shadow-xl transform hover:scale-105 transition"
+              className="bg-background rounded-2xl sm:shadow sm:p-4 flex flex-col gap-3 hover:shadow-xl transform hover:scale-105 transition"
             >
               <div className="flex items-center gap-3">
                 {cat.imageUrl && (
@@ -380,7 +380,9 @@ export default function CategoryPage() {
                 )}
                 <div>
                   <div className="font-bold text-gray-900">{cat.name}</div>
-                  <div className="text-sm text-gray-500">{cat.description}</div>
+                  <div className="text-sm text-foreground ">
+                    {cat.description}
+                  </div>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -393,13 +395,13 @@ export default function CategoryPage() {
                     (sub: { id: string; name: string; categoryId: string }) => (
                       <span
                         key={sub.id}
-                        className="bg-luxury-50 text-luxury-500 px-2 py-1 rounded-full text-xs flex items-center gap-2"
+                        className="bg-foregroundtext-primary  px-2 py-1 rounded-full text-xs flex items-center gap-2"
                       >
                         {sub.name}
                         <button
                           onClick={() => handleEditSubCategory(sub)}
                           title="Edit"
-                          className="hover:text-luxury-600"
+                          className="hover:text-primary "
                         >
                           <Pencil size={14} />
                         </button>
