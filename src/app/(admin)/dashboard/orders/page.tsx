@@ -72,7 +72,7 @@ export default function OrdersPage() {
       case "CANCELLED":
         return "bg-red-100 text-red-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-background  text-gray-800";
     }
   };
 
@@ -210,7 +210,7 @@ export default function OrdersPage() {
       {/* Orders Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-background border border-border  rounded-lg">
-          <thead className="bg-gray-50">
+          <thead className="bg-background">
             <tr className="text-sm font-normal">
               <th className="px-2 py-2 text-left">Order ID</th>
               <th className="px-2 py-2 text-left">Customer</th>

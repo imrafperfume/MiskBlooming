@@ -32,22 +32,29 @@ export function PersonalInformationStep({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
         <Input
+          className="bg-transparent placeholder-foreground"
+          placeholder="Jhon"
           label="First Name"
           {...register("firstName")}
           error={errors.firstName?.message}
         />
         <Input
+          className="bg-transparent placeholder-foreground"
+          placeholder="Dowe"
           label="Last Name"
           {...register("lastName")}
           error={errors.lastName?.message}
         />
         <Input
+          className="bg-transparent placeholder-foreground"
+          placeholder="Jhon@gmail.com"
           label="Email Address"
           type="email"
           {...register("email")}
           error={errors.email?.message}
         />
         <Input
+          className="bg-transparent placeholder-foreground"
           label="Phone Number"
           {...register("phone")}
           placeholder="+971 50 123 4567"

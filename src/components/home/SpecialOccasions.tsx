@@ -111,7 +111,7 @@ const SpecialOccasions = () => {
           <button
             onClick={prevSlide}
             disabled={currentSlide === 0}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 bg-background rounded-full shadow-lg border border-cream-200 flex items-center justify-center text-foreground  hover:bg-foregroundhover:border-luxury-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-background"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 bg-background rounded-full shadow-lg border border-cream-200 flex items-center justify-center text-foreground  hover:bg-foregroundhover:border-border  transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-background"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -119,7 +119,7 @@ const SpecialOccasions = () => {
           <button
             onClick={nextSlide}
             disabled={currentSlide === totalSlides - 1}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 bg-background rounded-full shadow-lg border border-cream-200 flex items-center justify-center text-foreground  hover:bg-foregroundhover:border-luxury-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-background"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 bg-background rounded-full shadow-lg border border-cream-200 flex items-center justify-center text-foreground  hover:bg-foregroundhover:border-border  transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-background"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -238,7 +238,7 @@ const SpecialOccasions = () => {
             <Button
               variant="outline"
               size="lg"
-              className="group border-luxury-200 text-primary  hover:bg-foreground 0 hover:border-luxury-300 bg-transparent"
+              className="group border-border  text-primary  hover:bg-foreground 0 hover:border-luxury-300 bg-transparent"
             >
               View All Occasions
               <Calendar className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform duration-200" />

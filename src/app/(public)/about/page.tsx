@@ -80,7 +80,7 @@ export default function AboutPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="relative py-24 bg-gradient-to-r from-luxury-500 to-primary text-white overflow-hidden">
         <div className="absolute inset-0 bg-black/20"></div>
@@ -292,7 +292,7 @@ export default function AboutPage() {
       </section>
 
       {/* Our Promise */}
-      <section className="py-24 bg-gradient-to-br from-cream-50 to-cream-100">
+      <section className="py-24 bg-background">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}

@@ -126,11 +126,11 @@ export default function PromotionsPage() {
       case "scheduled":
         return "bg-blue-100 text-blue-800";
       case "expired":
-        return "bg-gray-100 text-gray-800";
+        return "bg-background  text-gray-800";
       case "paused":
         return "bg-yellow-100 text-yellow-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-background  text-gray-800";
     }
   };
 
@@ -395,7 +395,7 @@ export default function PromotionsPage() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-foreground ">Code:</span>
-                <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">
+                <span className="font-mono text-sm bg-background  px-2 py-1 rounded">
                   {promotion.code}
                 </span>
               </div>

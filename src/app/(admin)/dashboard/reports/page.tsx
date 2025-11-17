@@ -209,10 +209,10 @@ export default function ReportsPage() {
           {quickReports.map((report, index) => (
             <div
               key={report.name}
-              className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-between p-4 rounded-xl hover:bg-background transition-colors"
             >
               <div className="flex items-center space-x-4">
-                <div className="p-2 rounded-lg bg-gray-100">
+                <div className="p-2 rounded-lg bg-background ">
                   <FileText className="w-5 h-5 text-foreground " />
                 </div>
                 <div>
@@ -249,7 +249,7 @@ export default function ReportsPage() {
         <h2 className="text-xl font-semibold text-foreground  mb-6">
           Report Preview
         </h2>
-        <div className="h-96 flex items-center justify-center bg-gray-50 rounded-lg">
+        <div className="h-96 flex items-center justify-center bg-background rounded-lg">
           <div className="text-center">
             <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">

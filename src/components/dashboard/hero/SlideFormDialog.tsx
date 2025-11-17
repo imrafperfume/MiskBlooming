@@ -134,7 +134,7 @@ export default function SlideFormDialog({ slide, onSaved }: SlideFormProps) {
           <h4 className="font-medium">CTA Buttons</h4>
           <button
             type="button"
-            className="text-sm bg-gray-100 px-2 py-1 rounded"
+            className="text-sm bg-primary  px-2 py-1 rounded"
             onClick={addButton}
           >
             + Add
@@ -175,7 +175,7 @@ export default function SlideFormDialog({ slide, onSaved }: SlideFormProps) {
 
       <button
         type="submit"
-        className="bg-foreground 0 text-white px-4 py-2 rounded"
+        className="bg-primary text-foreground px-4 py-2 rounded"
       >
         Save
       </button>

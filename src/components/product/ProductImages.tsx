@@ -70,7 +70,7 @@ export default function ProductImages({
         {/* Badges */}
         <div className="absolute top-4 left-4 flex flex-col space-y-2">
           {product.featured && (
-            <div className="bg-foreground 0 text-foreground  px-3 py-1 rounded-full text-sm font-bold flex items-center">
+            <div className="bg-primary 0 text-foreground  px-3 py-1 rounded-full text-sm font-bold flex items-center">
               <Award className="w-3 h-3 mr-1" />
               Featured
             </div>

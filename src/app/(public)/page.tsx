@@ -130,9 +130,9 @@ export default function HomePage() {
       {/* Stats (static, no motion for better TBT) */}
       <section className="py-24 luxury-gradient">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-cormorant flex flex-col items-center gap-1 justify-center text-2xl font-bold text-charcoal-100 mb-16">
+          <h2 className="font-cormorant flex flex-col items-center gap-1 justify-center text-2xl font-bold text-foreground mb-16">
             Why Dubai Loves MiskBlooming
-            <span className="text-foreground  text-display-md ">
+            <span className="text-charcoal-900  text-display-md ">
               A Legacy of Floral Excellence
             </span>
           </h2>
@@ -142,7 +142,7 @@ export default function HomePage() {
                 <div className="text-4xl lg:text-5xl font-bold text-foreground  mb-2">
                   {s.number}
                 </div>
-                <p className="text-charcoal-700 font-medium">{s.label}</p>
+                <p className="text-charcoal-900 font-bold">{s.label}</p>
               </div>
             ))}
           </div>
@@ -161,7 +161,7 @@ export default function HomePage() {
       </div>
 
       {/* Newsletter */}
-      <section className="py-24 bg-gradient-to-br from-cream-50 to-cream-100">
+      <section className="py-24 bg-background">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex items-center justify-center mb-6">
             <Award className="w-8 h-8 text-primary  mx-3" />
@@ -185,7 +185,12 @@ export default function HomePage() {
               focus:ring-2 focus:ring-luxury-500 transition-all bg-background"
               required
             />
-            <Button variant="luxury" size="lg" type="submit">
+            <Button
+              variant="luxury"
+              size="lg"
+              type="submit"
+              className="hover:text-secondary"
+            >
               Subscribe
             </Button>
           </form>

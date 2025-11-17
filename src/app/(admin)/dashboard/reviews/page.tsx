@@ -171,7 +171,7 @@ export default function ReviewsPage() {
       case "rejected":
         return "bg-red-100 text-red-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-background  text-gray-800";
     }
   };
 
@@ -440,7 +440,7 @@ export default function ReviewsPage() {
             </div>
 
             {review.response && (
-              <div className="bg-gray-50 rounded-lg p-4 mb-4">
+              <div className="bg-background rounded-lg p-4 mb-4">
                 <div className="flex items-center mb-2">
                   <div className="w-6 h-6 bg-foreground 0 rounded-full flex items-center justify-center mr-2">
                     <span className="text-white text-xs font-medium">MB</span>

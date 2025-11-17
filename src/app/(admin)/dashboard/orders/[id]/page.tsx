@@ -94,7 +94,7 @@ const getStatusConfig = (status: string) => {
     case "processing":
       return {
         variant: "default" as const,
-        className: "bg-luxury-100 text-luxury-800 border-luxury-200",
+        className: "bg-luxury-100 text-luxury-800 border-border ",
         icon: AlertCircle,
         color: "text-primary ",
       };
@@ -109,7 +109,7 @@ const getStatusConfig = (status: string) => {
     default:
       return {
         variant: "outline" as const,
-        className: "bg-gray-100 text-gray-800 border-border ",
+        className: "bg-background  text-gray-800 border-border ",
         icon: AlertCircle,
         color: "text-foreground ",
       };
@@ -137,7 +137,7 @@ const getPaymentStatusConfig = (status: string) => {
       };
     default:
       return {
-        className: "bg-gray-100 text-gray-800 border-border ",
+        className: "bg-background  text-gray-800 border-border ",
         icon: AlertCircle,
       };
   }
@@ -185,7 +185,7 @@ export default function OrderDetails() {
           <p className="text-foreground  mb-4">{error.message}</p>
           <button
             onClick={() => window.history.back()}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-background transition-colors"
           >
             Go Back
           </button>
@@ -274,7 +274,7 @@ export default function OrderDetails() {
                   <Button
                     variant={"luxury"}
                     size={"sm"}
-                    className="px-4 py-2 border border-luxury-200 text-luxury-100 hover:bg-foregroundhover:border-luxury-300 bg-transparent rounded-md text-sm font-medium transition-colors flex items-center gap-2"
+                    className="px-4 py-2 border border-border  text-luxury-100 hover:bg-foregroundhover:border-luxury-300 bg-transparent rounded-md text-sm font-medium transition-colors flex items-center gap-2"
                   >
                     <Edit3 className="h-4 w-4" />
                     Update Status
@@ -318,31 +318,31 @@ export default function OrderDetails() {
                               <Select.Viewport className="p-1">
                                 <Select.Item
                                   value="PENDING"
-                                  className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 rounded"
+                                  className="px-3 py-2 text-sm cursor-pointer hover:bg-background  rounded"
                                 >
                                   <Select.ItemText>Pending</Select.ItemText>
                                 </Select.Item>
                                 <Select.Item
                                   value="PROCESSING"
-                                  className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 rounded"
+                                  className="px-3 py-2 text-sm cursor-pointer hover:bg-background  rounded"
                                 >
                                   <Select.ItemText>Processing</Select.ItemText>
                                 </Select.Item>
                                 <Select.Item
                                   value="SHIPPED"
-                                  className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 rounded"
+                                  className="px-3 py-2 text-sm cursor-pointer hover:bg-background  rounded"
                                 >
                                   <Select.ItemText>Shipped</Select.ItemText>
                                 </Select.Item>
                                 <Select.Item
                                   value="DELIVERED"
-                                  className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 rounded"
+                                  className="px-3 py-2 text-sm cursor-pointer hover:bg-background  rounded"
                                 >
                                   <Select.ItemText>Delivered</Select.ItemText>
                                 </Select.Item>
                                 <Select.Item
                                   value="CANCELLED"
-                                  className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 rounded"
+                                  className="px-3 py-2 text-sm cursor-pointer hover:bg-background  rounded"
                                 >
                                   <Select.ItemText>Cancelled</Select.ItemText>
                                 </Select.Item>
@@ -511,7 +511,7 @@ export default function OrderDetails() {
                       Special Instructions:
                     </span>
                   </div>
-                  <div className="bg-foregroundborder border-luxury-200 rounded-lg p-4">
+                  <div className="bg-foregroundborder border-border  rounded-lg p-4">
                     <p className="text-gray-700 text-pretty">
                       {order.specialInstructions}
                     </p>
@@ -533,7 +533,7 @@ export default function OrderDetails() {
             <div className="space-y-2">
               {order.items.map((item: any, index: number) => (
                 <div key={item.id}>
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 bg-gray-50">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 bg-background">
                     <div className="flex-1">
                       <h4 className="font-semibold text-lg text-gray-900 text-balance">
                         {item.product.name}
@@ -555,7 +555,7 @@ export default function OrderDetails() {
               ))}
 
               {/* Cost Breakdown */}
-              <div className="border-t-2 border-luxury-200 pt-6 mt-6 space-y-2 text-right">
+              <div className="border-t-2 border-border  pt-6 mt-6 space-y-2 text-right">
                 {order?.deliveryCost > 0 && (
                   <p className="text-gray-700">
                     Delivery Fee:{" "}

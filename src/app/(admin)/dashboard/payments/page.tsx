@@ -146,9 +146,9 @@ export default function PaymentsPage() {
       case "failed":
         return "bg-red-100 text-red-800";
       case "refunded":
-        return "bg-gray-100 text-gray-800";
+        return "bg-background  text-gray-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-background  text-gray-800";
     }
   };
 
@@ -440,7 +440,7 @@ export default function PaymentsPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-background">
               <tr>
                 <th className="px-6 py-4 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Payment ID
@@ -469,7 +469,7 @@ export default function PaymentsPage() {
               {filteredPayments.map((payment, index) => (
                 <motion.tr
                   key={payment.id}
-                  className="hover:bg-gray-50 transition-colors"
+                  className="hover:bg-background transition-colors"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}

@@ -304,7 +304,7 @@ export default function CategoryPage() {
                 <Button
                   variant={"ghost"}
                   size={"sm"}
-                  className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg"
+                  className="bg-background  text-gray-700 px-3 py-2 rounded-lg"
                   onClick={() => setEditingCatId(null)}
                 >
                   Cancel
@@ -351,7 +351,7 @@ export default function CategoryPage() {
                 <Button
                   variant={"ghost"}
                   size={"sm"}
-                  className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg"
+                  className="bg-background  text-gray-700 px-3 py-2 rounded-lg"
                   onClick={() => setEditingSubId(null)}
                 >
                   Cancel

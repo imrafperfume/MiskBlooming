@@ -124,7 +124,7 @@ function SEOTab({
         </div>
 
         {/* SEO Preview */}
-        <div className="bg-gray-50 border border-border  rounded-lg p-4">
+        <div className="bg-background border border-border  rounded-lg p-4">
           <h4 className="font-medium text-gray-900 mb-3">
             Search Engine Preview
           </h4>

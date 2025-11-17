@@ -137,7 +137,7 @@ export default function SettingsPage() {
     );
   }
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100 pt-32 pb-16">
+    <div className="min-h-screen bg-background pt-32 pb-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -203,7 +203,7 @@ export default function SettingsPage() {
                         handleInputChange("firstName", e.target.value)
                       }
                       disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-gray-50"
+                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-background"
                     />
                   </div>
                 </div>
@@ -219,7 +219,7 @@ export default function SettingsPage() {
                       handleInputChange("lastName", e.target.value)
                     }
                     disabled={!isEditing}
-                    className="w-full px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-gray-50"
+                    className="w-full px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-background"
                   />
                 </div>
 
@@ -236,7 +236,7 @@ export default function SettingsPage() {
                         handleInputChange("email", e.target.value)
                       }
                       disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-gray-50"
+                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-background"
                     />
                   </div>
                 </div>
@@ -254,7 +254,7 @@ export default function SettingsPage() {
                         handleInputChange("phone", e.target.value)
                       }
                       disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-gray-50"
+                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-background"
                     />
                   </div>
                 </div>
@@ -272,7 +272,7 @@ export default function SettingsPage() {
                       }
                       disabled={!isEditing}
                       rows={3}
-                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-gray-50"
+                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-background"
                     />
                   </div>
                 </div>

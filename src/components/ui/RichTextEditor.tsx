@@ -165,7 +165,7 @@ export default function RichTextEditor({
     <div
       className={`rounded-2xl border border-border  shadow-sm overflow-hidden bg-background ${className}`}
     >
-      <div className="flex flex-wrap items-center gap-2 p-2 border-b bg-gray-50">
+      <div className="flex flex-wrap items-center gap-2 p-2 border-b bg-background">
         <div className={group}>
           <Button
             title="Undo"
@@ -325,7 +325,7 @@ export default function RichTextEditor({
 
       <EditorContent editor={editor} />
 
-      <div className="flex items-center justify-between px-4 py-2 border-t bg-gray-50 text-xs text-foreground ">
+      <div className="flex items-center justify-between px-4 py-2 border-t bg-background text-xs text-foreground ">
         <span>Rich Text Editor</span>
         <span>{value?.length ?? 0} characters</span>
       </div>

@@ -45,7 +45,6 @@ export const systemResolvers = {
         const setting = await prisma.systemSetting.updateMany({
           data: { theme: args.theme },
         });
-        console.log("🚀 ~ setting:", setting);
         await redis.del("theme");
         return await prisma.systemSetting.findFirst();
       } catch (error: any) {

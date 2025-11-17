@@ -130,7 +130,7 @@ export function ImageGallery({
             `}
           >
             {/* Image */}
-            <div className="aspect-square bg-gray-100">
+            <div className="aspect-square bg-background ">
               <img
                 src={image || "/placeholder.svg"}
                 alt={`Product image ${index + 1}`}
@@ -162,7 +162,7 @@ export function ImageGallery({
                   type="button"
                   size="sm"
                   variant="outline"
-                  className="bg-background text-gray-900 hover:bg-gray-100"
+                  className="bg-background text-gray-900 hover:bg-background "
                   onClick={() => setSelectedImage(image)}
                 >
                   <Eye className="w-4 h-4" />
@@ -174,7 +174,7 @@ export function ImageGallery({
                     type="button"
                     size="sm"
                     variant="outline"
-                    className="bg-background text-gray-900 hover:bg-gray-100"
+                    className="bg-background text-gray-900 hover:bg-background "
                     onClick={() => setFeatured(index)}
                   >
                     <Star className="w-4 h-4" />
@@ -186,7 +186,7 @@ export function ImageGallery({
                   type="button"
                   size="sm"
                   variant="outline"
-                  className="bg-background text-gray-900 hover:bg-gray-100"
+                  className="bg-background text-gray-900 hover:bg-background "
                   onClick={() => downloadImage(image, index)}
                 >
                   <Download className="w-4 h-4" />
@@ -236,7 +236,7 @@ export function ImageGallery({
       )}
 
       {/* Gallery Info */}
-      <div className="flex items-center justify-between text-sm text-foreground  bg-gray-50 rounded-lg p-3">
+      <div className="flex items-center justify-between text-sm text-foreground  bg-background rounded-lg p-3">
         <div className="flex items-center space-x-4">
           <span>
             {images.length} image{images.length !== 1 ? "s" : ""} uploaded

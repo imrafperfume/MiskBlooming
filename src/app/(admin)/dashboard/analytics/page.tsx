@@ -186,7 +186,7 @@ export default function AnalyticsPage() {
               </Button>
             </div>
           </div>
-          <div className="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
+          <div className="h-64 flex items-center justify-center bg-background rounded-lg">
             <div className="text-center">
               <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-2" />
               <p className="text-foreground ">Revenue chart visualization</p>
@@ -264,7 +264,10 @@ export default function AnalyticsPage() {
           </h2>
           <div className="space-y-4">
             {customerSegments.map((segment, index) => (
-              <div key={segment.segment} className="p-4 rounded-xl bg-gray-50">
+              <div
+                key={segment.segment}
+                className="p-4 rounded-xl bg-background"
+              >
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-medium text-foreground ">
                     {segment.segment}
@@ -304,7 +307,7 @@ export default function AnalyticsPage() {
             {monthlyData.map((month, index) => (
               <div
                 key={month.month}
-                className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50"
+                className="flex items-center justify-between p-3 rounded-lg hover:bg-background"
               >
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">

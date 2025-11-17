@@ -64,7 +64,7 @@ export default function CheckoutPage() {
   if (isProcessing) {
     window.scrollTo(0, 0);
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cream-50 to-cream-100">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-luxury-500 mx-auto mb-4"></div>
           <h2 className="text-xl font-cormorant font-bold text-foreground  mb-2">
@@ -81,17 +81,17 @@ export default function CheckoutPage() {
   if (items.length === 0) return <EmptyCart />;
 
   return (
-    <div className="min-h-screen sm:mt-14 mt-20 bg-gradient-to-br from-cream-50 to-cream-100">
+    <div className="min-h-screen sm:mt-14 mt-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
         {/* Header & Progress */}
         <CheckoutHeader />
         <CheckoutProgress currentStep={currentStep} />
 
         {/* Guest Checkout Notice */}
-        <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+        <div className="mb-6 p-4 bg-primary-foreground border border-border rounded-lg">
           <div className="flex items-center">
             <svg
-              className="h-5 w-5 text-green-400 flex-shrink-0"
+              className="h-5 w-5 text-primary flex-shrink-0"
               viewBox="0 0 20 20"
               fill="currentColor"
             >
@@ -102,10 +102,10 @@ export default function CheckoutPage() {
               />
             </svg>
             <div className="ml-3">
-              <h3 className="text-sm font-medium text-green-800">
+              <h3 className="text-sm font-medium text-primary">
                 Quick Checkout - No Account Required
               </h3>
-              <div className="mt-2 text-sm text-green-700">
+              <div className="mt-2 text-sm text-primary">
                 <p>
                   You can complete your purchase without creating an account.
                   You'll receive order updates via email and can track your

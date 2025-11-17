@@ -117,7 +117,7 @@ export default function ReviewsTab({
                   <span className="font-semibold text-foreground ">
                     {averageRating.toFixed(1)}
                   </span>
-                  <span className="text-muted-foreground ml-1">
+                  <span className="text-primary ml-1">
                     ({reviews.length || 0} reviews)
                   </span>
                 </div>
@@ -134,9 +134,9 @@ export default function ReviewsTab({
                       {star}
                     </span>
                     <Star className="w-4 h-4 text-primary  fill-current mr-2" />
-                    <div className="flex-1 bg-cream-200 rounded-full h-2 mr-3">
+                    <div className="flex-1 bg-foreground rounded-full h-2 mr-3">
                       <div
-                        className="bg-foreground 0 h-2 rounded-full"
+                        className="bg-primary 0 h-2 rounded-full"
                         style={{ width: `${percentage}%` }}
                       ></div>
                     </div>

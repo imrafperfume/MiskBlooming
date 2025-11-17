@@ -115,7 +115,7 @@ function TrackOrderPage(): JSX.Element {
       case "cancelled":
         return "bg-red-100 text-red-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-background  text-gray-800";
     }
   };
 
@@ -139,7 +139,7 @@ function TrackOrderPage(): JSX.Element {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100 py-12">
+    <div className="min-h-screen bg-background py-12">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-8">
@@ -326,7 +326,7 @@ function TrackOrderPage(): JSX.Element {
                       <h4 className="font-medium text-gray-900 mb-2">
                         Special Instructions
                       </h4>
-                      <p className="text-sm text-foreground  bg-gray-50 p-3 rounded-lg">
+                      <p className="text-sm text-foreground  bg-background p-3 rounded-lg">
                         {orderDetails.specialInstructions}
                       </p>
                     </div>

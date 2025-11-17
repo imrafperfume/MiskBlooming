@@ -282,7 +282,7 @@ export function FileUpload({
         <div className="space-y-4">
           <div
             className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center ${
-              isDragOver ? "bg-luxury-100" : "bg-gray-100"
+              isDragOver ? "bg-luxury-100" : "bg-background "
             }`}
           >
             {isUploading ? (
@@ -340,7 +340,7 @@ export function FileUpload({
             >
               <div className="flex items-center space-x-4">
                 {/* Preview */}
-                <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                <div className="w-16 h-16 rounded-lg overflow-hidden bg-background  flex-shrink-0">
                   <img
                     src={file.preview || "/placeholder.svg"}
                     alt={file.file.name}

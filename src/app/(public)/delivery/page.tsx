@@ -21,7 +21,7 @@ export default function MiskBloomingShipping({ lastUpdated = "Oct 10, 2025" }) {
       </header>
 
       <div className="space-y-6">
-        <article className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+        <article className="bg-background p-4 rounded-lg border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
             1. Same-Day Delivery
           </h2>
@@ -77,7 +77,7 @@ export default function MiskBloomingShipping({ lastUpdated = "Oct 10, 2025" }) {
                     Free delivery on orders AED 200+
                   </td>
                 </tr>
-                <tr className="border-t bg-gray-50">
+                <tr className="border-t bg-background">
                   <td className="px-3 py-2">Dubai & Sharjah</td>
                   <td className="px-3 py-2">AED 35</td>
                   <td className="px-3 py-2">
@@ -101,7 +101,7 @@ export default function MiskBloomingShipping({ lastUpdated = "Oct 10, 2025" }) {
           </p>
         </article>
 
-        <article className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+        <article className="bg-background p-4 rounded-lg border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
             3. Delivery Timeframes
           </h2>
@@ -161,7 +161,7 @@ export default function MiskBloomingShipping({ lastUpdated = "Oct 10, 2025" }) {
           </ul>
         </article>
 
-        <article className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+        <article className="bg-background p-4 rounded-lg border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
             5. Order Accuracy & Delivery Instructions
           </h2>
@@ -198,7 +198,7 @@ export default function MiskBloomingShipping({ lastUpdated = "Oct 10, 2025" }) {
           </ul>
         </article>
 
-        <article className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+        <article className="bg-background p-4 rounded-lg border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
             7. Order Tracking & Notifications
           </h2>

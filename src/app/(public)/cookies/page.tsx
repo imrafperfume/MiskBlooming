@@ -33,7 +33,7 @@ export default function CookiePolicy({
       </header>
 
       <div className="space-y-6">
-        <article className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+        <article className="bg-background p-4 rounded-lg border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
             1. About Misk Blooming UAE
           </h2>
@@ -91,7 +91,7 @@ export default function CookiePolicy({
           </p>
         </article>
 
-        <article className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+        <article className="bg-background p-4 rounded-lg border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
             3. Types of Cookies We Use
           </h2>
@@ -150,7 +150,7 @@ export default function CookiePolicy({
           </p>
         </article>
 
-        <article className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+        <article className="bg-background p-4 rounded-lg border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
             5. Why Cookies Matter
           </h2>
@@ -172,7 +172,7 @@ export default function CookiePolicy({
           </p>
         </article>
 
-        <article className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+        <article className="bg-background p-4 rounded-lg border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">7. Contact Us</h2>
           <address className="not-italic mt-2 text-gray-700">
             <p className="font-medium">Misk Blooming UAE</p>

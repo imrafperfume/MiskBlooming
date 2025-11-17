@@ -300,7 +300,7 @@ export function CloudinaryImageGallery({
       )}
 
       {/* Gallery Stats */}
-      <div className="bg-gray-50 rounded-lg p-4">
+      <div className="bg-background rounded-lg p-4">
         <div className="flex items-center justify-between text-sm text-foreground ">
           <div className="flex items-center space-x-4">
             <span>{images.length} images total</span>

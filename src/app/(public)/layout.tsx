@@ -13,7 +13,7 @@ const HeaderLoader = () => (
 );
 
 const FooterLoader = () => (
-  <div className="h-20 bg-gray-50 border-t animate-pulse">
+  <div className="h-20 bg-background border-t animate-pulse">
     <div className="container mx-auto h-full flex items-center justify-center px-4">
       <div className="w-40 h-6 bg-gray-200 rounded-md"></div>
     </div>
@@ -30,7 +30,7 @@ const HeaderFallback: React.FC = () => (
 );
 
 const FooterFallback: React.FC = () => (
-  <footer className="h-20 bg-gray-50 border-t flex items-center px-4">
+  <footer className="h-20 bg-background border-t flex items-center px-4">
     <div className="container mx-auto text-center">
       <span className="text-foreground ">Footer failed to load</span>
     </div>

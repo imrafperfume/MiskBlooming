@@ -3,8 +3,9 @@ import { GET_SYSTEM_SETTING } from "../modules/system/operation";
 
 export function useSystemTheme() {
   const { data, loading } = useQuery(GET_SYSTEM_SETTING);
+  const theme = data?.getSystemSetting.theme;
   return {
-    theme: data?.getSystemSetting.theme || "light",
+    theme: theme,
     loading,
   };
 }

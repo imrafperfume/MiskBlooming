@@ -114,7 +114,7 @@ function PricingTab({ formData, handleInputChange, errors }: TabProps) {
 
       {/* Pricing Summary */}
       {formData.price > 0 && (
-        <div className="bg-foregroundborder border-luxury-200 rounded-lg p-4">
+        <div className="bg-foregroundborder border-border  rounded-lg p-4">
           <h3 className="font-medium text-luxury-900 mb-3">Pricing Summary</h3>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>

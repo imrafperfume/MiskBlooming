@@ -157,7 +157,7 @@ export default function CustomersPage() {
       case "NEW":
         return "bg-green-100 text-green-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-background  text-gray-800";
     }
   };
 
@@ -429,13 +429,13 @@ export default function CustomersPage() {
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="text-center p-3 bg-gray-50 rounded-lg">
+              <div className="text-center p-3 bg-background rounded-lg">
                 <p className="text-lg font-bold text-foreground ">
                   {customer.stats.totalOrders}
                 </p>
                 <p className="text-xs text-foreground ">Total Orders</p>
               </div>
-              <div className="text-center p-3 bg-gray-50 rounded-lg">
+              <div className="text-center p-3 bg-background rounded-lg">
                 <p className="text-lg font-bold text-primary ">
                   AED {customer.stats.totalSpent.toLocaleString()}
                   {/* AED {customer.stats.totalSpent.toLocaleString()} */}

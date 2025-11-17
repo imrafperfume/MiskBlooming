@@ -47,7 +47,7 @@ export default function CartItem({
             className="object-cover"
           />
           {item.product.featured && (
-            <div className="absolute top-1 left-1 bg-foreground 0 text-foreground  text-xs px-2 py-1 rounded-full font-bold">
+            <div className="absolute top-1 left-1 bg-primary text-foreground  text-xs px-2 py-1 rounded-full font-bold">
               Featured
             </div>
           )}
@@ -55,7 +55,7 @@ export default function CartItem({
 
         {/* Product Info */}
         <div className="flex-1 min-w-0">
-          <Link href={`/products/${item.product.id}`}>
+          <Link href={`/products/${item.product.slug}`}>
             <h3 className="font-cormorant text-lg font-semibold text-foreground  hover:text-primary  transition-colors line-clamp-2">
               {item.product.name}
             </h3>
@@ -107,7 +107,7 @@ export default function CartItem({
               onClick={() =>
                 handleUpdateQuantity(item.product.id, item.quantity - 1)
               }
-              className="p-2 hover:bg-cream-100 transition-colors rounded-l-lg"
+              className="p-2 hover:bg-primary transition-colors rounded-l-lg"
               disabled={removingItems.has(item.product.id)}
             >
               <Minus className="w-4 h-4" />
@@ -125,7 +125,7 @@ export default function CartItem({
                   );
                 }
               }}
-              className="p-2 hover:bg-cream-100 transition-colors rounded-r-lg"
+              className="p-2 hover:bg-primary transition-colors rounded-r-lg"
               disabled={removingItems.has(item.product.id)}
             >
               <Plus className="w-4 h-4" />

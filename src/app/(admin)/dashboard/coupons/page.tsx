@@ -99,7 +99,7 @@ export default function CouponsPage() {
 
     if (!coupon.isActive) {
       return (
-        <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+        <span className="px-2 py-1 text-xs font-medium bg-background  text-gray-800 rounded-full">
           Inactive
         </span>
       );

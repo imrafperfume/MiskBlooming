@@ -76,7 +76,7 @@ export default function CalendarPage() {
       case "training":
         return "bg-orange-100 text-orange-800 border-orange-200";
       default:
-        return "bg-gray-100 text-gray-800 border-border ";
+        return "bg-background  text-gray-800 border-border ";
     }
   };
 
@@ -169,7 +169,7 @@ export default function CalendarPage() {
             </div>
 
             {/* Calendar Grid */}
-            <div className="h-96 flex items-center justify-center bg-gray-50 rounded-lg">
+            <div className="h-96 flex items-center justify-center bg-background rounded-lg">
               <div className="text-center">
                 <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -271,7 +271,7 @@ export default function CalendarPage() {
           {events.map((event, index) => (
             <motion.div
               key={event.id}
-              className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors"
+              className="flex items-center justify-between p-4 rounded-xl hover:bg-background transition-colors"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.1 }}

@@ -46,7 +46,7 @@ export default function WishlistPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen mt-14 bg-gradient-to-br from-cream-50 to-cream-100">
+      <div className="min-h-screen mt-14 bg-background">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center">
             <motion.div
@@ -75,7 +75,7 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="min-h-screen sm:mt-14 mt-20 bg-gradient-to-br from-cream-50 to-cream-100">
+    <div className="min-h-screen sm:mt-14 mt-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <motion.div
@@ -154,7 +154,7 @@ export default function WishlistPage() {
 
                   {/* Discount Badge */}
                   {product.price && (
-                    <div className="absolute top-4 sm:left-4 left-2 bg-foreground 0 text-foreground  px-3 py-1 rounded-full sm:text-sm text-xs font-bold">
+                    <div className="absolute top-4 sm:left-4 left-2 bg-primary text-foreground  px-3 py-1 rounded-full sm:text-sm text-xs font-bold">
                       Save{" "}
                       {Math.round(
                         ((product.price - (product.compareAtPrice ?? 0)) /
@@ -218,7 +218,7 @@ export default function WishlistPage() {
                         />
                       ))}
                       <span className="text-sm text-muted-foreground ml-2">
-                        ({product.reviewCount || 0})
+                        {/* ({product || 0}) */}
                       </span>
                     </div>
                     <div className="text-xs hidden sm:flex text-primary  font-medium bg-foregroundsm:px-2 px-0 py-1 rounded-full">

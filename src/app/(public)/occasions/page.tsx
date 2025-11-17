@@ -96,7 +96,7 @@ export default function OccasionsPage() {
   }, [occasions, searchQuery, selectedCategory, sortBy]);
 
   return (
-    <div className="min-h-screen mt-10 bg-gradient-to-br from-cream-50 to-cream-100">
+    <div className="min-h-screen mt-10 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <motion.div

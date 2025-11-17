@@ -80,7 +80,7 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen sm:mt-16 mt-20 bg-gradient-to-br from-cream-50 to-cream-100">
+      <div className="min-h-screen sm:mt-16 mt-20 bg-background">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <motion.div
             className="text-center"
@@ -108,7 +108,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen sm:mt-14 mt-20 bg-gradient-to-br from-cream-50 to-cream-100">
+    <div className="min-h-screen sm:mt-14 mt-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <motion.div

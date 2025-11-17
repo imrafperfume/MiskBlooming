@@ -287,7 +287,7 @@ export default function ProductsPage() {
 
         <div className="overflow-x-auto min-h-[450px]">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-background">
               <tr>
                 <th className="sm:px-6 py-4 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Product
@@ -319,7 +319,7 @@ export default function ProductsPage() {
               {filteredProducts.map((product: any, index: any) => (
                 <motion.tr
                   key={product.id}
-                  className="hover:bg-gray-50 transition-colors"
+                  className="hover:bg-background transition-colors"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -434,7 +434,7 @@ export default function ProductsPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                              className="block w-full text-left px-4 py-2 hover:bg-background "
                               onClick={() =>
                                 router.push(
                                   `/dashboard/products/add?slug=${product.slug}`
@@ -446,7 +446,7 @@ export default function ProductsPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
+                              className="block w-full text-left px-4 py-2 hover:bg-background  text-red-600"
                               onClick={() =>
                                 product && handleDeleteProduct(product?.slug)
                               }
@@ -456,7 +456,7 @@ export default function ProductsPage() {
                             {/* <Button
                               variant="ghost"
                               size="sm"
-                              className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                              className="block w-full text-left px-4 py-2 hover:bg-background "
                               onClick={() => alert("Duplicate clicked")}
                             >
                               Duplicate

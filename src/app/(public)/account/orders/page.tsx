@@ -191,7 +191,7 @@ const statusColors = {
   out_for_delivery: "bg-blue-100 text-blue-800",
   PROCESSING: "bg-yellow-100 text-yellow-800",
   CANCELLED: "bg-red-100 text-red-800",
-  PENDING: "bg-gray-100 text-gray-800",
+  PENDING: "bg-background  text-gray-800",
 };
 
 const statusIcons = {
@@ -238,7 +238,7 @@ export default function OrdersPage() {
   // const selectedOrderData = orders.find((order) => order.id === selectedOrder);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100 pt-32 pb-16">
+    <div className="min-h-screen bg-background pt-32 pb-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -489,7 +489,7 @@ export default function OrdersPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="bg-foregroundtext-primary border-luxury-200 hover:bg-luxury-100"
+                            className="bg-foregroundtext-primary border-border  hover:bg-luxury-100"
                           >
                             Reorder
                           </Button>

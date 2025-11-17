@@ -71,7 +71,7 @@ export default function SettingsLayout({
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className=" p-6">
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center border-border   border-b pb-4 justify-between gap-4 mb-6">
@@ -97,8 +97,8 @@ export default function SettingsLayout({
                 href={tab.href}
                 className={`flex items-center gap-4 w-full px-3 py-2 rounded-lg transition-colors ${
                   pathname === tab.href
-                    ? "bg-foregroundtext-luxury-700 border border-luxury-200"
-                    : "text-foreground  hover:text-gray-900 hover:bg-gray-50"
+                    ? "bg-foregroundtext-luxury-700 border border-border "
+                    : "text-foreground  hover:text-gray-900 hover:bg-background"
                 }`}
               >
                 <tab.icon className="w-5 h-5" />

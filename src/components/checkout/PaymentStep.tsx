@@ -87,8 +87,8 @@ PaymentStepProps) {
                   key={method.id}
                   className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
                     paymentMethod === method.id
-                      ? "border-luxury-500 bg-foreground "
-                      : "border-border  hover:bg-cream-50 hover:border-luxury-300"
+                      ? "border-border bg-primary "
+                      : "border-border  hover:bg-primary hover:border-border"
                   }`}
                 >
                   <input
@@ -98,7 +98,7 @@ PaymentStepProps) {
                     className="mr-3 text-primary  focus:ring-luxury-500"
                     onChange={() => setValue("paymentMethod", method.id as any)}
                   />
-                  <method.icon className="w-6 h-6 text-charcoal-700 mr-3" />
+                  <method.icon className="w-6 h-6 text-foreground mr-3" />
                   <div className="flex-1">
                     <div className="flex items-center">
                       <span className="font-medium text-foreground  text-xs sm:text-base">
@@ -115,7 +115,7 @@ PaymentStepProps) {
                         </span>
                       )}
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-sm text-foreground">
                       {method.description}
                     </div>
                   </div>
@@ -131,14 +131,12 @@ PaymentStepProps) {
 
         {/* Payment Method Info */}
         {paymentMethod === "COD" && (
-          <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+          <div className="p-4 bg-primary-foreground border border-amber-200 rounded-xl">
             <div className="flex items-center mb-2">
-              <Banknote className="w-5 h-5 text-amber-600 mr-2" />
-              <span className="font-medium text-amber-800">
-                Cash on Delivery
-              </span>
+              <Banknote className="w-5 h-5 text-primary mr-2" />
+              <span className="font-medium text-primary">Cash on Delivery</span>
             </div>
-            <p className="text-sm text-amber-700">
+            <p className="text-sm text-primary">
               Pay with cash when your flowers are delivered. A service fee of
               AED 10 applies. Please have the exact amount ready for our
               delivery partner.
@@ -147,12 +145,12 @@ PaymentStepProps) {
         )}
 
         {paymentMethod === "STRIPE" && (
-          <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl">
+          <div className="p-4 bg-primary-foreground border border-border rounded-xl">
             <div className="flex items-center mb-2">
-              <Wallet className="w-5 h-5 text-blue-600 mr-2" />
-              <span className="font-medium text-blue-800">Digital Wallet</span>
+              <Wallet className="w-5 h-5 text-primary mr-2" />
+              <span className="font-medium text-primary">Digital Wallet</span>
             </div>
-            <p className="text-sm text-blue-700">
+            <p className="text-sm text-primary">
               You'll be redirected to complete payment with your preferred
               digital wallet. Secure and convenient payment in one tap.
             </p>
@@ -160,7 +158,7 @@ PaymentStepProps) {
         )}
 
         {/* Security Features */}
-        <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+        <div className="bg-primary-foreground border border-border rounded-xl p-4">
           <div className="flex items-center mb-2">
             <Shield className="w-5 h-5 text-green-600 mr-2" />
             <span className="font-medium text-green-800">Secure Payment</span>

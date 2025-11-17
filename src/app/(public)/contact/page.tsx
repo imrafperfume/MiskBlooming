@@ -106,7 +106,7 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <section className="py-24 bg-gradient-to-r from-luxury-500 to-primary text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -294,7 +294,7 @@ export default function ContactPage() {
             </div>
 
             {/* Emergency Contact */}
-            <div className="bg-foregroundrounded-2xl p-6 border border-luxury-200">
+            <div className="bg-foregroundrounded-2xl p-6 border border-border ">
               <h3 className="font-cormorant text-xl font-bold text-foreground  mb-3">
                 Need Urgent Help?
               </h3>

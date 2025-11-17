@@ -232,7 +232,7 @@ const ProductCard = memo(
         </div>
 
         {/* Luxury Border Effect */}
-        <div className="absolute inset-0 rounded-md border-2 border-transparent group-hover:border-luxury-200 transition-all duration-500 pointer-events-none" />
+        <div className="absolute inset-0 rounded-md border-2 border-transparent group-hover:border-border  transition-all duration-500 pointer-events-none" />
       </motion.div>
     );
   }

@@ -778,8 +778,8 @@ export default function AddProductPage() {
                       onClick={() => setActiveTab(tab.id)}
                       className={`w-full flex items-center justify-between space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
                         activeTab === tab.id
-                          ? "bg-foregroundtext-primary border border-luxury-200"
-                          : "text-foreground  hover:bg-gray-50"
+                          ? "bg-foregroundtext-primary border border-border "
+                          : "text-foreground  hover:bg-background"
                       }`}
                     >
                       <div className="flex items-center space-x-3">
