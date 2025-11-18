@@ -158,7 +158,7 @@ export default function SlideFormDialog({ slide, onSaved }: SlideFormProps) {
               />
               <button
                 type="button"
-                className="text-red-600"
+                className="text-destructive"
                 onClick={() => removeButton(i)}
               >
                 X

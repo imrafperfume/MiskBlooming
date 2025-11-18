@@ -15,7 +15,7 @@ const TestimonialSection = () => {
   if (loading) return <Loading />;
 
   return (
-    <section className="py-24 bg-gradient-to-br from-charcoal-900 to-charcoal-800 relative overflow-hidden">
+    <section className="py-24 bg-backgroundfrom-charcoal-900 to-charcoal-800 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-[url('/placeholder.svg?height=100&width=100&text=Pattern')] bg-repeat"></div>

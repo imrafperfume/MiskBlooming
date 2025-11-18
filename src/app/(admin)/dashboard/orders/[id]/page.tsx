@@ -176,7 +176,7 @@ export default function OrderDetails() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-backgroundfrom-slate-50 to-gray-100 flex items-center justify-center">
         <div className="max-w-md bg-background rounded-xl shadow-xl border-0 sm:p-8 text-center">
           <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
@@ -218,7 +218,7 @@ export default function OrderDetails() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
+    <div className="min-h-screen bg-backgroundfrom-slate-50 to-gray-100">
       <div className="max-w-7xl mx-auto sm:p-6 space-y-8">
         <div className="bg-background rounded-xl border-0 overflow-hidden">
           <div className="bg-gradient-to-r from-primary via-luxury-500 to-luxury-400 sm:p-8 p-4 text-white">

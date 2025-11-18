@@ -385,7 +385,7 @@ export default function ReviewsPage() {
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-luxury-400 to-primary rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-backgroundfrom-luxury-400 to-primary rounded-full flex items-center justify-center">
                   <span className="text-white font-medium">
                     {review.customer.avatar}
                   </span>

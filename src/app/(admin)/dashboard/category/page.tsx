@@ -213,7 +213,7 @@ export default function CategoryPage() {
   };
   console.log(catImage);
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-gray-50 to-luxury-50 gap-6">
+    <div className="flex flex-col md:flex-row min-h-screen bg-background  gap-6">
       {/* Sidebar */}
       <aside className="md:w-[400px] w-full bg-background/90 backdrop-blur-md sm:shadow rounded-2xl sm:p-6 flex flex-col gap-6">
         <h1 className="text-2xl font-bold text-primary ">Categories</h1>

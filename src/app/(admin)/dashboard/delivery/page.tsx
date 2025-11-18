@@ -403,7 +403,7 @@ export default function DeliveryPage() {
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-luxury-400 to-primary rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-backgroundfrom-luxury-400 to-primary rounded-full flex items-center justify-center">
                   <Truck className="w-5 h-5 text-white" />
                 </div>
                 <div>

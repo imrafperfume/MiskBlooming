@@ -11,7 +11,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-backgroundfrom-red-50 via-white to-red-100 flex items-center justify-center px-4">
       <div className="max-w-2xl mx-auto text-center">
         <div className="mb-8">
           <div className="inline-flex items-center justify-center w-24 h-24 bg-red-100 rounded-full mb-6">

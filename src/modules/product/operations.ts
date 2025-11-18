@@ -154,8 +154,11 @@ export const GET_PRODUCTS = gql`
   query GetProducts {
     products {
       id
-      slug
-      images
+      name
+      price
+      images {
+        url
+      }
       updatedAt
     }
   }

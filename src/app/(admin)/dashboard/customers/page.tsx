@@ -385,7 +385,7 @@ export default function CustomersPage() {
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-luxury-400 to-primary rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-backgroundfrom-luxury-400 to-primary rounded-full flex items-center justify-center">
                   <span className="text-white font-medium">
                     {(customer?.firstName?.[0] || "M") +
                       (customer?.lastName?.[0] || "B")}

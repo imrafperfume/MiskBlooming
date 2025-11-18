@@ -26,7 +26,6 @@ import {
   CreditCard,
   Tag,
   Calendar,
-  HelpCircle,
   Ticket,
   List,
   Store,
@@ -196,14 +195,13 @@ export default function AdminLayout({
             {/* Logo */}
             <div className="flex items-center justify-between h-16 px-6 border-b border-border  bg-background">
               <Link href="/dashboard" className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-background rounded-lg flex items-center justify-center">
-                  <span className="foreground font-bold text-sm">MB</span>
-                </div>
                 <div>
-                  <div className="text-lg font-cormorant font-bold text-foreground ">
-                    Misk<span className="text-primary ">Blooming</span>
-                  </div>
-                  <div className="text-xs text-foreground ">Admin Panel</div>
+                  <p className="font-semibold text-primary font-cormorant text-2xl">
+                    MiskBlooming
+                  </p>
+                  <span className="text-muted-foreground text-sm">
+                    Admin Panel
+                  </span>
                 </div>
               </Link>
               <button
