@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import * as Switch from "@radix-ui/react-switch";
 import Loading from "@/src/components/layout/Loading";
 import { useMutation, useQuery } from "@apollo/client";
@@ -9,103 +9,143 @@ import {
   UPDATE_PAYMENT_SETTINGS,
 } from "@/src/modules/payment/operation";
 import { toast } from "sonner";
-
-// AdminToggles — Radix UI Switch + Tailwind
-// - Install: npm i @radix-ui/react-switch
-// - Tailwind required for styles (classes used below)
+import {
+  CreditCard,
+  Wallet,
+  Settings2,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 
 export default function AdminToggles() {
   const { data: paymentsData, error, loading } = useQuery(GET_PAYMENT_SETTINGS);
   const payments = paymentsData?.getPaymentSettings;
 
-  const [
-    updatePaymentSettings,
-    { data, loading: updateLoading, error: updateError },
-  ] = useMutation(UPDATE_PAYMENT_SETTINGS, {
-    refetchQueries: [{ query: GET_PAYMENT_SETTINGS }],
-  });
-  console.log("🚀 ~ AdminToggles ~ data:", data);
-
-  async function updateSetting(key: any, value: any) {
-    try {
-      updatePaymentSettings({
-        variables: {
-          stripeEnabled:
-            key === "stripeEnabled" ? value : payments.stripeEnabled,
-          codEnabled: key === "codEnabled" ? value : payments.codEnabled,
-        },
-      });
-      toast.success("Payment settings updated.");
-    } catch (error) {
-      toast.error("Failed to update payment settings.");
+  const [updatePaymentSettings, { loading: updateLoading }] = useMutation(
+    UPDATE_PAYMENT_SETTINGS,
+    {
+      refetchQueries: [{ query: GET_PAYMENT_SETTINGS }],
+      onError: (err) => {
+        toast.error(err.message || "Failed to update settings");
+      },
+      onCompleted: () => {
+        toast.success("Payment settings updated successfully");
+      },
     }
+  );
+
+  async function updateSetting(
+    key: "stripeEnabled" | "codEnabled",
+    value: boolean
+  ) {
+    // Optimistic UI update could be added here,
+    // but we rely on the mutation callback for now
+    updatePaymentSettings({
+      variables: {
+        stripeEnabled:
+          key === "stripeEnabled" ? value : payments?.stripeEnabled,
+        codEnabled: key === "codEnabled" ? value : payments?.codEnabled,
+      },
+    });
   }
 
-  if (loading) {
-    return <Loading />;
+  if (loading) return <Loading />;
+  if (error) {
+    return (
+      <div className="p-4 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
+        <AlertCircle size={16} />
+        {error.message}
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-md p-6 bg-background rounded-2xl shadow-md">
-      <h2 className="text-xl font-semibold mb-4">Payment Setting</h2>
+    <div className="w-full max-w-2xl mx-auto">
+      {/* Header Section */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+          <Settings2 className="w-6 h-6 text-primary" />
+          Payment Configuration
+        </h2>
+        <p className="text-muted-foreground mt-1">
+          Manage accepted payment methods for your checkout process.
+        </p>
+      </div>
 
-      {error && (
-        <div className="mb-4 text-sm text-red-600">{error.message}</div>
-      )}
+      {/* Main Card */}
+      <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+        {/* Stripe Setting */}
+        <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:bg-muted/20">
+          <div className="flex gap-4">
+            <div className="p-2.5 bg-blue-50 text-blue-600 rounded-lg h-fit border border-blue-100">
+              <CreditCard size={24} />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-medium text-foreground">
+                Stripe Payments
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
+                Allow customers to pay securely using credit/debit cards via
+                Stripe.
+              </p>
+            </div>
+          </div>
 
-      <div className="flex items-center justify-between py-3">
-        <div>
-          <div className="text-sm font-medium">Stripe Enabled</div>
-          <div className="text-xs text-foreground ">
-            Enable Stripe payment gateway.
+          <div className="flex items-center gap-3">
+            {updateLoading && (
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+            )}
+            <Switch.Root
+              className="w-11 h-6 bg-input rounded-full relative shadow-inner focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[state=checked]:bg-primary transition-colors duration-200 cursor-pointer"
+              checked={payments?.stripeEnabled}
+              onCheckedChange={(val) => updateSetting("stripeEnabled", val)}
+              disabled={updateLoading}
+            >
+              <Switch.Thumb className="block w-5 h-5 bg-background rounded-full shadow-md transition-transform duration-200 translate-x-0.5 will-change-transform data-[state=checked]:translate-x-[22px]" />
+            </Switch.Root>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <Switch.Root
-            className={`w-11 h-6 rounded-full relative focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-luxury-500 transition-all ${
-              payments.stripeEnabled ? "bg-luxury-600" : "bg-gray-400"
-            }`}
-            checked={payments.stripeEnabled}
-            onCheckedChange={(val) => updateSetting("stripeEnabled", val)}
-            aria-label="Toggle Stripe"
-          >
-            <span
-              className={`block w-5 h-5 bg-background rounded-full shadow transform transition-transform absolute top-0.5 left-0.5 ${
-                payments.stripeEnabled ? "translate-x-5" : "translate-x-0"
-              }`}
-            />
-          </Switch.Root>
-        </div>
-      </div>
+        {/* Divider */}
+        <div className="h-[1px] w-full bg-border mx-auto" />
 
-      <div className="border-t my-3" />
+        {/* COD Setting */}
+        <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:bg-muted/20">
+          <div className="flex gap-4">
+            <div className="p-2.5 bg-green-50 text-green-600 rounded-lg h-fit border border-green-100">
+              <Wallet size={24} />
+            </div>
+            <div className="space-y-1">
+              <h3 className="text-base font-medium text-foreground">
+                Cash on Delivery (COD)
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed max-w-sm">
+                Enable customers to pay with cash upon receiving their order.
+              </p>
+            </div>
+          </div>
 
-      <div className="flex items-center justify-between py-3">
-        <div>
-          <div className="text-sm font-medium">COD Enabled</div>
-          <div className="text-xs text-foreground ">
-            Cash on Delivery option for orders.
+          <div className="flex items-center gap-3">
+            {updateLoading && (
+              <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+            )}
+            <Switch.Root
+              className="w-11 h-6 bg-input rounded-full relative shadow-inner focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[state=checked]:bg-primary transition-colors duration-200 cursor-pointer"
+              checked={payments?.codEnabled}
+              onCheckedChange={(val) => updateSetting("codEnabled", val)}
+              disabled={updateLoading}
+            >
+              <Switch.Thumb className="block w-5 h-5 bg-background rounded-full shadow-md transition-transform duration-200 translate-x-0.5 will-change-transform data-[state=checked]:translate-x-[22px]" />
+            </Switch.Root>
           </div>
         </div>
-
-        <div className="flex items-center gap-3">
-          <Switch.Root
-            className={`w-11 h-6 rounded-full relative focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-luxury-500 transition-all ${
-              payments.codEnabled ? "bg-luxury-600" : "bg-gray-400"
-            }`}
-            checked={payments.codEnabled}
-            onCheckedChange={(val) => updateSetting("codEnabled", val)}
-            aria-label="Toggle COD"
-          >
-            <span
-              className={`block w-5 h-5 bg-background rounded-full shadow transform transition-transform absolute top-0.5 left-0.5 ${
-                payments.codEnabled ? "translate-x-5" : "translate-x-0"
-              }`}
-            />
-          </Switch.Root>
-        </div>
       </div>
+
+      {/* Footer / Helper Text */}
+      <p className="text-xs text-muted-foreground mt-4 text-center px-4">
+        Changes are saved immediately. Ensure your API keys are configured in
+        environment variables before enabling gateways.
+      </p>
     </div>
   );
 }

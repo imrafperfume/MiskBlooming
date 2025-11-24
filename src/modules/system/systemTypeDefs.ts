@@ -4,6 +4,7 @@ export const SystemTypeDefs = gql`
   type SystemSetting {
     id: ID!
     theme: String!
+    layoutStyle: String!
     updatedAt: String!
   }
 

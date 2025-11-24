@@ -2,7 +2,7 @@
 
 import Loading from "@/src/components/layout/Loading";
 import { GET_PRODUCTS } from "@/src/modules/product/operations";
-import { useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { useEffect, useState, useRef, useMemo } from "react";
 import {
   Search,
@@ -14,8 +14,11 @@ import {
   Receipt,
   ShoppingBag,
   X,
+  Gift,
 } from "lucide-react";
 import Image from "next/image";
+import { toast } from "sonner";
+import { CREATE_SALE } from "@/src/modules/sales/oprations";
 
 // --- Types ---
 type Product = {
@@ -49,9 +52,13 @@ export default function POSPage() {
   const [paidAmount, setPaidAmount] = useState<string>("");
   const [discountPercent, setDiscountPercent] = useState<number>(0);
 
+  // --- NEW STATE: Gift Card ---
+  const [isGift, setIsGift] = useState<boolean>(false);
+
   // Data Fetching
   const { data, loading } = useQuery(GET_PRODUCTS);
   const products: Product[] = data?.products || [];
+  const [createSale, { loading: creatingSale }] = useMutation(CREATE_SALE);
 
   // --- Effects ---
 
@@ -147,14 +154,35 @@ export default function POSPage() {
       vat: taxAmount,
       grandTotal,
       paidAmount: Number(paidAmount),
+      // Include Gift Data
+      isGift,
     };
 
     console.log("Processing Order:", payload);
     // Mutation logic here...
-    alert("Order processed successfully (See Console)");
+    await createSale({
+      variables: {
+        subtotal: subTotal,
+        grandTotal,
+        vat: taxAmount,
+        discount: discountAmount,
+        paymentMethod: paymentMethod === "cash" ? "CASH" : "ONLINE",
+        giftCard: isGift,
+        CashRecived: paymentMethod === "cash" ? Number(paidAmount) : null,
+        items: cart.map((i) => ({
+          productId: i.id,
+          quantity: i.qty,
+        })),
+      },
+    });
+    if (!creatingSale) {
+      toast.success("Order processed successfully ");
+    }
     setCart([]);
     setPaidAmount("");
     setDiscountPercent(0);
+    // Reset Gift state
+    setIsGift(false);
   };
 
   if (loading) {
@@ -386,6 +414,36 @@ export default function POSPage() {
               </span>
             </div>
           </div>
+
+          {/* --- START ADDED CODE: Gift Card Check Input --- */}
+          <div className="border-t border-border pt-3">
+            <div className="flex items-center gap-2 mb-2">
+              <input
+                type="checkbox"
+                id="gift-card-toggle"
+                checked={isGift}
+                onChange={(e) => setIsGift(e.target.checked)}
+                className="w-4 h-4 accent-primary cursor-pointer rounded focus:ring-primary"
+              />
+              <label
+                htmlFor="gift-card-toggle"
+                className="text-sm font-medium text-foreground cursor-pointer select-none flex items-center gap-1"
+              >
+                <Gift size={16} /> Gift Card
+              </label>
+            </div>
+
+            {/* {isGift && (
+              <input
+                type="text"
+                value={giftCardCode}
+                onChange={(e) => setGiftCardCode(e.target.value)}
+                placeholder="Enter Gift Card Code or Note..."
+                className="w-full text-sm bg-background px-3 py-2 rounded-lg border border-border focus:ring-2 focus:ring-ring outline-none text-foreground transition-all"
+              />
+            )} */}
+          </div>
+          {/* --- END ADDED CODE --- */}
 
           {/* Payment Method Toggles */}
           <div className="grid grid-cols-2 gap-2">

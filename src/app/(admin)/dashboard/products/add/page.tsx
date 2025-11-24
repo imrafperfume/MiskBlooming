@@ -17,6 +17,7 @@ import {
   Sparkles,
   ImageIcon,
   Cloud,
+  Layers,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import type { getResponsiveImageUrls } from "../../../../../lib/cloudinary";
@@ -36,11 +37,25 @@ import FeaturesTab from "@/src/components/dashboard/tabs/addProductTabs/Features
 import { toast } from "sonner";
 import { useCategories } from "@/src/hooks/useCategories";
 import { Category } from "@/src/types";
+import VariantsTab from "@/src/components/product/VariantsTab";
 interface CloudinaryImage {
   url: string;
   publicId: string;
 }
+export interface VariantOption {
+  id: string;
+  name: string; // e.g., "Size", "Color"
+  values: string[]; // e.g., ["S", "M", "L"]
+}
 
+export interface ProductVariant {
+  id: string;
+  title: string; // e.g., "S / Red"
+  sku: string;
+  price: number;
+  stock: number;
+  options: Record<string, string>; // { "Size": "S", "Color": "Red" }
+}
 export interface ProductFormData {
   // Basic Information
   name: string;
@@ -95,6 +110,9 @@ export interface ProductFormData {
   personalization: boolean;
   careInstructions: string;
   occasions: string[];
+  hasVariants: boolean;
+  variantOptions: VariantOption[];
+  variants: ProductVariant[];
 }
 
 const initialFormData: ProductFormData = {
@@ -129,6 +147,9 @@ const initialFormData: ProductFormData = {
   personalization: true,
   careInstructions: "",
   occasions: [],
+  hasVariants: false,
+  variantOptions: [],
+  variants: [],
 };
 
 // const categories = [
@@ -520,6 +541,12 @@ export default function AddProductPage() {
       hasError: !!(errors.price || errors.compareAtPrice),
     },
     {
+      id: "variants",
+      label: "Variants",
+      icon: Layers,
+      hasError: false,
+    },
+    {
       id: "inventory",
       label: "Inventory",
       icon: Package,
@@ -851,7 +878,13 @@ export default function AddProductPage() {
                   errors={errors}
                 />
               )}
-
+              {activeTab === "variants" && (
+                <VariantsTab
+                  formData={formData}
+                  handleInputChange={handleInputChange}
+                  errors={errors}
+                />
+              )}
               {/* Inventory Tab */}
               {activeTab === "inventory" && (
                 <InventoryTab

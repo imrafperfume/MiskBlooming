@@ -1,7 +1,10 @@
-import 'server-only';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 
-type GlobalWithPrisma = typeof globalThis & { prisma?: PrismaClient };
+import { PrismaNeon } from "@prisma/adapter-neon";
+import dotenv from "dotenv";
 
-const g = globalThis as GlobalWithPrisma;
-export const prisma = g.prisma ?? (g.prisma = new PrismaClient());
+dotenv.config();
+const connectionString = `${process.env.DATABASE_URL}`;
+
+const adapter = new PrismaNeon({ connectionString });
+export const prisma = new PrismaClient({ adapter });
