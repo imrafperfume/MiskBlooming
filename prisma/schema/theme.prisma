@@ -1,6 +1,6 @@
 model SystemSetting {
     id          String   @id @default(cuid())
     theme       String   @default("light")
-    layoutStyle String   @default("full") // boxed, full
+    layoutStyle String   @default("fullscreen") // boxed, fullscreen
     updatedAt   DateTime @updatedAt
 }

@@ -8,18 +8,22 @@ import { Button } from "../ui/Button";
 import { motion, AnimatePresence } from "framer-motion";
 import type { HeroSlide } from "../../types";
 import cloudinaryLoader from "@/src/lib/imageLoader";
+import { useQuery } from "@apollo/client";
+import { GET_SYSTEM_SETTING } from "@/src/modules/system/operation";
 
 interface HeroSliderProps {
   layout?: "full" | "boxed";
 }
 
-const HeroSlider = ({ layout = "full" }: HeroSliderProps) => {
+const HeroSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const { data, loading: layoutLoading } = useQuery(GET_SYSTEM_SETTING);
+  console.log("🚀 ~ HeroSlider ~ data:", data);
+  const layout = data?.getSystemSetting.layoutStyle;
   // Sort slides by order
   const slides = useMemo(() => {
     return heroSlides.length > 0
@@ -101,7 +105,7 @@ const HeroSlider = ({ layout = "full" }: HeroSliderProps) => {
   // Layout Logic
   const containerStyles =
     layout === "boxed"
-      ? "relative w-full max-w-[1400px] mx-auto sm:mt-6 sm:h-[80vh] h-[60vh] sm:rounded-4xl   overflow-hidden"
+      ? "relative w-full max-w-[1400px] mx-auto sm:mt-20 sm:h-[60vh] h-[60vh] sm:rounded-3xl    overflow-hidden"
       : "relative w-full sm:h-screen h-[60vh] overflow-hidden";
 
   // Loading Skeleton

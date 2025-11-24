@@ -4,7 +4,7 @@ export const SystemTypeDefs = gql`
   type SystemSetting {
     id: ID!
     theme: String!
-    layoutStyle: String!
+    layoutStyle: String
     updatedAt: String!
   }
 
@@ -13,6 +13,7 @@ export const SystemTypeDefs = gql`
   }
 
   type Mutation {
-    updateSystemTheme(theme: String!): SystemSetting!
+    updateSystemTheme(theme: String!, layoutStyle: String): SystemSetting!
+    updateSystemLayout(layoutStyle: String!): SystemSetting!
   }
 `;

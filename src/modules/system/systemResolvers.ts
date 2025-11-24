@@ -1,30 +1,26 @@
 import { prisma } from "@/src/lib/db";
-import { isAdmin } from "@/src/lib/isAdmin";
+import { isAdmin, validateAdmin } from "@/src/lib/isAdmin";
 import { redis } from "@/src/lib/redis";
 
 export const systemResolvers = {
   Query: {
-    getSystemSetting: async (
-      _parent: any,
-      _args: any,
-      context: { userId: string }
-    ) => {
+    getSystemSetting: async (_parent: any, _args: any) => {
       // const { userId } = context;
       // if (!userId) throw new Error("user ID not found");
       // const role = await isAdmin(userId);
       // if (role.role !== "ADMIN") throw new Error("Not authorized");
       try {
-        const cache = await redis.get("theme");
-        if (cache) {
-          return cache;
-        }
+        // const cache = await redis.get("systemSetting");
+        // if (cache) {
+        //   return cache;
+        // }
         const setting = await prisma.systemSetting.findFirst();
         if (!setting) {
           return await prisma.systemSetting.create({
-            data: { theme: "light" },
+            data: { theme: "light", layoutStyle: "fullscreen" },
           });
         }
-        await redis.set("theme", JSON.stringify(setting));
+        await redis.set("systemSetting", JSON.stringify(setting));
         return setting;
       } catch (error: any) {
         throw new Error(error.message);
@@ -34,7 +30,7 @@ export const systemResolvers = {
   Mutation: {
     updateSystemTheme: async (
       _: any,
-      args: { theme: string },
+      args: { theme: string; layoutStyle?: string },
       context: { userId: string }
     ) => {
       const { userId } = context;
@@ -43,12 +39,32 @@ export const systemResolvers = {
       if (role.role !== "ADMIN") throw new Error("Not authorized");
       try {
         const setting = await prisma.systemSetting.updateMany({
-          data: { theme: args.theme },
+          data: {
+            theme: args.theme,
+          },
         });
-        await redis.del("theme");
+        await redis.del("systemSetting");
         return await prisma.systemSetting.findFirst();
       } catch (error: any) {
         throw new Error(error.message);
+      }
+    },
+    updateSystemLayout: async (
+      _: any,
+      args: { layoutStyle: string },
+      context: { userId: string }
+    ) => {
+      const { userId } = context;
+      await validateAdmin(userId);
+
+      try {
+        const setting = await prisma.systemSetting.updateMany({
+          data: { layoutStyle: args.layoutStyle },
+        });
+        await redis.del("systemSetting");
+        return await prisma.systemSetting.findFirst();
+      } catch (error) {
+        throw new Error((error as Error).message);
       }
     },
   },
