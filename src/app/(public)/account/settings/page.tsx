@@ -203,7 +203,7 @@ export default function SettingsPage() {
                         handleInputChange("firstName", e.target.value)
                       }
                       disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-background"
+                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent disabled:bg-background"
                     />
                   </div>
                 </div>
@@ -219,7 +219,7 @@ export default function SettingsPage() {
                       handleInputChange("lastName", e.target.value)
                     }
                     disabled={!isEditing}
-                    className="w-full px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-background"
+                    className="w-full px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent disabled:bg-background"
                   />
                 </div>
 
@@ -236,7 +236,7 @@ export default function SettingsPage() {
                         handleInputChange("email", e.target.value)
                       }
                       disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-background"
+                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent disabled:bg-background"
                     />
                   </div>
                 </div>
@@ -254,7 +254,7 @@ export default function SettingsPage() {
                         handleInputChange("phone", e.target.value)
                       }
                       disabled={!isEditing}
-                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-background"
+                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent disabled:bg-background"
                     />
                   </div>
                 </div>
@@ -272,7 +272,7 @@ export default function SettingsPage() {
                       }
                       disabled={!isEditing}
                       rows={3}
-                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent disabled:bg-background"
+                      className="w-full pl-10 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent disabled:bg-background"
                     />
                   </div>
                 </div>
@@ -314,7 +314,7 @@ export default function SettingsPage() {
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-foreground 0"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border  after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-foreground 0"></div>
                   </label>
                 </div>
 
@@ -336,7 +336,7 @@ export default function SettingsPage() {
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-foreground 0"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border  after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-foreground 0"></div>
                   </label>
                 </div>
 
@@ -358,7 +358,7 @@ export default function SettingsPage() {
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-foreground 0"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border  after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-foreground 0"></div>
                   </label>
                 </div>
               </div>
@@ -399,7 +399,7 @@ export default function SettingsPage() {
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-foreground 0"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border  after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-foreground 0"></div>
                   </label>
                 </div>
 
@@ -422,7 +422,7 @@ export default function SettingsPage() {
                       }
                       className="sr-only peer"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-foreground 0"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border  after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-foreground 0"></div>
                   </label>
                 </div>
               </div>

@@ -78,6 +78,27 @@ export const salesResolvers = {
         throw new GraphQLError("Failed to fetch sales history");
       }
     },
+    sale: async (_: unknown, args: { id: string }, context: Context) => {
+      await validateAdmin(context.userId);
+
+      try {
+        const sale = await prisma.sales.findUnique({
+          where: { id: args.id },
+          include: {
+            orderItems: {
+              include: {
+                product: {
+                  select: { id: true, name: true, price: true, sku: true },
+                },
+              },
+            },
+          },
+        });
+        return sale;
+      } catch (error) {
+        throw new GraphQLError("Failed to fetch sale details");
+      }
+    },
   },
 
   Mutation: {
@@ -98,10 +119,12 @@ export const salesResolvers = {
         const result = await prisma.$transaction(async (tx) => {
           // A. Fetch current quantity for all items
           const productIds = items.map((i) => i.productId);
+          console.log("🚀 ~ productIds:", productIds);
           const productsInDb = await tx.product.findMany({
             where: { id: { in: productIds } },
             select: { id: true, name: true, price: true, quantity: true },
           });
+          console.log("🚀 ~ productsInDb:", productsInDb);
 
           // B. Server-Side Validation (quantity & Math)
           let calculatedSubtotal = 0;
@@ -162,6 +185,7 @@ export const salesResolvers = {
               })
             )
           );
+          console.log("🚀 ~ newSale:", newSale);
 
           return newSale;
         });

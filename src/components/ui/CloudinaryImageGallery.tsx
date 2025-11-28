@@ -129,7 +129,7 @@ export function CloudinaryImageGallery({
                       className={`relative group bg-background rounded-lg border-2 overflow-hidden transition-all duration-200 ${
                         featuredIndex === index
                           ? "border-yellow-400 shadow-lg"
-                          : "border-border  hover:border-gray-300"
+                          : "border-border  hover:border-border "
                       } ${snapshot.isDragging ? "shadow-xl scale-105" : ""}`}
                     >
                       {/* Drag Handle */}

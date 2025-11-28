@@ -114,7 +114,7 @@ export function ShippingInformationStep({
               {...register("emirate")}
               value={watch("emirate") || ""}
               onChange={(e) => setValue("emirate", e.target.value)}
-              className="w-full px-4 py-3 border border-border  bg-background rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300"
+              className="w-full px-4 py-3 border border-border  bg-background rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300"
             >
               {watch("emirate") && (
                 <option value={watch("emirate")}>{watch("emirate")}</option>
@@ -147,7 +147,7 @@ export function ShippingInformationStep({
                 type="radio"
                 value="STANDARD"
                 {...register("deliveryType")}
-                className="mr-3 text-primary  focus:ring-luxury-500"
+                className="mr-3 text-primary  focus:ring-ring"
               />
               <div className="flex-1">
                 <div className="font-medium text-foreground group-hover:text-foreground">
@@ -165,7 +165,7 @@ export function ShippingInformationStep({
                 type="radio"
                 value="EXPRESS"
                 {...register("deliveryType")}
-                className="mr-3 text-primary  focus:ring-luxury-500"
+                className="mr-3 text-primary  focus:ring-ring"
               />
               <div className="flex-1">
                 <div className="font-medium text-foreground  flex items-center group-hover:text-foreground">
@@ -185,7 +185,7 @@ export function ShippingInformationStep({
                 type="radio"
                 value="SCHEDULED"
                 {...register("deliveryType")}
-                className="mr-3 text-primary  focus:ring-luxury-500"
+                className="mr-3 text-primary  focus:ring-ring"
               />
               <div className="flex-1">
                 <div className="font-medium text-foreground group-hover:text-foreground">
@@ -213,7 +213,7 @@ export function ShippingInformationStep({
               </label>
               <select
                 {...register("deliveryTime")}
-                className="w-full px-4 py-3 border border-border bg-background text-foreground  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                className="w-full px-4 py-3 border border-border bg-background text-foreground  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
               >
                 <option value="">Select Time</option>
                 <option value="morning">Morning (9AM - 12PM)</option>
@@ -231,7 +231,7 @@ export function ShippingInformationStep({
           <textarea
             {...register("specialInstructions")}
             rows={3}
-            className="w-full px-4 py-3 border bg-transparent text-foreground border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300"
+            className="w-full px-4 py-3 border bg-transparent text-foreground border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300"
             placeholder="Special delivery instructions, gift message, or occasion details..."
           />
         </div>

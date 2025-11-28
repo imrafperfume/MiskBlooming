@@ -29,6 +29,7 @@ export default function CartPage() {
     applyCoupon,
     removeCoupon,
   } = useCartStore();
+  console.log("🚀 ~ CartPage ~ items:", items);
 
   const { validateCouponCode, isValidating } = useCoupon();
   const [removingItems, setRemovingItems] = useState<Set<string>>(new Set());
@@ -196,7 +197,7 @@ export default function CartPage() {
                       onChange={(e) =>
                         setCouponCode(e.target.value.toUpperCase())
                       }
-                      className="flex-1 px-4 mr-2 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                      className="flex-1 px-4 mr-2 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                     />
                     <Button
                       className="sm:mt-0 mt-4 hover:bg-black"

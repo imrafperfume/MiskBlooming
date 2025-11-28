@@ -30,7 +30,7 @@ function FeaturesTab({
                 onChange={(e) =>
                   handleInputChange("giftWrapping", e.target.checked)
                 }
-                className="rounded border-gray-300 text-primary focus:ring-luxury-500"
+                className="rounded border-border  text-primary focus:ring-ring"
               />
               <span className="ml-2 text-sm font-medium text-gray-700 flex items-center">
                 <Gift className="w-4 h-4 mr-1" />
@@ -47,7 +47,7 @@ function FeaturesTab({
                 onChange={(e) =>
                   handleInputChange("personalization", e.target.checked)
                 }
-                className="rounded border-gray-300 text-primary focus:ring-luxury-500"
+                className="rounded border-border  text-primary focus:ring-ring"
               />
               <span className="ml-2 text-sm font-medium text-gray-700 flex items-center">
                 <Heart className="w-4 h-4 mr-1" />
@@ -69,7 +69,7 @@ function FeaturesTab({
                   type="checkbox"
                   checked={formData.occasions.includes(occasion)}
                   onChange={() => toggleOccasion && toggleOccasion(occasion)}
-                  className="rounded border-gray-300 text-primary focus:ring-luxury-500"
+                  className="rounded border-border  text-primary focus:ring-ring"
                 />
                 <span className="ml-2 text-sm text-gray-700">{occasion}</span>
               </label>
@@ -113,7 +113,7 @@ function FeaturesTab({
             }
             placeholder="Provide care instructions for the product (e.g., watering schedule for plants, storage instructions for chocolates, etc.)"
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-border  rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
           />
         </div>
       </div>

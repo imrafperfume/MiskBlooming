@@ -159,7 +159,7 @@ const Footer = () => {
               <input
                 type="email"
                 placeholder="Enter your email address"
-                className="flex-1 px-4 py-3 bg-charcoal-800 border border-charcoal-600 rounded-lg text-cream-50 placeholder-cream-400 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                className="flex-1 px-4 py-3 bg-charcoal-800 border border-charcoal-600 rounded-lg text-cream-50 placeholder-cream-400 focus:ring-2 focus:ring-ring focus:border-transparent"
               />
               <button className="px-6 py-3 luxury-gradient text-foreground  font-semibold rounded-lg hover:scale-105 transition-transform duration-300">
                 Subscribe

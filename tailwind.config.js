@@ -14,6 +14,11 @@ module.exports = {
       },
     },
     extend: {
+      screens: {
+        // This explicitly adds the print media query
+        print: { raw: "print" },
+        // You can now use className="print:hidden"
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

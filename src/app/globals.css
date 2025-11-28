@@ -158,3 +158,10 @@
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-luxury-600;
 }
+/* In globals.css */
+@layer utilities {
+  .print-color-adjust-exact {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

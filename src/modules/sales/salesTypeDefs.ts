@@ -21,7 +21,7 @@ export const salesTypeDefs = gql`
     productId: ID!
     quantity: Int!
     sales: Sales!
-    product: Product!
+    product: Product
   }
 
   enum SalesPaymentMethod {

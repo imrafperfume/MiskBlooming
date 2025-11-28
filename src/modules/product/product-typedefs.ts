@@ -30,7 +30,15 @@ export const ProductTypeDefs = gql`
     publicId: String!
     url: String!
   }
-
+  type variantOptions {
+    id: ID!
+    name: String!
+    values: [String!]!
+  }
+  input variantOptionsInput {
+    name: String
+    values: [String]
+  }
   type Product {
     id: String!
     createdAt: String!
@@ -86,6 +94,8 @@ export const ProductTypeDefs = gql`
     careInstructions: String
     occasions: [String!]!
     Review: [Review!]
+    variantOptions: [variantOptions!]
+    hasVariants: Boolean!
   }
 
   input ProductInput {
@@ -138,6 +148,8 @@ export const ProductTypeDefs = gql`
     giftWrapping: Boolean
     personalization: Boolean
     careInstructions: String
+    variantOptions: [variantOptionsInput!]
+    hasVariants: Boolean
     occasions: [String!]
     createdAt: String
     updatedAt: String

@@ -48,19 +48,29 @@ model Product {
     freeDeliveryThreshold Float
 
     // Product Features
-    giftWrapping     Boolean     @default(false)
-    personalization  Boolean     @default(false)
+    giftWrapping     Boolean         @default(false)
+    personalization  Boolean         @default(false)
     careInstructions String?
     occasions        String[]
     OrderItem        OrderItem[]
     SalesItem        SalesItem[]
     Review           Review[]
+    variantOptions   VariantOption[]
+    hasVariants      Boolean         @default(false)
 
     @@index([category])
     @@index([status])
     @@index([price])
     @@index([id])
     @@index([slug])
+}
+
+model VariantOption {
+    id        String   @id @default(uuid())
+    name      String
+    values    String[]
+    product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+    productId String
 }
 
 model ProductDimension {

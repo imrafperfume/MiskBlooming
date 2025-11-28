@@ -129,7 +129,7 @@ export default function OccasionsPage() {
                 placeholder="Search occasions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                className="w-full pl-12 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
               />
             </div>
 
@@ -141,7 +141,7 @@ export default function OccasionsPage() {
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="appearance-none bg-background border border-border  rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                    className="appearance-none bg-background border border-border  rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-ring focus:border-transparent"
                   >
                     {categories.map((category) => (
                       <option key={category.value} value={category.value}>
@@ -157,7 +157,7 @@ export default function OccasionsPage() {
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="appearance-none bg-background border border-border  rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                    className="appearance-none bg-background border border-border  rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-ring focus:border-transparent"
                   >
                     {sortOptions.map((option) => (
                       <option key={option.value} value={option.value}>

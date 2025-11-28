@@ -112,7 +112,7 @@ export default function RegisterPage() {
                     <input
                       {...register("firstName")}
                       type="text"
-                      className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 ${
+                      className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${
                         errors.firstName ? "border-red-500" : "border-border "
                       }`}
                       placeholder="First name"
@@ -135,7 +135,7 @@ export default function RegisterPage() {
                   <input
                     {...register("lastName")}
                     type="text"
-                    className={`block w-full px-3 py-3 border rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 ${
+                    className={`block w-full px-3 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${
                       errors.lastName ? "border-red-500" : "border-border "
                     }`}
                     placeholder="Last name"
@@ -163,7 +163,7 @@ export default function RegisterPage() {
                   <input
                     {...register("email")}
                     type="email"
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 ${
+                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${
                       errors.email ? "border-red-500" : "border-border "
                     }`}
                     placeholder="Enter your email"
@@ -191,7 +191,7 @@ export default function RegisterPage() {
                   <input
                     {...register("phoneNumber")}
                     type="tel"
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 ${
+                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${
                       errors.phoneNumber ? "border-red-500" : "border-border "
                     }`}
                     placeholder="+971 50 123 4567"
@@ -219,7 +219,7 @@ export default function RegisterPage() {
                   <input
                     {...register("password")}
                     type={showPassword ? "text" : "password"}
-                    className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 ${
+                    className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${
                       errors.password ? "border-red-500" : "border-border "
                     }`}
                     placeholder="Create a password"
@@ -258,7 +258,7 @@ export default function RegisterPage() {
                   <input
                     {...register("confirmPassword")}
                     type={showConfirmPassword ? "text" : "password"}
-                    className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 ${
+                    className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${
                       errors.confirmPassword
                         ? "border-red-500"
                         : "border-border "
@@ -289,7 +289,7 @@ export default function RegisterPage() {
                 <input
                   {...register("terms")}
                   type="checkbox"
-                  className="h-4 w-4 text-primary  focus:ring-luxury-500 border-border  rounded mt-1"
+                  className="h-4 w-4 text-primary  focus:ring-ring border-border  rounded mt-1"
                 />
                 <label
                   htmlFor="terms"

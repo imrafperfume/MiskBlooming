@@ -182,7 +182,7 @@ export default function HomePage() {
               type="email"
               placeholder="Enter your email"
               className="flex-1 px-6 py-4 rounded-xl border border-border  
-              focus:ring-2 focus:ring-luxury-500 transition-all bg-background"
+              focus:ring-2 focus:ring-ring transition-all bg-background"
               required
             />
             <Button

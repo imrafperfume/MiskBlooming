@@ -167,7 +167,7 @@ export default function ProductsPage() {
               setSelectedCategory(e.target.value);
               setSubcategory("all");
             }}
-            className="appearance-none bg-background border border-border  rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="appearance-none bg-background border border-border  rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-ring focus:border-transparent"
           >
             <option value="all">All Categories</option>
             {categories?.map((cat) => (
@@ -184,7 +184,7 @@ export default function ProductsPage() {
           <select
             value={subCategory}
             onChange={(e) => setSubcategory(e.target.value)}
-            className="appearance-none bg-background border border-border  rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="appearance-none bg-background border border-border  rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-ring focus:border-transparent"
           >
             <option value="all">Select Subcategory</option>
             {currentCategory?.subcategories?.map((sub) => (
@@ -201,7 +201,7 @@ export default function ProductsPage() {
           <select
             value={priceRange}
             onChange={(e) => setPriceRange(e.target.value)}
-            className="appearance-none bg-background border border-border  rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="appearance-none bg-background border border-border  rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-ring focus:border-transparent"
           >
             {PRICE_RANGES.map((r) => (
               <option key={r.value} value={r.value}>
@@ -217,7 +217,7 @@ export default function ProductsPage() {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="appearance-none bg-background border border-border  rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="appearance-none bg-background border border-border  rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-ring focus:border-transparent"
           >
             {SORT_OPTIONS.map((o) => (
               <option key={o.value} value={o.value}>
@@ -278,7 +278,7 @@ export default function ProductsPage() {
                   placeholder="Search flowers, chocolates, cakes, gifts..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                  className="w-full pl-12 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                 />
               </div>
 

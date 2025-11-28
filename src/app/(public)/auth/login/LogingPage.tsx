@@ -65,7 +65,7 @@ export default function LogingPage({
                   <input
                     {...register("email")}
                     type="email"
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 ${
+                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${
                       errors.email ? "border-red-500" : "border-border "
                     }`}
                     placeholder="Enter your email"
@@ -91,7 +91,7 @@ export default function LogingPage({
                   <input
                     {...register("password")}
                     type={showPassword ? "text" : "password"}
-                    className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 ${
+                    className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${
                       errors.password ? "border-red-500" : "border-border "
                     }`}
                     placeholder="Enter your password"
@@ -121,7 +121,7 @@ export default function LogingPage({
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-primary  focus:ring-luxury-500 border-border  rounded"
+                  className="h-4 w-4 text-primary  focus:ring-ring border-border  rounded"
                 />
                 <label
                   htmlFor="remember-me"

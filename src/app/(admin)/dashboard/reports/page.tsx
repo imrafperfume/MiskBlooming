@@ -110,7 +110,7 @@ export default function ReportsPage() {
             className={`p-6 rounded-2xl border-2 cursor-pointer transition-all ${
               selectedReport === report.id
                 ? "border-luxury-300 bg-foreground "
-                : "border-border  bg-background hover:border-gray-300"
+                : "border-border  bg-background hover:border-border "
             }`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -146,7 +146,7 @@ export default function ReportsPage() {
             <select
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
             >
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
@@ -160,7 +160,7 @@ export default function ReportsPage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Format
             </label>
-            <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent">
+            <select className="w-full px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent">
               <option value="pdf">PDF</option>
               <option value="excel">Excel</option>
               <option value="csv">CSV</option>
@@ -170,7 +170,7 @@ export default function ReportsPage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Include
             </label>
-            <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent">
+            <select className="w-full px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent">
               <option value="summary">Summary Only</option>
               <option value="detailed">Detailed Data</option>
               <option value="charts">With Charts</option>

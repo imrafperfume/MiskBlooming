@@ -233,7 +233,7 @@ export default function CalendarPage() {
                 <label key={type} className="flex items-center">
                   <input
                     type="checkbox"
-                    className="rounded border-gray-300 mr-2"
+                    className="rounded border-border  mr-2"
                     defaultChecked
                   />
                   <span className="text-sm capitalize">{type}</span>

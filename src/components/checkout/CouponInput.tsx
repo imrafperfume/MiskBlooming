@@ -109,7 +109,7 @@ export function CouponInput() {
               placeholder="Enter promo code"
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-              className="flex-1 px-3 py-2 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent text-sm"
+              className="flex-1 px-3 py-2 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent text-sm"
               onKeyPress={(e) => e.key === "Enter" && handleApplyCoupon()}
             />
             <Button

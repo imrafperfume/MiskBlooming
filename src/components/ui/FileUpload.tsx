@@ -264,7 +264,7 @@ export function FileUpload({
           ${
             isDragOver
               ? "border-luxury-400 bg-foregroundscale-105"
-              : "border-gray-300 hover:border-gray-400"
+              : "border-border  hover:border-gray-400"
           }
           ${isUploading ? "pointer-events-none opacity-75" : "cursor-pointer"}
         `}

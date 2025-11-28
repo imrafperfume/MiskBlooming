@@ -160,7 +160,7 @@ export default function POSPage() {
 
     console.log("Processing Order:", payload);
     // Mutation logic here...
-    await createSale({
+    const { data } = await createSale({
       variables: {
         subtotal: subTotal,
         grandTotal,
@@ -175,8 +175,12 @@ export default function POSPage() {
         })),
       },
     });
-    if (!creatingSale) {
-      toast.success("Order processed successfully ");
+    const newSaleId = data?.createSale?.id;
+
+    if (newSaleId) {
+      toast.success("Order processed successfully");
+
+      window.open(`/dashboard/sales/invoice/${newSaleId}`, "_blank");
     }
     setCart([]);
     setPaidAmount("");

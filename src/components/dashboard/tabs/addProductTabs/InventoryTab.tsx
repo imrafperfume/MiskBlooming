@@ -70,7 +70,7 @@ function InventoryTab({
               onChange={(e) =>
                 handleInputChange("trackQuantity", e.target.checked)
               }
-              className="rounded border-gray-300 text-primary focus:ring-luxury-500"
+              className="rounded border-border  text-primary focus:ring-ring"
             />
             <span className="ml-2 text-sm font-medium text-gray-700">
               Track quantity for this product
@@ -148,7 +148,7 @@ function InventoryTab({
               onChange={(e) =>
                 handleInputChange("requiresShipping", e.target.checked)
               }
-              className="rounded border-gray-300 text-primary focus:ring-luxury-500"
+              className="rounded border-border  text-primary focus:ring-ring"
             />
             <span className="ml-2 text-sm font-medium text-gray-700">
               This product requires shipping

@@ -185,7 +185,7 @@ export default function OrderDetails() {
           <p className="text-foreground  mb-4">{error.message}</p>
           <button
             onClick={() => window.history.back()}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-background transition-colors"
+            className="px-4 py-2 border border-border  rounded-md text-gray-700 hover:bg-background transition-colors"
           >
             Go Back
           </button>
@@ -265,7 +265,7 @@ export default function OrderDetails() {
                 variant={"outline"}
                 size={"sm"}
                 onClick={() => handleDownload(order?.id)}
-                className="px-4 py-2 border border-gray-300 bg-transparent rounded-md font-medium flex items-center gap-2 transition-colors"
+                className="px-4 py-2 border border-border  bg-transparent rounded-md font-medium flex items-center gap-2 transition-colors"
               >
                 Download Invoice
               </Button>
@@ -295,7 +295,7 @@ export default function OrderDetails() {
                           value={newStatus}
                           onValueChange={setNewStatus}
                         >
-                          <Select.Trigger className="w-full px-3 py-2 border border-gray-300 rounded-md focus:border-luxury-500 focus:ring-1 focus:ring-luxury-500 bg-background text-left flex items-center justify-between">
+                          <Select.Trigger className="w-full px-3 py-2 border border-border  rounded-md focus:border-luxury-500 focus:ring-1 focus:ring-ring bg-background text-left flex items-center justify-between">
                             <Select.Value placeholder="Select new status" />
                             <Select.Icon>
                               <svg
@@ -368,7 +368,7 @@ export default function OrderDetails() {
                         <Button
                           variant={"outline"}
                           size={"sm"}
-                          className="px-4 py-2 border border-gray-300 bg-transparent rounded-md font-medium flex items-center gap-2 transition-colors"
+                          className="px-4 py-2 border border-border  bg-transparent rounded-md font-medium flex items-center gap-2 transition-colors"
                         >
                           <X className="h-4 w-4" />
                           Cancel

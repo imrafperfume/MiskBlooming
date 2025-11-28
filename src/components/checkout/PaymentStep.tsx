@@ -95,7 +95,7 @@ PaymentStepProps) {
                     type="radio"
                     value={method.id}
                     {...register("paymentMethod")}
-                    className="mr-3 text-primary  focus:ring-luxury-500"
+                    className="mr-3 text-primary  focus:ring-ring"
                     onChange={() => setValue("paymentMethod", method.id as any)}
                   />
                   <method.icon className="w-6 h-6 text-foreground mr-3" />

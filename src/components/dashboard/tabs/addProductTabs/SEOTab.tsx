@@ -67,8 +67,8 @@ function SEOTab({
             placeholder="Beautiful premium red roses arranged in an elegant bouquet. Perfect for anniversaries, birthdays, and special occasions. Same-day delivery in Dubai."
             rows={4}
             maxLength={160}
-            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-luxury-500 focus:border-transparent ${
-              errors?.seoDescription ? "border-red-300" : "border-gray-300"
+            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent ${
+              errors?.seoDescription ? "border-red-300" : "border-border "
             }`}
           />
           <div className="flex justify-between items-center mt-1">

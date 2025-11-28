@@ -124,7 +124,7 @@ export function ImageGallery({
               ${
                 featuredIndex === index
                   ? "border-luxury-400 ring-2 ring-luxury-200"
-                  : "border-border  hover:border-gray-300"
+                  : "border-border  hover:border-border "
               }
               ${draggedIndex === index ? "opacity-50 scale-95" : ""}
             `}

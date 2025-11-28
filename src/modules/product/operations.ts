@@ -96,6 +96,12 @@ export const GET_PRODUCT_BY_SLUG = gql`
       personalization
       careInstructions
       occasions
+      hasVariants
+      variantOptions {
+        id
+        name
+        values
+      }
     }
   }
 `;

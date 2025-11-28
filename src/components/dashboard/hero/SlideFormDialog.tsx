@@ -177,7 +177,7 @@ export default function SlideFormDialog({ slide, onSaved }: SlideFormProps) {
             type="checkbox"
             id="published"
             {...register("published")}
-            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            className="h-4 w-4 rounded border-border  text-primary focus:ring-primary"
           />
           <label
             htmlFor="published"

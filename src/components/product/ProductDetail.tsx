@@ -36,14 +36,18 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
     "featured",
     "tags",
     "careInstructions",
+    "sku",
     "featuredImage",
     "Review {id rating comment createdAt user{id firstName email emailVerified}}",
+    "variantOptions {id name values}",
   ]);
 
   const [selectedImage, setSelectedImage] = useState(
     product?.featuredImage || 0
   );
   const [quantity, setQuantity] = useState(1);
+  const [variant, setVariant] = useState<Record<string, string>>({});
+
   const [activeTab, setActiveTab] = useState("description");
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
@@ -97,19 +101,24 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
   };
 
   const handleAddToCart = React.useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent, selectedVariants: Record<string, string>) => {
       e.preventDefault();
-      if (product) {
-        const result = addItem(product);
 
-        if (result.success) {
-          toast.success(result.message);
-        } else {
-          toast.error(result.message);
-        }
+      if (!product) return;
+
+      const result = addItem({
+        ...product,
+        quantity,
+        selectedVariants, // ⬅️ main update
+      });
+
+      if (result.success) {
+        toast.success(result.message);
+      } else {
+        toast.error(result.message);
       }
     },
-    [addItem, product]
+    [addItem, product, quantity]
   );
 
   const handleWishlistToggle = () => {
@@ -174,6 +183,8 @@ export default function ProductDetail({ slug }: ProductDetailProps) {
             product={product}
             quantity={quantity}
             setQuantity={setQuantity}
+            setVariant={setVariant}
+            selectedVariants={variant}
             isWishlisted={isWishlisted}
             handleAddToCart={handleAddToCart}
             handleWishlistToggle={handleWishlistToggle}

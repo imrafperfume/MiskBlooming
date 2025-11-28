@@ -169,7 +169,7 @@ export function CreateCouponModal({
                     handleInputChange("description", e.target.value)
                   }
                   placeholder="Describe the coupon..."
-                  className="w-full px-3 py-2 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                   rows={3}
                 />
               </div>
@@ -191,7 +191,7 @@ export function CreateCouponModal({
                     onChange={(e) =>
                       handleInputChange("discountType", e.target.value)
                     }
-                    className="w-full px-3 py-2 border border-border  rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                     required
                   >
                     <option value="PERCENTAGE">Percentage</option>
@@ -318,7 +318,7 @@ export function CreateCouponModal({
                   onChange={(e) =>
                     handleInputChange("newUsersOnly", e.target.checked)
                   }
-                  className="rounded border-border  text-primary  focus:ring-luxury-500"
+                  className="rounded border-border  text-primary  focus:ring-ring"
                 />
                 <label
                   htmlFor="newUsersOnly"
