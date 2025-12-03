@@ -20,10 +20,12 @@ import { ReviewTypeDefs } from "@/src/modules/review/review-typeDefs";
 import { ReviewResolvers } from "@/src/modules/review/review-resolvers";
 import { PaymentTypeDefs } from "@/src/modules/payment/paymentTypeDefs";
 import { paymentResolvers } from "@/src/modules/payment/paymentResolvers";
-import { SystemTypeDefs } from "@/src/modules/system/systemTypeDefs";
-import { systemResolvers } from "@/src/modules/system/systemResolvers";
 import { salesResolvers } from "@/src/modules/sales/salesResovers";
 import { salesTypeDefs } from "@/src/modules/sales/salesTypeDefs";
+import { themeResolvers } from "@/src/modules/theme/systemResolvers";
+import { ThemeTypeDefs } from "@/src/modules/theme/systemTypeDefs";
+import { settingTypeDefs } from "@/src/modules/system/settingTypeDefs";
+import { SettingResolvers } from "@/src/modules/system/settingResolvers";
 
 const typeDefs = mergeTypeDefs([
   `
@@ -42,8 +44,9 @@ const typeDefs = mergeTypeDefs([
   CategoryTypeDefs,
   ReviewTypeDefs,
   PaymentTypeDefs,
-  SystemTypeDefs,
   salesTypeDefs,
+  ThemeTypeDefs,
+  settingTypeDefs,
 ]);
 
 interface ContextType {
@@ -59,8 +62,9 @@ const resolvers = mergeResolvers([
   CategoryResolvers,
   ReviewResolvers,
   paymentResolvers,
-  systemResolvers,
   salesResolvers,
+  themeResolvers,
+  SettingResolvers,
 ]) as IResolvers<any, ContextType & YogaInitialContext>;
 
 const schema = createSchema<ContextType>({

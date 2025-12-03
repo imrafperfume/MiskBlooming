@@ -1,4 +1,4 @@
-model SystemSetting {
+model ThemeSetting {
     id          String   @id @default(cuid())
     theme       String   @default("light")
     layoutStyle String   @default("fullscreen") // boxed, fullscreen

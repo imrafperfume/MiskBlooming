@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 
-export const SystemTypeDefs = gql`
+export const ThemeTypeDefs = gql`
   type SystemSetting {
     id: ID!
     theme: String!

@@ -33,7 +33,7 @@ const nextConfig = {
         "*.svg": ["@svgr/webpack"], //  Optimize inline SVGs
       },
     },
-    serverComponentsExternalPackages: ["pdfkit"],
+    // serverExternalPackages: ["pdfkit"],
     optimizePackageImports: [
       "lucide-react",
       "react-icons",

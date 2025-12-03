@@ -2,7 +2,7 @@ import { prisma } from "@/src/lib/db";
 import { isAdmin, validateAdmin } from "@/src/lib/isAdmin";
 import { redis } from "@/src/lib/redis";
 
-export const systemResolvers = {
+export const themeResolvers = {
   Query: {
     getSystemSetting: async (_parent: any, _args: any) => {
       // const { userId } = context;
@@ -10,17 +10,17 @@ export const systemResolvers = {
       // const role = await isAdmin(userId);
       // if (role.role !== "ADMIN") throw new Error("Not authorized");
       try {
-        // const cache = await redis.get("systemSetting");
+        // const cache = await redis.get("themeSetting");
         // if (cache) {
         //   return cache;
         // }
-        const setting = await prisma.systemSetting.findFirst();
+        const setting = await prisma.themeSetting.findFirst();
         if (!setting) {
-          return await prisma.systemSetting.create({
+          return await prisma.themeSetting.create({
             data: { theme: "light", layoutStyle: "fullscreen" },
           });
         }
-        await redis.set("systemSetting", JSON.stringify(setting));
+        await redis.set("themeSetting", JSON.stringify(setting));
         return setting;
       } catch (error: any) {
         throw new Error(error.message);
@@ -38,13 +38,13 @@ export const systemResolvers = {
       const role = await isAdmin(userId);
       if (role.role !== "ADMIN") throw new Error("Not authorized");
       try {
-        const setting = await prisma.systemSetting.updateMany({
+        const setting = await prisma.themeSetting.updateMany({
           data: {
             theme: args.theme,
           },
         });
-        await redis.del("systemSetting");
-        return await prisma.systemSetting.findFirst();
+        await redis.del("themeSetting");
+        return await prisma.themeSetting.findFirst();
       } catch (error: any) {
         throw new Error(error.message);
       }
@@ -58,11 +58,11 @@ export const systemResolvers = {
       await validateAdmin(userId);
 
       try {
-        const setting = await prisma.systemSetting.updateMany({
+        const setting = await prisma.themeSetting.updateMany({
           data: { layoutStyle: args.layoutStyle },
         });
-        await redis.del("systemSetting");
-        return await prisma.systemSetting.findFirst();
+        await redis.del("themeSetting");
+        return await prisma.themeSetting.findFirst();
       } catch (error) {
         throw new Error((error as Error).message);
       }

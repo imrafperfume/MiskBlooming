@@ -10,7 +10,8 @@
     "analyze": "cross-env ANALYZE=true next build",
     "start": "next start",
     "prisma:generate": "prisma generate --schema=./prisma/schema/",
-    "prisma:migrate": "prisma migrate dev --schema=./prisma/schema/"
+    "prisma:migrate": "prisma migrate dev --schema=./prisma/schema/",
+    "test" : "jest"
   },
   "dependencies": {
     "@apollo/client": "^3.13.9",

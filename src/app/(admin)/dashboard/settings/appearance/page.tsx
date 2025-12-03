@@ -18,7 +18,7 @@ import {
   GET_SYSTEM_SETTING,
   UPDATE_SYSTEM_LAYOUT,
   UPDATE_SYSTEM_THEME,
-} from "@/src/modules/system/operation";
+} from "@/src/modules/theme/operation";
 
 // --- Types & Constants ---
 

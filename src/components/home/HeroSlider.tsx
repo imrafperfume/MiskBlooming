@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import type { HeroSlide } from "../../types";
 import cloudinaryLoader from "@/src/lib/imageLoader";
 import { useQuery } from "@apollo/client";
-import { GET_SYSTEM_SETTING } from "@/src/modules/system/operation";
+import { GET_SYSTEM_SETTING } from "@/src/modules/theme/operation";
 
 interface HeroSliderProps {
   layout?: "full" | "boxed";
