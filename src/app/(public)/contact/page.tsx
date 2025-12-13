@@ -106,9 +106,9 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100">
+    <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="py-24 bg-gradient-to-r from-luxury-500 to-luxury-600 text-white">
+      <section className="py-24 bg-gradient-to-r from-luxury-500 to-primary text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             className="text-center"
@@ -135,8 +135,8 @@ export default function ContactPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <div className="bg-white rounded-2xl p-8 shadow-luxury">
-              <h2 className="font-cormorant text-3xl font-bold text-charcoal-900 mb-6">
+            <div className="bg-background rounded-2xl p-8 shadow-luxury">
+              <h2 className="font-cormorant text-3xl font-bold text-foreground  mb-6">
                 Send us a Message
               </h2>
               <p className="text-muted-foreground mb-8">
@@ -172,14 +172,14 @@ export default function ContactPage() {
                     placeholder="+971 50 123 4567"
                   />
                   <div>
-                    <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                    <label className="block text-sm font-medium text-foreground  mb-2">
                       Subject
                     </label>
                     <select
                       name="subject"
                       value={formData.subject}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-cream-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                       required
                     >
                       <option value="">Select a subject</option>
@@ -194,7 +194,7 @@ export default function ContactPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-charcoal-900 mb-2">
+                  <label className="block text-sm font-medium text-foreground  mb-2">
                     Message
                   </label>
                   <textarea
@@ -202,7 +202,7 @@ export default function ContactPage() {
                     value={formData.message}
                     onChange={handleChange}
                     rows={5}
-                    className="w-full px-4 py-3 border border-cream-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                     placeholder="Tell us how we can help you..."
                     required
                   />
@@ -239,8 +239,8 @@ export default function ContactPage() {
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             {/* Contact Details */}
-            <div className="bg-white rounded-2xl p-8 shadow-luxury">
-              <h2 className="font-cormorant text-3xl font-bold text-charcoal-900 mb-6">
+            <div className="bg-background rounded-2xl p-8 shadow-luxury">
+              <h2 className="font-cormorant text-3xl font-bold text-foreground  mb-6">
                 Get in Touch
               </h2>
 
@@ -248,10 +248,10 @@ export default function ContactPage() {
                 {contactInfo.map((info, index) => (
                   <div key={index} className="flex items-start">
                     <div className="w-12 h-12 luxury-gradient rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
-                      <info.icon className="w-6 h-6 text-charcoal-900" />
+                      <info.icon className="w-6 h-6 text-foreground " />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-charcoal-900 mb-1">
+                      <h3 className="font-semibold text-foreground  mb-1">
                         {info.title}
                       </h3>
                       {info.details.map((detail, idx) => (
@@ -259,7 +259,7 @@ export default function ContactPage() {
                           {detail}
                         </p>
                       ))}
-                      <p className="text-sm text-luxury-500 mt-1">
+                      <p className="text-sm text-primary  mt-1">
                         {info.description}
                       </p>
                     </div>
@@ -269,8 +269,8 @@ export default function ContactPage() {
             </div>
 
             {/* Services */}
-            <div className="bg-white rounded-2xl p-8 shadow-luxury">
-              <h3 className="font-cormorant text-2xl font-bold text-charcoal-900 mb-6">
+            <div className="bg-background rounded-2xl p-8 shadow-luxury">
+              <h3 className="font-cormorant text-2xl font-bold text-foreground  mb-6">
                 Our Services
               </h3>
 
@@ -278,10 +278,10 @@ export default function ContactPage() {
                 {services.map((service, index) => (
                   <div key={index} className="flex items-start">
                     <div className="w-10 h-10 bg-luxury-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
-                      <service.icon className="w-5 h-5 text-luxury-600" />
+                      <service.icon className="w-5 h-5 text-primary " />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-charcoal-900 mb-1">
+                      <h4 className="font-semibold text-foreground  mb-1">
                         {service.title}
                       </h4>
                       <p className="text-sm text-muted-foreground">
@@ -294,8 +294,8 @@ export default function ContactPage() {
             </div>
 
             {/* Emergency Contact */}
-            <div className="bg-luxury-50 rounded-2xl p-6 border border-luxury-200">
-              <h3 className="font-cormorant text-xl font-bold text-charcoal-900 mb-3">
+            <div className="bg-foregroundrounded-2xl p-6 border border-border ">
+              <h3 className="font-cormorant text-xl font-bold text-foreground  mb-3">
                 Need Urgent Help?
               </h3>
               <p className="text-muted-foreground mb-4">
@@ -304,7 +304,7 @@ export default function ContactPage() {
               </p>
               <a
                 href="tel:+971501234567"
-                className="inline-flex items-center text-luxury-600 font-semibold hover:text-luxury-700 transition-colors"
+                className="inline-flex items-center text-primary font-semibold hover:text-luxury-700 transition-colors"
               >
                 <Phone className="w-4 h-4 mr-2" />
                 +971 50 123 4567
@@ -321,8 +321,8 @@ export default function ContactPage() {
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
         >
-          <div className="bg-white rounded-2xl p-8 shadow-luxury">
-            <h2 className="font-cormorant text-3xl font-bold text-charcoal-900 mb-6 text-center">
+          <div className="bg-background rounded-2xl p-8 shadow-luxury">
+            <h2 className="font-cormorant text-3xl font-bold text-foreground  mb-6 text-center">
               Visit Our Showroom
             </h2>
             <MapEmbed height={400} className="rounded-lg shadow-md" />

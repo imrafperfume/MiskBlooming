@@ -96,6 +96,12 @@ export const GET_PRODUCT_BY_SLUG = gql`
       personalization
       careInstructions
       occasions
+      hasVariants
+      variantOptions {
+        id
+        name
+        values
+      }
     }
   }
 `;
@@ -154,8 +160,11 @@ export const GET_PRODUCTS = gql`
   query GetProducts {
     products {
       id
-      slug
-      images
+      name
+      price
+      images {
+        url
+      }
       updatedAt
     }
   }

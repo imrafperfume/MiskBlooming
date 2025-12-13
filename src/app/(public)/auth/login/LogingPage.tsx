@@ -24,7 +24,7 @@ export default function LogingPage({
   isLoading,
 }: LogingPageProps) {
   return (
-    <div className="min-h-screen mt-4 bg-gradient-to-br from-cream-50 to-cream-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen mt-4 bg-background flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -33,7 +33,7 @@ export default function LogingPage({
         >
           {/* Logo */}
           <div className="text-center">
-            <h2 className="mt-6 text-3xl font-cormorant font-bold text-charcoal-900">
+            <h2 className="mt-6 text-3xl font-cormorant font-bold text-foreground ">
               Welcome Back
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -43,7 +43,7 @@ export default function LogingPage({
 
           {/* Form */}
           <motion.form
-            className="mt-8 space-y-6 bg-white p-8 rounded-2xl shadow-luxury"
+            className="mt-8 space-y-6 bg-background p-8 rounded-2xl shadow-luxury"
             onSubmit={handleSubmit(onSubmit)}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -54,7 +54,7 @@ export default function LogingPage({
               <div>
                 <label
                   htmlFor="email"
-                  className="block text-sm font-medium text-charcoal-900 mb-2"
+                  className="block text-sm font-medium text-foreground  mb-2"
                 >
                   Email Address
                 </label>
@@ -65,8 +65,8 @@ export default function LogingPage({
                   <input
                     {...register("email")}
                     type="email"
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 ${
-                      errors.email ? "border-red-500" : "border-cream-300"
+                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${
+                      errors.email ? "border-red-500" : "border-border "
                     }`}
                     placeholder="Enter your email"
                   />
@@ -80,7 +80,7 @@ export default function LogingPage({
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-charcoal-900 mb-2"
+                  className="block text-sm font-medium text-foreground  mb-2"
                 >
                   Password
                 </label>
@@ -91,8 +91,8 @@ export default function LogingPage({
                   <input
                     {...register("password")}
                     type={showPassword ? "text" : "password"}
-                    className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent transition-all duration-300 ${
-                      errors.password ? "border-red-500" : "border-cream-300"
+                    className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${
+                      errors.password ? "border-red-500" : "border-border "
                     }`}
                     placeholder="Enter your password"
                   />
@@ -102,9 +102,9 @@ export default function LogingPage({
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-muted-foreground hover:text-charcoal-900" />
+                      <EyeOff className="h-5 w-5 text-muted-foreground hover:text-foreground " />
                     ) : (
-                      <Eye className="h-5 w-5 text-muted-foreground hover:text-charcoal-900" />
+                      <Eye className="h-5 w-5 text-muted-foreground hover:text-foreground " />
                     )}
                   </button>
                 </div>
@@ -121,11 +121,11 @@ export default function LogingPage({
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-luxury-500 focus:ring-luxury-500 border-cream-300 rounded"
+                  className="h-4 w-4 text-primary  focus:ring-ring border-border  rounded"
                 />
                 <label
                   htmlFor="remember-me"
-                  className="ml-2 block text-sm text-charcoal-900"
+                  className="ml-2 block text-sm text-foreground "
                 >
                   Remember me
                 </label>
@@ -134,7 +134,7 @@ export default function LogingPage({
               <div className="text-sm">
                 <Link
                   href="/auth/forgot-password"
-                  className="font-medium text-luxury-500 hover:text-luxury-600"
+                  className="font-medium text-primary  hover:text-primary "
                 >
                   Forgot your password?
                 </Link>
@@ -166,17 +166,17 @@ export default function LogingPage({
             {/* <div className="mt-6">
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-cream-300" />
+                  <div className="w-full border-t border-border " />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-muted-foreground">
+                  <span className="px-2 bg-background text-muted-foreground">
                     Or continue with
                   </span>
                 </div>
               </div>
 
               <div className="mt-6 grid grid-cols-2 gap-3">
-                <Button variant="outline" className="w-full bg-white">
+                <Button variant="outline" className="w-full bg-background">
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                     <path
                       fill="currentColor"
@@ -198,7 +198,7 @@ export default function LogingPage({
                   Google
                 </Button>
 
-                <Button variant="outline" className="w-full bg-white">
+                <Button variant="outline" className="w-full bg-background">
                   <svg
                     className="w-5 h-5 mr-2"
                     fill="currentColor"
@@ -217,7 +217,7 @@ export default function LogingPage({
                 Don't have an account?{" "}
                 <Link
                   href="/auth/register"
-                  className="font-medium text-luxury-500 hover:text-luxury-600"
+                  className="font-medium text-primary  hover:text-primary "
                 >
                   Create one now
                 </Link>

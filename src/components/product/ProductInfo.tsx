@@ -8,12 +8,10 @@ import {
   ShoppingBag,
   Heart,
   Share2,
-  Truck,
-  Shield,
-  Gift,
-  CheckCircle,
-  Clock,
+  Check,
+  Hash,
 } from "lucide-react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import Button from "../ui/Button";
 
@@ -21,8 +19,13 @@ interface ProductInfoProps {
   product: Product;
   quantity: number;
   setQuantity: (quantity: number) => void;
+  setVariant: (variants: Record<string, string>) => void;
+  selectedVariants: Record<string, string>;
   isWishlisted: boolean;
-  handleAddToCart: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  handleAddToCart: (
+    e: React.MouseEvent<HTMLButtonElement>,
+    selectedVariants: Record<string, string>
+  ) => void;
   handleWishlistToggle: () => void;
   reviews: Review[];
 }
@@ -35,7 +38,33 @@ export default function ProductInfo({
   handleAddToCart,
   handleWishlistToggle,
   reviews,
+  setVariant,
+  selectedVariants,
 }: ProductInfoProps) {
+  // Initialize default variants using Option Names instead of IDs
+  useEffect(() => {
+    // Only set defaults if product has options AND no variants are currently selected
+    if (
+      product.variantOptions &&
+      product.variantOptions.length > 0 &&
+      Object.keys(selectedVariants).length === 0
+    ) {
+      const defaults: Record<string, string> = {};
+      product.variantOptions.forEach((option: any) => {
+        if (option.values && option.values.length > 0) {
+          // CHANGE: Use option.name (e.g., "Color") instead of option.id
+          defaults[option.name] = option.values[0];
+        }
+      });
+      setVariant(defaults);
+    }
+  }, [product, selectedVariants, setVariant]);
+
+  const handleVariantChange = (optionName: string, value: string) => {
+    const newVariants = { ...selectedVariants, [optionName]: value };
+    setVariant(newVariants);
+  };
+
   const discountPercentage =
     product.price &&
     product.compareAtPrice &&
@@ -46,208 +75,240 @@ export default function ProductInfo({
         )
       : 0;
 
-  const totalReviews = reviews?.length;
+  const totalReviews = reviews?.length || 0;
   const averageRating =
     totalReviews > 0
       ? reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews
       : 0;
+
   const handleShare = async () => {
     const shareData = {
       title: product?.name,
-      text: `Check out this product: ${product?.name}`,
+      text: `Check out: ${product?.name}`,
       url: window.location.href,
     };
-
     if (navigator.share) {
       try {
         await navigator.share(shareData);
       } catch (err) {
-        console.error("Share failed:", err);
+        console.error(err);
       }
     } else {
-      // Fallback for unsupported browsers
       navigator.clipboard.writeText(shareData.url);
+      toast.success("Link copied to clipboard");
     }
   };
 
+  const hasVariants =
+    product.variantOptions && product.variantOptions.length > 0;
+
   return (
     <motion.div
-      className="sm:space-y-6 space-y-2"
-      initial={{ opacity: 0, x: 50 }}
+      className="flex flex-col gap-6"
+      initial={{ opacity: 0, x: 30 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.6, delay: 0.4 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      {/* Category & Stock Status */}
-      <div className="flex items-center justify-between">
-        <span className="text-luxury-500 font-medium text-sm uppercase tracking-wide">
-          {product.category.replace("-", " ")}
-        </span>
-        {product.quantity ? (
-          <div className="flex items-center text-green-600 text-sm">
-            <CheckCircle className="w-4 h-4 mr-1" />
-            In Stock
+      {/* --- Top Metadata --- */}
+      <div className="flex items-center justify-between border-b border-border/40 pb-4">
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-bold uppercase tracking-widest text-primary/80 bg-primary/5 px-2 py-1 rounded-md">
+            {product.category?.replace("-", " ")}
+          </span>
+          {product?.sku && (
+            <div className="flex items-center text-xs text-muted-foreground/60 font-mono">
+              <Hash className="w-3 h-3 mr-0.5" />
+              {product?.sku}
+            </div>
+          )}
+        </div>
+
+        {/* Reviews */}
+        <div className="flex items-center gap-2 group cursor-default">
+          <div className="flex items-center">
+            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+            <span className="ml-1.5 font-semibold text-foreground text-sm">
+              {averageRating.toFixed(1)}
+            </span>
           </div>
-        ) : (
-          <div className="flex items-center text-red-600 text-sm">
-            <Clock className="w-4 h-4 mr-1" />
-            Out of Stock
-          </div>
-        )}
+          <span className="text-xs text-muted-foreground underline decoration-dotted underline-offset-2">
+            {totalReviews} reviews
+          </span>
+        </div>
       </div>
 
-      {/* Rating */}
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center">
-          {[...Array(5)].map((_, index) => (
-            <Star
-              key={index}
-              className={`w-5 h-5 ${
-                index < Math.floor(averageRating)
-                  ? "text-luxury-500 fill-current"
-                  : "text-cream-400"
-              }`}
-            />
+      {/* --- Title & Price --- */}
+      <div className="space-y-4">
+        <h1 className="font-cormorant text-4xl sm:text-5xl font-bold text-foreground leading-[1.1] tracking-tight">
+          {product.name}
+        </h1>
+
+        <div className="flex flex-wrap items-end gap-3">
+          <span className="text-3xl font-semibold text-foreground tracking-tight">
+            {formatPrice(product.price)}
+          </span>
+
+          {product.compareAtPrice && product.compareAtPrice > product.price && (
+            <span className="text-lg text-muted-foreground/60 line-through mb-1">
+              {formatPrice(product.compareAtPrice)}
+            </span>
+          )}
+
+          {discountPercentage > 0 && (
+            <span className="mb-1.5 px-2.5 py-0.5 bg-rose-100 text-rose-700 text-xs font-bold uppercase tracking-wider rounded-full">
+              Save {discountPercentage}%
+            </span>
+          )}
+        </div>
+
+        <div
+          className="text-muted-foreground text-base leading-relaxed max-w-xl"
+          dangerouslySetInnerHTML={{ __html: product.shortDescription || "" }}
+        />
+      </div>
+
+      {/* --- Modern Variants Section --- */}
+      {hasVariants && (
+        <div className="space-y-6 py-2">
+          {product.variantOptions?.map((option: any) => (
+            <div key={option.id} className="space-y-3">
+              {/* Option Label & Selected Value */}
+              <div className="flex justify-between items-center text-sm">
+                <span className="font-semibold text-foreground tracking-wide">
+                  {option.name === "Size" ? "Box Size" : "Box Color"}
+                </span>
+                <span className="text-primary font-medium text-xs uppercase tracking-widest bg-primary/5 px-2 py-0.5 rounded">
+                  {/* CHANGE: Look up value using option.name */}
+                  {selectedVariants[option.name]}
+                </span>
+              </div>
+
+              {/* Option Values */}
+              <div className="flex flex-wrap gap-3">
+                {option.values.map((value: string) => {
+                  // CHANGE: Check selection using option.name
+                  const isSelected = selectedVariants[option.name] === value;
+
+                  return (
+                    <motion.button
+                      key={value}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.96 }}
+                      // CHANGE: Pass option.name instead of option.id
+                      onClick={() => handleVariantChange(option.name, value)}
+                      className={`
+                        relative group flex items-center justify-center px-5 py-2.5 text-sm font-medium rounded-full border transition-all duration-300 ease-out
+                        ${
+                          isSelected
+                            ? "border-primary bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20 ring-offset-2 ring-offset-background"
+                            : "border-border bg-background/50 text-muted-foreground hover:text-foreground hover:border-primary/30 hover:bg-secondary/40"
+                        }
+                      `}
+                    >
+                      <span className="relative z-10 flex items-center gap-2">
+                        {isSelected && (
+                          <motion.span
+                            initial={{ width: 0, opacity: 0, scale: 0 }}
+                            animate={{ width: "auto", opacity: 1, scale: 1 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <Check className="w-3.5 h-3.5" strokeWidth={3} />
+                          </motion.span>
+                        )}
+                        {value}
+                      </span>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </div>
           ))}
         </div>
-        <span className="text-muted-foreground">{totalReviews} reviews</span>
-      </div>
+      )}
 
-      {/* Title */}
-      <h1 className="font-cormorant text-display-sm font-bold text-charcoal-900 leading-tight">
-        {product.name}
-      </h1>
+      <div className="h-px w-full bg-border/60" />
 
-      {/* Price */}
-      <div className="flex flex-wrap items-center sm:space-x-4 gap-2">
-        <span className="sm:text-3xl text-xl font-bold text-charcoal-900">
-          {formatPrice(product.price)}
-        </span>
-        {product.compareAtPrice && (
-          <span className="sm:text-xl text-muted-foreground line-through">
-            {formatPrice(product.compareAtPrice)}
-          </span>
-        )}
-        {discountPercentage > 0 && (
-          <span className="sm:text-lg text-sm font-semibold text-green-600">
-            Save {formatPrice(product.compareAtPrice! - product.price)}
-          </span>
-        )}
-      </div>
-
-      {/* Description */}
-      <p className="text-muted-foreground text-lg line-clamp-4 leading-relaxed">
-        {product.shortDescription}
-      </p>
-
-      {/* Tags */}
-      <div className="flex flex-wrap gap-2">
-        {product.tags.map((tag) => (
-          <span
-            key={tag}
-            className="px-3 py-1 bg-luxury-100 text-luxury-700 rounded-full text-sm font-medium"
-          >
-            {tag}
-          </span>
-        ))}
-      </div>
-
-      {/* Quantity Selector */}
-      <div className="flex flex-wrap sm:flex-nowrap col-span-2 items-center sm:space-x-6">
-        <div className="flex-1 sm:flex-none sm:mr-0 mr-2">
-          <div className="flex items-center space-x-3">
-            <span className="font-medium text-charcoal-900">Quantity:</span>
-            <div className="flex items-center border border-cream-300 rounded-lg">
-              <button
+      {/* --- Quantity & Actions --- */}
+      <div className="space-y-6">
+        {/* Quantity Row */}
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="block text-sm font-semibold text-foreground mb-2">
+              Quantity
+            </span>
+            <div className="flex items-center p-1 border border-border rounded-xl bg-secondary/20 w-fit">
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="p-3 hover:bg-cream-100 transition-colors rounded-l-lg"
-                disabled={!product.quantity}
+                disabled={quantity <= 1}
+                className="p-2.5 rounded-lg hover:bg-background shadow-sm disabled:opacity-50 disabled:shadow-none transition-colors"
               >
                 <Minus className="w-4 h-4" />
-              </button>
-              <span className="px-4 py-3 font-medium min-w-[3rem] text-center">
+              </motion.button>
+              <span className="w-12 text-center font-semibold text-lg tabular-nums">
                 {quantity}
               </span>
-              <button
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 onClick={() => {
-                  if (quantity < product.quantity) {
-                    setQuantity(quantity + 1);
-                  } else {
-                    toast.error(
-                      `Only ${product.quantity} items available in stock.`
-                    );
-                  }
+                  if (quantity < product.quantity) setQuantity(quantity + 1);
+                  else toast.error(`Max stock reached`);
                 }}
-                className="p-3 hover:bg-cream-100 transition-colors rounded-r-lg"
-                disabled={!product.quantity}
+                disabled={quantity >= product.quantity}
+                className="p-2.5 rounded-lg hover:bg-background shadow-sm disabled:opacity-50 disabled:shadow-none transition-colors"
               >
                 <Plus className="w-4 h-4" />
-              </button>
+              </motion.button>
             </div>
+          </div>
+
+          {/* Total Price Display */}
+          <div className="text-right">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+              Subtotal
+            </p>
+            <p className="text-2xl font-bold text-foreground">
+              {formatPrice(product.price * quantity)}
+            </p>
           </div>
         </div>
 
-        <div className="sm:text-right flex-1 sm:flex-none sm:w-auto w-full">
-          <p className="text-sm text-muted-foreground">Total Price</p>
-          <p className="text-xl font-bold text-charcoal-900">
-            {formatPrice(product.price * quantity)}
-          </p>
-        </div>
-      </div>
+        {/* Buttons Grid */}
+        <div className="flex gap-3">
+          <Button
+            onClick={(e) => handleAddToCart(e, selectedVariants)}
+            variant="luxury"
+            size="xl"
+            className="flex-[3] text-base h-14 rounded-xl shadow-lg shadow-primary/10 hover:shadow-primary/20 transition-all"
+            disabled={!product.quantity}
+          >
+            <div className="flex items-center justify-center gap-2">
+              <ShoppingBag className="w-5 h-5" />
+              {product.quantity ? "Add to Cart" : "Out of Stock"}
+            </div>
+          </Button>
 
-      {/* Action Buttons */}
-      <div className="flex flex-wrap sm:flex-nowrap sm:col-span-3 sm:pt-0 pt-6 col-span-2 gap-4">
-        <Button
-          onClick={handleAddToCart}
-          variant="luxury"
-          size="xl"
-          className="flex-1 sm:flex-none"
-          disabled={!product.quantity}
-        >
-          <ShoppingBag className="w-5 h-5 mr-2" />
-          {product.quantity ? "Add to Cart" : "Out of Stock"}
-        </Button>
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={handleWishlistToggle}
+            className={`flex-1 h-14 rounded-xl border flex items-center justify-center transition-colors ${
+              isWishlisted
+                ? "bg-rose-50 border-rose-200 text-rose-500"
+                : "bg-background border-border hover:bg-secondary/50 text-foreground"
+            }`}
+          >
+            <Heart
+              className={`w-6 h-6 ${isWishlisted ? "fill-current" : ""}`}
+            />
+          </motion.button>
 
-        <Button
-          onClick={handleWishlistToggle}
-          variant="outline"
-          size="xl"
-          className={`flex-1 sm:flex-none ${
-            isWishlisted ? "bg-red-50 border-red-200 text-red-600" : "bg-white"
-          }`}
-        >
-          <Heart className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`} />
-        </Button>
-
-        <Button
-          onClick={() => handleShare()}
-          variant="outline"
-          size="xl"
-          className="flex-1 sm:flex-none bg-white"
-        >
-          <Share2 className="w-5 h-5" />
-        </Button>
-      </div>
-
-      {/* Features */}
-      <div className="grid sm:grid-cols-3 gap-4 pt-6 border-t border-cream-300">
-        <div className="text-center border py-3 rounded-md border-cream-400">
-          <Truck className="w-6 h-6 text-luxury-500 mx-auto mb-2" />
-          <p className="text-sm font-medium text-charcoal-900">Free Delivery</p>
-          <p className="text-xs text-muted-foreground">Orders over AED 500</p>
-        </div>
-        <div className="text-center border py-3 rounded-md border-cream-400">
-          <Shield className="w-6 h-6 text-luxury-500 mx-auto mb-2" />
-          <p className="text-sm font-medium text-charcoal-900">
-            Freshness Guarantee
-          </p>
-          <p className="text-xs text-muted-foreground">100% fresh flowers</p>
-        </div>
-        <div className="text-center border py-3 rounded-md border-cream-400">
-          <Gift className="w-6 h-6 text-luxury-500 mx-auto mb-2" />
-          <p className="text-sm font-medium text-charcoal-900">Gift Wrapping</p>
-          <p className="text-xs text-muted-foreground">
-            Luxury packaging included
-          </p>
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={handleShare}
+            className="flex-1 h-14 rounded-xl border border-border bg-background hover:bg-secondary/50 flex items-center justify-center text-foreground transition-colors"
+          >
+            <Share2 className="w-6 h-6" />
+          </motion.button>
         </div>
       </div>
     </motion.div>

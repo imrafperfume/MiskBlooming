@@ -1,0 +1,30 @@
+model Sales {
+    id            String             @id @default(uuid())
+    createdAt     DateTime           @default(now())
+    updatedAt     DateTime           @updatedAt
+    subtotal      Float
+    grandTotal    Float
+    vat           Float
+    discount      Float
+    paymentMethod SalesPaymentMethod
+    orderItems    SalesItem[]
+    giftCard      Boolean            @default(false)
+    CashRecived   Float?
+}
+
+model SalesItem {
+    id        String  @id @default(uuid())
+    salesId   String
+    productId String
+    quantity  Int
+    sales     Sales   @relation(fields: [salesId], references: [id], onDelete: Cascade)
+    product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+    @@index([salesId])
+    @@index([productId])
+}
+
+enum SalesPaymentMethod {
+    CASH
+    ONLINE
+}

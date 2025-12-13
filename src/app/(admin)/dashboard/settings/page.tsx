@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import React from "react";
+import Link from "next/link";
 import {
   Settings,
   User,
@@ -12,498 +12,185 @@ import {
   Mail,
   Palette,
   Database,
-  Key,
-  Save,
-  Eye,
-  EyeOff,
+  ArrowRight,
+  CheckCircle2,
+  AlertCircle,
 } from "lucide-react";
-import { Button } from "../../../../components/ui/Button";
-import { Input } from "../../../../components/ui/Input";
-import { gql, useMutation, useQuery } from "@apollo/client";
-import { toast } from "sonner";
 
-const ADMIN_USERS = gql`
-  query AdminUsers {
-    adminUsers {
-      id
-      firstName
-      lastName
-      email
-      phoneNumber
-      role
-      emailVerified
-      createdAt
-    }
-  }
-`;
-const UPDATE_ROLE_MUTATION = gql`
-  mutation UpdateUserRole($id: ID!, $role: Role!) {
-    updateUserRole(id: $id, role: $role) {
-      id
-      role
-    }
-  }
-`;
+const settingCards = [
+  {
+    title: "General",
+    description: "Store name, currency, and regional formats.",
+    icon: Settings,
+    href: "/dashboard/settings/general",
+    color: "text-blue-500",
+    bgColor: "bg-blue-500/10",
+  },
+  {
+    title: "Profile",
+    description: "Manage your personal information and avatar.",
+    icon: User,
+    href: "/dashboard/settings/profile",
+    color: "text-purple-500",
+    bgColor: "bg-purple-500/10",
+  },
+  {
+    title: "Notifications",
+    description: "Configure email alerts and push notifications.",
+    icon: Bell,
+    href: "/dashboard/settings/notifications",
+    color: "text-yellow-500",
+    bgColor: "bg-yellow-500/10",
+  },
+  {
+    title: "Security",
+    description: "Password, 2FA, and login activity logs.",
+    icon: Shield,
+    href: "/dashboard/settings/security",
+    color: "text-green-500",
+    bgColor: "bg-green-500/10",
+  },
+  {
+    title: "Payments",
+    description: "Connect payment gateways and manage billing.",
+    icon: CreditCard,
+    href: "/dashboard/settings/payments",
+    color: "text-pink-500",
+    bgColor: "bg-pink-500/10",
+  },
+  {
+    title: "Shipping",
+    description: "Delivery zones, rates, and carrier integration.",
+    icon: Truck,
+    href: "/dashboard/settings/shipping",
+    color: "text-orange-500",
+    bgColor: "bg-orange-500/10",
+  },
+  {
+    title: "Appearance",
+    description: "Customize the look and feel of your dashboard.",
+    icon: Palette,
+    href: "/dashboard/settings/appearance",
+    color: "text-indigo-500",
+    bgColor: "bg-indigo-500/10",
+  },
+  {
+    title: "Integrations",
+    description: "Manage API keys and third-party apps.",
+    icon: Database,
+    href: "/dashboard/settings/integrations",
+    color: "text-cyan-500",
+    bgColor: "bg-cyan-500/10",
+  },
+];
 
-export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("general");
-  const [showPassword, setShowPassword] = useState(false);
-  const [roles, setRoles] = useState<{ [key: string]: string }>({});
-  const [loadingIds, setLoadingIds] = useState<{ [key: string]: boolean }>({});
-  const { data: adminUsers, refetch } = useQuery(ADMIN_USERS, {
-    fetchPolicy: "cache-and-network",
-  });
-
-  const [updateUserRole, { loading: updateLoading, error: updateError }] =
-    useMutation(UPDATE_ROLE_MUTATION, {
-      refetchQueries: [{ query: ADMIN_USERS }],
-      awaitRefetchQueries: true,
-    });
-
-  // Usage example:
-  // updateRoleMutation({ variables: { id: userId, role: newRole } });
-  const adminUsersList = adminUsers?.adminUsers || [];
-  useEffect(() => {
-    if (adminUsersList) {
-      const initialRoles: Record<string, string> = {};
-      adminUsersList.forEach((u: any) => {
-        initialRoles[u.id] = u.role;
-      });
-      setRoles(initialRoles);
-    }
-  }, [adminUsersList]);
-  const tabs = [
-    { id: "general", name: "General", icon: Settings },
-    { id: "profile", name: "Profile", icon: User },
-    { id: "notifications", name: "Notifications", icon: Bell },
-    { id: "security", name: "Security", icon: Shield },
-    { id: "payments", name: "Payments", icon: CreditCard },
-    { id: "shipping", name: "Shipping", icon: Truck },
-    { id: "email", name: "Email", icon: Mail },
-    { id: "appearance", name: "Appearance", icon: Palette },
-    { id: "integrations", name: "Integrations", icon: Database },
-  ];
-
-  const handleUpdateRole = async (id: string, role: string) => {
-    try {
-      setLoadingIds((prev) => ({ ...prev, [id]: true }));
-
-      await updateUserRole({
-        variables: { id, role },
-      });
-      refetch();
-      toast.success("Role updated successfully!");
-    } catch (err: any) {
-      toast.error(err.message || "Failed to update role");
-    } finally {
-      setLoadingIds((prev) => ({ ...prev, [id]: false }));
-    }
-  };
-
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case "general":
-        return (
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold text-charcoal-900 mb-4">
-                Business Information
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Business Name
-                  </label>
-                  <Input defaultValue="MiskBlooming" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Business Email
-                  </label>
-                  <Input defaultValue="admin@miskblooming.ae" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number
-                  </label>
-                  <Input defaultValue="+971 4 123 4567" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Website
-                  </label>
-                  <Input defaultValue="https://miskblooming.ae" />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Business Address
-                  </label>
-                  <Input defaultValue="Dubai Marina, Dubai, UAE" />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Business Description
-                  </label>
-                  <textarea
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
-                    rows={3}
-                    defaultValue="Premium flower and gift delivery service in Dubai, UAE"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <h3>Admin Management ({adminUsersList?.length || 0})</h3>
-              {adminUsersList?.map((user: any) => (
-                <div
-                  key={user.id}
-                  className="sm:p-4 border border-gray-200 rounded-lg flex items-center flex-wrap gap-2 justify-between"
-                >
-                  <div className="space-y-1">
-                    <p className="font-medium text-charcoal-900">
-                      {user?.firstName} {user?.lastName}
-                    </p>
-                    <p className="text-sm text-gray-600">{user?.email}</p>
-                    <p className="text-sm text-gray-600">
-                      Role:{" "}
-                      <span className="font-medium">
-                        {roles[user.id] || user.role}
-                      </span>
-                    </p>
-                    <p className="text-sm text-gray-600">
-                      Email Verified:{" "}
-                      <span
-                        className={`font-medium ${
-                          user?.emailVerified
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {user?.emailVerified ? "Yes" : "No"}
-                      </span>
-                    </p>
-                  </div>
-
-                  <div className="flex items-center space-x-4">
-                    <select
-                      value={roles[user.id] || user.role}
-                      onChange={(e) =>
-                        setRoles((prev) => ({
-                          ...prev,
-                          [user.id]: e.target.value,
-                        }))
-                      }
-                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
-                    >
-                      <option value="ADMIN">Admin</option>
-                      <option value="USER">Make User</option>
-                    </select>
-
-                    <Button
-                      variant={"luxury"}
-                      size={"sm"}
-                      onClick={() => handleUpdateRole(user?.id, roles[user.id])}
-                    >
-                      {loadingIds[user.id] ? "Updating..." : "Update Role"}
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-
-      case "profile":
-        return (
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold text-charcoal-900 mb-4">
-                Admin Profile
-              </h3>
-              <div className="flex items-center space-x-6 mb-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-luxury-400 to-luxury-600 rounded-full flex items-center justify-center">
-                  <User className="w-8 h-8 text-white" />
-                </div>
-                <div>
-                  <Button variant="outline" size="sm">
-                    Change Photo
-                  </Button>
-                  <p className="text-sm text-gray-500 mt-1">
-                    JPG, PNG or GIF. Max size 2MB
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    First Name
-                  </label>
-                  <Input defaultValue="Admin" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Last Name
-                  </label>
-                  <Input defaultValue="User" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email
-                  </label>
-                  <Input defaultValue="admin@miskblooming.ae" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Phone
-                  </label>
-                  <Input defaultValue="+971 50 123 4567" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Role
-                  </label>
-                  <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent">
-                    <option>Super Admin</option>
-                    <option>Admin</option>
-                    <option>Manager</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Language
-                  </label>
-                  <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent">
-                    <option>English</option>
-                    <option>Arabic</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case "security":
-        return (
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold text-charcoal-900 mb-4">
-                Password & Security
-              </h3>
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Current Password
-                  </label>
-                  <div className="relative">
-                    <Input type={showPassword ? "text" : "password"} />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2"
-                    >
-                      {showPassword ? (
-                        <EyeOff className="w-4 h-4 text-gray-400" />
-                      ) : (
-                        <Eye className="w-4 h-4 text-gray-400" />
-                      )}
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    New Password
-                  </label>
-                  <Input type="password" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Confirm New Password
-                  </label>
-                  <Input type="password" />
-                </div>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-charcoal-900 mb-4">
-                Two-Factor Authentication
-              </h3>
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                <div>
-                  <p className="font-medium text-charcoal-900">Enable 2FA</p>
-                  <p className="text-sm text-gray-600">
-                    Add an extra layer of security to your account
-                  </p>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-luxury-600"></div>
-                </label>
-              </div>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-charcoal-900 mb-4">
-                API Keys
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                  <div>
-                    <p className="font-medium text-charcoal-900">
-                      Production API Key
-                    </p>
-                    <p className="text-sm text-gray-600 font-mono">
-                      mk_live_••••••••••••••••
-                    </p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Button variant="ghost" size="sm">
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm">
-                      <Key className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case "notifications":
-        return (
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold text-charcoal-900 mb-4">
-                Email Notifications
-              </h3>
-              <div className="space-y-4">
-                {[
-                  {
-                    name: "New Orders",
-                    description: "Get notified when new orders are placed",
-                  },
-                  {
-                    name: "Low Stock Alerts",
-                    description: "Receive alerts when products are running low",
-                  },
-                  {
-                    name: "Customer Reviews",
-                    description: "Notifications for new customer reviews",
-                  },
-                  {
-                    name: "Payment Updates",
-                    description: "Updates on payment status changes",
-                  },
-                  {
-                    name: "Delivery Updates",
-                    description: "Notifications about delivery status",
-                  },
-                ].map((notification) => (
-                  <div
-                    key={notification.name}
-                    className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
-                  >
-                    <div>
-                      <p className="font-medium text-charcoal-900">
-                        {notification.name}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {notification.description}
-                      </p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        className="sr-only peer"
-                        defaultChecked
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-luxury-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-luxury-600"></div>
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
-
-      default:
-        return (
-          <div className="text-center py-12">
-            <Settings className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Settings Section
-            </h3>
-            <p className="text-gray-600">
-              This settings section is under development
-            </p>
-          </div>
-        );
-    }
-  };
-
+export default function SettingsOverviewPage() {
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col gap-2 lg:flex-row lg:items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">
-            Settings
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Manage your account and system preferences
-          </p>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* 1. Account Status Summary Card */}
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xl">
+              AC
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">
+                Acme Corp Store
+              </h2>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 text-green-600 text-xs font-medium">
+                  <CheckCircle2 className="w-3 h-3" />
+                  Active Plan
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  • Administrator
+                </span>
+              </div>
+            </div>
+          </div>
+          <button className="text-sm font-medium text-primary hover:underline underline-offset-4">
+            View Public Profile
+          </button>
         </div>
-        <Button variant="luxury">
-          <Save className="w-4 h-4 mr-2 " />
-          Save Changes
-        </Button>
+
+        <div className="mt-6 pt-6 border-t border-border grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Current Plan
+            </p>
+            <p className="font-semibold text-foreground">Pro Business</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Member Since
+            </p>
+            <p className="font-semibold text-foreground">Oct 2023</p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Security Status
+            </p>
+            <div className="flex items-center gap-2 text-yellow-600 dark:text-yellow-500">
+              <AlertCircle className="w-4 h-4" />
+              <span className="text-sm font-medium">2FA Not Enabled</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Settings Navigation */}
-        <div className="lg:col-span-1">
-          <motion.div
-            className="bg-white rounded-2xl sm:p-6 shadow-sm border border-gray-100"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <nav className="space-y-2">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full flex items-center space-x-3 px-4 py-3 text-left rounded-lg transition-colors ${
-                    activeTab === tab.id
-                      ? "bg-luxury-50 text-luxury-700 border border-luxury-200"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-                  }`}
+      {/* 2. Navigation Grid */}
+      <div>
+        <h3 className="text-lg font-semibold text-foreground mb-4">
+          All Settings
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {settingCards.map((card) => (
+            <Link
+              key={card.title}
+              href={card.href}
+              className="group relative flex flex-col gap-3 rounded-xl border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/50"
+            >
+              <div className="flex items-center justify-between">
+                <div
+                  className={`h-10 w-10 rounded-lg ${card.bgColor} ${card.color} flex items-center justify-center`}
                 >
-                  <tab.icon className="w-5 h-5" />
-                  <span className="font-medium">{tab.name}</span>
-                </button>
-              ))}
-            </nav>
-          </motion.div>
+                  <card.icon className="w-5 h-5" />
+                </div>
+                <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0" />
+              </div>
+
+              <div>
+                <h4 className="font-semibold text-foreground">{card.title}</h4>
+                <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                  {card.description}
+                </p>
+              </div>
+            </Link>
+          ))}
         </div>
+      </div>
 
-        {/* Settings Content */}
-        <div className="lg:col-span-3">
-          <motion.div
-            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+      {/* 3. Footer / Support Area */}
+      <div className="rounded-xl bg-muted/50 border border-dashed border-border p-6 text-center">
+        <h4 className="text-sm font-semibold text-foreground">Need help?</h4>
+        <p className="text-sm text-muted-foreground mt-1 mb-4">
+          Check our documentation or contact support if you are stuck.
+        </p>
+        <div className="flex justify-center gap-4">
+          <Link
+            href="#"
+            className="text-sm font-medium text-foreground hover:text-primary transition-colors"
           >
-            {renderTabContent()}
-
-            <div className="flex items-center justify-end space-x-4 mt-8 pt-6 border-t border-gray-200">
-              <Button variant="outline">Cancel</Button>
-              <Button variant="luxury">
-                <Save className="w-4 h-4 mr-2" />
-                Save Changes
-              </Button>
-            </div>
-          </motion.div>
+            Documentation
+          </Link>
+          <span className="text-border">|</span>
+          <Link
+            href="#"
+            className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+          >
+            Contact Support
+          </Link>
         </div>
       </div>
     </div>

@@ -117,15 +117,15 @@ export default function AdminDashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "delivered":
-        return "bg-green-100 text-green-800";
+        return "bg-green-200 text-green-800";
       case "shipped":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-200 text-blue-800";
       case "processing":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-200 text-yellow-800";
       case "pending":
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-200 text-gray-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-200 text-gray-800";
     }
   };
   // Handle report download
@@ -144,10 +144,10 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between">
         <div>
-          <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">
+          <h1 className="text-3xl font-cormorant font-bold text-foreground ">
             Welcome back, Admin!
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-foreground  mt-2">
             Here's what's happening with your flower shop today.
           </p>
         </div>
@@ -156,7 +156,7 @@ export default function AdminDashboard() {
           <select
             value={timeRange}
             onChange={(e) => setTimeRange(parseInt(e.target.value))}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-ring focus:border-transparent"
           >
             <option value={7}>Last 7 days</option>
             <option value={30}>Last 30 days</option>
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
         {stats.map((stat, index) => (
           <motion.div
             key={stat.name}
-            className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+            className="bg-background rounded-2xl p-6 shadow-sm border border-border hover:shadow-md transition-shadow"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -201,11 +201,11 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div>
-              <p className="text-2xl font-bold text-charcoal-900 mb-1">
+              <p className="text-2xl font-bold text-foreground  mb-1">
                 {stat.value}
               </p>
-              <p className="text-sm text-gray-600">{stat.name}</p>
-              <p className="text-xs text-gray-500 mt-1">{stat.description}</p>
+              <p className="text-sm text-foreground ">{stat.name}</p>
+              <p className="text-xs text-foreground mt-1">{stat.description}</p>
             </div>
           </motion.div>
         ))}
@@ -221,14 +221,14 @@ export default function AdminDashboard() {
         {quickStats.map((stat, index) => (
           <div
             key={stat.label}
-            className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+            className="bg-background rounded-xl p-4 shadow-sm border border-border"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-lg font-bold text-charcoal-900">
+                <p className="text-lg font-bold text-foreground ">
                   {stat.value}
                 </p>
-                <p className="text-sm text-gray-600">{stat.label}</p>
+                <p className="text-sm text-foreground ">{stat.label}</p>
               </div>
               <stat.icon className={`w-5 h-5 ${stat.color}`} />
             </div>
@@ -239,14 +239,14 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Orders */}
         <motion.div
-          className="bg-white rounded-2xl shadow-sm border border-gray-100"
+          className="bg-background rounded-2xl shadow-sm border border-border"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
-          <div className="sm:p-6 border-b border-gray-100">
+          <div className="sm:p-6 border-b border-border">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-charcoal-900">
+              <h2 className="text-xl font-semibold text-foreground ">
                 Recent Orders
               </h2>
               <Button variant="outline" size="sm">
@@ -260,24 +260,26 @@ export default function AdminDashboard() {
               {recentOrders?.map((order: any, index: any) => (
                 <motion.div
                   key={order.id}
-                  className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between p-4 rounded-xl hover:bg-primary transition-colors"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                 >
                   <div className="flex flex-wrap items-center space-x-4">
                     <div>
-                      <p className="font-medium text-sm sm:text-base text-charcoal-900">
+                      <p className="font-medium text-sm sm:text-base text-foreground ">
                         #{order.id}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-foreground ">
                         {order.customer.name}
                       </p>
-                      <p className="text-xs text-gray-500">{order.product}</p>
+                      <p className="text-xs text-foreground ">
+                        {order.product}
+                      </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-charcoal-900">
+                    <p className="font-medium text-foreground ">
                       {order.amount}
                     </p>
                     <span
@@ -296,13 +298,13 @@ export default function AdminDashboard() {
 
         {/* Top Products */}
         <motion.div
-          className="bg-white rounded-2xl shadow-sm border border-gray-100"
+          className="bg-background rounded-2xl shadow-sm border border-border"
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
         >
-          <div className="sm:p-6 border-b border-gray-100">
-            <h2 className="text-xl font-semibold text-charcoal-900">
+          <div className="sm:p-6 border-b border-border">
+            <h2 className="text-xl font-semibold text-foreground ">
               Top Products
             </h2>
           </div>
@@ -311,28 +313,28 @@ export default function AdminDashboard() {
               {topProducts?.map((product: any, index: any) => (
                 <motion.div
                   key={product.name}
-                  className="flex items-center justify-between sm:p-4 py-1 sm:py-0 rounded-xl hover:bg-gray-50 transition-colors"
+                  className="flex items-center justify-between sm:p-4 py-1 sm:py-2 rounded-xl hover:bg-primary transition-colors"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                 >
                   <div className="flex items-center  sm:space-x-4 space-x-2">
-                    <div className="w-10 h-10 bg-luxury-100 rounded-lg flex items-center justify-center">
-                      <span className="text-luxury-700 font-medium text-sm">
+                    <div className="w-10 h-10 bg-foreground rounded-lg flex items-center justify-center">
+                      <span className="text-primary font-medium text-sm">
                         {index + 1}
                       </span>
                     </div>
                     <div>
-                      <p className="font-medium text-sm sm:text-base text-charcoal-900">
+                      <p className="font-medium text-sm sm:text-base text-foreground ">
                         {product.name}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <p className="text-sm text-foreground ">
                         {product.sales} sales
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-charcoal-900">
+                    <p className="font-medium text-foreground ">
                       {product.revenue}
                     </p>
                     <div className="flex items-center">
@@ -362,24 +364,24 @@ export default function AdminDashboard() {
 
       {/* Quick Actions */}
       <motion.div
-        className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6"
+        className="bg-background rounded-2xl shadow-sm border border-border p-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.7 }}
       >
-        <h2 className="text-xl font-semibold text-charcoal-900 mb-6">
+        <h2 className="text-xl font-semibold text-foreground  mb-6">
           Quick Actions
         </h2>
         <div className="grid grid-cols-1 overflow-hidden md:grid-cols-3 gap-4">
           <Button
             onClick={() => router.push("/dashboard/products/add")}
             variant="outline"
-            className="justify-start h-auto p-6 bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200 hover:from-blue-100 hover:to-blue-200"
+            className="justify-start h-auto p-6 bg-popover border-border "
           >
             <Package className="w-6 h-6 mr-4 text-blue-600" />
             <div className="text-left overflow-hidden">
-              <p className="font-medium text-charcoal-900">Add New Product</p>
-              <p className="text-sm text-gray-600">
+              <p className="font-medium text-foreground ">Add New Product</p>
+              <p className="text-sm text-foreground ">
                 Create a new flower arrangement
               </p>
             </div>
@@ -387,22 +389,24 @@ export default function AdminDashboard() {
           <Button
             onClick={() => router.push("/dashboard/orders")}
             variant="outline"
-            className="justify-start h-auto p-6 bg-gradient-to-r from-green-50 to-green-100 border-green-200 hover:from-green-100 hover:to-green-200"
+            className="justify-start h-auto p-6 bg-popover border-border "
           >
             <ShoppingCart className="w-6 h-6 mr-4 text-green-600" />
             <div className="text-left">
-              <p className="font-medium text-charcoal-900">Process Orders</p>
-              <p className="text-sm text-gray-600">Review pending orders</p>
+              <p className="font-medium text-foreground ">Process Orders</p>
+              <p className="text-sm text-foreground ">Review pending orders</p>
             </div>
           </Button>
           <Button
             variant="outline"
-            className="justify-start h-auto p-6 bg-gradient-to-r from-purple-50 to-purple-100 border-purple-200 hover:from-purple-100 hover:to-purple-200"
+            className="justify-start h-auto p-6 bg-popover border-border "
           >
             <TrendingUp className="w-6 h-6 mr-4 text-purple-600" />
             <div className="text-left">
-              <p className="font-medium text-charcoal-900">View Analytics</p>
-              <p className="text-sm text-gray-600">Check performance metrics</p>
+              <p className="font-medium text-foreground ">View Analytics</p>
+              <p className="text-sm text-foreground ">
+                Check performance metrics
+              </p>
             </div>
           </Button>
         </div>

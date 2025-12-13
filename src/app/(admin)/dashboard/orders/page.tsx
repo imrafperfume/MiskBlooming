@@ -72,7 +72,7 @@ export default function OrdersPage() {
       case "CANCELLED":
         return "bg-red-100 text-red-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-background  text-gray-800";
     }
   };
 
@@ -127,10 +127,12 @@ export default function OrdersPage() {
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between">
         <div>
-          <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">
+          <h1 className="text-3xl font-cormorant font-bold text-foreground ">
             Order Management
           </h1>
-          <p className="text-gray-600 mt-2">Track and manage customer orders</p>
+          <p className="text-foreground  mt-2">
+            Track and manage customer orders
+          </p>
         </div>
         <div className="flex flex-wrap sm:flex-nowrap sm:items-center gap-4 sm:gap-0 sm:space-x-4 mt-4 lg:mt-0">
           <Button variant="outline" onClick={() => setRefetch((prev) => !prev)}>
@@ -144,38 +146,38 @@ export default function OrdersPage() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <p className="text-sm text-gray-600">Total Orders</p>
-          <p className="text-xl font-bold text-charcoal-900">
+        <div className="bg-background rounded-xl p-4 shadow-sm border border-gray-100">
+          <p className="text-sm text-foreground ">Total Orders</p>
+          <p className="text-xl font-bold text-foreground ">
             {orderStats?.totalOrders}
           </p>
         </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <p className="text-sm text-gray-600">Pending</p>
+        <div className="bg-background rounded-xl p-4 shadow-sm border border-gray-100">
+          <p className="text-sm text-foreground ">Pending</p>
           <p className="text-xl font-bold text-yellow-600">
             {orderStats?.pending}
           </p>
         </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <p className="text-sm text-gray-600">Processing</p>
+        <div className="bg-background rounded-xl p-4 shadow-sm border border-gray-100">
+          <p className="text-sm text-foreground ">Processing</p>
           <p className="text-xl font-bold text-blue-600">
             {orderStats?.processing}
           </p>
         </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <p className="text-sm text-gray-600">Shipped</p>
+        <div className="bg-background rounded-xl p-4 shadow-sm border border-gray-100">
+          <p className="text-sm text-foreground ">Shipped</p>
           <p className="text-xl font-bold text-purple-600">
             {orderStats?.shipped}
           </p>
         </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <p className="text-sm text-gray-600">Delivered</p>
+        <div className="bg-background rounded-xl p-4 shadow-sm border border-gray-100">
+          <p className="text-sm text-foreground ">Delivered</p>
           <p className="text-xl font-bold text-green-600">
             {orderStats?.delivered}
           </p>
         </div>
-        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-          <p className="text-sm text-gray-600">CANCELLED</p>
+        <div className="bg-background rounded-xl p-4 shadow-sm border border-gray-100">
+          <p className="text-sm text-foreground ">CANCELLED</p>
           <p className="text-xl font-bold text-red-600">
             {orderStats?.cancelled}
           </p>
@@ -194,7 +196,7 @@ export default function OrdersPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+          className="px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
         >
           <option value="all">All Status</option>
           <option value="PENDING">Pending</option>
@@ -207,8 +209,8 @@ export default function OrdersPage() {
 
       {/* Orders Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-          <thead className="bg-gray-50">
+        <table className="min-w-full bg-background border border-border  rounded-lg">
+          <thead className="bg-background">
             <tr className="text-sm font-normal">
               <th className="px-2 py-2 text-left">Order ID</th>
               <th className="px-2 py-2 text-left">Customer</th>
@@ -259,7 +261,7 @@ export default function OrdersPage() {
       {/* Pagination */}
       {filteredOrders?.length > 0 && (
         <div className="flex items-center justify-between mt-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-foreground ">
             Showing {(currentPage - 1) * itemsPerPage + 1} -{" "}
             {Math.min(currentPage * itemsPerPage, filteredOrders?.length)} of{" "}
             {filteredOrders?.length} orders

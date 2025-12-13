@@ -11,10 +11,10 @@ function InventoryTab({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-cormorant font-bold text-charcoal-900 mb-4">
+        <h2 className="text-xl font-cormorant font-bold text-foreground  mb-4">
           Inventory Management
         </h2>
-        <p className="text-gray-600">
+        <p className="text-foreground ">
           Track stock levels and product identifiers
         </p>
       </div>
@@ -38,7 +38,7 @@ function InventoryTab({
           {errors?.sku && (
             <p className="text-red-500 text-sm mt-1">{errors.sku}</p>
           )}
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-foreground mt-1">
             Auto-generated from name and category
           </p>
         </div>
@@ -70,7 +70,7 @@ function InventoryTab({
               onChange={(e) =>
                 handleInputChange("trackQuantity", e.target.checked)
               }
-              className="rounded border-gray-300 text-luxury-600 focus:ring-luxury-500"
+              className="rounded border-border  text-primary focus:ring-ring"
             />
             <span className="ml-2 text-sm font-medium text-gray-700">
               Track quantity for this product
@@ -126,7 +126,7 @@ function InventoryTab({
                 }
                 placeholder="5"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-foreground mt-1">
                 Get notified when stock is low
               </p>
             </div>
@@ -148,7 +148,7 @@ function InventoryTab({
               onChange={(e) =>
                 handleInputChange("requiresShipping", e.target.checked)
               }
-              className="rounded border-gray-300 text-luxury-600 focus:ring-luxury-500"
+              className="rounded border-border  text-primary focus:ring-ring"
             />
             <span className="ml-2 text-sm font-medium text-gray-700">
               This product requires shipping

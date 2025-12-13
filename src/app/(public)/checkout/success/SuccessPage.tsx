@@ -51,7 +51,7 @@ interface Order {
 
 export default function SuccessPage({ order }: { order: Order }) {
   return (
-    <div className="min-h-screen mt-16 bg-gradient-to-br from-cream-50 to-cream-100">
+    <div className="min-h-screen mt-16 bg-background">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* Success Header */}
         <motion.div
@@ -74,7 +74,7 @@ export default function SuccessPage({ order }: { order: Order }) {
             <CheckCircle className="w-10 h-10 text-green-600" />
           </motion.div>
 
-          <h1 className="font-cormorant text-4xl font-bold text-charcoal-900 mb-4">
+          <h1 className="font-cormorant text-4xl font-bold text-foreground  mb-4">
             Order Confirmed!
           </h1>
           <p className="text-xl text-muted-foreground mb-2">
@@ -95,21 +95,21 @@ export default function SuccessPage({ order }: { order: Order }) {
 
         {/* Order Details Card */}
         <motion.div
-          className="bg-white rounded-2xl shadow-lg p-8 mb-8"
+          className="bg-background rounded-2xl shadow-lg p-8 mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           <div className="sm:flex items-center justify-between mb-6">
             <div>
-              <h2 className="font-cormorant text-2xl font-bold text-charcoal-900">
+              <h2 className="font-cormorant text-2xl font-bold text-foreground ">
                 Order Details
               </h2>
               <p className="text-muted-foreground">Order #{order?.id}</p>
             </div>
             <div className="sm:text-right sm:mt-0 mt-2">
               <p className="text-sm text-muted-foreground">Total Amount</p>
-              <p className="text-2xl font-bold text-charcoal-900">
+              <p className="text-2xl font-bold text-foreground ">
                 {formatPrice(order?.totalAmount)}
               </p>
             </div>
@@ -123,9 +123,9 @@ export default function SuccessPage({ order }: { order: Order }) {
                 className="flex items-center justify-between py-3 border-b border-cream-200 last:border-b-0"
               >
                 <div className="flex items-center">
-                  <Package className="w-5 h-5 text-luxury-500 mr-3" />
+                  <Package className="w-5 h-5 text-primary  mr-3" />
                   <div>
-                    <p className="font-medium text-sm sm:text-base text-charcoal-900">
+                    <p className="font-medium text-sm sm:text-base text-foreground ">
                       {item.product.name}
                     </p>
                     <p className="text-sm text-muted-foreground">
@@ -133,7 +133,7 @@ export default function SuccessPage({ order }: { order: Order }) {
                     </p>
                   </div>
                 </div>
-                <p className="font-medium text-charcoal-900">
+                <p className="font-medium text-foreground ">
                   {formatPrice(item.price)}
                 </p>
               </div>
@@ -141,9 +141,9 @@ export default function SuccessPage({ order }: { order: Order }) {
           </div>
 
           {/* ✅ Order Summary */}
-          <div className="bg-luxury-50 rounded-xl p-6 mt-6">
-            <h3 className="font-semibold text-charcoal-900 mb-4 flex items-center">
-              <Package className="w-5 h-5 text-luxury-500 mr-2" />
+          <div className="bg-foregroundrounded-xl p-6 mt-6">
+            <h3 className="font-semibold text-foreground  mb-4 flex items-center">
+              <Package className="w-5 h-5 text-primary  mr-2" />
               Order Summary
             </h3>
 
@@ -177,7 +177,7 @@ export default function SuccessPage({ order }: { order: Order }) {
 
               <div className="border-t border-cream-200 my-2"></div>
 
-              <div className="flex justify-between font-bold text-lg text-charcoal-900">
+              <div className="flex justify-between font-bold text-lg text-foreground ">
                 <span>Total</span>
                 <span>{formatPrice(order.totalAmount)}</span>
               </div>
@@ -185,9 +185,9 @@ export default function SuccessPage({ order }: { order: Order }) {
           </div>
 
           {/* Delivery Information */}
-          <div className="bg-luxury-50 rounded-xl p-6 mt-6">
-            <h3 className="font-semibold text-charcoal-900 mb-4 flex items-center">
-              <Truck className="w-5 h-5 text-luxury-500 mr-2" />
+          <div className="bg-foregroundrounded-xl p-6 mt-6">
+            <h3 className="font-semibold text-foreground  mb-4 flex items-center">
+              <Truck className="w-5 h-5 text-primary  mr-2" />
               Delivery Information
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -195,13 +195,13 @@ export default function SuccessPage({ order }: { order: Order }) {
                 <p className="text-sm text-muted-foreground">
                   Delivery Address
                 </p>
-                <p className="font-medium text-charcoal-900">
+                <p className="font-medium text-foreground ">
                   {order?.address}, {order?.emirate}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Delivery Type</p>
-                <p className="font-medium text-charcoal-900">
+                <p className="font-medium text-foreground ">
                   {order?.deliveryType}
                 </p>
               </div>
@@ -211,7 +211,7 @@ export default function SuccessPage({ order }: { order: Order }) {
                     <p className="text-sm text-muted-foreground">
                       Estimated Delivery
                     </p>
-                    <p className="font-medium text-charcoal-900">
+                    <p className="font-medium text-foreground ">
                       {new Date(Number(order?.deliveryDate)).toLocaleDateString(
                         "en-GB",
                         { day: "2-digit", month: "short", year: "numeric" }
@@ -222,7 +222,7 @@ export default function SuccessPage({ order }: { order: Order }) {
                     <p className="text-sm text-muted-foreground">
                       Delivery Time
                     </p>
-                    <p className="font-medium text-charcoal-900">
+                    <p className="font-medium text-foreground ">
                       {order?.deliveryTime}
                     </p>
                   </div>
@@ -234,22 +234,22 @@ export default function SuccessPage({ order }: { order: Order }) {
 
         {/* What Happens Next */}
         <motion.div
-          className="bg-white rounded-2xl shadow-lg p-8 mb-8"
+          className="bg-background rounded-2xl shadow-lg p-8 mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
-          <h2 className="font-cormorant text-2xl font-bold text-charcoal-900 mb-6">
+          <h2 className="font-cormorant text-2xl font-bold text-foreground  mb-6">
             What Happens Next?
           </h2>
 
           <div className="space-y-6">
             <div className="flex items-start">
-              <div className="w-8 h-8 bg-luxury-500 text-charcoal-900 rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
+              <div className="w-8 h-8 bg-foreground 0 text-foreground  rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
                 1
               </div>
               <div>
-                <h3 className="font-semibold text-charcoal-900 mb-1">
+                <h3 className="font-semibold text-foreground  mb-1">
                   Order Confirmation
                 </h3>
                 <p className="text-muted-foreground">
@@ -260,11 +260,11 @@ export default function SuccessPage({ order }: { order: Order }) {
             </div>
 
             <div className="flex items-start">
-              <div className="w-8 h-8 bg-luxury-500 text-charcoal-900 rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
+              <div className="w-8 h-8 bg-foreground 0 text-foreground  rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
                 2
               </div>
               <div>
-                <h3 className="font-semibold text-charcoal-900 mb-1">
+                <h3 className="font-semibold text-foreground  mb-1">
                   Fresh Preparation
                 </h3>
                 <p className="text-muted-foreground">
@@ -275,11 +275,11 @@ export default function SuccessPage({ order }: { order: Order }) {
             </div>
 
             <div className="flex items-start">
-              <div className="w-8 h-8 bg-luxury-500 text-charcoal-900 rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
+              <div className="w-8 h-8 bg-foreground 0 text-foreground  rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
                 3
               </div>
               <div>
-                <h3 className="font-semibold text-charcoal-900 mb-1">
+                <h3 className="font-semibold text-foreground  mb-1">
                   Quality Check & Packaging
                 </h3>
                 <p className="text-muted-foreground">
@@ -290,11 +290,11 @@ export default function SuccessPage({ order }: { order: Order }) {
             </div>
 
             <div className="flex items-start">
-              <div className="w-8 h-8 bg-luxury-500 text-charcoal-900 rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
+              <div className="w-8 h-8 bg-foreground 0 text-foreground  rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
                 4
               </div>
               <div>
-                <h3 className="font-semibold text-charcoal-900 mb-1">
+                <h3 className="font-semibold text-foreground  mb-1">
                   Delivery
                 </h3>
                 <p className="text-muted-foreground">
@@ -313,10 +313,10 @@ export default function SuccessPage({ order }: { order: Order }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
-          <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className="bg-background rounded-2xl shadow-lg p-6">
             <div className="flex items-center mb-4">
-              <Phone className="w-6 h-6 text-luxury-500 mr-3" />
-              <h3 className="font-cormorant text-xl font-bold text-charcoal-900">
+              <Phone className="w-6 h-6 text-primary  mr-3" />
+              <h3 className="font-cormorant text-xl font-bold text-foreground ">
                 Need Help?
               </h3>
             </div>
@@ -326,20 +326,20 @@ export default function SuccessPage({ order }: { order: Order }) {
             </p>
             <div className="space-y-2">
               <p className="flex items-center text-sm">
-                <Phone className="w-4 h-4 text-luxury-500 mr-2" />
+                <Phone className="w-4 h-4 text-primary  mr-2" />
                 <span className="font-medium">+971 4 123 4567</span>
               </p>
               <p className="flex items-center text-sm">
-                <Mail className="w-4 h-4 text-luxury-500 mr-2" />
+                <Mail className="w-4 h-4 text-primary  mr-2" />
                 <span className="font-medium">support@miskblooming.ae</span>
               </p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg p-6">
+          <div className="bg-background rounded-2xl shadow-lg p-6">
             <div className="flex items-center mb-4">
-              <Gift className="w-6 h-6 text-luxury-500 mr-3" />
-              <h3 className="font-cormorant text-xl font-bold text-charcoal-900">
+              <Gift className="w-6 h-6 text-primary  mr-3" />
+              <h3 className="font-cormorant text-xl font-bold text-foreground ">
                 Special Occasions
               </h3>
             </div>
@@ -348,7 +348,7 @@ export default function SuccessPage({ order }: { order: Order }) {
               and special events.
             </p>
             <Link href="/products">
-              <Button variant="outline" className="w-full bg-white">
+              <Button variant="outline" className="w-full bg-background">
                 Browse Collections
               </Button>
             </Link>
@@ -373,7 +373,7 @@ export default function SuccessPage({ order }: { order: Order }) {
             <Button
               variant="outline"
               size="lg"
-              className="w-full sm:w-auto bg-white"
+              className="w-full sm:w-auto bg-background"
             >
               Track Your Order
             </Button>
@@ -381,20 +381,20 @@ export default function SuccessPage({ order }: { order: Order }) {
         </motion.div>
 
         <motion.div
-          className="text-center mt-12 p-6 bg-luxury-50 rounded-2xl"
+          className="text-center mt-12 p-6 bg-foregroundrounded-2xl"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.7 }}
         >
-          <Star className="w-8 h-8 text-luxury-500 mx-auto mb-3" />
-          <h3 className="font-cormorant text-xl font-bold text-charcoal-900 mb-2">
+          <Star className="w-8 h-8 text-primary  mx-auto mb-3" />
+          <h3 className="font-cormorant text-xl font-bold text-foreground  mb-2">
             Love Your Experience?
           </h3>
           <p className="text-muted-foreground mb-4">
             Share your experience and help others discover the beauty of Misk
             Blooming
           </p>
-          <Button variant="outline" className="bg-white">
+          <Button variant="outline" className="bg-background">
             Leave a Review
           </Button>
         </motion.div>

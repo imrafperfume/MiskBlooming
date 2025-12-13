@@ -263,8 +263,8 @@ export function FileUpload({
           relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200
           ${
             isDragOver
-              ? "border-luxury-400 bg-luxury-50 scale-105"
-              : "border-gray-300 hover:border-gray-400"
+              ? "border-luxury-400 bg-foregroundscale-105"
+              : "border-border  hover:border-gray-400"
           }
           ${isUploading ? "pointer-events-none opacity-75" : "cursor-pointer"}
         `}
@@ -282,15 +282,15 @@ export function FileUpload({
         <div className="space-y-4">
           <div
             className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center ${
-              isDragOver ? "bg-luxury-100" : "bg-gray-100"
+              isDragOver ? "bg-luxury-100" : "bg-background "
             }`}
           >
             {isUploading ? (
-              <Loader2 className="w-8 h-8 text-luxury-600 animate-spin" />
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
             ) : (
               <Upload
                 className={`w-8 h-8 ${
-                  isDragOver ? "text-luxury-600" : "text-gray-400"
+                  isDragOver ? "text-primary " : "text-gray-400"
                 }`}
               />
             )}
@@ -300,10 +300,10 @@ export function FileUpload({
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               {isDragOver ? "Drop files here" : "Upload Product Images"}
             </h3>
-            <p className="text-gray-600 mb-4">
+            <p className="text-foreground  mb-4">
               Drag and drop your images here, or click to browse
             </p>
-            <div className="text-sm text-gray-500 space-y-1">
+            <div className="text-sm text-foreground space-y-1">
               <p>Supported formats: JPG, PNG, WebP, GIF</p>
               <p>Maximum file size: {maxFileSize}MB each</p>
               <p>Maximum {maxFiles} files total</p>
@@ -321,8 +321,8 @@ export function FileUpload({
         </div>
 
         {isDragOver && (
-          <div className="absolute inset-0 bg-luxury-500 bg-opacity-10 rounded-xl flex items-center justify-center">
-            <div className="text-luxury-600 font-semibold text-lg">
+          <div className="absolute inset-0 bg-foreground 0 bg-opacity-10 rounded-xl flex items-center justify-center">
+            <div className="text-primary font-semibold text-lg">
               Drop files to upload
             </div>
           </div>
@@ -336,11 +336,11 @@ export function FileUpload({
           {uploadedFiles.map((file) => (
             <div
               key={file.id}
-              className="bg-white border border-gray-200 rounded-lg p-4"
+              className="bg-background border border-border  rounded-lg p-4"
             >
               <div className="flex items-center space-x-4">
                 {/* Preview */}
-                <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                <div className="w-16 h-16 rounded-lg overflow-hidden bg-background  flex-shrink-0">
                   <img
                     src={file.preview || "/placeholder.svg"}
                     alt={file.file.name}
@@ -373,7 +373,7 @@ export function FileUpload({
                     </div>
                   </div>
 
-                  <div className="text-xs text-gray-500 mb-2">
+                  <div className="text-xs text-foreground mb-2">
                     {(file.file.size / 1024 / 1024).toFixed(2)} MB
                   </div>
 
@@ -381,7 +381,7 @@ export function FileUpload({
                   {file.status === "uploading" && (
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div
-                        className="bg-luxury-600 h-2 rounded-full transition-all duration-300"
+                        className="bg-primary h-2 rounded-full transition-all duration-300"
                         style={{ width: `${file.progress}%` }}
                       />
                     </div>

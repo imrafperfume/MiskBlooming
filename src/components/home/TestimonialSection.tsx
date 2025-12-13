@@ -15,7 +15,7 @@ const TestimonialSection = () => {
   if (loading) return <Loading />;
 
   return (
-    <section className="py-24 bg-gradient-to-br from-charcoal-900 to-charcoal-800 relative overflow-hidden">
+    <section className="py-24 bg-backgroundfrom-charcoal-900 to-charcoal-800 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0 bg-[url('/placeholder.svg?height=100&width=100&text=Pattern')] bg-repeat"></div>
@@ -48,7 +48,7 @@ const TestimonialSection = () => {
             viewport={{ once: true }}
           >
             <div className="relative">
-              <Quote className="absolute -top-4 -left-4 w-12 h-12 text-luxury-500 opacity-50" />
+              <Quote className="absolute -top-4 -left-4 w-12 h-12 text-primary  opacity-50" />
               <motion.blockquote
                 key={activeTestimonial}
                 className="text-cream-100 text-2xl leading-relaxed font-light italic pl-8"
@@ -92,7 +92,7 @@ const TestimonialSection = () => {
                     (_, i) => (
                       <Star
                         key={i}
-                        className="w-4 h-4 text-luxury-500 fill-current"
+                        className="w-4 h-4 text-primary  fill-current"
                       />
                     )
                   )}
@@ -131,7 +131,7 @@ const TestimonialSection = () => {
                     />
                   </div> */}
                   <div className="flex-1">
-                    <h5 className="font-semibold text-charcoal-900 text-sm">
+                    <h5 className="font-semibold text-foreground  text-sm">
                       {testimonial.user.firstName} {testimonial.user.lastName}
                     </h5>
                     {/* <p className="text-cream-300 text-xs">{testimonial.role}</p> */}
@@ -140,7 +140,7 @@ const TestimonialSection = () => {
                     {[...Array(testimonial?.rating)].map((_, i) => (
                       <Star
                         key={i}
-                        className="w-3 h-3 text-luxury-500 fill-current"
+                        className="w-3 h-3 text-primary  fill-current"
                       />
                     ))}
                   </div>

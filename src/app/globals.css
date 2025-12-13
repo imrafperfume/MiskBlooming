@@ -5,48 +5,58 @@
 /* Base Layer */
 @layer base {
   :root {
-    --background: 254 252 248;
-    --foreground: 26 26 26;
-    --card: 255 255 255;
-    --card-foreground: 26 26 26;
-    --popover: 255 255 255;
-    --popover-foreground: 26 26 26;
-    --primary: 212 175 55;
-    --primary-foreground: 26 26 26;
-    --secondary: 253 245 230;
-    --secondary-foreground: 26 26 26;
-    --muted: 247 244 240;
-    --muted-foreground: #fdf5e6;
-    --accent: 253 245 230;
-    --accent-foreground: 26 26 26;
-    --destructive: 239 68 68;
-    --destructive-foreground: 255 255 255;
-    --border: 229 229 229;
-    --input: 229 229 229;
-    --ring: 212 175 55;
+    /* Light Mode - Soft Gold / White */
+    --background: 45 20% 98%;
+    /* hue 45 → light yellow/gold tint */
+    --foreground: 0 0% 10%;
+    /* dark text */
+    --card: 45 20% 100%;
+    /* card slightly whiter */
+    --card-foreground: 0 0% 10%;
+    --popover: 45 20% 100%;
+    --popover-foreground: 0 0% 10%;
+    --primary:46 65% 52%;
+    /* gold */
+    --primary-foreground: 0 0% 10%;
+    --secondary: 45 20% 90%;
+    --secondary-foreground: 0 0% 10%;
+    --muted: 45 15% 95%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 45 20% 90%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 70% 50%;
+    /* red */
+    --destructive-foreground: 0 0% 100%;
+    --border: 45 20% 85%;
+    --input: 45 20% 85%;
+    --ring: 45 100% 50%;
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 10 10 10;
-    --foreground: 255 255 255;
-    --card: 26 26 26;
-    --card-foreground: 255 255 255;
-    --popover: 26 26 26;
-    --popover-foreground: 255 255 255;
-    --primary: 212 175 55;
-    --primary-foreground: 26 26 26;
-    --secondary: 69 69 69;
-    --secondary-foreground: 255 255 255;
-    --muted: 69 69 69;
-    --muted-foreground: 176 176 176;
-    --accent: 69 69 69;
-    --accent-foreground: 255 255 255;
-    --destructive: 220 38 38;
-    --destructive-foreground: 255 255 255;
-    --border: 69 69 69;
-    --input: 69 69 69;
-    --ring: 212 175 55;
+    /* Dark Mode - Deep Charcoal + Gold */
+    --background: 10 0% 4%;
+    /* almost black */
+    --foreground: 0 0% 100%;
+    /* white text */
+    --card: 10 0% 10%;
+    --card-foreground: 0 0% 100%;
+    --popover: 10 0% 10%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 46 65% 52%;
+    /* gold */
+    --primary-foreground: 0 0% 10%;
+    --secondary: 0 0% 25%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 25%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 0 0% 25%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 70% 40%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 25%;
+    --input: 0 0% 25%;
+    --ring: 45 100% 50%;
   }
 
   * {
@@ -54,13 +64,10 @@
   }
 
   body {
-    @apply bg-background text-foreground font-inter antialiased;
+    @apply bg-[hsl(var(--background)/1)] text-[hsl(var(--foreground)/1)] font-inter antialiased;
     -webkit-font-smoothing: antialiased;
-    /* crisp text */
     text-rendering: optimizeLegibility;
-    /* faster rendering */
     overflow-x: hidden;
-    /* avoids horizontal CLS */
   }
 
   h1,
@@ -84,9 +91,8 @@
   }
 
   .glass-effect {
-    @apply backdrop-blur-md bg-white/80 border border-white/20;
+    @apply backdrop-blur-md bg-[hsl(var(--background)/0.8)] dark:bg-[hsl(var(--card)/0.6)] border border-[hsl(var(--border)/0.2)];
     will-change: transform;
-    /* better perf on animations */
   }
 
   .luxury-shadow {
@@ -98,11 +104,10 @@
   }
 
   .shimmer::after {
-    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent;
+    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent dark:via-gray-600/20;
     content: "";
     animation: shimmer 2s infinite linear;
     will-change: transform;
-    /* GPU accel */
   }
 }
 
@@ -120,48 +125,6 @@
   @apply text-luxury-500;
 }
 
-.swiper {
-  width: 100%;
-  height: 100%;
-  border: none;
-  outline: none;
-}
-
-.swiper-slide {
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: none;
-  outline: none;
-}
-
-.swiper-slide img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border: none;
-  outline: none;
-}
-
-/* Custom scrollbar (perf-friendly) */
-::-webkit-scrollbar {
-  width: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-cream-100;
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-luxury-500 rounded-full;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-luxury-600;
-}
-
 /* Utility classes */
 .all-unset {
   all: unset;
@@ -177,4 +140,28 @@
   font-family: "Cormorant Garamond", serif;
   all: revert;
   font-size: revert;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-luxury-500 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-luxury-600;
+}
+/* In globals.css */
+@layer utilities {
+  .print-color-adjust-exact {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }

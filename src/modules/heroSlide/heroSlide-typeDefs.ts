@@ -10,6 +10,9 @@ export const HeroTypeDefs = gql`
     buttonText: String
     buttonLink: String
     order: Int!
+    layoutStyle: String!
+    createdAt: String!
+    updatedAt: String!
   }
 
   type Query {
@@ -25,6 +28,7 @@ export const HeroTypeDefs = gql`
       buttonText: String
       buttonLink: String
       order: Int
+      layoutStyle: String
     ): HeroSlide!
 
     updateHeroSlide(
@@ -36,6 +40,7 @@ export const HeroTypeDefs = gql`
       buttonText: String
       buttonLink: String
       order: Int
+      layoutStyle: String
     ): HeroSlide!
 
     deleteHeroSlide(id: ID!): Boolean!

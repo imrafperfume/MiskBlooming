@@ -6,7 +6,7 @@ export async function GET(req: Request) {
   const stream = new ReadableStream({
     async start(controller) {
       const interval = setInterval(async () => {
-        // stop if client disconnected
+        // Stop if client disconnected
         if (req.signal.aborted) {
           clearInterval(interval);
           try {
@@ -16,11 +16,14 @@ export async function GET(req: Request) {
         }
 
         try {
+          // Safe lastId handling
+          const where = lastId ? { id: { gt: lastId } } : {};
           const notifications = await prisma.notification.findMany({
-            where: { id: { gt: lastId || "" } },
+            where,
             orderBy: { createdAt: "asc" },
           });
 
+          // Send each notification to client
           for (const n of notifications) {
             if (req.signal.aborted) break;
             controller.enqueue(
@@ -39,9 +42,18 @@ export async function GET(req: Request) {
           }
         } catch (err) {
           console.error("SSE Error:", err);
+          // Optional: send error to client
+          controller.enqueue(
+            new TextEncoder().encode(
+              `data: ${JSON.stringify({
+                error: "Failed to fetch notifications",
+              })}\n\n`
+            )
+          );
         }
       }, 2000);
 
+      // Clean up on abort
       req.signal.addEventListener("abort", () => clearInterval(interval));
     },
   });

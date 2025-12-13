@@ -12,20 +12,20 @@ export default function CookiePolicy({
   lastUpdated = "October 10, 2025",
 }) {
   return (
-    <section className="max-w-4xl mx-auto mt-16 p-6 bg-white shadow-lg rounded-2xl border border-gray-100">
+    <section className="max-w-4xl mx-auto mt-16 p-6 bg-background shadow-lg rounded-2xl border border-gray-100">
       <header className="mb-6">
         <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">
           Cookie Policy – Misk Blooming UAE
         </h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-foreground ">
           Effective Date:{" "}
           <span className="font-medium text-gray-700">{effectiveDate}</span>
         </p>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-foreground ">
           Last Updated:{" "}
           <span className="font-medium text-gray-700">{lastUpdated}</span>
         </p>
-        <p className="mt-3 text-gray-600">
+        <p className="mt-3 text-foreground ">
           Welcome to Misk Blooming UAE. This Cookie Policy explains how and why
           we use cookies and similar tracking technologies when you visit or
           shop on our website.
@@ -33,7 +33,7 @@ export default function CookiePolicy({
       </header>
 
       <div className="space-y-6">
-        <article className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+        <article className="bg-background p-4 rounded-lg border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
             1. About Misk Blooming UAE
           </h2>
@@ -69,7 +69,7 @@ export default function CookiePolicy({
           </address>
         </article>
 
-        <article className="bg-white p-4 rounded-lg border border-gray-100">
+        <article className="bg-background p-4 rounded-lg border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
             2. What Are Cookies?
           </h2>
@@ -85,13 +85,13 @@ export default function CookiePolicy({
             <li>Show you relevant offers through remarketing campaigns</li>
             <li>Improve website performance and loading speed</li>
           </ul>
-          <p className="mt-2 text-gray-600 text-sm">
+          <p className="mt-2 text-foreground  text-sm">
             Cookies do not give us access to your personal device or private
             data.
           </p>
         </article>
 
-        <article className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+        <article className="bg-background p-4 rounded-lg border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
             3. Types of Cookies We Use
           </h2>
@@ -107,7 +107,7 @@ export default function CookiePolicy({
             <li>Keep cart contents saved during browsing</li>
             <li>Support basic website navigation</li>
           </ul>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-foreground mt-1">
             These cookies cannot be disabled.
           </p>
 
@@ -136,7 +136,7 @@ export default function CookiePolicy({
           </p>
         </article>
 
-        <article className="bg-white p-4 rounded-lg border border-gray-100">
+        <article className="bg-background p-4 rounded-lg border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
             4. Managing & Disabling Cookies
           </h2>
@@ -144,13 +144,13 @@ export default function CookiePolicy({
             You can manage or disable cookies anytime through your browser
             settings or Google Analytics Opt‑Out tools.
           </p>
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-foreground ">
             Disabling essential cookies may affect our checkout and order
             placement features.
           </p>
         </article>
 
-        <article className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+        <article className="bg-background p-4 rounded-lg border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
             5. Why Cookies Matter
           </h2>
@@ -162,7 +162,7 @@ export default function CookiePolicy({
           </ul>
         </article>
 
-        <article className="bg-white p-4 rounded-lg border border-gray-100">
+        <article className="bg-background p-4 rounded-lg border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">
             6. Updates to This Cookie Policy
           </h2>
@@ -172,7 +172,7 @@ export default function CookiePolicy({
           </p>
         </article>
 
-        <article className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+        <article className="bg-background p-4 rounded-lg border border-gray-100">
           <h2 className="text-lg font-semibold text-gray-800">7. Contact Us</h2>
           <address className="not-italic mt-2 text-gray-700">
             <p className="font-medium">Misk Blooming UAE</p>

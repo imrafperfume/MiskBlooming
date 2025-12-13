@@ -10,7 +10,6 @@ import { Autoplay } from "swiper/modules";
 
 // Import Swiper styles
 import "swiper/css";
-import "swiper/css/pagination";
 import { useCategories } from "@/src/hooks/useCategories";
 
 const ShopByCategory = () => {
@@ -71,7 +70,7 @@ const ShopByCategory = () => {
   // Loading skeleton
   if (isLoading) {
     return (
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <div className="h-10 bg-gray-200 rounded w-64 mx-auto mb-4 animate-pulse"></div>
@@ -94,27 +93,27 @@ const ShopByCategory = () => {
   // Error state
   if (error || !categories) {
     return (
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-gray-500">Failed to load categories</p>
+          <p className="text-foreground ">Failed to load categories</p>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-16 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-12">
           <motion.h2
-            className="font-cormorant text-3xl sm:text-4xl font-bold text-charcoal-900 mb-4"
+            className="font-cormorant text-3xl sm:text-4xl font-bold text-primary  mb-4"
             {...motionProps.header}
           >
             Shop by Category
           </motion.h2>
           <motion.p
-            className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto"
+            className="text-muted-foreground  text-base sm:text-lg max-w-2xl mx-auto"
             {...motionProps.header}
             transition={{ duration: 0.4, delay: 0.1 }}
           >
@@ -133,16 +132,16 @@ const ShopByCategory = () => {
                     href={`/products?category=${encodeURIComponent(
                       category.name
                     )}`}
-                    className="block overflow-hidden transition-all duration-300 hover:transform hover:scale-105"
+                    className="block overflow-hidden bg-transparent transition-all duration-300 "
                   >
                     {/* Image Container */}
-                    <div className="relative aspect-square overflow-hidden rounded-2xl sm:rounded-full mb-4">
+                    <div className="relative aspect-square bg-transparent overflow-hidden rounded-2xl sm:rounded-full mb-4">
                       <Image
                         src={getImageUrl(category)}
                         alt={category.name || "Category"}
                         fill
                         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="object-cover transition-transform rounded-2xl duration-500 group-hover:scale-110"
                         placeholder="blur"
                         blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaUMk9SQ3T4bMptoXUu6kPmY6f3aA6sSmI"
                       />
@@ -152,7 +151,7 @@ const ShopByCategory = () => {
 
                       {/* Explore Button - Desktop only */}
                       <div className="absolute inset-0 hidden sm:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
-                        <div className="bg-luxury-500 text-charcoal-900 px-6 py-2 rounded-full text-sm font-medium transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                        <div className="bg-primary  text-secondary  px-6 py-2 rounded-full text-sm font-medium transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                           Explore
                         </div>
                       </div>
@@ -160,10 +159,10 @@ const ShopByCategory = () => {
 
                     {/* Content */}
                     <div className="text-center px-2">
-                      <h3 className="font-cormorant text-lg sm:text-xl font-semibold text-charcoal-900 mb-1 line-clamp-2 group-hover:text-luxury-600 transition-colors">
+                      <h3 className="font-cormorant text-lg sm:text-xl font-semibold text-primary  mb-1 line-clamp-2 group-hover:text-primary transition-colors">
                         {category.name}
                       </h3>
-                      <p className="text-gray-600 text-sm hidden sm:block line-clamp-2">
+                      <p className="text-muted-foreground  text-sm hidden sm:block line-clamp-2">
                         {category.description}
                       </p>
                     </div>
@@ -174,7 +173,7 @@ const ShopByCategory = () => {
           </Swiper>
         ) : (
           <div className="text-center py-8">
-            <p className="text-gray-500">No categories available</p>
+            <p className="text-foreground ">No categories available</p>
           </div>
         )}
 
@@ -187,13 +186,14 @@ const ShopByCategory = () => {
             transition={{ duration: 0.4 }}
             viewport={{ once: true }}
           >
-            <Link href="/products">
+            <Link href="/products" className="inline-block">
               <Button
+                variant="outline"
                 size="lg"
-                className="bg-luxury-500 hover:bg-luxury-600 text-charcoal-900 font-semibold px-8 py-3 transition-colors duration-200"
+                className="group bg-transparent sm:text-base text-sm"
               >
-                View All Products
-                <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                View All Categories
+                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
               </Button>
             </Link>
           </motion.div>

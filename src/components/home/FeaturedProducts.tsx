@@ -44,18 +44,18 @@ function FeaturedProducts({
   };
 
   return (
-    <section className="sm:py-24 py-14 bg-white">
+    <section className="sm:py-24 py-14 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header Section - Optimized motion */}
         <motion.div className="text-center mb-16" {...motionProps}>
           <div className="flex items-center justify-center sm:mb-4 mb-2">
-            <Sparkles className="w-5 h-5 text-luxury-500 mr-2" />
-            <span className="text-luxury-500 font-medium tracking-wide text-sm">
+            <Sparkles className="w-5 h-5 text-primary  mr-2" />
+            <span className="text-primary  font-medium tracking-wide text-sm">
               SIGNATURE COLLECTIONS
             </span>
-            <Sparkles className="w-5 h-5 text-luxury-500 ml-2" />
+            <Sparkles className="w-5 h-5 text-primary  ml-2" />
           </div>
-          <h2 className="font-cormorant sm:text-display-md text-display-sm font-bold text-charcoal-900 sm:mb-6 mb-2">
+          <h2 className="font-cormorant sm:text-display-md text-display-sm font-bold text-foreground  sm:mb-6 mb-2">
             Masterpieces in <span className="luxury-text">Bloom</span>
           </h2>
           <p className="text-muted-foreground sm:text-lg text-base max-w-3xl mx-auto leading-relaxed">
@@ -67,8 +67,8 @@ function FeaturedProducts({
               onClick={() => setViewMode("grid")}
               className={`p-2 ${
                 viewMode === "grid"
-                  ? "bg-luxury-500 text-charcoal-900"
-                  : "text-muted-foreground hover:text-charcoal-900"
+                  ? "bg-primary  text-foreground "
+                  : "text-muted-foreground hover:text-foreground "
               } transition-colors`}
             >
               <Grid3X3 className="w-6 h-6" />
@@ -77,8 +77,8 @@ function FeaturedProducts({
               onClick={() => setViewMode("list")}
               className={`p-2 ${
                 viewMode === "list"
-                  ? "bg-luxury-500 text-charcoal-900"
-                  : "text-muted-foreground hover:text-charcoal-900"
+                  ? "bg-primary  text-foreground "
+                  : "text-muted-foreground hover:text-foreground "
               } transition-colors`}
             >
               <List className="w-6 h-6" />
@@ -95,7 +95,7 @@ function FeaturedProducts({
           <>
             {!featuredProducts || featuredProducts.length === 0 ? (
               <div className="text-center py-16">
-                <p className="font-normal text-xl text-gray-500">
+                <p className="font-normal text-xl text-foreground ">
                   No featured products available at the moment
                 </p>
               </div>

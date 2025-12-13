@@ -1,0 +1,134 @@
+{
+    "name": "templates",
+    "pages":[
+       {
+         "id":"Home",
+         "name":"Home",
+         "path":"/",
+         "section":[
+            {
+                "id":"category",
+                "title":"Shop by Category",
+                "subTitle":"Explore our wide range of categories"
+            },
+            {
+                "id":"products",
+                "title":"Featured Products",
+                "subTitle":"Discover our curated selection of premium arrangements, each a testament to luxury and artistry"
+            },
+            {
+                "id":"season",
+                "title":"Fresh in season",
+                "subTitle":"Discover our seasonal collection featuring the freshest flowers, special occasion cakes, and limited-time treats"
+            },
+            {
+                "id":"excellence",
+                "title":"Why Dubai Loves MiskBlooming",
+                "subTitle":"A Legacy of Floral Excellence"
+            },
+            {
+                "id":"testimonials",
+                "title":"What Our Customers Say",
+                "subTitle":"Hear from our delighted customers about their MiskBlooming experiences"
+            },
+            {
+                "id":"newsletter",
+                "title":"Stay Updated with MiskBlooming",
+                "subTitle":"Subscribe to our newsletter for the latest floral trends, exclusive offers, and special events"
+            }
+         ]
+       },
+       {
+        "id":"Collections",
+        "name":"Collections",
+        "path":"/products",
+        "title":"Collections",
+        "subTittle":"Explore our exquisite range of floral arrangements and gifts"
+       },
+       {
+        "id":"About",
+        "name":"About",
+        "path":"/about",
+        "title":"About Misk Blooming",
+        "subTittle":"Discover the story behind Misk Blooming and our passion for flowers"
+       },
+       {
+        "id":"Contact",
+        "name":"Contact",
+        "path":"/contact",
+        "title":"Get in Touch with Misk Blooming",
+        "subTittle":"We'd love to hear from you! Reach out with any questions or feedback",
+        "section":[
+            {
+                "id":"getInTouch",
+                "title":"Get in Touch",
+                "phone":"+971 50 123 4567",
+                "email":"info@miskblooming.com",
+                "address":"123 Flower Street, Dubai, UAE",
+                "hours":"Mon-Sat: 9am - 6pm"
+            },
+            {
+                "id":"help",
+                "title":"Need a urgent help?",
+                "subTitle":"For urgent delivery issues or last-minute orders, call our emergency line:",
+                "phone":"+971 50 123 4567"
+            },
+            {
+                "id":"map",
+                "title":"Our Location",
+                "mapCode":"vegtrg45st w4ghwv4g "
+            }
+        ]
+       },
+       {
+        "id":"Footer",
+        "name":"Footer",
+        "section":[
+            {
+                "name":"shop",
+                "category":[
+                    {
+                        "id":"Fresh Flowers",
+                        "name":"Fresh Flowers",
+                        "slug":"flowers"
+                    },
+                    {
+                        "id":"Premium Chocolates",
+                        "name":"Premium Chocolates",
+                        "slug":"chocolates"
+                    },
+                        {
+                        "id":"Fresh Cakes",
+                        "name":"Fresh Cakes",
+                        "slug":"cakes"
+                    },
+                     {
+                        "id":"Gift Sets",
+                        "name":"Gift Sets",
+                        "slug":"gift"
+                    },
+                          {
+                        "id":"Indoor Plants",
+                        "name":"Indoor Plants",
+                        "slug":"plants"
+                    }
+
+                ]
+            },
+            {
+                "name":"occasions",
+                "category":[
+                    {
+                        "id":"Valentine's Day",
+                        "name":"Valentine's Day",
+                        "slug":"valentine"
+                    },
+                    {
+
+                    }
+                ]
+            }
+        ]
+       }    
+    ]
+}

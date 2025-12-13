@@ -39,7 +39,7 @@ export default function ReviewForm({ productId }: ReviewFormProps) {
             key={star}
             className={`w-6 h-6 cursor-pointer ${
               (hover || rating) >= star
-                ? "text-luxury-500 fill-current"
+                ? "text-primary  fill-current"
                 : "text-cream-500"
             }`}
             onMouseEnter={() => setHover(star)}
@@ -52,7 +52,7 @@ export default function ReviewForm({ productId }: ReviewFormProps) {
         value={comment}
         onChange={(e) => setComment(e.target.value)}
         rows={4}
-        className="w-full border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-luxury-500"
+        className="w-full border rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
         placeholder="Write your review here..."
       />
       <Button type="submit" size="lg">

@@ -16,10 +16,10 @@ function SEOTab({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-cormorant font-bold text-charcoal-900 mb-4">
+        <h2 className="text-xl font-cormorant font-bold text-foreground  mb-4">
           SEO Optimization
         </h2>
-        <p className="text-gray-600">
+        <p className="text-foreground ">
           Optimize your product for search engines
         </p>
       </div>
@@ -45,7 +45,7 @@ function SEOTab({
             {errors?.seoTitle && (
               <p className="text-red-500 text-sm">{errors.seoTitle}</p>
             )}
-            <p className="text-xs text-gray-500 ml-auto">
+            <p className="text-xs text-foreground ml-auto">
               {formData.seoTitle.length}/60
             </p>
           </div>
@@ -67,15 +67,15 @@ function SEOTab({
             placeholder="Beautiful premium red roses arranged in an elegant bouquet. Perfect for anniversaries, birthdays, and special occasions. Same-day delivery in Dubai."
             rows={4}
             maxLength={160}
-            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-luxury-500 focus:border-transparent ${
-              errors?.seoDescription ? "border-red-300" : "border-gray-300"
+            className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent ${
+              errors?.seoDescription ? "border-red-300" : "border-border "
             }`}
           />
           <div className="flex justify-between items-center mt-1">
             {errors?.seoDescription && (
               <p className="text-red-500 text-sm">{errors.seoDescription}</p>
             )}
-            <p className="text-xs text-gray-500 ml-auto">
+            <p className="text-xs text-foreground ml-auto">
               {formData.seoDescription.length}/160
             </p>
           </div>
@@ -118,13 +118,13 @@ function SEOTab({
               <Plus className="w-4 h-4" />
             </Button>
           </div>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-foreground mt-1">
             Add relevant keywords for better search visibility
           </p>
         </div>
 
         {/* SEO Preview */}
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <div className="bg-background border border-border  rounded-lg p-4">
           <h4 className="font-medium text-gray-900 mb-3">
             Search Engine Preview
           </h4>
@@ -136,7 +136,7 @@ function SEOTab({
               https://miskblooming.com/products/
               {formData.slug || "product-slug"}
             </div>
-            <div className="text-gray-600 text-sm">
+            <div className="text-foreground  text-sm">
               {formData.seoDescription ||
                 "Your SEO description will appear here..."}
             </div>

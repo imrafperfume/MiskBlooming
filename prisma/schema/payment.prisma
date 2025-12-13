@@ -1,0 +1,8 @@
+model PaymentSetting {
+    id            String   @id @default(cuid())
+    stripeEnabled Boolean  @default(false)
+    codEnabled    Boolean  @default(false)
+    updatedAt     DateTime @updatedAt
+
+    @@index([id])
+}

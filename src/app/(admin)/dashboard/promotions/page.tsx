@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, useMemo } from "react"
+import { useState, useMemo } from "react";
 import {
   Plus,
   Search,
@@ -17,10 +17,10 @@ import {
   CheckCircle,
   XCircle,
   MoreHorizontal,
-} from "lucide-react"
-import { motion } from "framer-motion"
-import { Button } from "../../../../components/ui/Button"
-import { Input } from "../../../../components/ui/Input"
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { Button } from "../../../../components/ui/Button";
+import { Input } from "../../../../components/ui/Input";
 
 // Mock promotions data
 const mockPromotions = [
@@ -88,24 +88,25 @@ const mockPromotions = [
     categories: ["seasonal", "mixed-arrangements"],
     revenue: 18450,
   },
-]
+];
 
 export default function PromotionsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [typeFilter, setTypeFilter] = useState("all")
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
 
   const filteredPromotions = useMemo(() => {
     return mockPromotions.filter((promotion) => {
       const matchesSearch =
         promotion.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         promotion.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        promotion.description.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesStatus = statusFilter === "all" || promotion.status === statusFilter
-      const matchesType = typeFilter === "all" || promotion.type === typeFilter
-      return matchesSearch && matchesStatus && matchesType
-    })
-  }, [searchTerm, statusFilter, typeFilter])
+        promotion.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus =
+        statusFilter === "all" || promotion.status === statusFilter;
+      const matchesType = typeFilter === "all" || promotion.type === typeFilter;
+      return matchesSearch && matchesStatus && matchesType;
+    });
+  }, [searchTerm, statusFilter, typeFilter]);
 
   const stats = useMemo(() => {
     return {
@@ -115,70 +116,74 @@ export default function PromotionsPage() {
       expired: mockPromotions.filter((p) => p.status === "expired").length,
       totalRevenue: mockPromotions.reduce((sum, p) => sum + p.revenue, 0),
       totalUsage: mockPromotions.reduce((sum, p) => sum + p.usageCount, 0),
-    }
-  }, [])
+    };
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       case "scheduled":
-        return "bg-blue-100 text-blue-800"
+        return "bg-blue-100 text-blue-800";
       case "expired":
-        return "bg-gray-100 text-gray-800"
+        return "bg-background  text-gray-800";
       case "paused":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-100 text-yellow-800";
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-background  text-gray-800";
     }
-  }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "active":
-        return <CheckCircle className="w-4 h-4" />
+        return <CheckCircle className="w-4 h-4" />;
       case "scheduled":
-        return <Clock className="w-4 h-4" />
+        return <Clock className="w-4 h-4" />;
       case "expired":
-        return <XCircle className="w-4 h-4" />
+        return <XCircle className="w-4 h-4" />;
       default:
-        return <Clock className="w-4 h-4" />
+        return <Clock className="w-4 h-4" />;
     }
-  }
+  };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
       case "percentage":
-        return <Percent className="w-4 h-4" />
+        return <Percent className="w-4 h-4" />;
       case "fixed":
-        return <Tag className="w-4 h-4" />
+        return <Tag className="w-4 h-4" />;
       case "buy_x_get_y":
-        return <Gift className="w-4 h-4" />
+        return <Gift className="w-4 h-4" />;
       default:
-        return <Tag className="w-4 h-4" />
+        return <Tag className="w-4 h-4" />;
     }
-  }
+  };
 
   const formatPromotionValue = (type: string, value: number) => {
     switch (type) {
       case "percentage":
-        return `${value}% off`
+        return `${value}% off`;
       case "fixed":
-        return `AED ${value} off`
+        return `AED ${value} off`;
       case "buy_x_get_y":
-        return `Buy 2 get ${value} free`
+        return `Buy 2 get ${value} free`;
       default:
-        return `${value}`
+        return `${value}`;
     }
-  }
+  };
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between">
         <div>
-          <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">Promotions & Offers</h1>
-          <p className="text-gray-600 mt-2">Create and manage discount campaigns</p>
+          <h1 className="text-3xl font-cormorant font-bold text-foreground ">
+            Promotions & Offers
+          </h1>
+          <p className="text-foreground  mt-2">
+            Create and manage discount campaigns
+          </p>
         </div>
         <div className="flex items-center space-x-4 mt-4 lg:mt-0">
           <Button variant="outline">
@@ -195,29 +200,31 @@ export default function PromotionsPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Promotions</p>
-              <p className="text-xl font-bold text-charcoal-900">{stats.total}</p>
+              <p className="text-sm text-foreground ">Total Promotions</p>
+              <p className="text-xl font-bold text-foreground ">
+                {stats.total}
+              </p>
             </div>
             <Tag className="w-6 h-6 text-blue-500" />
           </div>
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Active</p>
+              <p className="text-sm text-foreground ">Active</p>
               <p className="text-xl font-bold text-green-600">{stats.active}</p>
             </div>
             <CheckCircle className="w-6 h-6 text-green-500" />
@@ -225,69 +232,77 @@ export default function PromotionsPage() {
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Scheduled</p>
-              <p className="text-xl font-bold text-blue-600">{stats.scheduled}</p>
+              <p className="text-sm text-foreground ">Scheduled</p>
+              <p className="text-xl font-bold text-blue-600">
+                {stats.scheduled}
+              </p>
             </div>
             <Clock className="w-6 h-6 text-blue-500" />
           </div>
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Expired</p>
-              <p className="text-xl font-bold text-gray-600">{stats.expired}</p>
+              <p className="text-sm text-foreground ">Expired</p>
+              <p className="text-xl font-bold text-foreground ">
+                {stats.expired}
+              </p>
             </div>
-            <XCircle className="w-6 h-6 text-gray-500" />
+            <XCircle className="w-6 h-6 text-foreground " />
           </div>
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Usage</p>
-              <p className="text-xl font-bold text-purple-600">{stats.totalUsage}</p>
+              <p className="text-sm text-foreground ">Total Usage</p>
+              <p className="text-xl font-bold text-purple-600">
+                {stats.totalUsage}
+              </p>
             </div>
             <Users className="w-6 h-6 text-purple-500" />
           </div>
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Revenue Impact</p>
-              <p className="text-xl font-bold text-luxury-600">AED {stats.totalRevenue.toLocaleString()}</p>
+              <p className="text-sm text-foreground ">Revenue Impact</p>
+              <p className="text-xl font-bold text-primary ">
+                AED {stats.totalRevenue.toLocaleString()}
+              </p>
             </div>
-            <TrendingUp className="w-6 h-6 text-luxury-500" />
+            <TrendingUp className="w-6 h-6 text-primary " />
           </div>
         </motion.div>
       </div>
 
       {/* Filters */}
       <motion.div
-        className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+        className="bg-background rounded-xl p-6 shadow-sm border border-gray-100"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.6 }}
@@ -307,7 +322,7 @@ export default function PromotionsPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
@@ -318,7 +333,7 @@ export default function PromotionsPage() {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
           >
             <option value="all">All Types</option>
             <option value="percentage">Percentage</option>
@@ -337,22 +352,30 @@ export default function PromotionsPage() {
         {filteredPromotions.map((promotion, index) => (
           <motion.div
             key={promotion.id}
-            className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+            className="bg-background rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-start space-x-3">
-                <div className="p-2 rounded-lg bg-luxury-50">{getTypeIcon(promotion.type)}</div>
+                <div className="p-2 rounded-lg bg-foreground ">
+                  {getTypeIcon(promotion.type)}
+                </div>
                 <div>
-                  <h3 className="font-semibold text-charcoal-900">{promotion.name}</h3>
-                  <p className="text-sm text-gray-600 mt-1">{promotion.description}</p>
+                  <h3 className="font-semibold text-foreground ">
+                    {promotion.name}
+                  </h3>
+                  <p className="text-sm text-foreground  mt-1">
+                    {promotion.description}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-2">
                 <span
-                  className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(promotion.status)}`}
+                  className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                    promotion.status
+                  )}`}
                 >
                   {getStatusIcon(promotion.status)}
                   <span className="ml-1 capitalize">{promotion.status}</span>
@@ -365,56 +388,76 @@ export default function PromotionsPage() {
 
             <div className="space-y-3 mb-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Discount:</span>
-                <span className="font-medium text-luxury-600">
+                <span className="text-sm text-foreground ">Discount:</span>
+                <span className="font-medium text-primary ">
                   {formatPromotionValue(promotion.type, promotion.value)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Code:</span>
-                <span className="font-mono text-sm bg-gray-100 px-2 py-1 rounded">{promotion.code}</span>
+                <span className="text-sm text-foreground ">Code:</span>
+                <span className="font-mono text-sm bg-background  px-2 py-1 rounded">
+                  {promotion.code}
+                </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Valid Period:</span>
+                <span className="text-sm text-foreground ">Valid Period:</span>
                 <span className="text-sm font-medium">
                   {new Date(promotion.startDate).toLocaleDateString()} -{" "}
                   {new Date(promotion.endDate).toLocaleDateString()}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Min Order:</span>
-                <span className="text-sm font-medium">AED {promotion.minOrderValue}</span>
+                <span className="text-sm text-foreground ">Min Order:</span>
+                <span className="text-sm font-medium">
+                  AED {promotion.minOrderValue}
+                </span>
               </div>
             </div>
 
             <div className="space-y-3 mb-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Usage:</span>
+                <span className="text-sm text-foreground ">Usage:</span>
                 <span className="text-sm font-medium">
                   {promotion.usageCount} / {promotion.usageLimit}
                 </span>
               </div>
               <div className="w-full h-2 bg-gray-200 rounded-full">
                 <div
-                  className="h-2 bg-luxury-500 rounded-full"
-                  style={{ width: `${(promotion.usageCount / promotion.usageLimit) * 100}%` }}
+                  className="h-2 bg-foreground 0 rounded-full"
+                  style={{
+                    width: `${
+                      (promotion.usageCount / promotion.usageLimit) * 100
+                    }%`,
+                  }}
                 ></div>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Revenue Impact:</span>
-                <span className="text-sm font-medium text-green-600">AED {promotion.revenue.toLocaleString()}</span>
+                <span className="text-sm text-foreground ">
+                  Revenue Impact:
+                </span>
+                <span className="text-sm font-medium text-green-600">
+                  AED {promotion.revenue.toLocaleString()}
+                </span>
               </div>
             </div>
 
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" className="flex-1 bg-transparent">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 bg-transparent"
+              >
                 <Eye className="w-4 h-4 mr-2" />
                 View Details
               </Button>
               <Button variant="ghost" size="sm">
                 <Edit className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
                 <Trash2 className="w-4 h-4" />
               </Button>
             </div>
@@ -425,10 +468,14 @@ export default function PromotionsPage() {
       {filteredPromotions.length === 0 && (
         <div className="text-center py-12">
           <Tag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-charcoal-900 mb-2">No promotions found</h3>
-          <p className="text-gray-600">Try adjusting your search or filter criteria</p>
+          <h3 className="text-lg font-medium text-foreground  mb-2">
+            No promotions found
+          </h3>
+          <p className="text-foreground ">
+            Try adjusting your search or filter criteria
+          </p>
         </div>
       )}
     </div>
-  )
+  );
 }

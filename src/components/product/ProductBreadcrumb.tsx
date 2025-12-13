@@ -18,13 +18,13 @@ export default function ProductBreadcrumb({
     >
       <Link
         href="/products"
-        className="flex items-center sm:text-base text-xs text-muted-foreground hover:text-luxury-500 transition-colors"
+        className="flex items-center sm:text-base text-xs text-muted-foreground hover:text-primary  transition-colors"
       >
         <ArrowLeft className="w-4 h-4 mr-2" />
         Back to Collections
       </Link>
-      <span className="mx-2 text-charcoal-900">/</span>
-      <span className="text-charcoal-900 font-medium text-xs sm:text-base">
+      <span className="mx-2 text-foreground ">/</span>
+      <span className="text-foreground  font-medium text-xs sm:text-base">
         {productName}
       </span>
     </motion.div>

@@ -191,7 +191,7 @@ const statusColors = {
   out_for_delivery: "bg-blue-100 text-blue-800",
   PROCESSING: "bg-yellow-100 text-yellow-800",
   CANCELLED: "bg-red-100 text-red-800",
-  PENDING: "bg-gray-100 text-gray-800",
+  PENDING: "bg-background  text-gray-800",
 };
 
 const statusIcons = {
@@ -221,7 +221,7 @@ export default function OrdersPage() {
         Please log in to view your orders.
         <Link
           href="/auth/login"
-          className="bg-luxury-500 px-8 py-4 font-cormorant text-lg text-charcoal-900 rounded-md "
+          className="bg-foreground 0 px-8 py-4 font-cormorant text-lg text-foreground  rounded-md "
         >
           Login
         </Link>
@@ -238,7 +238,7 @@ export default function OrdersPage() {
   // const selectedOrderData = orders.find((order) => order.id === selectedOrder);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100 pt-32 pb-16">
+    <div className="min-h-screen bg-background pt-32 pb-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -246,7 +246,7 @@ export default function OrdersPage() {
           transition={{ duration: 0.6 }}
         >
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-cormorant font-bold text-charcoal-900 mb-4">
+            <h1 className="text-4xl md:text-5xl font-cormorant font-bold text-foreground  mb-4">
               My Orders
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -264,18 +264,18 @@ export default function OrdersPage() {
               return (
                 <motion.div
                   key={order.id}
-                  className="bg-white rounded-2xl shadow-luxury p-6 hover:shadow-xl transition-all duration-300"
+                  className="bg-background rounded-2xl shadow-luxury p-6 hover:shadow-xl transition-all duration-300"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
                     <div className="flex items-center space-x-4 mb-4 lg:mb-0">
-                      <div className="bg-luxury-50 p-3 rounded-full">
-                        <StatusIcon className="w-6 h-6 text-luxury-500" />
+                      <div className="bg-foregroundp-3 rounded-full">
+                        <StatusIcon className="w-6 h-6 text-primary " />
                       </div>
                       <div>
-                        <h3 className="text-xl font-cormorant font-bold text-charcoal-900">
+                        <h3 className="text-xl font-cormorant font-bold text-foreground ">
                           Order {order?.id}
                         </h3>
                         <div className="flex items-center space-x-4 text-sm text-muted-foreground">
@@ -314,7 +314,7 @@ export default function OrdersPage() {
                           .replace(/\b\w/g, (l: any) => l.toUpperCase())}
                       </span>
                       <div className="text-right">
-                        <div className="text-2xl font-cormorant font-bold text-charcoal-900">
+                        <div className="text-2xl font-cormorant font-bold text-foreground ">
                           AED {order?.totalAmount}
                         </div>
                       </div>
@@ -324,7 +324,7 @@ export default function OrdersPage() {
                   {/* Quick Status Progress */}
                   {/* <div className="mb-4 p-4 bg-cream-50 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-charcoal-900">
+                      <span className="text-sm font-medium text-foreground ">
                         Order Progress
                       </span>
                       {order.estimatedDelivery && (
@@ -342,7 +342,7 @@ export default function OrdersPage() {
                           <div key={stepIndex} className="flex items-center">
                             <div
                               className={`w-3 h-3 rounded-full ${
-                                step.completed ? "bg-luxury-500" : "bg-gray-300"
+                                step.completed ? "bg-foreground 0" : "bg-gray-300"
                               }`}
                             />
                             {stepIndex < order.trackingHistory.length - 1 && (
@@ -350,7 +350,7 @@ export default function OrdersPage() {
                                 className={`w-8 h-0.5 ${
                                   order.trackingHistory[stepIndex + 1]
                                     ?.completed
-                                    ? "bg-luxury-500"
+                                    ? "bg-foreground 0"
                                     : "bg-gray-300"
                                 }`}
                               />
@@ -375,7 +375,7 @@ export default function OrdersPage() {
                     <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h4 className="font-medium text-charcoal-900 mb-1">
+                          <h4 className="font-medium text-foreground  mb-1">
                             Your Delivery Partner
                           </h4>
                           <p className="text-sm text-muted-foreground">
@@ -436,7 +436,7 @@ export default function OrdersPage() {
                             className="w-16 h-16 object-cover rounded-lg"
                           /> */}
                           <div className="flex-1">
-                            <h4 className="font-medium text-charcoal-900">
+                            <h4 className="font-medium text-foreground ">
                               {item.product?.name}
                             </h4>
                             <p className="text-sm text-muted-foreground">
@@ -444,7 +444,7 @@ export default function OrdersPage() {
                             </p>
                           </div>
                           <div className="text-right">
-                            <div className="font-bold text-charcoal-900">
+                            <div className="font-bold text-foreground ">
                               AED {item.price}
                             </div>
                           </div>
@@ -455,7 +455,7 @@ export default function OrdersPage() {
                     <div className="flex flex-wrap gap-3">
                       <Link
                         href={`/track-order?orderId=${order.id}&email=${order.email}`}
-                        className="flex items-center bg-luxury-500 px-4 py-2 text-charcoal-900 rounded-lg hover:bg-luxury-600 transition"
+                        className="flex items-center bg-foreground 0 px-4 py-2 text-foreground  rounded-lg hover:bg-primary transition"
                       >
                         <Navigation className="w-4 h-4 mr-2" />
                         Track Order
@@ -489,7 +489,7 @@ export default function OrdersPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="bg-luxury-50 text-luxury-600 border-luxury-200 hover:bg-luxury-100"
+                            className="bg-foregroundtext-primary border-border  hover:bg-luxury-100"
                           >
                             Reorder
                           </Button>
@@ -510,7 +510,7 @@ export default function OrdersPage() {
               transition={{ delay: 0.3 }}
             >
               <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-2xl font-cormorant font-bold text-charcoal-900 mb-2">
+              <h3 className="text-2xl font-cormorant font-bold text-foreground  mb-2">
                 No Orders Yet
               </h3>
               <p className="text-muted-foreground mb-6">

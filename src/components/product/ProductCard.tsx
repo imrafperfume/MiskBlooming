@@ -71,7 +71,7 @@ const ProductCard = memo(
 
     return (
       <motion.div
-        className={`group relative bg-white rounded-md shadow-sm hover:shadow-luxury transition-all duration-700 overflow-hidden border border-cream-200`}
+        className={`group relative bg-background rounded-md shadow-sm hover:shadow-luxury transition-all duration-700 overflow-hidden border border-border`}
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -99,7 +99,7 @@ const ProductCard = memo(
           <div className="absolute sm:top-4 top-2 sm:left-4 left-2 flex flex-col space-y-2">
             {product.featured && (
               <motion.div
-                className="flex items-center bg-luxury-500 text-charcoal-900 sm:px-3 px-2 py-1 rounded-full sm:text-sm text-xs font-bold"
+                className="flex items-center bg-primary  text-foreground  sm:px-3 px-2 py-1 rounded-full sm:text-sm text-xs font-bold"
                 initial={{ scale: 0, rotate: -10 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
@@ -124,7 +124,7 @@ const ProductCard = memo(
               </motion.div>
             )}
             {!product.quantity && (
-              <div className="bg-gray-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+              <div className="bg-foreground  text-white px-3 py-1 rounded-full text-sm font-bold">
                 Out of Stock
               </div>
             )}
@@ -137,7 +137,7 @@ const ProductCard = memo(
               className={`sm:w-12 sm:h-12 w-8 h-8 rounded-full flex items-center justify-center shadow-md transition-all duration-300 ${
                 isWishlisted
                   ? "bg-red-500 text-white"
-                  : "bg-white/90 hover:bg-white text-charcoal-900 hover:text-red-500"
+                  : "bg-background/90 hover:bg-background text-foreground  hover:text-red-500"
               }`}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -150,7 +150,7 @@ const ProductCard = memo(
             </motion.button>
             <Link href={`/products/${product.slug}`}>
               <motion.button
-                className="sm:w-12 sm:h-12 w-8 h-8 bg-white/90 hover:bg-white text-charcoal-900 rounded-full flex items-center justify-center shadow-lg transition-all duration-300"
+                className="sm:w-12 sm:h-12 w-8 h-8 bg-background/90 hover:bg-background text-foreground  rounded-full flex items-center justify-center shadow-lg transition-all duration-300"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
               >
@@ -185,7 +185,7 @@ const ProductCard = memo(
                     key={i}
                     className={`w-4 h-4 ${
                       i < Math.round(averageRating)
-                        ? "text-luxury-500 fill-current"
+                        ? "text-primary  fill-current"
                         : "text-cream-300"
                     }`}
                   />
@@ -194,19 +194,19 @@ const ProductCard = memo(
                   {averageRating.toFixed(1)}
                 </span>
               </div>
-              <div className="text-xs hidden sm:flex text-luxury-500 font-medium bg-luxury-50 sm:px-2 px-0 py-1 rounded-full">
+              <div className="text-xs hidden sm:flex text-primary  font-medium bg-foregroundsm:px-2 px-0 py-1 rounded-full">
                 {product.category.replace("-", " ").toUpperCase()}
               </div>
             </div>
           ) : (
-            <div className="text-xs hidden sm:flex text-luxury-500 font-medium bg-luxury-50 sm:px-2 px-0 py-1 rounded-full">
+            <div className="text-xs hidden sm:flex text-primary  font-medium bg-foregroundsm:px-2 px-0 py-1 rounded-full">
               {product.category.replace("-", " ").toUpperCase()}
             </div>
           )}
 
           {/* Title */}
           <Link href={`/products/${product.slug}`}>
-            <h3 className="font-cormorant sm:text-xl text-base font-semibold text-charcoal-900 sm:mb-2 mb-0 hover:text-luxury-500 transition-colors line-clamp-2 group-hover:text-luxury-600">
+            <h3 className="font-cormorant sm:text-xl text-base font-semibold text-foreground  sm:mb-2 mb-0 hover:text-primary  transition-colors line-clamp-2 group-hover:text-primary ">
               {product.name}
             </h3>
           </Link>
@@ -219,7 +219,7 @@ const ProductCard = memo(
           {/* Price */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center flex-wrap sm:space-x-2">
-              <span className="sm:text-xl text-lg font-bold text-charcoal-900">
+              <span className="sm:text-xl text-lg font-bold text-foreground ">
                 {formatPrice(product.price)}
               </span>
               {Number(product.compareAtPrice) > 0 && (
@@ -232,7 +232,7 @@ const ProductCard = memo(
         </div>
 
         {/* Luxury Border Effect */}
-        <div className="absolute inset-0 rounded-md border-2 border-transparent group-hover:border-luxury-200 transition-all duration-500 pointer-events-none" />
+        <div className="absolute inset-0 rounded-md border-2 border-transparent group-hover:border-border  transition-all duration-500 pointer-events-none" />
       </motion.div>
     );
   }

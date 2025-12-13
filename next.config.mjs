@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  webpack: (config) => {
+    // This suppresses the "canvas" import error which is a dependency of react-pdf
+    config.resolve.alias.canvas = false;
+    return config;
+  },
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
   reactStrictMode: true,
@@ -28,6 +33,7 @@ const nextConfig = {
         "*.svg": ["@svgr/webpack"], //  Optimize inline SVGs
       },
     },
+    // serverExternalPackages: ["pdfkit"],
     optimizePackageImports: [
       "lucide-react",
       "react-icons",

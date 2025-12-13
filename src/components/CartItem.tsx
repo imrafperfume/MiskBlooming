@@ -31,7 +31,7 @@ export default function CartItem({
   return (
     <motion.div
       key={item.product.id}
-      className="bg-white rounded-2xl transition-all duration-300"
+      className="bg-background rounded-2xl transition-all duration-300"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -100, scale: 0.95 }}
@@ -41,13 +41,13 @@ export default function CartItem({
         {/* Product Image */}
         <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0">
           <Image
-            src={item.product.images[0].url || "/placeholder.svg"}
+            src={item.product.images[0]?.url || "/placeholder.svg"}
             alt={item.product.name}
             fill
             className="object-cover"
           />
           {item.product.featured && (
-            <div className="absolute top-1 left-1 bg-luxury-500 text-charcoal-900 text-xs px-2 py-1 rounded-full font-bold">
+            <div className="absolute top-1 left-1 bg-primary text-foreground text-xs px-2 py-1 rounded-full font-bold">
               Featured
             </div>
           )}
@@ -55,8 +55,8 @@ export default function CartItem({
 
         {/* Product Info */}
         <div className="flex-1 min-w-0">
-          <Link href={`/products/${item.product.id}`}>
-            <h3 className="font-cormorant text-lg font-semibold text-charcoal-900 hover:text-luxury-500 transition-colors line-clamp-2">
+          <Link href={`/products/${item.product.slug}`}>
+            <h3 className="font-cormorant text-lg font-semibold text-foreground hover:text-primary transition-colors line-clamp-2">
               {item.product.name}
             </h3>
           </Link>
@@ -64,13 +64,38 @@ export default function CartItem({
             {item.product.shortDescription}
           </p>
 
+          {/* ADDED: Variant Display Logic */}
+          {item.product.selectedVariants &&
+            Object.keys(item.product.selectedVariants).length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {Object.entries(item.product.selectedVariants).map(
+                  ([name, value]) => {
+                    console.log("🚀 ~ CartItem ~ name:", name);
+                    return (
+                      <div
+                        key={name}
+                        className="inline-flex items-center text-xs bg-secondary/30 border border-border px-2 py-1 rounded-md"
+                      >
+                        <span className="font-semibold text-muted-foreground mr-1">
+                          {name}:
+                        </span>
+                        <span className="text-foreground font-medium">
+                          {String(value)}
+                        </span>
+                      </div>
+                    );
+                  }
+                )}
+              </div>
+            )}
+
           <div className="flex items-center mt-2">
             {[...Array(5)].map((_, i) => (
               <Star
                 key={i}
                 className={`w-3 h-3 ${
                   i < Math.floor(5)
-                    ? "text-luxury-500 fill-current"
+                    ? "text-primary fill-current"
                     : "text-cream-300"
                 }`}
               />
@@ -81,7 +106,7 @@ export default function CartItem({
           </div>
 
           <div className="flex items-center mt-2">
-            <span className="text-lg font-bold text-charcoal-900">
+            <span className="text-lg font-bold text-foreground">
               {formatPrice(item.product.price)}
             </span>
             {item.product.compareAtPrice && (
@@ -93,7 +118,7 @@ export default function CartItem({
 
           <button
             onClick={handleMoveToWishlist}
-            className="flex items-center text-sm text-luxury-500 hover:text-luxury-600 transition-colors mt-3"
+            className="flex items-center text-sm text-primary hover:text-primary transition-colors mt-3"
           >
             <Heart className="w-4 h-4 mr-1" />
             Save for Later
@@ -102,12 +127,12 @@ export default function CartItem({
 
         {/* Quantity Controls */}
         <div className="flex flex-col items-center space-y-2">
-          <div className="flex items-center border border-cream-300 rounded-lg">
+          <div className="flex items-center border border-border rounded-lg">
             <button
               onClick={() =>
                 handleUpdateQuantity(item.product.id, item.quantity - 1)
               }
-              className="p-2 hover:bg-cream-100 transition-colors rounded-l-lg"
+              className="p-2 hover:bg-primary transition-colors rounded-l-lg"
               disabled={removingItems.has(item.product.id)}
             >
               <Minus className="w-4 h-4" />
@@ -125,14 +150,14 @@ export default function CartItem({
                   );
                 }
               }}
-              className="p-2 hover:bg-cream-100 transition-colors rounded-r-lg"
+              className="p-2 hover:bg-primary transition-colors rounded-r-lg"
               disabled={removingItems.has(item.product.id)}
             >
               <Plus className="w-4 h-4" />
             </button>
           </div>
 
-          <p className="text-sm font-medium text-charcoal-900">
+          <p className="text-sm font-medium text-foreground">
             {formatPrice(item.product.price * item.quantity)}
           </p>
 

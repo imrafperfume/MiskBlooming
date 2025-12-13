@@ -11,7 +11,7 @@ export default function GlobalError({
   reset: () => void;
 }) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-red-100 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-backgroundfrom-red-50 via-white to-red-100 flex items-center justify-center px-4">
       <div className="max-w-2xl mx-auto text-center">
         <div className="mb-8">
           <div className="inline-flex items-center justify-center w-24 h-24 bg-red-100 rounded-full mb-6">
@@ -22,7 +22,7 @@ export default function GlobalError({
           </h1>
         </div>
 
-        <p className="text-lg text-gray-600 max-w-md mx-auto leading-relaxed">
+        <p className="text-lg text-foreground  max-w-md mx-auto leading-relaxed">
           We encountered an unexpected error. Our team has been notified and is
           working to fix this issue.
         </p>
@@ -53,7 +53,7 @@ export default function GlobalError({
           <Button
             asChild
             variant="outline"
-            className="border-luxury-300 text-luxury-600 hover:bg-luxury-50 px-8 py-3 rounded-full font-medium transition-colors duration-300 bg-transparent"
+            className="border-luxury-300 text-primary hover:bg-foregroundpx-8 py-3 rounded-full font-medium transition-colors duration-300 bg-transparent"
           >
             <a href="/">
               <Home size={20} className="mr-2" />
@@ -62,13 +62,13 @@ export default function GlobalError({
           </Button>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-gray-200">
-          <p className="text-sm text-gray-500 mb-2">
+        <div className="mt-12 pt-8 border-t border-border ">
+          <p className="text-sm text-foreground mb-2">
             Need immediate assistance?
           </p>
           <a
             href="mailto:support@miskblooming.ae"
-            className="text-luxury-600 hover:text-luxury-700 hover:underline transition-colors"
+            className="text-primary hover:text-luxury-700 hover:underline transition-colors"
           >
             Contact our support team
           </a>

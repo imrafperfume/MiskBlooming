@@ -8,8 +8,7 @@ model HeroSlide {
     order       Int     @default(0)
 
     // Array of buttons -> Stored as JSON
-    buttons Json?
-
+    buttons   Json?
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 }

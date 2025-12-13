@@ -29,6 +29,7 @@ export default function CartPage() {
     applyCoupon,
     removeCoupon,
   } = useCartStore();
+  console.log("🚀 ~ CartPage ~ items:", items);
 
   const { validateCouponCode, isValidating } = useCoupon();
   const [removingItems, setRemovingItems] = useState<Set<string>>(new Set());
@@ -80,7 +81,7 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen sm:mt-16 mt-20 bg-gradient-to-br from-cream-50 to-cream-100">
+      <div className="min-h-screen sm:mt-16 mt-20 bg-background">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <motion.div
             className="text-center"
@@ -89,7 +90,7 @@ export default function CartPage() {
             transition={{ duration: 0.6 }}
           >
             <ShoppingBag className="w-24 h-24 text-cream-300 mx-auto mb-6" />
-            <h1 className="font-cormorant text-3xl font-bold text-charcoal-900 mb-4">
+            <h1 className="font-cormorant text-3xl font-bold text-foreground  mb-4">
               Your Cart is Empty
             </h1>
             <p className="text-muted-foreground mb-8 max-w-md mx-auto">
@@ -108,7 +109,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen sm:mt-14 mt-20 bg-gradient-to-br from-cream-50 to-cream-100">
+    <div className="min-h-screen sm:mt-14 mt-20 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <motion.div
@@ -120,13 +121,13 @@ export default function CartPage() {
           <div className="sm:flex items-center">
             <Link
               href="/products"
-              className="flex items-center text-luxury-500 hover:text-luxury-600 transition-colors mr-6"
+              className="flex items-center text-primary  hover:text-primary transition-colors mr-6"
             >
               <ArrowLeft className="w-5 h-5 mr-2" />
               Continue Shopping
             </Link>
             <div className="sm:mt-0 mt-2">
-              <h1 className="font-cormorant text-3xl font-bold text-charcoal-900">
+              <h1 className="font-cormorant text-3xl font-bold text-foreground ">
                 Shopping Cart ({getTotalItems()} items)
               </h1>
               <p className="text-muted-foreground mt-1">
@@ -154,14 +155,14 @@ export default function CartPage() {
             {/* Coupon Section */}
             {user ? (
               <motion.div
-                className="bg-white rounded-2xl sm:p-6 sm:shadow-sm"
+                className="bg-background rounded-2xl sm:p-6 sm:shadow-sm"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
               >
                 <div className="flex items-center sm:mb-4 mb-1">
-                  <Gift className="w-5 h-5 text-luxury-500 mr-2" />
-                  <h3 className="font-cormorant text-lg font-semibold text-charcoal-900">
+                  <Gift className="w-5 h-5 text-primary  mr-2" />
+                  <h3 className="font-cormorant text-lg font-semibold text-foreground ">
                     Promo Code
                   </h3>
                 </div>
@@ -196,7 +197,7 @@ export default function CartPage() {
                       onChange={(e) =>
                         setCouponCode(e.target.value.toUpperCase())
                       }
-                      className="flex-1 px-4 mr-2 py-3 border border-cream-400 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                      className="flex-1 px-4 mr-2 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                     />
                     <Button
                       className="sm:mt-0 mt-4 hover:bg-black"
@@ -225,12 +226,12 @@ export default function CartPage() {
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <motion.div
-              className="bg-white rounded-2xl sm:p-6 sm:shadow-lg sticky top-8"
+              className="bg-background rounded-2xl sm:p-6 sm:shadow-lg sticky top-8"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <h2 className="font-cormorant text-xl font-bold text-charcoal-900 mb-6">
+              <h2 className="font-cormorant text-xl font-bold text-foreground  mb-6">
                 Order Summary
               </h2>
 
@@ -274,12 +275,12 @@ export default function CartPage() {
                   </div>
                 )}
 
-                <div className="border-t border-cream-300 pt-4">
+                <div className="border-t border-border  pt-4">
                   <div className="flex justify-between">
-                    <span className="text-lg font-semibold text-charcoal-900">
+                    <span className="text-lg font-semibold text-foreground ">
                       Total
                     </span>
-                    <span className="text-lg font-bold text-charcoal-900">
+                    <span className="text-lg font-bold text-foreground ">
                       {formatPrice(total)}
                     </span>
                   </div>
@@ -292,21 +293,21 @@ export default function CartPage() {
                 </Link>
 
                 {/* Trust Badges */}
-                <div className="mt-6 pt-6 border-t border-cream-300">
+                <div className="mt-6 pt-6 border-t border-border ">
                   <div className="grid sm:grid-cols-3 gap-4 text-center">
-                    <div className="py-4 border border-cream-400 rounded-md">
+                    <div className="py-4 border border-border  rounded-md">
                       <Shield className="w-6 h-6 text-green-600 mx-auto mb-1" />
                       <p className="text-xs text-muted-foreground">
                         Secure Payment
                       </p>
                     </div>
-                    <div className="py-4 border border-cream-400 rounded-md">
+                    <div className="py-4 border border-border  rounded-md">
                       <Truck className="w-6 h-6 text-blue-600 mx-auto mb-1" />
                       <p className="text-xs text-muted-foreground">
                         Fast Delivery
                       </p>
                     </div>
-                    <div className="py-4 border border-cream-400 rounded-md">
+                    <div className="py-4 border border-border  rounded-md">
                       <Gift className="w-6 h-6 text-purple-600 mx-auto mb-1" />
                       <p className="text-xs text-muted-foreground">
                         Gift Wrapping
@@ -316,10 +317,10 @@ export default function CartPage() {
                 </div>
 
                 {/* Estimated Delivery */}
-                <div className="mt-4 p-4 bg-luxury-50 rounded-lg">
+                <div className="mt-4 p-4 bg-foregroundrounded-lg">
                   <div className="flex items-center mb-2">
-                    <Truck className="w-4 h-4 text-luxury-600 mr-2" />
-                    <span className="font-medium text-charcoal-900 text-sm">
+                    <Truck className="w-4 h-4 text-primary mr-2" />
+                    <span className="font-medium text-foreground  text-sm">
                       Estimated Delivery
                     </span>
                   </div>
@@ -332,7 +333,7 @@ export default function CartPage() {
                       day: "numeric",
                     })}
                   </p>
-                  <p className="text-xs text-luxury-600 mt-1">
+                  <p className="text-xs text-primary mt-1">
                     Same-day delivery available in Dubai
                   </p>
                 </div>

@@ -11,10 +11,10 @@ function FeaturesTab({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-cormorant font-bold text-charcoal-900 mb-4">
+        <h2 className="text-xl font-cormorant font-bold text-foreground  mb-4">
           Product Features
         </h2>
-        <p className="text-gray-600">
+        <p className="text-foreground ">
           Additional features and care instructions
         </p>
       </div>
@@ -30,7 +30,7 @@ function FeaturesTab({
                 onChange={(e) =>
                   handleInputChange("giftWrapping", e.target.checked)
                 }
-                className="rounded border-gray-300 text-luxury-600 focus:ring-luxury-500"
+                className="rounded border-border  text-primary focus:ring-ring"
               />
               <span className="ml-2 text-sm font-medium text-gray-700 flex items-center">
                 <Gift className="w-4 h-4 mr-1" />
@@ -47,7 +47,7 @@ function FeaturesTab({
                 onChange={(e) =>
                   handleInputChange("personalization", e.target.checked)
                 }
-                className="rounded border-gray-300 text-luxury-600 focus:ring-luxury-500"
+                className="rounded border-border  text-primary focus:ring-ring"
               />
               <span className="ml-2 text-sm font-medium text-gray-700 flex items-center">
                 <Heart className="w-4 h-4 mr-1" />
@@ -69,7 +69,7 @@ function FeaturesTab({
                   type="checkbox"
                   checked={formData.occasions.includes(occasion)}
                   onChange={() => toggleOccasion && toggleOccasion(occasion)}
-                  className="rounded border-gray-300 text-luxury-600 focus:ring-luxury-500"
+                  className="rounded border-border  text-primary focus:ring-ring"
                 />
                 <span className="ml-2 text-sm text-gray-700">{occasion}</span>
               </label>
@@ -113,7 +113,7 @@ function FeaturesTab({
             }
             placeholder="Provide care instructions for the product (e.g., watering schedule for plants, storage instructions for chocolates, etc.)"
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-border  rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
           />
         </div>
       </div>

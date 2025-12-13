@@ -1,3 +1,4 @@
+import { GraphQLError } from "graphql";
 import { prisma } from "./db";
 import { redis } from "./redis";
 
@@ -23,3 +24,19 @@ export async function isAdmin(userId: string) {
     return error.message;
   }
 }
+
+// --- Helpers ---
+export const validateAdmin = async (userId: string | undefined) => {
+  if (!userId) {
+    throw new GraphQLError("Unauthorized", {
+      extensions: { code: "UNAUTHENTICATED" },
+    });
+  }
+  const user = await isAdmin(userId);
+  if (user.role !== "ADMIN") {
+    throw new GraphQLError("Forbidden", {
+      extensions: { code: "FORBIDDEN" },
+    });
+  }
+  return user;
+};

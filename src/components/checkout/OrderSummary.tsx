@@ -16,23 +16,23 @@ interface OrderSummaryProps {
   couponDiscount?: number;
 }
 
-export function OrderSummary({ 
-  items, 
-  subtotal, 
-  deliveryFee, 
-  codFee, 
-  tax, 
+export function OrderSummary({
+  items,
+  subtotal,
+  deliveryFee,
+  codFee,
+  tax,
   total,
-  couponDiscount = 0
+  couponDiscount = 0,
 }: OrderSummaryProps) {
   return (
     <motion.div
-      className="bg-white rounded-2xl p-6 shadow-lg sticky top-8"
+      className="bg-background rounded-2xl p-6 shadow-lg sticky top-8"
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.6, delay: 0.3 }}
     >
-      <h2 className="font-cormorant text-xl font-bold text-charcoal-900 mb-6">
+      <h2 className="font-cormorant text-xl font-bold text-foreground  mb-6">
         Order Summary
       </h2>
 
@@ -49,7 +49,7 @@ export function OrderSummary({
               />
             </div>
             <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-charcoal-900 sm:text-sm text-xs line-clamp-2">
+              <h4 className="font-medium text-foreground  sm:text-sm text-xs line-clamp-2">
                 {item.product.name}
               </h4>
               <p className="text-muted-foreground text-sm">
@@ -57,7 +57,7 @@ export function OrderSummary({
               </p>
             </div>
             <div className="text-right">
-              <p className="font-medium text-charcoal-900">
+              <p className="font-medium text-foreground ">
                 {formatPrice(item.product.price * item.quantity)}
               </p>
             </div>
@@ -66,7 +66,7 @@ export function OrderSummary({
       </div>
 
       {/* Totals */}
-      <div className="space-y-3 border-t border-cream-300 pt-4">
+      <div className="space-y-3 border-t border-border  pt-4">
         <div className="flex justify-between">
           <span className="text-muted-foreground">Subtotal</span>
           <span className="font-medium">{formatPrice(subtotal)}</span>
@@ -98,10 +98,12 @@ export function OrderSummary({
           <span className="font-medium">{formatPrice(tax)}</span>
         </div>
 
-        <div className="border-t border-cream-300 pt-3">
+        <div className="border-t border-border  pt-3">
           <div className="flex justify-between">
-            <span className="text-lg font-semibold text-charcoal-900">Total</span>
-            <span className="text-lg font-bold text-charcoal-900">
+            <span className="text-lg font-semibold text-foreground ">
+              Total
+            </span>
+            <span className="text-lg font-bold text-foreground ">
               {formatPrice(total)}
             </span>
           </div>
@@ -109,7 +111,7 @@ export function OrderSummary({
       </div>
 
       {/* Trust Badges */}
-      <div className="mt-6 pt-6 border-t border-cream-300">
+      <div className="mt-6 pt-6 border-t border-border ">
         <div className="grid grid-cols-3 gap-4 text-center">
           <div>
             <Shield className="w-6 h-6 text-green-600 mx-auto mb-1" />
@@ -127,9 +129,9 @@ export function OrderSummary({
       </div>
 
       {/* Satisfaction Guarantee */}
-      <div className="mt-4 p-3 bg-luxury-50 rounded-lg">
+      <div className="mt-4 p-3 bg-foregroundrounded-lg">
         <div className="flex items-center">
-          <CheckCircle className="w-5 h-5 text-luxury-600 mr-2" />
+          <CheckCircle className="w-5 h-5 text-primary mr-2" />
           <span className="text-sm font-medium text-luxury-800">
             100% Satisfaction Guarantee
           </span>

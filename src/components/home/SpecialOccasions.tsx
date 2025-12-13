@@ -78,7 +78,7 @@ const SpecialOccasions = () => {
   };
 
   return (
-    <section className="py-20 bg-white h-full">
+    <section className="py-20 bg-background h-full">
       <div className="max-w-7xl mx-auto  px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -89,17 +89,17 @@ const SpecialOccasions = () => {
           viewport={{ once: true }}
         >
           <div className="flex items-center justify-center mb-4">
-            <Calendar className="w-6 h-6 text-luxury-500 mr-2" />
-            <span className="text-luxury-500 font-medium tracking-wide text-sm uppercase">
+            <Calendar className="w-6 h-6 text-primary  mr-2" />
+            <span className="text-primary  font-medium tracking-wide text-sm uppercase">
               SPECIAL OCCASIONS
             </span>
-            <Calendar className="w-6 h-6 text-luxury-500 ml-2" />
+            <Calendar className="w-6 h-6 text-primary  ml-2" />
           </div>
-          <h2 className="font-cormorant text-4xl md:text-5xl font-bold text-charcoal-900 mb-6">
+          <h2 className="font-cormorant text-4xl md:text-5xl font-bold text-foreground  mb-6">
             Celebrate Life's{" "}
-            <span className="text-luxury-500">Precious Moments</span>
+            <span className="text-primary ">Precious Moments</span>
           </h2>
-          <p className="text-gray-600 text-lg max-w-3xl mx-auto leading-relaxed">
+          <p className="text-foreground  text-lg max-w-3xl mx-auto leading-relaxed">
             From intimate celebrations to grand occasions, find the perfect
             arrangement to express your emotions
           </p>
@@ -111,7 +111,7 @@ const SpecialOccasions = () => {
           <button
             onClick={prevSlide}
             disabled={currentSlide === 0}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg border border-cream-200 flex items-center justify-center text-charcoal-900 hover:bg-luxury-50 hover:border-luxury-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 bg-background rounded-full shadow-lg border border-cream-200 flex items-center justify-center text-foreground  hover:bg-foregroundhover:border-border  transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-background"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
@@ -119,7 +119,7 @@ const SpecialOccasions = () => {
           <button
             onClick={nextSlide}
             disabled={currentSlide === totalSlides - 1}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 bg-white rounded-full shadow-lg border border-cream-200 flex items-center justify-center text-charcoal-900 hover:bg-luxury-50 hover:border-luxury-200 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 bg-background rounded-full shadow-lg border border-cream-200 flex items-center justify-center text-foreground  hover:bg-foregroundhover:border-border  transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-background"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
@@ -138,7 +138,7 @@ const SpecialOccasions = () => {
                 {currentOccasions.map((occasion, index) => (
                   <motion.div
                     key={occasion.id}
-                    className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl border border-cream-200 transition-all duration-500 hover:-translate-y-2"
+                    className="group bg-background rounded-2xl overflow-hidden shadow-md hover:shadow-xl border border-cream-200 transition-all duration-500 hover:-translate-y-2"
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -160,12 +160,12 @@ const SpecialOccasions = () => {
                       <div className="absolute inset-0 bg-gradient-to-t from-charcoal-900/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                       {/* Icon Badge */}
-                      <div className="absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center text-luxury-500 shadow-sm">
+                      <div className="absolute top-4 right-4 w-10 h-10 bg-background/90 backdrop-blur-sm rounded-full flex items-center justify-center text-primary  shadow-sm">
                         {getOccasionIcon(occasion.id)}
                       </div>
 
                       {/* Product Count Badge */}
-                      <div className="absolute top-4 left-4 bg-luxury-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                      <div className="absolute top-4 left-4 bg-foreground 0 text-white px-3 py-1 rounded-full text-xs font-medium">
                         {occasion.products.length} items
                       </div>
 
@@ -185,20 +185,20 @@ const SpecialOccasions = () => {
 
                     {/* Card Content */}
                     <div className="p-6">
-                      <h3 className="font-cormorant text-xl font-semibold text-charcoal-900 mb-2 group-hover:text-luxury-500 transition-colors duration-300">
+                      <h3 className="font-cormorant text-xl font-semibold text-foreground  mb-2 group-hover:text-primary  transition-colors duration-300">
                         {occasion.name}
                       </h3>
-                      <p className="text-gray-600 text-sm leading-relaxed line-clamp-2 mb-4">
+                      <p className="text-foreground  text-sm leading-relaxed line-clamp-2 mb-4">
                         {occasion.description}
                       </p>
 
                       <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-500 font-medium">
+                        <span className="text-xs text-foreground font-medium">
                           Starting from AED 150
                         </span>
                         <Link
                           href={`/occasions/${occasion.id}`}
-                          className="text-luxury-500 hover:text-luxury-600 text-sm font-medium transition-colors duration-200"
+                          className="text-primary  hover:text-primary text-sm font-medium transition-colors duration-200"
                         >
                           View All →
                         </Link>
@@ -219,7 +219,7 @@ const SpecialOccasions = () => {
               onClick={() => setCurrentSlide(index)}
               className={`w-3 h-3 rounded-full transition-all duration-300 ${
                 index === currentSlide
-                  ? "bg-luxury-500 w-8"
+                  ? "bg-foreground 0 w-8"
                   : "bg-cream-300 hover:bg-cream-400"
               }`}
             />
@@ -238,7 +238,7 @@ const SpecialOccasions = () => {
             <Button
               variant="outline"
               size="lg"
-              className="group border-luxury-200 text-luxury-500 hover:bg-luxury-500 hover:border-luxury-300 bg-transparent"
+              className="group border-border  text-primary  hover:bg-foreground 0 hover:border-luxury-300 bg-transparent"
             >
               View All Occasions
               <Calendar className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform duration-200" />

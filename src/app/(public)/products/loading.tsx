@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
 
 export default function ProductsLoading() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream-50 to-cream-100">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header Skeleton */}
         <div className="text-center mb-12">
@@ -13,11 +13,14 @@ export default function ProductsLoading() {
         </div>
 
         {/* Search and Filters Skeleton */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg mb-8">
+        <div className="bg-background rounded-2xl p-6 shadow-lg mb-8">
           <div className="h-12 bg-cream-200 rounded-lg mb-6 animate-pulse" />
           <div className="flex flex-wrap gap-4">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-10 bg-cream-200 rounded-lg w-32 animate-pulse" />
+              <div
+                key={i}
+                className="h-10 bg-cream-200 rounded-lg w-32 animate-pulse"
+              />
             ))}
           </div>
         </div>
@@ -27,7 +30,7 @@ export default function ProductsLoading() {
           {[...Array(12)].map((_, i) => (
             <motion.div
               key={i}
-              className="bg-white rounded-2xl overflow-hidden shadow-lg"
+              className="bg-background rounded-2xl overflow-hidden shadow-lg"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: i * 0.05 }}
@@ -47,5 +50,5 @@ export default function ProductsLoading() {
         </div>
       </div>
     </div>
-  )
+  );
 }

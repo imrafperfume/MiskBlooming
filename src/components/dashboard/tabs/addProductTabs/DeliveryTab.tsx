@@ -14,10 +14,10 @@ function DeliveryTab({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-cormorant font-bold text-charcoal-900 mb-4">
+        <h2 className="text-xl font-cormorant font-bold text-foreground  mb-4">
           Delivery Settings
         </h2>
-        <p className="text-gray-600">Configure delivery options and zones</p>
+        <p className="text-foreground ">Configure delivery options and zones</p>
       </div>
 
       <div className="space-y-6">
@@ -28,7 +28,7 @@ function DeliveryTab({
           <select
             value={formData.deliveryTime}
             onChange={(e) => handleInputChange("deliveryTime", e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="w-full px-3 py-2 border border-border  rounded-md focus:ring-2 focus:ring-ring focus:border-transparent"
           >
             {deliveryTimes?.map((time: any) => (
               <option key={time.value} value={time.value}>
@@ -58,7 +58,7 @@ function DeliveryTab({
             }
             placeholder="100"
           />
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-foreground mt-1">
             Minimum order value for free delivery
           </p>
         </div>
@@ -76,7 +76,7 @@ function DeliveryTab({
                   onChange={() =>
                     toggleDeliveryZone && toggleDeliveryZone(zone)
                   }
-                  className="rounded border-gray-300 text-luxury-600 focus:ring-luxury-500"
+                  className="rounded border-border  text-primary focus:ring-ring"
                 />
                 <span className="ml-2 text-sm text-gray-700">{zone}</span>
               </label>

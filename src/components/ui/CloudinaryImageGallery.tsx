@@ -99,7 +99,7 @@ export function CloudinaryImageGallery({
 
   if (images.length === 0) {
     return (
-      <div className={`text-center py-8 text-gray-500 ${className}`}>
+      <div className={`text-center py-8 text-foreground ${className}`}>
         <Cloud className="w-12 h-12 mx-auto mb-2 text-gray-400" />
         <p>No images uploaded yet</p>
       </div>
@@ -110,7 +110,7 @@ export function CloudinaryImageGallery({
     <div className={`space-y-4 ${className}`}>
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="images" direction="horizontal">
-          {(provided:any) => (
+          {(provided: any) => (
             <div
               {...provided.droppableProps}
               ref={provided.innerRef}
@@ -122,14 +122,14 @@ export function CloudinaryImageGallery({
                   draggableId={image.publicId}
                   index={index}
                 >
-                  {(provided:any, snapshot:any) => (
+                  {(provided: any, snapshot: any) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      className={`relative group bg-white rounded-lg border-2 overflow-hidden transition-all duration-200 ${
+                      className={`relative group bg-background rounded-lg border-2 overflow-hidden transition-all duration-200 ${
                         featuredIndex === index
                           ? "border-yellow-400 shadow-lg"
-                          : "border-gray-200 hover:border-gray-300"
+                          : "border-border  hover:border-border "
                       } ${snapshot.isDragging ? "shadow-xl scale-105" : ""}`}
                     >
                       {/* Drag Handle */}
@@ -173,7 +173,7 @@ export function CloudinaryImageGallery({
                               size="sm"
                               variant="outline"
                               onClick={() => setPreviewImage(image)}
-                              className="bg-white bg-opacity-90 hover:bg-opacity-100"
+                              className="bg-background bg-opacity-90 hover:bg-opacity-100"
                             >
                               <Eye className="w-3 h-3" />
                             </Button>
@@ -182,7 +182,7 @@ export function CloudinaryImageGallery({
                               size="sm"
                               variant="outline"
                               onClick={() => downloadImage(image)}
-                              className="bg-white bg-opacity-90 hover:bg-opacity-100"
+                              className="bg-background bg-opacity-90 hover:bg-opacity-100"
                             >
                               <Download className="w-3 h-3" />
                             </Button>
@@ -202,7 +202,7 @@ export function CloudinaryImageGallery({
                       {/* Image Info */}
                       <div className="p-3 space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs text-gray-500 truncate">
+                          <span className="text-xs text-foreground truncate">
                             {isMockImage(image)
                               ? "Mock Image"
                               : image.publicId.split("/").pop()}
@@ -288,7 +288,7 @@ export function CloudinaryImageGallery({
                   type="button"
                   variant="outline"
                   onClick={() => downloadImage(previewImage)}
-                  className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white border-white border-opacity-30"
+                  className="bg-background bg-opacity-20 hover:bg-opacity-30 text-white border-white border-opacity-30"
                 >
                   <Download className="w-4 h-4 mr-2" />
                   Download
@@ -300,8 +300,8 @@ export function CloudinaryImageGallery({
       )}
 
       {/* Gallery Stats */}
-      <div className="bg-gray-50 rounded-lg p-4">
-        <div className="flex items-center justify-between text-sm text-gray-600">
+      <div className="bg-background rounded-lg p-4">
+        <div className="flex items-center justify-between text-sm text-foreground ">
           <div className="flex items-center space-x-4">
             <span>{images.length} images total</span>
             <span>Featured: Image {featuredIndex + 1}</span>
@@ -312,7 +312,7 @@ export function CloudinaryImageGallery({
               </span>
             )}
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-foreground ">
             Drag to reorder • Click star to set featured
           </div>
         </div>

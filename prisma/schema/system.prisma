@@ -1,0 +1,52 @@
+enum DeliveryMethod {
+    flat
+    emirate
+}
+
+// 3. The Store Settings Model
+model StoreSettings {
+    id        String   @id @default(uuid())
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // --- Profile ---
+    storeName   String
+    description String? @db.Text // Allows long text
+    logoUrl     String? // Nullable in case they haven't uploaded one yet
+
+    // --- Contact ---
+    supportEmail String
+    phoneNumber  String
+
+    // --- Regional ---
+    currency String @default("AED")
+    timezone String @default("GST")
+    address  String
+
+    // @db.Decimal(precision, scale) -> (5, 2) allows up to 999.99
+    vatRate Decimal @default(5.00) @db.Decimal(5, 2)
+
+    // --- Delivery Logic ---
+    deliveryMethod DeliveryMethod @default(flat)
+
+    // Monetary values: (10, 2) allows up to 99,999,999.99
+    deliveryFlatRate      Decimal  @default(15.00) @db.Decimal(10, 2)
+    freeShippingThreshold Decimal? @db.Decimal(10, 2) // Nullable (if null, disabled)
+
+    // This is much cleaner than creating 7 separate columns.
+    deliveryEmirates Json?
+
+    // 2. Express Delivery
+    isExpressEnabled   Boolean @default(false)
+    expressDeliveryFee Decimal @default(30.00) @db.Decimal(10, 2)
+
+    // 3. Scheduled Delivery
+    isScheduledEnabled   Boolean @default(false)
+    scheduledDeliveryFee Decimal @default(0.00) @db.Decimal(10, 2)
+
+    // 4. Fees & Thresholds
+    codFee    Decimal @default(10.00) @db.Decimal(10, 2) // Cash on Delivery Fee
+    facebook  String?
+    instagram String?
+    twitter   String?
+}

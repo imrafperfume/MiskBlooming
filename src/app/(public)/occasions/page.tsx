@@ -96,7 +96,7 @@ export default function OccasionsPage() {
   }, [occasions, searchQuery, selectedCategory, sortBy]);
 
   return (
-    <div className="min-h-screen mt-10 bg-gradient-to-br from-cream-50 to-cream-100">
+    <div className="min-h-screen mt-10 bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <motion.div
@@ -105,7 +105,7 @@ export default function OccasionsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <h1 className="font-cormorant text-4xl md:text-5xl font-bold text-luxury-500 mb-4">
+          <h1 className="font-cormorant text-4xl md:text-5xl font-bold text-primary  mb-4">
             Occasions
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -120,7 +120,7 @@ export default function OccasionsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          <div className="bg-white rounded-2xl p-6 shadow">
+          <div className="bg-background rounded-2xl p-6 shadow">
             {/* Search Bar */}
             <div className="relative mb-6">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
@@ -129,7 +129,7 @@ export default function OccasionsPage() {
                 placeholder="Search occasions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-cream-400 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                className="w-full pl-12 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
               />
             </div>
 
@@ -141,7 +141,7 @@ export default function OccasionsPage() {
                   <select
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
-                    className="appearance-none bg-white border border-cream-400 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                    className="appearance-none bg-background border border-border  rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-ring focus:border-transparent"
                   >
                     {categories.map((category) => (
                       <option key={category.value} value={category.value}>
@@ -157,7 +157,7 @@ export default function OccasionsPage() {
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="appearance-none bg-white border border-cream-400 rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+                    className="appearance-none bg-background border border-border  rounded-lg px-4 py-2 pr-8 focus:ring-2 focus:ring-ring focus:border-transparent"
                   >
                     {sortOptions.map((option) => (
                       <option key={option.value} value={option.value}>
@@ -174,13 +174,13 @@ export default function OccasionsPage() {
                 <span className="text-sm text-muted-foreground">
                   {filteredAndSortedOccasions.length} occasions found
                 </span>
-                <div className="flex items-center border border-cream-400 rounded-lg">
+                <div className="flex items-center border border-border  rounded-lg">
                   <button
                     onClick={() => setViewMode("grid")}
                     className={`p-2 ${
                       viewMode === "grid"
-                        ? "bg-luxury-500 text-charcoal-900"
-                        : "text-muted-foreground hover:text-charcoal-900"
+                        ? "bg-foreground 0 text-foreground "
+                        : "text-muted-foreground hover:text-foreground "
                     } transition-colors`}
                   >
                     <Grid3X3 className="w-4 h-4" />
@@ -189,8 +189,8 @@ export default function OccasionsPage() {
                     onClick={() => setViewMode("list")}
                     className={`p-2 ${
                       viewMode === "list"
-                        ? "bg-luxury-500 text-charcoal-900"
-                        : "text-muted-foreground hover:text-charcoal-900"
+                        ? "bg-foreground 0 text-foreground "
+                        : "text-muted-foreground hover:text-foreground "
                     } transition-colors`}
                   >
                     <List className="w-4 h-4" />
@@ -215,9 +215,9 @@ export default function OccasionsPage() {
           {filteredAndSortedOccasions.map((occasion) => (
             <div
               key={occasion.id}
-              className="bg-white rounded-2xl p-6 shadow hover:shadow-lg transition-shadow"
+              className="bg-background rounded-2xl p-6 shadow hover:shadow-lg transition-shadow"
             >
-              <h3 className="font-bold text-lg text-luxury-500 mb-2">
+              <h3 className="font-bold text-lg text-primary  mb-2">
                 {occasion.name}
               </h3>
               <p className="text-muted-foreground">{occasion.description}</p>

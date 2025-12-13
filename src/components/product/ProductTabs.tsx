@@ -59,8 +59,8 @@ export default function ProductTabs({
               onClick={() => setActiveTab(tab.id)}
               className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap flex items-center ${
                 activeTab === tab.id
-                  ? "border-luxury-500 text-luxury-500"
-                  : "border-transparent text-muted-foreground hover:text-charcoal-900"
+                  ? "border-luxury-500 text-primary "
+                  : "border-transparent text-muted-foreground hover:text-foreground "
               }`}
             >
               <tab.icon className="w-4 h-4 mr-2" />

@@ -39,6 +39,8 @@ interface CreateProductInput {
     width: number;
     height: number;
   };
+  variantOptions?: { name: string; values: string[] }[];
+  hasVariants: boolean;
 }
 interface CreateProductArgs {
   data: CreateProductInput;
@@ -62,6 +64,7 @@ export const ProductResolvers = {
         include: {
           images: true,
           dimensions: true,
+          variantOptions: true,
           Review: {
             select: {
               rating: true,
@@ -85,6 +88,7 @@ export const ProductResolvers = {
         include: {
           images: true,
           dimensions: true,
+          variantOptions: true,
           Review: {
             include: {
               user: {
@@ -150,10 +154,19 @@ export const ProductResolvers = {
                   },
                 }
               : undefined,
+            variantOptions: productData?.variantOptions
+              ? {
+                  create: productData?.variantOptions.map((opt: any) => ({
+                    name: opt.name,
+                    values: opt.values,
+                  })),
+                }
+              : undefined,
           },
           include: {
             images: true,
             dimensions: true,
+            variantOptions: true,
           },
         });
         await redis.del("allProducts");
@@ -177,57 +190,62 @@ export const ProductResolvers = {
         const userRole = await isAdmin(userId);
         if (userRole.role !== "ADMIN") throw new Error("Not authorized");
 
+        const { variantOptions, ...rest } = data;
+
         const updated = await prisma.product.update({
           where: { slug },
           data: {
-            ...data,
-            // Update dimensions nested relation
-            dimensions: data.dimensions
+            ...rest,
+
+            // Dimensions update
+            dimensions: rest.dimensions
               ? {
                   upsert: {
-                    create: {
-                      weight: data.dimensions.weight,
-                      length: data.dimensions.length,
-                      width: data.dimensions.width,
-                      height: data.dimensions.height,
-                    },
-                    update: {
-                      weight: data.dimensions.weight,
-                      length: data.dimensions.length,
-                      width: data.dimensions.width,
-                      height: data.dimensions.height,
-                    },
+                    create: rest.dimensions,
+                    update: rest.dimensions,
                   },
                 }
               : undefined,
-            // Update images nested relation
-            images: data.images
+
+            // Images update
+            images: rest.images
               ? {
-                  deleteMany: {}, // Optional: remove old images first
-                  create: data.images.map((img) => ({
+                  deleteMany: {},
+                  create: rest.images.map((img) => ({
                     url: img.url,
                     publicId: img.publicId,
                   })),
                 }
               : undefined,
+
+            // ✅ Variant Options update
+            variantOptions: variantOptions
+              ? {
+                  deleteMany: {}, // remove old
+                  create: variantOptions.map((opt) => ({
+                    name: opt.name,
+                    values: opt.values,
+                  })),
+                }
+              : undefined,
           },
+
           include: {
             images: true,
+            variantOptions: true,
           },
         });
 
         await redis.del(`product:${slug}`);
         await redis.del("allProducts");
 
-        return {
-          ...updated,
-          images: updated.images || [],
-        };
+        return updated;
       } catch (error) {
         console.error(error);
         throw new Error("Failed to update product");
       }
     },
+
     deleteProduct: async (
       _: any,
       { slug }: { slug: string },

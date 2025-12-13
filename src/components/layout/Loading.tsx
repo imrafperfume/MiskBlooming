@@ -1,10 +1,10 @@
 // components/Loading.tsx
 export default function Loading() {
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-50">
+    <div className="flex items-center justify-center h-screen bg-background">
       <div className="flex flex-col items-center space-y-4">
         <svg
-          className="animate-spin h-12 w-12 text-luxury-500"
+          className="animate-spin h-12 w-12 text-primary "
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"

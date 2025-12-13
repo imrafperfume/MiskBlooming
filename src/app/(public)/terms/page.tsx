@@ -9,10 +9,10 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-white mt-14 text-slate-900 antialiased py-12 px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-background mt-14 text-slate-900 antialiased py-12 px-4 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
         <h1 className="text-3xl font-bold mb-2">Terms & Conditions</h1>
-        <p className="text-sm text-slate-600 mb-8">
+        <p className="text-sm text-foreground  mb-8">
           Last updated: November 5, 2025
         </p>
 
@@ -134,14 +134,14 @@ export default function TermsPage() {
               <br />
               <a
                 href="mailto:support@example.com"
-                className="text-luxury-600 hover:underline"
+                className="text-primary hover:underline"
               >
                 support@miskblooming.com
               </a>
             </p>
           </section>
 
-          <footer className="mt-8 text-sm text-slate-600">
+          <footer className="mt-8 text-sm text-foreground ">
             © {new Date().getFullYear()} Miskblooming. All rights reserved.
           </footer>
         </div>

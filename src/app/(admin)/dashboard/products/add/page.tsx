@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "../../../../../components/ui/Button";
 import {
@@ -17,9 +17,11 @@ import {
   Sparkles,
   ImageIcon,
   Cloud,
+  Layers,
+  X,
+  ChevronRight,
 } from "lucide-react";
-import { motion } from "framer-motion";
-import type { getResponsiveImageUrls } from "../../../../../lib/cloudinary";
+import { motion, AnimatePresence } from "framer-motion";
 import { useMutation, useQuery } from "@apollo/client";
 import {
   CREATE_PRODUCT,
@@ -33,16 +35,30 @@ import ImagesTab from "@/src/components/dashboard/tabs/addProductTabs/ImagesTab"
 import SEOTab from "@/src/components/dashboard/tabs/addProductTabs/SEOTab";
 import DeliveryTab from "@/src/components/dashboard/tabs/addProductTabs/DeliveryTab";
 import FeaturesTab from "@/src/components/dashboard/tabs/addProductTabs/FeaturesTab";
+import VariantsTab from "@/src/components/product/VariantsTab";
 import { toast } from "sonner";
 import { useCategories } from "@/src/hooks/useCategories";
-import { Category } from "@/src/types";
+import { cn } from "@/src/lib/utils";
+
+// --- Types (Kept same as provided) ---
 interface CloudinaryImage {
   url: string;
   publicId: string;
 }
-
+export interface VariantOption {
+  id: string;
+  name: string;
+  values: string[];
+}
+export interface ProductVariant {
+  id: string;
+  title: string;
+  sku: string;
+  price: number;
+  stock: number;
+  options: Record<string, string>;
+}
 export interface ProductFormData {
-  // Basic Information
   name: string;
   slug: string;
   description: string;
@@ -50,20 +66,14 @@ export interface ProductFormData {
   category: string;
   subcategory: string;
   tags: string[];
-
-  // Pricing
   price: number;
   compareAtPrice: number;
   costPerItem: number;
-
-  // Inventory
   sku: string;
   barcode: string;
   trackQuantity: boolean;
   quantity: number;
   lowStockThreshold: number;
-
-  // Shipping
   requiresShipping: boolean;
   dimensions: {
     weight: number;
@@ -71,30 +81,23 @@ export interface ProductFormData {
     width: number;
     height: number;
   };
-
-  // Images - Updated to use Cloudinary
   images: CloudinaryImage[];
   featuredImage: number;
-
-  // SEO
   seoTitle: string;
   seoDescription: string;
   seoKeywords: string[];
-
-  // Status
   status: "draft" | "active" | "archived";
   featured: boolean;
-
-  // Delivery
   deliveryZones: string[];
   deliveryTime: string;
   freeDeliveryThreshold: number;
-
-  // Product Features
   giftWrapping: boolean;
   personalization: boolean;
   careInstructions: string;
   occasions: string[];
+  hasVariants: boolean;
+  variantOptions: VariantOption[];
+  // variants: ProductVariant[];
 }
 
 const initialFormData: ProductFormData = {
@@ -129,45 +132,10 @@ const initialFormData: ProductFormData = {
   personalization: true,
   careInstructions: "",
   occasions: [],
+  hasVariants: false,
+  variantOptions: [],
+  // variants: [],
 };
-
-// const categories = [
-//   {
-//     value: "roses",
-//     label: "Premium Roses",
-//     subcategories: ["Red Roses", "White Roses", "Pink Roses", "Mixed Roses"],
-//   },
-//   {
-//     value: "mixed-arrangements",
-//     label: "Mixed Arrangements",
-//     subcategories: ["Seasonal", "Tropical", "Classic", "Modern"],
-//   },
-//   {
-//     value: "chocolates",
-//     label: "Premium Chocolates",
-//     subcategories: [
-//       "Dark Chocolate",
-//       "Milk Chocolate",
-//       "Assorted",
-//       "Sugar-Free",
-//     ],
-//   },
-//   {
-//     value: "cakes",
-//     label: "Fresh Cakes",
-//     subcategories: ["Birthday", "Anniversary", "Wedding", "Custom"],
-//   },
-//   {
-//     value: "plants",
-//     label: "Indoor Plants",
-//     subcategories: ["Succulents", "Flowering", "Green Plants", "Air Purifying"],
-//   },
-//   {
-//     value: "gifts",
-//     label: "Luxury Gifts",
-//     subcategories: ["Jewelry", "Perfumes", "Accessories", "Gift Sets"],
-//   },
-// ];
 
 const occasionsList = [
   "Birthday",
@@ -213,53 +181,65 @@ const deliveryTimes = [
 
 export default function AddProductPage() {
   const params = useSearchParams();
-  console.log(params);
-  const slug: any = params.get("slug");
+  const slug = params.get("slug");
   const router = useRouter();
+
+  // State
   const [formData, setFormData] = useState<ProductFormData>(initialFormData);
   const [activeTab, setActiveTab] = useState("basic");
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [createProduct, { data, loading, error }] =
-    useMutation<ProductFormData>(CREATE_PRODUCT);
+  const [saveStatus, setSaveStatus] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
+  const [newTag, setNewTag] = useState("");
+  const [newKeyword, setNewKeyword] = useState("");
+  const [isDirty, setIsDirty] = useState(false);
+
+  // Data Fetching
   const { data: categories } = useCategories([
     "id",
     "name",
     "description",
     "subcategories {id name}",
   ]);
-  const [saveStatus, setSaveStatus] = useState<
-    "idle" | "saving" | "saved" | "error" | "update"
-  >("idle");
-  const [newTag, setNewTag] = useState("");
-  const [newKeyword, setNewKeyword] = useState("");
-
-  // query and mutation:::::::::::::::::::::::::::::::::::::::::::
-  const {
-    data: editData,
-    loading: queryLoading,
-    error: queryError,
-  } = useQuery(GET_PRODUCT_BY_SLUG, {
-    variables: { slug: slug },
-    skip: !slug,
-  });
-  const [updateProduct, { loading: updateLoading, error: updateError }] =
+  const [createProduct] = useMutation<ProductFormData>(CREATE_PRODUCT);
+  const [updateProduct, { loading: updateLoading }] =
     useMutation(UPDATE_PRODUCT);
 
-  // product by id , get for edit product::::::::
+  const { data: editData, loading: queryLoading } = useQuery(
+    GET_PRODUCT_BY_SLUG,
+    {
+      variables: { slug: slug },
+      skip: !slug,
+    }
+  );
+
+  // Populate form for editing
   useEffect(() => {
     if (editData?.productBySlug) {
       setFormData(editData.productBySlug);
     }
-  }, [editData, queryLoading]);
-  // Auto-generate slug from name
-  const generateSlug = (name: string) => {
-    return name
+  }, [editData]);
+
+  // Prevent accidental navigation
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
+  // Utility Functions
+  const generateSlug = (name: string) =>
+    name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
-  };
 
-  // Auto-generate SKU
   const generateSKU = (name: string, category: string) => {
     const nameCode = name.substring(0, 3).toUpperCase();
     const categoryCode = category.substring(0, 2).toUpperCase();
@@ -268,80 +248,73 @@ export default function AddProductPage() {
       .padStart(3, "0");
     return `MB-${categoryCode}${nameCode}-${randomNum}`;
   };
-  function generateUniqueBarcode(length: number = 6): string {
-    const timestamp = Date.now().toString(); // current milliseconds
+
+  const generateUniqueBarcode = (length: number = 6) => {
+    const timestamp = Date.now().toString();
     let randomPart = "";
-
     const digits = "0123456789";
-    for (let i = 0; i < length; i++) {
+    for (let i = 0; i < length; i++)
       randomPart += digits.charAt(Math.floor(Math.random() * digits.length));
-    }
-
-    // Combine last 6 digits of timestamp + random part
-    const uniqueBarcode = timestamp.slice(-6) + randomPart;
-    return uniqueBarcode;
-  }
-
-  const handleInputChange = (field: keyof ProductFormData, value: any) => {
-    setFormData((prev) => {
-      const updated = { ...prev, [field]: value };
-
-      // Auto-generate slug when name changes
-      if (field === "name" && value) {
-        updated.slug = generateSlug(value);
-        updated.seoTitle = value;
-        if (!prev.sku) {
-          updated.sku = generateSKU(value, prev.category || "GEN");
-        }
-        if (!prev.barcode) {
-          updated.barcode = generateUniqueBarcode();
-        }
-      }
-
-      // Auto-generate SKU when category changes
-      if (field === "category" && value && prev.name) {
-        if (!prev.sku || prev.sku.startsWith("MB-")) {
-          updated.sku = generateSKU(prev.name, value);
-        }
-      }
-
-      // Clear subcategory when category changes
-      if (field === "category") {
-        updated.subcategory = "";
-      }
-
-      return updated;
-    });
-
-    // Clear error when field is updated
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
-    }
+    return timestamp.slice(-6) + randomPart;
   };
 
+  // Handlers
+  const handleInputChange = useCallback(
+    (field: keyof ProductFormData, value: any) => {
+      setIsDirty(true);
+      setFormData((prev) => {
+        const updated = { ...prev, [field]: value };
+
+        if (field === "name" && value) {
+          updated.slug = generateSlug(value);
+          updated.seoTitle = value;
+          if (!prev.sku)
+            updated.sku = generateSKU(value, prev.category || "GEN");
+          if (!prev.barcode) updated.barcode = generateUniqueBarcode();
+        }
+
+        if (field === "category" && value && prev.name) {
+          if (!prev.sku || prev.sku.startsWith("MB-"))
+            updated.sku = generateSKU(prev.name, value);
+          updated.subcategory = "";
+        }
+        return updated;
+      });
+
+      if (errors[field]) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[field];
+          return newErrors;
+        });
+      }
+    },
+    [errors]
+  );
+
   const handleDimensionChange = (
-    dimension: "weight" | "length" | "width" | "height",
+    dim: "weight" | "length" | "width" | "height",
     value: number
   ) => {
+    setIsDirty(true);
     setFormData((prev) => ({
       ...prev,
-      dimensions: { ...prev.dimensions, [dimension]: value },
+      dimensions: { ...prev.dimensions, [dim]: value },
     }));
   };
 
+  // Tag & Keyword Management
   const addTag = () => {
     if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
       handleInputChange("tags", [...formData.tags, newTag.trim()]);
       setNewTag("");
     }
   };
-
-  const removeTag = (tagToRemove: string) => {
+  const removeTag = (t: string) =>
     handleInputChange(
       "tags",
-      formData.tags.filter((tag) => tag !== tagToRemove)
+      formData.tags.filter((tag) => tag !== t)
     );
-  };
 
   const addKeyword = () => {
     if (
@@ -355,45 +328,38 @@ export default function AddProductPage() {
       setNewKeyword("");
     }
   };
-
-  const removeKeyword = (keywordToRemove: string) => {
+  const removeKeyword = (k: string) =>
     handleInputChange(
       "seoKeywords",
-      formData.seoKeywords.filter((keyword) => keyword !== keywordToRemove)
+      formData.seoKeywords.filter((key) => key !== k)
+    );
+
+  // Arrays Management
+  const toggleOccasion = (occ: string) => {
+    const exists = formData.occasions.includes(occ);
+    handleInputChange(
+      "occasions",
+      exists
+        ? formData.occasions.filter((o) => o !== occ)
+        : [...formData.occasions, occ]
     );
   };
 
-  const toggleOccasion = (occasion: string) => {
-    const isSelected = formData.occasions.includes(occasion);
-    if (isSelected) {
-      handleInputChange(
-        "occasions",
-        formData.occasions.filter((o) => o !== occasion)
-      );
-    } else {
-      handleInputChange("occasions", [...formData.occasions, occasion]);
-    }
-  };
-
   const toggleDeliveryZone = (zone: string) => {
-    const isSelected = formData.deliveryZones.includes(zone);
-    if (isSelected) {
-      handleInputChange(
-        "deliveryZones",
-        formData.deliveryZones.filter((z) => z !== zone)
-      );
-    } else {
-      handleInputChange("deliveryZones", [...formData.deliveryZones, zone]);
-    }
+    const exists = formData.deliveryZones.includes(zone);
+    handleInputChange(
+      "deliveryZones",
+      exists
+        ? formData.deliveryZones.filter((z) => z !== zone)
+        : [...formData.deliveryZones, zone]
+    );
   };
 
   const handleImagesUploaded = (
-    newImages: Array<{
-      url: string;
-      publicId: string;
-    }>
+    newImages: Array<{ url: string; publicId: string }>
   ) => {
-    const cloudinaryImages: CloudinaryImage[] = newImages.map((img) => ({
+    setIsDirty(true);
+    const cloudinaryImages = newImages.map((img) => ({
       url: img.url,
       publicId: img.publicId,
     }));
@@ -401,517 +367,448 @@ export default function AddProductPage() {
     setFormData((prev) => ({
       ...prev,
       images: [...prev.images, ...cloudinaryImages],
+      // Reset featured if invalid
       featuredImage:
         prev.featuredImage < prev.images.length + cloudinaryImages.length
           ? prev.featuredImage
           : 0,
     }));
 
-    // Clear image error if exists
-    if (errors.images) {
+    if (errors.images)
       setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors.images;
-        return newErrors;
+        const n = { ...prev };
+        delete n.images;
+        return n;
       });
-    }
   };
 
+  // Validation
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
-
-    // Basic Information
     if (!formData.name.trim()) newErrors.name = "Product name is required";
     if (!formData.slug.trim()) newErrors.slug = "Product slug is required";
     if (!formData.description.trim())
       newErrors.description = "Description is required";
-    if (!formData.shortDescription.trim())
-      newErrors.shortDescription = "Short description is required";
     if (!formData.category) newErrors.category = "Category is required";
-
-    // Pricing
-    if (formData.price <= 0) newErrors.price = "Price must be greater than 0";
-    if (
-      formData.compareAtPrice > 0 &&
-      formData.compareAtPrice <= formData.price
-    ) {
-      newErrors.compareAtPrice =
-        "Compare at price must be higher than regular price";
-    }
-
-    // Inventory
-    if (!formData.sku.trim()) newErrors.sku = "SKU is required";
-    if (formData.trackQuantity && formData.quantity < 0)
-      newErrors.quantity = "Quantity cannot be negative";
-
-    // Images
-    if (formData.images.length === 0)
-      newErrors.images = "At least one product image is required";
-
-    // SEO
-    if (!formData.seoTitle.trim()) newErrors.seoTitle = "SEO title is required";
-    if (!formData.seoDescription.trim())
-      newErrors.seoDescription = "SEO description is required";
-
-    // Delivery
-    if (formData.deliveryZones.length === 0)
-      newErrors.deliveryZones = "At least one delivery zone is required";
+    if (formData.price <= 0) newErrors.price = "Price > 0 required";
+    if (formData.images.length === 0) newErrors.images = "Image required";
+    if (!formData.sku.trim()) newErrors.sku = "SKU required";
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    if (Object.keys(newErrors).length > 0) {
+      toast.error("Please fix validation errors before saving.");
+      return false;
+    }
+    return true;
   };
 
+  // Submits
   const handleSave = async (status: "draft" | "active" = "draft") => {
     if (!validateForm()) {
       setSaveStatus("error");
       return;
     }
-
+    console.log(formData);
     setSaveStatus("saving");
-
     try {
-      // Simulate API call
-
       const productData = {
         ...formData,
         status,
-        id: `MB-${Date.now()}`,
+        id: formData.sku || `MB-${Date.now()}`, // Fallback ID
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      console.log("Saving product with Cloudinary images:", productData);
-      const res = await createProduct({
-        variables: {
-          data: productData,
-        },
-      });
-      console.log(res);
-      if (res.errors) {
-        toast.error(res.errors[0].message);
-      }
-      toast.success("Product created successfully!");
+      console.log("🚀 ~ handleSave ~ productData:", productData);
+
+      const res = await createProduct({ variables: { data: productData } });
+
+      if (res.errors) throw new Error(res.errors[0].message);
+
+      toast.success(
+        `Product ${status === "active" ? "published" : "saved"} successfully!`
+      );
       setSaveStatus("saved");
-      if (status === "active") {
-        router.push("/dashboard/products");
-      }
+      setIsDirty(false);
+
+      if (status === "active") router.push("/dashboard/products");
     } catch (error: any) {
+      console.error(error);
       setSaveStatus("error");
-      setSaveStatus("idle");
-      toast.error(error?.message || "Error saving product");
+      toast.error(error?.message || "Failed to save product");
+    } finally {
+      setTimeout(
+        () => setSaveStatus((prev) => (prev === "saved" ? "idle" : prev)),
+        3000
+      );
     }
   };
-  // console.log("DATA: ", data);
+
+  const handleUpdate = async () => {
+    if (!validateForm()) return;
+    setSaveStatus("saving");
+
+    try {
+      // Construct clean payload (omit __typename, etc if needed by GQL)
+      const { ...cleanData } = formData;
+
+      await updateProduct({ variables: { slug, data: cleanData } });
+
+      toast.success("Product updated successfully");
+      setSaveStatus("saved");
+      setIsDirty(false);
+      router.push("/dashboard/products");
+    } catch (error: any) {
+      setSaveStatus("error");
+      toast.error(error?.message || "Update failed");
+    }
+  };
+
+  // Tab Config
   const tabs = [
     {
       id: "basic",
       label: "Basic Info",
       icon: FileText,
-      hasError: !!(
-        errors.name ||
-        errors.description ||
-        errors.shortDescription ||
-        errors.category
-      ),
+      error: !!(errors.name || errors.description || errors.category),
     },
     {
       id: "pricing",
       label: "Pricing",
       icon: DollarSign,
-      hasError: !!(errors.price || errors.compareAtPrice),
+      error: !!(errors.price || errors.compareAtPrice),
     },
+    { id: "variants", label: "Variants", icon: Layers, error: false },
     {
       id: "inventory",
       label: "Inventory",
       icon: Package,
-      hasError: !!(errors.sku || errors.quantity),
+      error: !!(errors.sku || errors.quantity),
     },
-    {
-      id: "images",
-      label: "Images",
-      icon: ImageIcon,
-      hasError: !!errors.images,
-    },
+    { id: "images", label: "Images", icon: ImageIcon, error: !!errors.images },
     {
       id: "seo",
       label: "SEO",
       icon: Globe,
-      hasError: !!(errors.seoTitle || errors.seoDescription),
+      error: !!(errors.seoTitle || errors.seoDescription),
     },
     {
       id: "delivery",
       label: "Delivery",
       icon: Truck,
-      hasError: !!errors.deliveryZones,
+      error: !!errors.deliveryZones,
     },
-    {
-      id: "features",
-      label: "Features",
-      icon: Sparkles,
-      hasError: false,
-    },
+    { id: "features", label: "Features", icon: Sparkles, error: false },
   ];
 
-  const getSaveButtonContent = () => {
-    switch (saveStatus) {
-      case "saving":
-        return (
-          <>
-            <Loader2 className="w-4 h-4 animate-spin" />
-            Saving...
-          </>
-        );
-      case "saved":
-        return (
-          <>
-            <CheckCircle className="w-4 h-4" />
-            Saved
-          </>
-        );
-      case "error":
-        return (
-          <>
-            <AlertCircle className="w-4 h-4" />
-            Error
-          </>
-        );
-      default:
-        return (
-          <>
-            <Save className="w-4 h-4" />
-            Save Draft
-          </>
-        );
-    }
-  };
+  const categoryObj = categories?.find(
+    (cat: any) => cat.name === formData.category
+  );
 
-  const category = categories?.find((cat) => cat.name === formData.category) as
-    | Category
-    | undefined;
-  const selectedCategory = category
-    ? {
-        id: category.id,
-        name: category.name,
-        desription: category.description ?? "",
-        subcategories: (category as any)?.subcategories ?? [],
-      }
-    : undefined;
-
-  // UPDATE PRODUCT BY SLUG:::::::::::::::::::::
-  const handleUpdate = async () => {
-    if (!validateForm()) {
-      setSaveStatus("error");
-      return;
-    }
-
-    setSaveStatus("saving");
-    try {
-      const productData = {
-        name: formData.name,
-        slug: formData.slug,
-        description: formData.description,
-        shortDescription: formData.shortDescription,
-        category: formData.category,
-        subcategory: formData.subcategory,
-        tags: formData.tags,
-        price: formData.price,
-        compareAtPrice: formData.compareAtPrice,
-        costPerItem: formData.costPerItem,
-        sku: formData.sku,
-        barcode: formData.barcode,
-        trackQuantity: formData.trackQuantity,
-        quantity: formData.quantity,
-        lowStockThreshold: formData.lowStockThreshold,
-        requiresShipping: formData.requiresShipping,
-        featuredImage: formData.featuredImage,
-        seoTitle: formData.seoTitle,
-        seoDescription: formData.seoDescription,
-        seoKeywords: formData.seoKeywords,
-        status: formData.status || "draft", // enum must be valid
-        featured: formData.featured,
-        deliveryZones: formData.deliveryZones,
-        deliveryTime: formData.deliveryTime,
-        freeDeliveryThreshold: formData.freeDeliveryThreshold,
-        giftWrapping: formData.giftWrapping,
-        personalization: formData.personalization,
-        careInstructions: formData.careInstructions,
-        occasions: formData.occasions,
-
-        dimensions: formData.dimensions
-          ? {
-              weight: formData.dimensions.weight,
-              length: formData.dimensions.length,
-              width: formData.dimensions.width,
-              height: formData.dimensions.height,
-            }
-          : undefined,
-
-        images: formData?.images?.map((img) => ({
-          url: img?.url,
-          publicId: img.publicId,
-        })),
-      };
-      console.log("update:", productData);
-      const res = await updateProduct({
-        variables: {
-          slug,
-          data: productData,
-        },
-      });
-
-      setSaveStatus("saved");
-      router.push("/dashboard/products");
-    } catch (error) {
-      setSaveStatus("error");
-      setSaveStatus("idle");
-    }
-  };
   return (
-    <Suspense fallback={<div>Loading query...</div>}>
-      <div className="space-y-6 w-full overflow-x-hidden">
-        {/* Header */}
-        <div className="flex flex-wrap items-center gap-5 justify-between w-full">
-          <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              onClick={() => router.back()}
-              className="p-2"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-cormorant font-bold text-charcoal-900 flex items-center">
-                Add New Product
-                <Cloud className="w-8 h-8 ml-3 text-blue-500" />
-              </h1>
-              <p className="text-gray-600 mt-1">
-                Create a new product with Cloudinary-optimized images
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center space-x-3">
-            {/* Save Status Indicator */}
-            {saveStatus === "saving" && (
-              <div className="flex items-center text-blue-600">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
-                Saving...
-              </div>
-            )}
-            {saveStatus === "saved" && (
-              <div className="flex items-center text-green-600">
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Saved!
-              </div>
-            )}
-            {saveStatus === "error" && (
-              <div className="flex items-center text-red-600">
-                <AlertCircle className="w-4 h-4 mr-2" />
-                Error saving
-              </div>
-            )}
-
-            {/* <Button variant="outline">
-            <Eye className="w-4 h-4 mr-2" />
-            Preview
-          </Button> */}
-            <Button
-              onClick={() => handleSave("draft")}
-              disabled={saveStatus === "saving"}
-              variant="outline"
-              className={`${
-                saveStatus === "saved"
-                  ? "border-green-300 text-green-700"
-                  : saveStatus === "error"
-                  ? "border-red-300 text-red-700"
-                  : ""
-              }`}
-            >
-              {getSaveButtonContent()}
-            </Button>
-            {slug ? (
-              <Button
-                onClick={() => handleUpdate()}
-                disabled={saveStatus === "saving" || queryLoading}
-                variant="luxury"
-              >
-                {updateLoading ? "Updating Product" : "Update Product"}
-              </Button>
-            ) : (
-              <Button
-                onClick={() => handleSave("active")}
-                disabled={saveStatus === "saving"}
-                variant="luxury"
-              >
-                Publish Product
-              </Button>
-            )}
-          </div>
+    <Suspense
+      fallback={
+        <div className="flex h-[50vh] w-full items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
+      }
+    >
+      <div className="min-h-screen w-full bg-background pb-20 text-foreground transition-colors duration-300">
+        {/* Sticky Header */}
+        <header className="sticky top-0 z-30 mb-8 w-full border-b border-border bg-background/80 px-6 py-4 backdrop-blur-md">
+          <div className="mx-auto flex max-w-7xl items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => router.back()}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </Button>
 
-        {/* Error Summary */}
-        {Object.keys(errors).length > 0 && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <div className="flex items-center">
-              <AlertCircle className="w-5 h-5 text-red-600 mr-2" />
-              <h3 className="text-sm font-medium text-red-800">
-                Please fix the following errors:
-              </h3>
+              <div className="hidden md:block">
+                <div className="flex items-center gap-2">
+                  <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground">
+                    {slug ? "Edit Product" : "New Product"}
+                  </h1>
+                  {isDirty && (
+                    <span className="text-xs font-medium text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                      Unsaved Changes
+                    </span>
+                  )}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {slug
+                    ? `Editing: ${formData.name}`
+                    : "Fill in the details to create a new product"}
+                </p>
+              </div>
             </div>
-            <ul className="mt-2 text-sm text-red-700 list-disc list-inside">
-              {Object.entries(errors).map(([field, error]) => (
-                <li key={field}>{error}</li>
-              ))}
-            </ul>
-          </div>
-        )}
 
-        <div className="sm:grid sm:grid-cols-12 gap-6">
-          {/* Sidebar Navigation */}
-          <div className="col-span-3">
-            <div className="bg-white rounded-xl shadow-sm border border-cream-200 p-4 sticky top-6">
-              <nav className="space-y-2">
+            <div className="flex items-center gap-3">
+              {/* Status Indicators */}
+              <AnimatePresence mode="wait">
+                {saveStatus === "saving" && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="mr-2 flex items-center text-sm text-primary"
+                  >
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+                  </motion.div>
+                )}
+                {saveStatus === "error" && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="mr-2 flex items-center text-sm text-destructive"
+                  >
+                    <AlertCircle className="mr-2 h-4 w-4" /> Failed
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <Button
+                variant="outline"
+                onClick={() => handleSave("draft")}
+                disabled={saveStatus === "saving"}
+                className="hidden sm:flex border-border bg-background hover:bg-muted"
+              >
+                Save Draft
+              </Button>
+
+              {slug ? (
+                <Button
+                  onClick={handleUpdate}
+                  disabled={
+                    saveStatus === "saving" || queryLoading || updateLoading
+                  }
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  {updateLoading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    "Update Product"
+                  )}
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => handleSave("active")}
+                  disabled={saveStatus === "saving"}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  Publish
+                </Button>
+              )}
+            </div>
+          </div>
+        </header>
+
+        <main className="mx-auto max-w-7xl px-6">
+          {/* Error Summary Banner */}
+          <AnimatePresence>
+            {Object.keys(errors).length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-8 rounded-lg border border-destructive/20 bg-destructive/5 p-4"
+              >
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="mt-0.5 h-5 w-5 text-destructive" />
+                  <div>
+                    <h3 className="font-semibold text-destructive">
+                      Validation Errors
+                    </h3>
+                    <ul className="mt-1 list-disc pl-5 text-sm text-destructive/80">
+                      {Object.values(errors).map((err, i) => (
+                        <li key={i}>{err}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setErrors({})}
+                    className="ml-auto h-6 w-6 text-destructive/60 hover:text-destructive"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <div className="grid gap-8 lg:grid-cols-12">
+            {/* Sidebar Navigation */}
+            <aside className="lg:col-span-3">
+              <nav className="sticky top-28 space-y-1 rounded-xl border border-border bg-card p-2 shadow-sm">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
                   return (
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`w-full flex items-center justify-between space-x-3 px-4 py-3 rounded-lg text-left transition-colors ${
-                        activeTab === tab.id
-                          ? "bg-luxury-50 text-luxury-600 border border-luxury-200"
-                          : "text-gray-600 hover:bg-gray-50"
-                      }`}
+                      className={cn(
+                        "group flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
+                        isActive
+                          ? "bg-primary text-primary-foreground shadow-md"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
                     >
-                      <div className="flex items-center space-x-3">
-                        <Icon className="w-5 h-5" />
-                        <span className="font-medium">{tab.label}</span>
+                      <div className="flex items-center gap-3">
+                        <Icon
+                          className={cn(
+                            "h-4 w-4",
+                            isActive
+                              ? "text-primary-foreground"
+                              : "text-muted-foreground group-hover:text-foreground"
+                          )}
+                        />
+                        {tab.label}
                       </div>
-                      {tab.hasError && (
-                        <AlertCircle className="w-4 h-4 text-red-500" />
+                      {tab.error && (
+                        <div className="h-2 w-2 rounded-full bg-destructive" />
+                      )}
+                      {!tab.error && isActive && (
+                        <ChevronRight className="h-4 w-4 opacity-50" />
                       )}
                     </button>
                   );
                 })}
-              </nav>
 
-              {/* Progress Indicator */}
-              <div className="mt-6 pt-4 border-t border-gray-200">
-                <div className="text-sm text-gray-600 mb-2">
-                  Completion Progress
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div
-                    className="bg-luxury-500 h-2 rounded-full transition-all duration-300"
-                    style={{
-                      width: `${Math.round(
-                        (tabs.filter((tab) => !tab.hasError).length /
-                          tabs.length) *
+                <div className="mt-4 px-3 pt-4 border-t border-border">
+                  <div className="mb-2 flex justify-between text-xs text-muted-foreground">
+                    <span>Completion</span>
+                    <span>
+                      {Math.round(
+                        (tabs.filter((t) => !t.error).length / tabs.length) *
                           100
-                      )}%`,
-                    }}
+                      )}
+                      %
+                    </span>
+                  </div>
+                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full bg-primary transition-all duration-500 ease-out"
+                      style={{
+                        width: `${
+                          (tabs.filter((t) => !t.error).length / tabs.length) *
+                          100
+                        }%`,
+                      }}
+                    />
+                  </div>
+                </div>
+              </nav>
+            </aside>
+
+            {/* Content Area */}
+            <div className="lg:col-span-9">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="min-h-[600px] rounded-xl border border-border bg-card p-6 shadow-sm md:p-8"
+              >
+                {activeTab === "basic" && (
+                  <BasicInfoTab
+                    formData={formData}
+                    handleInputChange={handleInputChange}
+                    errors={errors}
+                    categories={categories}
+                    selectedCategory={
+                      categoryObj
+                        ? {
+                            id: categoryObj.id,
+                            name: categoryObj.name,
+                            desription: (categoryObj as any).description,
+                            subcategories: categoryObj.subcategories?.map(
+                              (s: any) => s.name
+                            ),
+                          }
+                        : undefined
+                    }
+                    removeTag={removeTag}
+                    newTag={newTag}
+                    setNewTag={setNewTag}
+                    addTag={addTag}
                   />
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {tabs.filter((tab) => !tab.hasError).length} of {tabs.length}{" "}
-                  sections complete
-                </div>
-              </div>
-            </div>
-          </div>
+                )}
 
-          {/* Main Content */}
-          <div className="col-span-9 w-full">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white rounded-xl shadow-sm border border-cream-200 p-6  w-full"
-            >
-              {/* Basic Information Tab */}
-              {activeTab === "basic" && (
-                <BasicInfoTab
-                  formData={formData}
-                  handleInputChange={handleInputChange}
-                  errors={errors}
-                  categories={categories}
-                  selectedCategory={selectedCategory}
-                  removeTag={removeTag}
-                  newTag={newTag}
-                  setNewTag={setNewTag}
-                  addTag={addTag}
-                />
-              )}
+                {activeTab === "pricing" && (
+                  <PricingTab
+                    formData={formData}
+                    handleInputChange={handleInputChange}
+                    errors={errors}
+                  />
+                )}
 
-              {/* Pricing Tab */}
-              {activeTab === "pricing" && (
-                <PricingTab
-                  formData={formData}
-                  handleInputChange={handleInputChange}
-                  errors={errors}
-                />
-              )}
+                {activeTab === "variants" && (
+                  <VariantsTab
+                    formData={formData}
+                    handleInputChange={handleInputChange}
+                    errors={errors}
+                  />
+                )}
 
-              {/* Inventory Tab */}
-              {activeTab === "inventory" && (
-                <InventoryTab
-                  formData={formData}
-                  handleInputChange={handleInputChange}
-                  errors={errors}
-                  handleDimensionChange={handleDimensionChange}
-                />
-              )}
+                {activeTab === "inventory" && (
+                  <InventoryTab
+                    formData={formData}
+                    handleInputChange={handleInputChange}
+                    errors={errors}
+                    handleDimensionChange={handleDimensionChange}
+                  />
+                )}
 
-              {/* Images Tab */}
-              {activeTab === "images" && (
-                //
-                <div className="w-full">
+                {activeTab === "images" && (
                   <ImagesTab
                     formData={formData}
                     handleInputChange={handleInputChange}
                     errors={errors}
                     handleImagesUploaded={handleImagesUploaded}
                   />
-                </div>
-              )}
+                )}
 
-              {/* SEO Tab */}
-              {activeTab === "seo" && (
-                <SEOTab
-                  formData={formData}
-                  handleInputChange={handleInputChange}
-                  errors={errors}
-                  removeKeyword={removeKeyword}
-                  newKeyword={newKeyword}
-                  addKeyword={addKeyword}
-                  setNewKeyword={setNewKeyword}
-                />
-              )}
+                {activeTab === "seo" && (
+                  <SEOTab
+                    formData={formData}
+                    handleInputChange={handleInputChange}
+                    errors={errors}
+                    removeKeyword={removeKeyword}
+                    newKeyword={newKeyword}
+                    addKeyword={addKeyword}
+                    setNewKeyword={setNewKeyword}
+                  />
+                )}
 
-              {/* Delivery Tab */}
-              {activeTab === "delivery" && (
-                <DeliveryTab
-                  formData={formData}
-                  handleInputChange={handleInputChange}
-                  errors={errors}
-                  deliveryTimes={deliveryTimes}
-                  deliveryZones={deliveryZones}
-                  toggleDeliveryZone={toggleDeliveryZone}
-                />
-              )}
+                {activeTab === "delivery" && (
+                  <DeliveryTab
+                    formData={formData}
+                    handleInputChange={handleInputChange}
+                    errors={errors}
+                    deliveryTimes={deliveryTimes}
+                    deliveryZones={deliveryZones}
+                    toggleDeliveryZone={toggleDeliveryZone}
+                  />
+                )}
 
-              {/* Features Tab */}
-              {activeTab === "features" && (
-                <FeaturesTab
-                  formData={formData}
-                  handleInputChange={handleInputChange}
-                  occasionsList={occasionsList}
-                  toggleOccasion={toggleOccasion}
-                />
-              )}
-            </motion.div>
+                {activeTab === "features" && (
+                  <FeaturesTab
+                    formData={formData}
+                    handleInputChange={handleInputChange}
+                    occasionsList={occasionsList}
+                    toggleOccasion={toggleOccasion}
+                  />
+                )}
+              </motion.div>
+            </div>
           </div>
-        </div>
+        </main>
       </div>
     </Suspense>
   );

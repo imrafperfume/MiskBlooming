@@ -27,8 +27,8 @@ export function CheckoutProgress({ currentStep }: CheckoutProgressProps) {
             <div
               className={`w-10 h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
                 currentStep >= step.id
-                  ? "bg-luxury-500 text-charcoal-900"
-                  : "bg-cream-200 text-muted-foreground"
+                  ? "bg-primary text-foreground "
+                  : "bg-cream-200 text-primary "
               }`}
             >
               <step.icon className="w-4 h-4 lg:w-6 lg:h-6" />
@@ -36,7 +36,7 @@ export function CheckoutProgress({ currentStep }: CheckoutProgressProps) {
             <span
               className={`ml-2 lg:ml-3 font-medium text-sm lg:text-base ${
                 currentStep >= step.id
-                  ? "text-charcoal-900"
+                  ? "text-foreground "
                   : "text-muted-foreground"
               }`}
             >
@@ -45,7 +45,7 @@ export function CheckoutProgress({ currentStep }: CheckoutProgressProps) {
             {index < steps.length - 1 && (
               <div
                 className={`w-12 lg:w-16 h-0.5 ml-4 lg:ml-8 transition-all duration-300 ${
-                  currentStep > step.id ? "bg-luxury-500" : "bg-cream-300"
+                  currentStep > step.id ? "bg-primary" : "bg-foreground"
                 }`}
               />
             )}

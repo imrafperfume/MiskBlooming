@@ -1,7 +1,15 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Pencil, Trash2 } from "lucide-react";
+import React, { useState } from "react";
+import {
+  Pencil,
+  Trash2,
+  Layers,
+  Plus,
+  GitBranch,
+  Image as ImageIcon,
+  X,
+} from "lucide-react";
 import { CloudinaryFileUpload } from "@/src/components/ui/CloudinaryFileUpload";
 import { useMutation, useQuery } from "@apollo/client";
 import {
@@ -19,6 +27,7 @@ import Image from "next/image";
 import Button from "@/src/components/ui/Button";
 import { Input } from "@/src/components/ui/Input";
 
+// --- Types ---
 type Category = {
   id: string;
   name: string;
@@ -28,6 +37,7 @@ type Category = {
 type SubCategory = { id: string; name: string; categoryId: string };
 
 export default function CategoryPage() {
+  // --- State ---
   const [catName, setCatName] = useState("");
   const [catDesc, setCatDesc] = useState("");
   const [catImage, setCatImage] = useState("");
@@ -37,33 +47,39 @@ export default function CategoryPage() {
   const [subCatId, setSubCatId] = useState("");
   const [editingSubId, setEditingSubId] = useState<string | null>(null);
 
-  // Fetch categories
-  const { data, loading, error, refetch } = useQuery(GET_CATEGORIES);
+  // --- Data Fetching ---
+  const { data, loading, refetch } = useQuery(GET_CATEGORIES);
   const { data: subData, refetch: refetchSubcategories } =
     useQuery(GET_SUBCATEGORIES);
 
   const categories: Category[] = data?.categories ?? [];
-  console.log("🚀 ~ CategoryPage ~ categories:", categories);
-  const subcategories = subData?.subcategories ?? [];
+  const subcategories: SubCategory[] = subData?.subcategories ?? [];
 
-  // Create category mutation
+  // --- Mutations ---
   const [createCategory, { loading: createLoading }] =
     useMutation(CREATE_CATEGORY);
-  const [updateCategory] = useMutation(UPDATE_CATEGORY);
-  const [createSubCategory] = useMutation(CREATE_SUB_CATEGORY);
-  const [updateSubCategory] = useMutation(UPDATE_SUB_CATEGORY);
+  const [updateCategory, { loading: updateLoading }] =
+    useMutation(UPDATE_CATEGORY);
+  const [createSubCategory, { loading: createSubLoading }] =
+    useMutation(CREATE_SUB_CATEGORY);
+  const [updateSubCategory, { loading: updateSubLoading }] =
+    useMutation(UPDATE_SUB_CATEGORY);
   const [deleteSubCategory] = useMutation(DELETE_SUB_CATEGORY);
   const [deleteCategory] = useMutation(DELETE_CATEGORY);
 
-  const handleSaveCategory = async () => {
-    console.log("catImage", catImage);
-    console.log("Editing", editingCatId);
+  const isSavingCat = createLoading || updateLoading;
+  const isSavingSub = createSubLoading || updateSubLoading;
 
-    if (!catName.trim()) return;
-    if (editingCatId) {
-      toast.loading("Updating category...");
-      try {
-        // TODO: implement updateCategory mutation
+  // --- Handlers ---
+  const handleSaveCategory = async () => {
+    if (!catName.trim()) {
+      toast.error("Category name is required");
+      return;
+    }
+
+    try {
+      if (editingCatId) {
+        toast.loading("Updating category...");
         await updateCategory({
           variables: {
             id: editingCatId,
@@ -75,349 +91,426 @@ export default function CategoryPage() {
             },
           },
         });
-
         toast.success("Category updated");
-        toast.dismiss();
-        await refetch();
-        setCatName("");
-        setCatDesc("");
-        // setCatImage("");
         setEditingCatId(null);
-      } catch (error) {
-        toast.error("Failed to update category");
-        toast.dismiss();
-        console.error("Update category failed:", error);
-      }
-    } else {
-      try {
+      } else {
         toast.loading("Creating category...");
         await createCategory({
           variables: {
-            input: {
-              name: catName,
-              description: catDesc,
-              imageUrl: catImage,
-            },
+            input: { name: catName, description: catDesc, imageUrl: catImage },
           },
         });
         toast.success("Category created");
-        toast.dismiss();
-        await refetch();
-        setCatName("");
-        setCatDesc("");
-        // setCatImage("");
-      } catch (err) {
-        console.error("Create category failed:", err);
-        toast.error("Failed to create category");
-        toast.dismiss();
       }
+
+      toast.dismiss();
+      await refetch();
+      // Reset form
+      setCatName("");
+      setCatDesc("");
+      setCatImage("");
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Operation failed");
+      console.error(error);
     }
   };
 
   const handleEditCategory = (cat: Category) => {
-    console.log("cat", cat);
     setEditingCatId(cat.id);
     setCatName(cat.name);
     setCatDesc(cat.description || "");
     setCatImage(cat.imageUrl || "");
+    // Scroll to top on mobile to see form
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDeleteCategory = async (id: string) => {
+    if (!confirm("Are you sure? This will delete the category.")) return;
     try {
-      toast.loading("Deleting category...");
-      await deleteCategory({
-        variables: { id },
-      });
+      await deleteCategory({ variables: { id } });
       toast.success("Category deleted");
-      toast.dismiss();
       await refetch();
     } catch (error) {
-      toast.error("Failed to delete category");
-      toast.dismiss();
-      console.error("Failed to delete category:", error);
+      toast.error("Failed to delete");
     }
   };
 
   const handleSaveSubCategory = async () => {
-    if (!subName.trim() || !subCatId) return;
+    if (!subName.trim() || !subCatId) {
+      toast.error("Name and Parent Category are required");
+      return;
+    }
 
     try {
       if (editingSubId) {
         toast.loading("Updating subcategory...");
-        // TODO: implement updateSubCategory mutation if your backend supports it
         await updateSubCategory({
           variables: {
             id: editingSubId,
-            input: {
-              id: editingSubId,
-              name: subName,
-              categoryId: subCatId,
-            },
+            input: { id: editingSubId, name: subName, categoryId: subCatId },
           },
         });
         toast.success("Subcategory updated");
-        toast.dismiss();
-        // Update local state
         setEditingSubId(null);
       } else {
         toast.loading("Creating subcategory...");
         await createSubCategory({
           variables: {
-            input: {
-              name: subName,
-              categoryId: subCatId,
-            },
+            input: { name: subName, categoryId: subCatId },
           },
         });
         toast.success("Subcategory created");
-        toast.dismiss();
       }
 
-      // Optionally refetch subcategories from server if needed
-      await refetchSubcategories();
-
-      setSubName("");
-      setSubCatId("");
-    } catch (error) {
-      toast.error("Failed to save subcategory");
       toast.dismiss();
-      console.error("Failed to save subcategory:", error);
+      await refetchSubcategories();
+      setSubName("");
+      // Keep the category selected for easier bulk addition, or reset if preferred
+      // setSubCatId("");
+    } catch (error) {
+      toast.dismiss();
+      toast.error("Operation failed");
+      console.error(error);
     }
   };
+
   const handleEditSubCategory = (sub: SubCategory) => {
     setEditingSubId(sub.id);
     setSubName(sub.name);
     setSubCatId(sub.categoryId);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDeleteSubCategory = async (id: string) => {
+    if (!confirm("Delete this subcategory?")) return;
     try {
-      toast.loading("Deleting subcategory...");
-      await deleteSubCategory({
-        variables: { id },
-      });
-      toast.success("Subcategory deleted");
-      toast.dismiss();
+      await deleteSubCategory({ variables: { id } });
+      toast.success("Deleted");
       await refetchSubcategories();
     } catch (error) {
-      toast.error("Failed to delete subcategory");
-      toast.dismiss();
-      console.error("Failed to delete subcategory:", error);
+      toast.error("Failed to delete");
     }
   };
 
-  const handleFilesUploaded = (
-    files: { url: string; publicId: string; optimizedUrls: any }[]
-  ) => {
+  const handleFilesUploaded = (files: { url: string }[]) => {
     setCatImage(files[0].url);
   };
-  console.log(catImage);
+
+  // --- Reset Handlers ---
+  const resetCatForm = () => {
+    setEditingCatId(null);
+    setCatName("");
+    setCatDesc("");
+    setCatImage("");
+  };
+
+  const resetSubForm = () => {
+    setEditingSubId(null);
+    setSubName("");
+    setSubCatId("");
+  };
+
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-gray-50 to-luxury-50 gap-6">
-      {/* Sidebar */}
-      <aside className="md:w-[400px] w-full bg-white/90 backdrop-blur-md sm:shadow rounded-2xl sm:p-6 flex flex-col gap-6">
-        <h1 className="text-2xl font-bold text-luxury-500">Categories</h1>
-        <ul className="space-y-2 overflow-y-auto max-h-[50vh]">
-          {categories.length > 0 ? (
-            categories.map((cat) => (
-              <li
-                key={cat.id}
-                className="flex items-center gap-3 group bg-white sm:p-2 rounded-lg sm:shadow-sm hover:shadow transition"
-              >
-                {cat.imageUrl && (
-                  <Image
-                    src={cat?.imageUrl}
-                    alt={cat.name}
-                    width={10}
-                    height={10}
-                    className="w-10 h-10 object-cover  rounded-lg border"
-                  />
-                )}
-                <span className="font-medium text-gray-800">{cat.name}</span>
-                <div className="ml-auto flex gap-3 opacity-0 group-hover:opacity-100 transition">
-                  <button
-                    onClick={() => handleEditCategory(cat)}
-                    title="Edit"
-                    className="text-luxury-500 hover:text-luxury-700"
-                  >
-                    <Pencil size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteCategory(cat.id)}
-                    title="Delete"
-                    className="text-red-400 hover:text-red-500"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
-              </li>
-            ))
-          ) : (
-            <p className="text-gray-500">
-              {loading ? "Loading..." : "No categories available."}
+    <div className="min-h-screen bg-background p-4 sm:p-8">
+      <div className="max-w-[1600px] mx-auto space-y-8">
+        {/* Page Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+              Taxonomy
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              Manage your product categories and sub-levels structure.
             </p>
-          )}
-        </ul>
-      </aside>
-
-      {/* Main content */}
-      <main className="w-full flex flex-col gap-6">
-        {/* Category Form */}
-        <section className="bg-white rounded-xl sm:shadow sm:p-6 max-w-3xl mx-auto flex flex-col gap-4">
-          <h2 className="font-semibold text-lg text-luxury-500">
-            {editingCatId ? "Edit Category" : "Add Category"}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-            <input
-              className="border border-luxury-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-luxury-400"
-              placeholder="Category name"
-              value={catName}
-              onChange={(e) => setCatName(e.target.value)}
-            />
-            <textarea
-              className="border border-luxury-300 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-luxury-400"
-              placeholder="Description max 3 words"
-              value={catDesc}
-              onChange={(e) => setCatDesc(e.target.value)}
-              rows={1}
-            />
-            <div className="w-full object-cover rounded-lg">
-              <CloudinaryFileUpload
-                onFilesUploaded={handleFilesUploaded}
-                maxFiles={1}
-                maxFileSize={10}
-                folder="category_images"
-                tags={["category"]}
-              />
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant={"luxury"}
-                size={"sm"}
-                className="bg-luxury-500 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-luxury-700 transition"
-                onClick={handleSaveCategory}
-                disabled={createLoading}
-              >
-                {editingCatId ? "Update" : "Add"}
-              </Button>
-              {editingCatId && (
-                <Button
-                  variant={"ghost"}
-                  size={"sm"}
-                  className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg"
-                  onClick={() => setEditingCatId(null)}
-                >
-                  Cancel
-                </Button>
-              )}
-            </div>
           </div>
-        </section>
+        </div>
 
-        {/* Subcategory Form */}
-        <section className="bg-white rounded-xl sm:shadow sm:p-6 sm:max-w-3xl sm:mx-auto flex flex-col gap-4">
-          <h2 className="font-semibold text-lg text-luxury-500">
-            {editingSubId ? "Edit Subcategory" : "Add Subcategory"}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Input
-              className="border border-luxury-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-luxury-400"
-              placeholder="Subcategory name"
-              value={subName}
-              onChange={(e) => setSubName(e.target.value)}
-            />
-            <select
-              className="border border-luxury-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-luxury-400"
-              value={subCatId}
-              onChange={(e) => setSubCatId(e.target.value)}
-            >
-              <option value="">Select Category</option>
-              {categories?.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-            <div className="flex gap-2">
-              <Button
-                variant={"luxury"}
-                size={"sm"}
-                className="bg-luxury-500 text-white sm:px-4 py-2 rounded-lg font-semibold sm:shadow hover:bg-luxury-700 transition"
-                onClick={handleSaveSubCategory}
-              >
-                {editingSubId ? "Save" : "Add"}
-              </Button>
-              {editingSubId && (
-                <Button
-                  variant={"ghost"}
-                  size={"sm"}
-                  className="bg-gray-100 text-gray-700 px-3 py-2 rounded-lg"
-                  onClick={() => setEditingSubId(null)}
-                >
-                  Cancel
-                </Button>
-              )}
-            </div>
-          </div>
-        </section>
-
-        {/* Category Cards */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {categories.map((cat) => (
-            <div
-              key={cat.id}
-              className="bg-white rounded-2xl sm:shadow sm:p-4 flex flex-col gap-3 hover:shadow-xl transform hover:scale-105 transition"
-            >
-              <div className="flex items-center gap-3">
-                {cat.imageUrl && (
-                  <Image
-                    width={14}
-                    height={14}
-                    src={cat.imageUrl}
-                    alt={cat.name}
-                    className="w-14 h-14 object-cover rounded-lg border"
-                  />
-                )}
-                <div>
-                  <div className="font-bold text-gray-900">{cat.name}</div>
-                  <div className="text-sm text-gray-500">{cat.description}</div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* LEFT COLUMN: FORMS (Sticky on desktop) */}
+          <aside className="lg:col-span-4 space-y-6 lg:sticky lg:top-8">
+            {/* Category Form Card */}
+            <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+              <div className="p-4 border-b border-border bg-muted/40 flex items-center gap-2">
+                <div className="p-2 bg-primary/10 rounded-md text-primary">
+                  <Layers size={18} />
                 </div>
+                <h2 className="font-semibold text-foreground">
+                  {editingCatId ? "Edit Category" : "New Category"}
+                </h2>
+                {editingCatId && (
+                  <button
+                    onClick={resetCatForm}
+                    className="ml-auto text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
               </div>
-              <div className="flex flex-wrap gap-2">
-                {subcategories
-                  .filter(
-                    (sub: { id: string; name: string; categoryId: string }) =>
-                      sub.categoryId === cat.id
-                  )
-                  .map(
-                    (sub: { id: string; name: string; categoryId: string }) => (
-                      <span
-                        key={sub.id}
-                        className="bg-luxury-50 text-luxury-500 px-2 py-1 rounded-full text-xs flex items-center gap-2"
+
+              <div className="p-5 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Name
+                  </label>
+                  <Input
+                    placeholder="e.g. Living Room"
+                    value={catName}
+                    onChange={(e) => setCatName(e.target.value)}
+                    className="bg-background"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Description
+                  </label>
+                  <textarea
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    placeholder="Short description..."
+                    value={catDesc}
+                    onChange={(e) => setCatDesc(e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Cover Image
+                  </label>
+                  {catImage ? (
+                    <div className="relative w-full h-32 rounded-lg overflow-hidden border border-border group">
+                      <Image
+                        src={catImage}
+                        alt="preview"
+                        fill
+                        className="object-cover"
+                      />
+                      <button
+                        onClick={() => setCatImage("")}
+                        className="absolute top-2 right-2 p-1 bg-black/50 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        {sub.name}
+                        <X size={14} />
+                      </button>
+                    </div>
+                  ) : (
+                    <CloudinaryFileUpload
+                      onFilesUploaded={handleFilesUploaded}
+                      maxFiles={1}
+                      folder="category_images"
+                      tags={["category"]}
+                    />
+                  )}
+                </div>
+
+                <Button
+                  onClick={handleSaveCategory}
+                  disabled={isSavingCat}
+                  className="w-full"
+                  variant="luxury"
+                >
+                  {isSavingCat
+                    ? "Saving..."
+                    : editingCatId
+                    ? "Update Category"
+                    : "Create Category"}
+                </Button>
+              </div>
+            </div>
+
+            {/* Subcategory Form Card */}
+            <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+              <div className="p-4 border-b border-border bg-muted/40 flex items-center gap-2">
+                <div className="p-2 bg-indigo-500/10 rounded-md text-indigo-600 dark:text-indigo-400">
+                  <GitBranch size={18} />
+                </div>
+                <h2 className="font-semibold text-foreground">
+                  {editingSubId ? "Edit Subcategory" : "New Subcategory"}
+                </h2>
+                {editingSubId && (
+                  <button
+                    onClick={resetSubForm}
+                    className="ml-auto text-xs text-muted-foreground hover:text-foreground"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+
+              <div className="p-5 space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Parent Category
+                  </label>
+                  <select
+                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={subCatId}
+                    onChange={(e) => setSubCatId(e.target.value)}
+                  >
+                    <option value="">Select a Category...</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">
+                    Name
+                  </label>
+                  <Input
+                    placeholder="e.g. Sofas"
+                    value={subName}
+                    onChange={(e) => setSubName(e.target.value)}
+                    className="bg-background"
+                  />
+                </div>
+
+                <Button
+                  onClick={handleSaveSubCategory}
+                  disabled={isSavingSub}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white"
+                  variant="luxury"
+                >
+                  {isSavingSub
+                    ? "Saving..."
+                    : editingSubId
+                    ? "Update Subcategory"
+                    : "Add Subcategory"}
+                </Button>
+              </div>
+            </div>
+          </aside>
+
+          {/* RIGHT COLUMN: LIST GRID */}
+          <main className="lg:col-span-8 space-y-6">
+            {/* Stats or Search could go here */}
+
+            {loading ? (
+              <div className="text-center py-20">
+                <p className="text-muted-foreground animate-pulse">
+                  Loading categories...
+                </p>
+              </div>
+            ) : categories.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-border rounded-xl">
+                <Layers className="w-12 h-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium">No Categories Yet</h3>
+                <p className="text-muted-foreground">
+                  Start by adding a category on the left.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
+                {categories.map((cat) => (
+                  <div
+                    key={cat.id}
+                    className="group bg-card border border-border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+                  >
+                    {/* Card Header / Image */}
+                    <div className="relative h-32 bg-muted flex items-center justify-center overflow-hidden">
+                      {cat.imageUrl ? (
+                        <Image
+                          src={cat.imageUrl}
+                          alt={cat.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      ) : (
+                        <ImageIcon className="text-muted-foreground/30 w-12 h-12" />
+                      )}
+                      <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-black/40 rounded-lg p-1 backdrop-blur-sm">
                         <button
-                          onClick={() => handleEditSubCategory(sub)}
-                          title="Edit"
-                          className="hover:text-luxury-600"
+                          onClick={() => handleEditCategory(cat)}
+                          className="p-1.5 text-white hover:text-primary transition-colors"
+                          title="Edit Category"
                         >
                           <Pencil size={14} />
                         </button>
                         <button
-                          onClick={() => handleDeleteSubCategory(sub.id)}
-                          title="Delete"
-                          className="text-red-400 hover:text-red-500"
+                          onClick={() => handleDeleteCategory(cat.id)}
+                          className="p-1.5 text-white hover:text-red-400 transition-colors"
+                          title="Delete Category"
                         >
                           <Trash2 size={14} />
                         </button>
-                      </span>
-                    )
-                  )}
+                      </div>
+                    </div>
+
+                    {/* Card Body */}
+                    <div className="p-5">
+                      <h3 className="font-bold text-lg text-foreground">
+                        {cat.name}
+                      </h3>
+                      {cat.description && (
+                        <p className="text-sm text-muted-foreground line-clamp-1 mt-1 mb-4">
+                          {cat.description}
+                        </p>
+                      )}
+
+                      <div className="border-t border-border pt-4 mt-2">
+                        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                          Subcategories
+                        </h4>
+
+                        <div className="flex flex-wrap gap-2">
+                          {subcategories
+                            .filter((sub) => sub.categoryId === cat.id)
+                            .map((sub) => (
+                              <div
+                                key={sub.id}
+                                className="inline-flex items-center gap-2 bg-muted/50 hover:bg-muted border border-border px-3 py-1.5 rounded-full text-sm text-foreground transition-colors group/sub"
+                              >
+                                <span>{sub.name}</span>
+                                <div className="flex items-center border-l border-border pl-2 ml-1 space-x-1 opacity-50 group-hover/sub:opacity-100">
+                                  <button
+                                    onClick={() => handleEditSubCategory(sub)}
+                                    className="hover:text-primary"
+                                  >
+                                    <Pencil size={12} />
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      handleDeleteSubCategory(sub.id)
+                                    }
+                                    className="hover:text-destructive"
+                                  >
+                                    <X size={12} />
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+
+                          {/* Quick Add Sub Button */}
+                          <button
+                            onClick={() => {
+                              setSubCatId(cat.id);
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                              if (subName) setSubName("");
+                            }}
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-full border border-dashed border-muted-foreground/30 text-muted-foreground hover:text-primary hover:border-primary transition-colors"
+                            title="Add subcategory to this group"
+                          >
+                            <Plus size={14} />
+                          </button>
+                        </div>
+
+                        {subcategories.filter((s) => s.categoryId === cat.id)
+                          .length === 0 && (
+                          <p className="text-xs text-muted-foreground/50 italic">
+                            No subcategories yet.
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          ))}
-        </section>
-      </main>
+            )}
+          </main>
+        </div>
+      </div>
     </div>
   );
 }

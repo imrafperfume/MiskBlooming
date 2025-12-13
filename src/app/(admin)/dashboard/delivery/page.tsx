@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, useMemo } from "react"
+import { useState, useMemo } from "react";
 import {
   Search,
   Filter,
@@ -16,10 +16,10 @@ import {
   MoreHorizontal,
   RefreshCw,
   Download,
-} from "lucide-react"
-import { motion } from "framer-motion"
-import { Button } from "../../../../components/ui/Button"
-import { Input } from "../../../../components/ui/Input"
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { Button } from "../../../../components/ui/Button";
+import { Input } from "../../../../components/ui/Input";
 
 // Mock delivery data
 const mockDeliveries = [
@@ -115,27 +115,31 @@ const mockDeliveries = [
     distance: 22.3,
     zone: "Palm Jumeirah",
   },
-]
+];
 
 export default function DeliveryPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [zoneFilter, setZoneFilter] = useState("all")
-  const [priorityFilter, setPriorityFilter] = useState("all")
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [zoneFilter, setZoneFilter] = useState("all");
+  const [priorityFilter, setPriorityFilter] = useState("all");
 
   const filteredDeliveries = useMemo(() => {
     return mockDeliveries.filter((delivery) => {
       const matchesSearch =
         delivery.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
         delivery.orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        delivery.customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        delivery.driver.name.toLowerCase().includes(searchTerm.toLowerCase())
-      const matchesStatus = statusFilter === "all" || delivery.status === statusFilter
-      const matchesZone = zoneFilter === "all" || delivery.zone === zoneFilter
-      const matchesPriority = priorityFilter === "all" || delivery.priority === priorityFilter
-      return matchesSearch && matchesStatus && matchesZone && matchesPriority
-    })
-  }, [searchTerm, statusFilter, zoneFilter, priorityFilter])
+        delivery.customer.name
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        delivery.driver.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus =
+        statusFilter === "all" || delivery.status === statusFilter;
+      const matchesZone = zoneFilter === "all" || delivery.zone === zoneFilter;
+      const matchesPriority =
+        priorityFilter === "all" || delivery.priority === priorityFilter;
+      return matchesSearch && matchesStatus && matchesZone && matchesPriority;
+    });
+  }, [searchTerm, statusFilter, zoneFilter, priorityFilter]);
 
   const stats = useMemo(() => {
     return {
@@ -144,64 +148,70 @@ export default function DeliveryPage() {
       inTransit: mockDeliveries.filter((d) => d.status === "in_transit").length,
       delivered: mockDeliveries.filter((d) => d.status === "delivered").length,
       delayed: mockDeliveries.filter((d) => d.status === "delayed").length,
-      avgDistance: mockDeliveries.reduce((sum, d) => sum + d.distance, 0) / mockDeliveries.length,
-    }
-  }, [])
+      avgDistance:
+        mockDeliveries.reduce((sum, d) => sum + d.distance, 0) /
+        mockDeliveries.length,
+    };
+  }, []);
 
-  const zones = Array.from(new Set(mockDeliveries.map((d) => d.zone)))
+  const zones = Array.from(new Set(mockDeliveries.map((d) => d.zone)));
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-100 text-yellow-800";
       case "in_transit":
-        return "bg-blue-100 text-blue-800"
+        return "bg-blue-100 text-blue-800";
       case "delivered":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       case "delayed":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       case "cancelled":
-        return "bg-gray-100 text-gray-800"
+        return "bg-background  text-gray-800";
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-background  text-gray-800";
     }
-  }
+  };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "pending":
-        return <Clock className="w-4 h-4" />
+        return <Clock className="w-4 h-4" />;
       case "in_transit":
-        return <Truck className="w-4 h-4" />
+        return <Truck className="w-4 h-4" />;
       case "delivered":
-        return <CheckCircle className="w-4 h-4" />
+        return <CheckCircle className="w-4 h-4" />;
       case "delayed":
-        return <AlertTriangle className="w-4 h-4" />
+        return <AlertTriangle className="w-4 h-4" />;
       default:
-        return <Package className="w-4 h-4" />
+        return <Package className="w-4 h-4" />;
     }
-  }
+  };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       case "medium":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-100 text-yellow-800";
       case "low":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-background  text-gray-800";
     }
-  }
+  };
 
   return (
     <div className="space-y-8">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between">
         <div>
-          <h1 className="text-3xl font-cormorant font-bold text-charcoal-900">Delivery Management</h1>
-          <p className="text-gray-600 mt-2">Track and manage delivery operations</p>
+          <h1 className="text-3xl font-cormorant font-bold text-foreground ">
+            Delivery Management
+          </h1>
+          <p className="text-foreground  mt-2">
+            Track and manage delivery operations
+          </p>
         </div>
         <div className="flex items-center space-x-4 mt-4 lg:mt-0">
           <Button variant="outline">
@@ -222,74 +232,82 @@ export default function DeliveryPage() {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Deliveries</p>
-              <p className="text-xl font-bold text-charcoal-900">{stats.total}</p>
+              <p className="text-sm text-foreground ">Total Deliveries</p>
+              <p className="text-xl font-bold text-foreground ">
+                {stats.total}
+              </p>
             </div>
             <Package className="w-6 h-6 text-blue-500" />
           </div>
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Pending</p>
-              <p className="text-xl font-bold text-yellow-600">{stats.pending}</p>
+              <p className="text-sm text-foreground ">Pending</p>
+              <p className="text-xl font-bold text-yellow-600">
+                {stats.pending}
+              </p>
             </div>
             <Clock className="w-6 h-6 text-yellow-500" />
           </div>
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">In Transit</p>
-              <p className="text-xl font-bold text-blue-600">{stats.inTransit}</p>
+              <p className="text-sm text-foreground ">In Transit</p>
+              <p className="text-xl font-bold text-blue-600">
+                {stats.inTransit}
+              </p>
             </div>
             <Truck className="w-6 h-6 text-blue-500" />
           </div>
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Delivered</p>
-              <p className="text-xl font-bold text-green-600">{stats.delivered}</p>
+              <p className="text-sm text-foreground ">Delivered</p>
+              <p className="text-xl font-bold text-green-600">
+                {stats.delivered}
+              </p>
             </div>
             <CheckCircle className="w-6 h-6 text-green-500" />
           </div>
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Delayed</p>
+              <p className="text-sm text-foreground ">Delayed</p>
               <p className="text-xl font-bold text-red-600">{stats.delayed}</p>
             </div>
             <AlertTriangle className="w-6 h-6 text-red-500" />
@@ -297,15 +315,17 @@ export default function DeliveryPage() {
         </motion.div>
 
         <motion.div
-          className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.5 }}
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Avg Distance</p>
-              <p className="text-xl font-bold text-purple-600">{stats.avgDistance.toFixed(1)} km</p>
+              <p className="text-sm text-foreground ">Avg Distance</p>
+              <p className="text-xl font-bold text-purple-600">
+                {stats.avgDistance.toFixed(1)} km
+              </p>
             </div>
             <Navigation className="w-6 h-6 text-purple-500" />
           </div>
@@ -314,7 +334,7 @@ export default function DeliveryPage() {
 
       {/* Filters */}
       <motion.div
-        className="bg-white rounded-xl p-6 shadow-sm border border-gray-100"
+        className="bg-background rounded-xl p-6 shadow-sm border border-gray-100"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.6 }}
@@ -334,7 +354,7 @@ export default function DeliveryPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
@@ -345,7 +365,7 @@ export default function DeliveryPage() {
           <select
             value={zoneFilter}
             onChange={(e) => setZoneFilter(e.target.value)}
-            className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
           >
             <option value="all">All Zones</option>
             {zones.map((zone) => (
@@ -357,7 +377,7 @@ export default function DeliveryPage() {
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-luxury-500 focus:border-transparent"
+            className="px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
           >
             <option value="all">All Priority</option>
             <option value="high">High Priority</option>
@@ -376,29 +396,39 @@ export default function DeliveryPage() {
         {filteredDeliveries.map((delivery, index) => (
           <motion.div
             key={delivery.id}
-            className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
+            className="bg-background rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-luxury-400 to-luxury-600 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-backgroundfrom-luxury-400 to-primary rounded-full flex items-center justify-center">
                   <Truck className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-charcoal-900">#{delivery.id}</h3>
-                  <p className="text-sm text-gray-600">Order: {delivery.orderId}</p>
+                  <h3 className="text-lg font-semibold text-foreground ">
+                    #{delivery.id}
+                  </h3>
+                  <p className="text-sm text-foreground ">
+                    Order: {delivery.orderId}
+                  </p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <span
-                    className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(delivery.status)}`}
+                    className={`inline-flex items-center px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(
+                      delivery.status
+                    )}`}
                   >
                     {getStatusIcon(delivery.status)}
-                    <span className="ml-1 capitalize">{delivery.status.replace("_", " ")}</span>
+                    <span className="ml-1 capitalize">
+                      {delivery.status.replace("_", " ")}
+                    </span>
                   </span>
                   <span
-                    className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(delivery.priority)}`}
+                    className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(
+                      delivery.priority
+                    )}`}
                   >
                     {delivery.priority} priority
                   </span>
@@ -418,16 +448,20 @@ export default function DeliveryPage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Customer Info */}
               <div>
-                <h4 className="font-medium text-charcoal-900 mb-3">Customer Details</h4>
+                <h4 className="font-medium text-foreground  mb-3">
+                  Customer Details
+                </h4>
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-center text-gray-600">
-                    <span className="font-medium">{delivery.customer.name}</span>
+                  <div className="flex items-center text-foreground ">
+                    <span className="font-medium">
+                      {delivery.customer.name}
+                    </span>
                   </div>
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-foreground ">
                     <Phone className="w-4 h-4 mr-2" />
                     {delivery.customer.phone}
                   </div>
-                  <div className="flex items-start text-gray-600">
+                  <div className="flex items-start text-foreground ">
                     <MapPin className="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" />
                     <span>{delivery.customer.address}</span>
                   </div>
@@ -436,20 +470,22 @@ export default function DeliveryPage() {
 
               {/* Driver Info */}
               <div>
-                <h4 className="font-medium text-charcoal-900 mb-3">Driver Details</h4>
+                <h4 className="font-medium text-foreground  mb-3">
+                  Driver Details
+                </h4>
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-foreground ">
                     <span className="font-medium">{delivery.driver.name}</span>
                   </div>
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-foreground ">
                     <Phone className="w-4 h-4 mr-2" />
                     {delivery.driver.phone}
                   </div>
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-foreground ">
                     <Truck className="w-4 h-4 mr-2" />
                     {delivery.driver.vehicle}
                   </div>
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-foreground ">
                     <Navigation className="w-4 h-4 mr-2" />
                     {delivery.distance} km • {delivery.zone}
                   </div>
@@ -458,16 +494,18 @@ export default function DeliveryPage() {
 
               {/* Delivery Timeline */}
               <div>
-                <h4 className="font-medium text-charcoal-900 mb-3">Delivery Timeline</h4>
+                <h4 className="font-medium text-foreground  mb-3">
+                  Delivery Timeline
+                </h4>
                 <div className="space-y-2 text-sm">
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-foreground ">
                     <Calendar className="w-4 h-4 mr-2" />
                     <div>
                       <p className="font-medium">Scheduled</p>
                       <p>{new Date(delivery.scheduledTime).toLocaleString()}</p>
                     </div>
                   </div>
-                  <div className="flex items-center text-gray-600">
+                  <div className="flex items-center text-foreground ">
                     <Clock className="w-4 h-4 mr-2" />
                     <div>
                       <p className="font-medium">Estimated</p>
@@ -490,8 +528,12 @@ export default function DeliveryPage() {
             <div className="mt-4 pt-4 border-t border-gray-100">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Items: {delivery.items.join(", ")}</p>
-                  <p className="text-sm font-medium text-luxury-600">Order Value: AED {delivery.value}</p>
+                  <p className="text-sm text-foreground ">
+                    Items: {delivery.items.join(", ")}
+                  </p>
+                  <p className="text-sm font-medium text-primary ">
+                    Order Value: AED {delivery.value}
+                  </p>
                 </div>
               </div>
             </div>
@@ -502,10 +544,14 @@ export default function DeliveryPage() {
       {filteredDeliveries.length === 0 && (
         <div className="text-center py-12">
           <Truck className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-charcoal-900 mb-2">No deliveries found</h3>
-          <p className="text-gray-600">Try adjusting your search or filter criteria</p>
+          <h3 className="text-lg font-medium text-foreground  mb-2">
+            No deliveries found
+          </h3>
+          <p className="text-foreground ">
+            Try adjusting your search or filter criteria
+          </p>
         </div>
       )}
     </div>
-  )
+  );
 }

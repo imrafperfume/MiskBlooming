@@ -14,12 +14,12 @@ export function CheckoutHeader() {
     >
       <Link
         href="/cart"
-        className="flex items-center text-luxury-500 hover:text-luxury-600 transition-colors mr-4 lg:mr-6"
+        className="flex items-center text-primary  hover:text-primary transition-colors mr-4 lg:mr-6"
       >
         <ArrowLeft className="w-4 h-4 lg:w-5 lg:h-5 mr-2" />
         <span className="text-sm lg:text-base">Back to Cart</span>
       </Link>
-      <h1 className="font-cormorant text-2xl lg:text-3xl font-bold text-charcoal-900">
+      <h1 className="font-cormorant text-2xl lg:text-3xl font-bold text-foreground ">
         Secure Checkout
       </h1>
     </motion.div>

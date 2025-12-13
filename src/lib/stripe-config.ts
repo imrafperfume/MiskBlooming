@@ -1,6 +1,6 @@
 /**
  * Stripe Configuration for Production
- * 
+ *
  * This file contains all Stripe-related configuration and constants
  * for the Misk Blooming application.
  */
@@ -9,18 +9,18 @@
 export const STRIPE_CONFIG = {
   // API Version - Use the latest stable version
   API_VERSION: "2025-07-30.basil" as const,
-  
+
   // Currency Configuration
   CURRENCY: "AED" as const,
   COUNTRY: "AE" as const,
-  
+
   // Payment Method Types
   PAYMENT_METHOD_TYPES: ["card", "apple_pay", "google_pay"] as const,
-  
+
   // Amount Limits (in fils - AED minor units)
   MIN_AMOUNT: 100, // 1 AED
   MAX_AMOUNT: 10000000, // 100,000 AED
-  
+
   // Rate Limiting
   RATE_LIMIT: {
     PAYMENT_INTENT: {
@@ -32,10 +32,10 @@ export const STRIPE_CONFIG = {
       WINDOW: "1 m" as const,
     },
   },
-  
+
   // Statement Descriptor (appears on customer's card statement)
   STATEMENT_DESCRIPTOR: "MISK BLOOMING",
-  
+
   // Webhook Events to Handle
   WEBHOOK_EVENTS: [
     "payment_intent.succeeded",
@@ -49,7 +49,7 @@ export const STRIPE_CONFIG = {
 export const STRIPE_APPEARANCE = {
   theme: "stripe" as const,
   variables: {
-    colorPrimary: "#d4af37", // luxury gold
+    color: "#d4af37", // luxury gold
     colorBackground: "#fdf5e6", // cream background
     colorText: "#2c2c2c", // charcoal text
     colorDanger: "#dc2626", // red for errors
@@ -147,8 +147,7 @@ export function formatAmountFromStripe(amount: number): number {
 
 export function isValidAmount(amount: number): boolean {
   return (
-    amount >= STRIPE_CONFIG.MIN_AMOUNT &&
-    amount <= STRIPE_CONFIG.MAX_AMOUNT
+    amount >= STRIPE_CONFIG.MIN_AMOUNT && amount <= STRIPE_CONFIG.MAX_AMOUNT
   );
 }
 
@@ -156,15 +155,15 @@ export function getStripeErrorMessage(error: any): string {
   if (error.type === "StripeCardError") {
     return STRIPE_ERROR_MESSAGES.CARD_ERROR;
   }
-  
+
   if (error.type === "StripeRateLimitError") {
     return STRIPE_ERROR_MESSAGES.RATE_LIMIT_ERROR;
   }
-  
+
   if (error.type === "StripeInvalidRequestError") {
     return STRIPE_ERROR_MESSAGES.INVALID_REQUEST_ERROR;
   }
-  
+
   if (error.type === "StripeAPIError") {
     return STRIPE_ERROR_MESSAGES.API_ERROR;
   }

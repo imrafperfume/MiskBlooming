@@ -33,6 +33,10 @@ export interface Product {
   seoKeywords?: string[];
   status?: "draft" | "active" | "archived";
   Review: Review[];
+  variantOptions?: string[]; // e.g., Size, Color
+  sku: string;
+  hasVariants: boolean;
+  selectedVariants: Record<string, string>;
 }
 
 export interface Category {
