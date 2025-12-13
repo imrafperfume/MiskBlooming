@@ -30,6 +30,8 @@ import {
   List,
   Store,
   GalleryHorizontal,
+  ShoppingBagIcon,
+  GalleryThumbnails,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../../components/ui/Button";
@@ -97,6 +99,12 @@ export default function AdminLayout({
       description: "Order Management",
     },
     {
+      name: "Sales",
+      href: "/dashboard/sales",
+      icon: ShoppingBagIcon,
+      description: "Local Order Management",
+    },
+    {
       name: "Customers",
       href: "/dashboard/customers",
       icon: Users,
@@ -125,6 +133,12 @@ export default function AdminLayout({
       href: "/dashboard/coupons",
       icon: Ticket,
       description: "Coupon Management",
+    },
+    {
+      name: "Themes Manage",
+      href: "/dashboard/themes",
+      icon: GalleryThumbnails,
+      description: "Manage Pages Content",
     },
     {
       name: "Delivery",

@@ -55,6 +55,9 @@ export const settingTypeDefs = gql`
 
     isScheduledEnabled: Boolean!
     scheduledDeliveryFee: Float!
+    facebook: String
+    instagram: String
+    twitter: String
   }
 
   # 5. Inputs (For Mutations)
@@ -88,6 +91,9 @@ export const settingTypeDefs = gql`
     expressDeliveryFee: Float
     isScheduledEnabled: Boolean
     scheduledDeliveryFee: Float
+    facebook: String
+    instagram: String
+    twitter: String
   }
 
   # 6. Operations

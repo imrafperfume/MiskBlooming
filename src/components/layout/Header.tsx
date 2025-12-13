@@ -437,7 +437,7 @@ const Header = () => {
           {/* Right Side - Same as yours */}
           <div className="flex px-4 py-2 sm:shadow-none sm:border-none border-t border-border shadow-[0_-2px_4px_rgba(0,0,0,0.1)] sm:py-0 sm:px-0 sm:relative bg-background fixed bottom-0 left-0 sm:w-auto w-full items-center md:space-x-4 lg:space-x-4 gap-4 sm:gap-0 sm:justify-end justify-between mt-4 sm:mt-0">
             {/* Delivery Location - Same as yours */}
-            <div className="hidden lg:flex items-center text-sm">
+            {/* <div className="hidden lg:flex items-center text-sm">
               <MapPin className="w-4 h-4 mr-1 text-primary " />
               <span className="">Deliver To</span>
               <Button
@@ -446,7 +446,7 @@ const Header = () => {
               >
                 Dubai <ChevronDown className="w-4 h-4 ml-1" />
               </Button>
-            </div>
+            </div> */}
 
             {/* Mobile Bottom Navigation Bar */}
             <div className="sm:hidden flex items-center justify-around shadow-[0_-2px_6px_rgba(0,0,0,0.1)] w-full absolute bottom-0 left-0 right-0 bg-background border-t border-border  py-2">

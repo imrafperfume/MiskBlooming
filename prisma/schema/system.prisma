@@ -45,5 +45,8 @@ model StoreSettings {
     scheduledDeliveryFee Decimal @default(0.00) @db.Decimal(10, 2)
 
     // 4. Fees & Thresholds
-    codFee Decimal @default(10.00) @db.Decimal(10, 2) // Cash on Delivery Fee
+    codFee    Decimal @default(10.00) @db.Decimal(10, 2) // Cash on Delivery Fee
+    facebook  String?
+    instagram String?
+    twitter   String?
 }

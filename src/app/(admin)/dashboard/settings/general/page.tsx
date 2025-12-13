@@ -20,6 +20,7 @@ import {
   Zap,
   CalendarClock,
   Banknote,
+  Earth,
 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadToCloudinary } from "@/src/lib/cloudinary";
@@ -67,6 +68,9 @@ interface StoreSettingsFormData {
   // Scheduled
   isScheduledEnabled: boolean;
   scheduledDeliveryFee: number;
+  facebook?: string;
+  instagram?: string;
+  twitter?: string;
 }
 
 const UAE_EMIRATES = [
@@ -120,6 +124,9 @@ export default function StoreSettingsForm() {
       expressDeliveryFee: 30,
       isScheduledEnabled: false,
       scheduledDeliveryFee: 0,
+      facebook: "",
+      instagram: "",
+      twitter: "",
     },
   });
 
@@ -149,6 +156,9 @@ export default function StoreSettingsForm() {
           expressDeliveryFee: s.expressDeliveryFee,
           isScheduledEnabled: s.isScheduledEnabled,
           scheduledDeliveryFee: s.scheduledDeliveryFee,
+          facebook: s.facebook || "",
+          instagram: s.instagram || "",
+          twitter: s.twitter || "",
           deliveryEmirates: {
             abu_dhabi: s.deliveryEmirates.abu_dhabi,
             dubai: s.deliveryEmirates.dubai,
@@ -367,9 +377,7 @@ export default function StoreSettingsForm() {
           </div>
         </div>
       </div>
-
       <div className="h-px bg-border" />
-
       {/* --- Section 2: Contact --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
@@ -406,9 +414,7 @@ export default function StoreSettingsForm() {
           </div>
         </div>
       </div>
-
       <div className="h-px bg-border" />
-
       {/* --- Section 3: Regional & Settings --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
@@ -469,9 +475,7 @@ export default function StoreSettingsForm() {
           </div>
         </div>
       </div>
-
       <div className="h-px bg-border" />
-
       {/* --- Section 4: Delivery Configuration (New) --- */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 sm:mb-0">
         <div className="space-y-1">
@@ -725,24 +729,71 @@ export default function StoreSettingsForm() {
               </div>
             )}
           </div>
-
-          {/* Save Action */}
-          <div className="flex justify-end pt-4">
-            <button
-              type="submit"
-              disabled={isSubmitting || !isDirty}
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-8 disabled:opacity-50"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
-                </>
-              ) : (
-                "Save Changes"
-              )}
-            </button>
+        </div>
+      </div>{" "}
+      {/* Socail media Links */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="space-y-1">
+          <h3 className="text-base font-semibold flex items-center gap-2 text-foreground">
+            <Earth className="w-4 h-4 text-primary" />
+            Social Media Links
+          </h3>
+          <p className="text-sm text-muted-foreground">Social Media Account</p>
+        </div>
+        <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid gap-2">
+            <label htmlFor="facebook" className="text-sm font-medium">
+              Facebook
+            </label>
+            <input
+              id="facebook"
+              type="text"
+              {...register("facebook", { required: "Required" })}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:ring-2 disabled:opacity-50"
+              placeholder="www.facebook.com/yourpage"
+            />
+          </div>
+          <div className="grid gap-2">
+            <label htmlFor="instagram" className="text-sm font-medium">
+              Instagram
+            </label>
+            <input
+              id="instagram"
+              type="text"
+              {...register("instagram")}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:ring-2 disabled:opacity-50"
+              placeholder="www.instagram.com/yourhandle"
+            />
+          </div>
+          <div className="grid gap-2">
+            <label htmlFor="twitter" className="text-sm font-medium">
+              Twitter / X
+            </label>
+            <input
+              id="twitter"
+              type="text"
+              {...register("twitter")}
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:ring-2 disabled:opacity-50"
+              placeholder="www.twitter.com/yourhandle"
+            />
           </div>
         </div>
+      </div>
+      {/* Save Action */}
+      <div className="flex justify-end pt-4">
+        <button
+          type="submit"
+          disabled={isSubmitting || !isDirty}
+          className="inline-flex items-center justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-8 disabled:opacity-50"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+            </>
+          ) : (
+            "Save Changes"
+          )}
+        </button>
       </div>
     </form>
   );

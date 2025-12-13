@@ -97,6 +97,9 @@ export const SettingResolvers = {
           expressDeliveryFee: args.input.expressDeliveryFee,
           isScheduledEnabled: args.input.isScheduledEnabled,
           scheduledDeliveryFee: args.input.scheduledDeliveryFee,
+          facebook: args.input.facebook,
+          instagram: args.input.instagram,
+          twitter: args.input.twitter,
         };
 
         if (existingSettings) {
@@ -167,6 +170,9 @@ export const SettingResolvers = {
             expressDeliveryFee: args.input.expressDeliveryFee,
             isScheduledEnabled: args.input.isScheduledEnabled,
             scheduledDeliveryFee: args.input.scheduledDeliveryFee,
+            facebook: args.input.facebook,
+            instagram: args.input.instagram,
+            twitter: args.input.twitter,
           },
         });
 

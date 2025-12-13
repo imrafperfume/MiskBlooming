@@ -28,6 +28,9 @@ export const GET_STORE_SETTINGS = gql`
       expressDeliveryFee
       isScheduledEnabled
       scheduledDeliveryFee
+      facebook
+      instagram
+      twitter
       # Granular Rates (Must request sub-fields)
       deliveryEmirates {
         abu_dhabi
@@ -59,25 +62,6 @@ export const UPDATE_STORE_SETTINGS = gql`
     updateStoreSettings(input: $input) {
       id
       storeName
-      logoUrl
-      supportEmail
-      phoneNumber
-      currency
-      timezone
-      address
-      vatRate
-      deliveryMethod
-      deliveryFlatRate
-      freeShippingThreshold
-      deliveryEmirates {
-        abu_dhabi
-        dubai
-        sharjah
-        ajman
-        umm_al_quwain
-        ras_al_khaimah
-        fujairah
-      }
     }
   }
 `;
