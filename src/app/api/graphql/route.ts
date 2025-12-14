@@ -26,6 +26,8 @@ import { themeResolvers } from "@/src/modules/theme/systemResolvers";
 import { ThemeTypeDefs } from "@/src/modules/theme/systemTypeDefs";
 import { settingTypeDefs } from "@/src/modules/system/settingTypeDefs";
 import { SettingResolvers } from "@/src/modules/system/settingResolvers";
+import { ManagementTypeDefs } from "@/src/modules/contentManagment/managmentTypeDefs";
+import { ManagementResolvers } from "@/src/modules/contentManagment/ManagmentResolvers";
 
 const typeDefs = mergeTypeDefs([
   `
@@ -47,6 +49,7 @@ const typeDefs = mergeTypeDefs([
   salesTypeDefs,
   ThemeTypeDefs,
   settingTypeDefs,
+  ManagementTypeDefs,
 ]);
 
 interface ContextType {
@@ -65,6 +68,7 @@ const resolvers = mergeResolvers([
   salesResolvers,
   themeResolvers,
   SettingResolvers,
+  ManagementResolvers,
 ]) as IResolvers<any, ContextType & YogaInitialContext>;
 
 const schema = createSchema<ContextType>({

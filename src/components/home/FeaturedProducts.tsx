@@ -11,9 +11,15 @@ import { Product } from "@/src/types";
 function FeaturedProducts({
   featuredProducts,
   isLoading,
+  faTitle,
+  faSubtitle,
+  faDesc,
 }: {
   featuredProducts: Product[];
   isLoading: boolean;
+  faTitle?: string;
+  faSubtitle?: string;
+  faDesc?: string;
 }) {
   const [viewMode, setViewMode] = useState("grid");
 
@@ -51,16 +57,16 @@ function FeaturedProducts({
           <div className="flex items-center justify-center sm:mb-4 mb-2">
             <Sparkles className="w-5 h-5 text-primary  mr-2" />
             <span className="text-primary  font-medium tracking-wide text-sm">
-              SIGNATURE COLLECTIONS
+              {faTitle || "Featured Arrangements"}
             </span>
             <Sparkles className="w-5 h-5 text-primary  ml-2" />
           </div>
           <h2 className="font-cormorant sm:text-display-md text-display-sm font-bold text-foreground  sm:mb-6 mb-2">
-            Masterpieces in <span className="luxury-text">Bloom</span>
+            {faSubtitle || "Exquisite Designs for Every Occasion"}
           </h2>
           <p className="text-muted-foreground sm:text-lg text-base max-w-3xl mx-auto leading-relaxed">
-            Discover our curated selection of premium arrangements, each a
-            testament to luxury and artistry
+            {faDesc ||
+              "Discover our curated selection of featured floral arrangements, crafted to perfection for your special moments."}
           </p>
           <div className="flex sm:hidden items-center justify-center mt-4 gap-1 rounded-lg">
             <button

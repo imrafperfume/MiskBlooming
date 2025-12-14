@@ -10,6 +10,9 @@ import { LazyWrapper } from "../../components/ui/LazyWrapper";
 import HeroSlider from "../../components/home/HeroSlider";
 import ShopByCategory from "../../components/home/ShopByCategory";
 import { useFeaturedProducts } from "@/src/hooks/useProducts";
+import { useQuery } from "@apollo/client";
+import { GET_HOMPAGECONTENT } from "@/src/modules/contentManagment/oparation";
+import { HomePageContent } from "@prisma/client";
 
 // Non-critical sections (dynamic imports with suspense)
 const FeaturedProducts = lazy(
@@ -50,7 +53,9 @@ export default function HomePage() {
     "featuredImage",
     "Review {rating}",
   ]);
-
+  const { data, loading, error } = useQuery(GET_HOMPAGECONTENT);
+  const content: HomePageContent = data?.getHomePageContent;
+  console.log("🚀 ~ HomePage ~ content:", content);
   const [isVisible, setIsVisible] = useState({
     featured: false,
     special: false,
@@ -85,9 +90,9 @@ export default function HomePage() {
   }, []);
 
   const stats = [
-    { number: "15,000+", label: "Distinguished Clients" },
-    { number: "100,000+", label: "Luxury Arrangements" },
-    { number: "8", label: "Years of Excellence" },
+    { number: "1,000+", label: "Distinguished Clients" },
+    { number: "10,000+", label: "Luxury Arrangements" },
+    { number: "5", label: "Years of Excellence" },
     { number: "99.9%", label: "Satisfaction Rate" },
   ];
 
@@ -95,7 +100,10 @@ export default function HomePage() {
     <div className="overflow-hidden">
       {/* Hero + Category (critical, above the fold) */}
       <HeroSlider />
-      <ShopByCategory />
+      <ShopByCategory
+        caTitle={content?.categoryTitle}
+        caDesc={content?.categoryDesc}
+      />
 
       {/* Featured Products */}
       <div id="featured">
@@ -103,6 +111,9 @@ export default function HomePage() {
           <Suspense fallback={<SectionLoader height="h-80" />}>
             {isVisible.featured ? (
               <FeaturedProducts
+                faTitle={content?.featureTitle}
+                faSubtitle={content?.featureSubtitle}
+                faDesc={content?.featureDesc}
                 featuredProducts={featuredProducts ?? []}
                 isLoading={isLoading}
               />
@@ -131,9 +142,9 @@ export default function HomePage() {
       <section className="py-24 luxury-gradient">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="font-cormorant flex flex-col items-center gap-1 justify-center text-2xl font-bold text-foreground mb-16">
-            Why Dubai Loves MiskBlooming
+            {content?.excellenceTitle}
             <span className="text-charcoal-900  text-display-md ">
-              A Legacy of Floral Excellence
+              {content?.excellenceSubtitle}
             </span>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -153,7 +164,10 @@ export default function HomePage() {
       <div id="testimonial">
         <LazyWrapper>
           {isVisible.testimonial ? (
-            <TestimonialSection />
+            <TestimonialSection
+              taTitle={content?.testimonialTitle}
+              taDesc={content?.testimonialDesc}
+            />
           ) : (
             <SectionLoader height="h-64" />
           )}
@@ -166,13 +180,13 @@ export default function HomePage() {
           <div className="flex items-center justify-center mb-6">
             <Award className="w-8 h-8 text-primary  mx-3" />
             <h2 className="font-cormorant text-display-sm font-bold text-foreground ">
-              Join Our Exclusive Circle for Offers & Same-Day Delivery
+              {content?.newsletterTitle || "Stay Updated with MiskBlooming"}
             </h2>
             <Award className="w-8 h-8 text-primary  mx-3" />
           </div>
           <p className="text-muted-foreground text-xl mb-8 max-w-2xl mx-auto">
-            Be the first to discover our latest collections, exclusive offers,
-            and seasonal inspirations
+            {content?.newsletterDesc ||
+              "Subscribe to our newsletter for the latest in luxury floral designs, exclusive offers, and more."}
           </p>
           <form
             className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
