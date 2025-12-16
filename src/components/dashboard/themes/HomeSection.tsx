@@ -109,7 +109,6 @@ export default function HomeSection() {
     toast.promise(promise, {
       loading: "Saving content configuration...",
       success: (res) => {
-        // Optional: Update local cache or re-sync if needed
         reset(formData); // Reset dirty state with new values
         return "Home page content updated successfully!";
       },

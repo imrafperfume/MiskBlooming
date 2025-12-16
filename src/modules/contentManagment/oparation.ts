@@ -29,3 +29,20 @@ export const UPDATE_HOMEPAGECONTENT = gql`
     }
   }
 `;
+export const GET_COLLECTIONCONTENT = gql`
+  query GetCollectionContent {
+    getCollectionContent {
+      id
+      collectionTitle
+      collectionDesc
+    }
+  }
+`;
+
+export const UPDATE_COLLECTIONCONTENT = gql`
+  mutation UpdateCollectionContent($input: CollectionInput!) {
+    updateCollectionContent(input: $input) {
+      id
+    }
+  }
+`;

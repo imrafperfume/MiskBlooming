@@ -52,10 +52,24 @@ export const ManagementTypeDefs = gql`
     newsletterTitle: String!
     newsletterDesc: String!
   }
+
+  # //collection content type defs
+  type Collection {
+    id: ID!
+    collectionTitle: String!
+    collectionDesc: String!
+  }
+  input CollectionInput {
+    collectionTitle: String!
+    collectionDesc: String!
+  }
+
   type Query {
     getHomePageContent: HomePageContent!
+    getCollectionContent: Collection!
   }
   type Mutation {
     updateHomePageContent(input: HomePageContentInput!): HomePageContent!
+    updateCollectionContent(input: CollectionInput!): Collection!
   }
 `;
