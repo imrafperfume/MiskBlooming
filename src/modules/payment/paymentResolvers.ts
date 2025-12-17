@@ -12,16 +12,12 @@ export const paymentResolvers = {
     ) => {
       const { userId } = context;
       if (!userId) throw new Error("user ID not found");
-      const role = await isAdmin(userId);
-      if (role.role !== "ADMIN") throw new Error("Not authorized");
+      // const role = await isAdmin(userId);
+      // if (role.role !== "ADMIN") throw new Error("Not authorized");
       try {
         const cache = await redis.get("paymentSettings");
         if (cache) {
-          try {
-            return cache;
-          } catch {
-            // fall through to fetch from DB if cache is corrupted
-          }
+          return cache;
         }
         const paymentSettings = await prisma.paymentSetting.findFirst();
         await redis.set("paymentSettings", JSON.stringify(paymentSettings));

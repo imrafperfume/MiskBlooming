@@ -1,10 +1,9 @@
 "use client";
 
-import { JSX, Suspense, useState } from "react";
+import { JSX, Suspense, useState, useEffect } from "react";
 import { useQuery } from "@apollo/client";
-import { GET_ORDER_BY_ID } from "@/src/modules/order/operations";
-import { Button } from "@/src/components/ui/Button";
-import { Input } from "@/src/components/ui/Input";
+import { useSearchParams, useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Package,
   Search,
@@ -15,9 +14,27 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
+  Truck,
+  Copy,
+  ChevronRight,
+  ArrowRight,
 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
-import { formatDate } from "@/src/lib/utils";
+
+import { GET_ORDER_BY_ID } from "@/src/modules/order/operations";
+import { Button } from "@/src/components/ui/Button";
+import { Input } from "@/src/components/ui/Input";
+import { formatDate, formatTimestamp } from "@/src/lib/utils";
+import { toast } from "sonner";
+
+// --- Types ---
+interface OrderItem {
+  id: string;
+  quantity: number;
+  price: number;
+  product: {
+    name: string;
+  };
+}
 
 interface OrderDetails {
   id: string;
@@ -38,131 +55,155 @@ interface OrderDetails {
   status: string;
   totalAmount: number;
   createdAt: string;
-  items: Array<{
-    id: string;
-    quantity: number;
-    price: number;
-    product: {
-      name: string;
-    };
-  }>;
+  items: OrderItem[];
 }
 
-function TrackOrderPage(): JSX.Element {
-  const searchParams = useSearchParams();
-  const prefillOrderId = searchParams?.get("orderId") || "";
-  console.log("🚀 ~ TrackOrderPage ~ prefillOrderId:", prefillOrderId);
-  const prefillOrderEmail = searchParams?.get("email") || "";
-  console.log("🚀 ~ TrackOrderPage ~ prefillOrderEmail:", prefillOrderEmail);
-  const [orderId, setOrderId] = useState(prefillOrderId || "");
-  const [email, setEmail] = useState(prefillOrderEmail || "");
-  const [searchOrderId, setSearchOrderId] = useState("");
-  const [searchEmail, setSearchEmail] = useState("");
-  const [orderDetails, setOrderDetails] = useState<OrderDetails | null>(null);
-  const [error, setError] = useState("");
+// --- Order Status Logic ---
+const STEPS = [
+  { id: "PENDING", label: "Order Placed", icon: Calendar },
+  { id: "PROCESSING", label: "Processing", icon: Package },
+  { id: "SHIPPED", label: "On the Way", icon: Truck },
+  { id: "DELIVERED", label: "Delivered", icon: CheckCircle },
+];
 
+const getStepStatus = (currentStatus: string, stepId: string) => {
+  const statusOrder = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED"];
+  const currentIndex = statusOrder.indexOf(currentStatus.toUpperCase());
+  const stepIndex = statusOrder.indexOf(stepId);
+
+  if (currentStatus.toUpperCase() === "CANCELLED") return "error";
+  if (stepIndex < currentIndex) return "completed";
+  if (stepIndex === currentIndex) return "current";
+  return "upcoming";
+};
+
+// --- Components ---
+
+const StatusBadge = ({ status }: { status: string }) => {
+  const s = status.toUpperCase();
+  let styles = "bg-muted text-muted-foreground border-border";
+  let icon = AlertCircle;
+
+  if (s === "DELIVERED") {
+    styles = "bg-primary/10 text-primary border-primary/20";
+    icon = CheckCircle;
+  } else if (s === "SHIPPED" || s === "PROCESSING") {
+    styles = "bg-primary/5 text-primary border-primary/10";
+    icon = Truck;
+  } else if (s === "PENDING") {
+    styles = "bg-muted text-foreground border-border";
+    icon = Clock;
+  } else if (s === "CANCELLED") {
+    styles = "bg-destructive/10 text-destructive border-destructive/20";
+    icon = AlertCircle;
+  }
+
+  const Icon = icon;
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${styles}`}
+    >
+      <Icon className="w-3.5 h-3.5" />
+      {status}
+    </span>
+  );
+};
+
+function TrackOrderContent(): JSX.Element {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // State
+  const [orderId, setOrderId] = useState("");
+  const [email, setEmail] = useState("");
+  const [hasSearched, setHasSearched] = useState(false);
+
+  // Prefill from URL
+  useEffect(() => {
+    const paramId = searchParams?.get("orderId");
+    const paramEmail = searchParams?.get("email");
+    if (paramId) setOrderId(paramId);
+    if (paramEmail) setEmail(paramEmail);
+    if (paramId && paramEmail) setHasSearched(true);
+  }, [searchParams]);
+
+  // Query
   const {
     data,
     loading,
     error: queryError,
   } = useQuery(GET_ORDER_BY_ID, {
-    variables: { id: searchOrderId },
-    skip: !searchOrderId,
-    onCompleted: (data) => {
-      if (data?.orderById) {
-        // Verify email matches
-        if (data.orderById.email.toLowerCase() === searchEmail.toLowerCase()) {
-          setOrderDetails(data.orderById);
-          setError("");
-        } else {
-          setError(
-            "Email address does not match the order. Please check your email and try again."
-          );
-          setOrderDetails(null);
-        }
-      } else {
-        setError("Order not found. Please check your order ID and try again.");
-        setOrderDetails(null);
-      }
-    },
-    onError: () => {
-      setError("Order not found. Please check your order ID and try again.");
-      setOrderDetails(null);
-    },
+    variables: { id: orderId },
+    skip: !hasSearched || !orderId,
+    notifyOnNetworkStatusChange: true,
   });
+
+  const orderDetails: OrderDetails | null = data?.orderById || null;
+  const isEmailMatch =
+    orderDetails?.email.toLowerCase() === email.trim().toLowerCase();
+
+  // Error Handling
+  const showError = hasSearched && !loading && (!orderDetails || !isEmailMatch);
+  const errorMessage = !orderDetails
+    ? "Order not found. Please check your Order ID."
+    : "Email address does not match the order records.";
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!orderId.trim() || !email.trim()) {
-      setError("Please enter both Order ID and Email address.");
+      toast.error("Please fill in both fields");
       return;
     }
-    setSearchOrderId(orderId.trim());
-    setSearchEmail(email.trim());
-    setError("");
+    // Update URL without reload for shareability
+    const params = new URLSearchParams();
+    params.set("orderId", orderId.trim());
+    params.set("email", email.trim());
+    router.replace(`?${params.toString()}`, { scroll: false });
+    setHasSearched(true);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "processing":
-        return "bg-blue-100 text-blue-800";
-      case "shipped":
-        return "bg-purple-100 text-purple-800";
-      case "delivered":
-        return "bg-green-100 text-green-800";
-      case "cancelled":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-background  text-gray-800";
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "delivered":
-        return <CheckCircle className="h-4 w-4" />;
-      case "cancelled":
-        return <AlertCircle className="h-4 w-4" />;
-      default:
-        return <Package className="h-4 w-4" />;
-    }
-  };
-
-  const formatTime = (timeString: string) => {
-    return new Date(`2000-01-01T${timeString}`).toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard");
   };
 
   return (
-    <div className="min-h-screen bg-background py-12">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-luxury-100 mb-4">
-            <Search className="h-8 w-8 text-primary " />
-          </div>
-          <h1 className="text-3xl font-cormorant font-bold text-foreground  mb-2">
+    <div className="min-h-screen bg-background py-12 md:py-20">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+        {/* Hero / Header */}
+        <div className="text-center space-y-4 max-w-2xl mx-auto">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto text-primary mb-6"
+          >
+            <Search className="w-8 h-8" />
+          </motion.div>
+          <h1 className="text-4xl md:text-5xl font-cormorant font-bold text-foreground">
             Track Your Order
           </h1>
-          <p className="text-lg text-foreground ">
-            Enter your order ID and email address to track your order status
+          <p className="text-lg text-muted-foreground">
+            Enter your order details below to see the current status and
+            estimated delivery.
           </p>
         </div>
 
-        {/* Search Form */}
-        <div className="bg-background rounded-lg shadow-lg p-6 mb-6">
-          <form onSubmit={handleSearch} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Search Card */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          className="max-w-xl mx-auto bg-card border border-border rounded-xl shadow-sm p-6 md:p-8"
+        >
+          <form onSubmit={handleSearch} className="space-y-6">
+            <div className="space-y-4">
               <Input
                 label="Order ID"
                 value={orderId}
                 onChange={(e) => setOrderId(e.target.value)}
-                placeholder="Enter your order ID"
+                placeholder="e.g., ORD-123456"
+                className="bg-background"
                 required
               />
               <Input
@@ -170,239 +211,351 @@ function TrackOrderPage(): JSX.Element {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email address"
+                placeholder="used during checkout"
+                className="bg-background"
                 required
               />
             </div>
 
-            {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div className="flex">
-                  <AlertCircle className="h-5 w-5 text-red-400" />
-                  <div className="ml-3">
-                    <p className="text-sm text-red-700">{error}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
             <Button
               type="submit"
               variant="luxury"
-              className="w-full md:w-auto"
+              className="w-full text-lg h-12"
               disabled={loading}
             >
-              {loading ? "Searching..." : "Track Order"}
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <Package className="animate-spin w-4 h-4" /> Tracking...
+                </span>
+              ) : (
+                "Track Order"
+              )}
             </Button>
           </form>
-        </div>
 
-        {/* Order Details */}
-        {orderDetails && (
-          <div className="space-y-6">
-            {/* Order Status */}
-            <div className="bg-background rounded-lg shadow-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-cormorant font-bold text-foreground ">
-                  Order Status
-                </h2>
-                <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                    orderDetails.status
-                  )}`}
-                >
-                  {getStatusIcon(orderDetails.status)}
-                  <span className="ml-2">{orderDetails.status}</span>
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-sm text-foreground  mb-1">
-                    <span className="font-medium">Order ID:</span>{" "}
-                    {orderDetails.id}
-                  </p>
-                  <p className="text-sm text-foreground  mb-1">
-                    <span className="font-medium">Order Date:</span>{" "}
-                    {formatDate(orderDetails?.createdAt)}
-                  </p>
-                  <p className="text-sm text-foreground ">
-                    <span className="font-medium">Total Amount:</span> AED{" "}
-                    {orderDetails.totalAmount.toFixed(2)}
-                  </p>
+          {/* Error Message */}
+          <AnimatePresence>
+            {showError && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden mt-4"
+              >
+                <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg flex gap-3 text-destructive text-sm">
+                  <AlertCircle className="w-5 h-5 shrink-0" />
+                  <p>{errorMessage}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-foreground  mb-1">
-                    <span className="font-medium">Payment Method:</span>{" "}
-                    {orderDetails.paymentMethod}
-                  </p>
-                  <p className="text-sm text-foreground  mb-1">
-                    <span className="font-medium">Payment Status:</span>
-                    <span className="ml-1 px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                      {orderDetails.paymentStatus}
-                    </span>
-                  </p>
-                  <p className="text-sm text-foreground ">
-                    <span className="font-medium">Delivery Type:</span>{" "}
-                    {orderDetails.deliveryType}
-                  </p>
-                </div>
-              </div>
-            </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
 
-            {/* Customer Information */}
-            <div className="bg-background rounded-lg shadow-lg p-6">
-              <h2 className="text-xl font-cormorant font-bold text-foreground  mb-4">
-                Customer Information
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <div className="flex items-center mb-2">
-                    <Mail className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-sm text-foreground ">
-                      {orderDetails.email}
-                    </span>
-                  </div>
-                  <div className="flex items-center mb-2">
-                    <Phone className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-sm text-foreground ">
-                      {orderDetails.phone}
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex items-start">
-                    <MapPin className="h-4 w-4 text-gray-400 mr-2 mt-0.5" />
-                    <span className="text-sm text-foreground ">
-                      {orderDetails.address}, {orderDetails.city},{" "}
-                      {orderDetails.emirate}
-                      {orderDetails.postalCode &&
-                        `, ${orderDetails.postalCode}`}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Delivery Information */}
-            <div className="bg-background rounded-lg shadow-lg p-6">
-              <h2 className="text-xl font-cormorant font-bold text-foreground  mb-4">
-                Delivery Information
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  {orderDetails.deliveryType && (
-                    <div className="flex items-center mb-2">
-                      <Package className="h-4 w-4 text-gray-400 mr-2" />
-                      <span className="text-sm text-foreground ">
-                        Delivery Type: {orderDetails.deliveryType}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  {orderDetails.deliveryDate && (
-                    <div className="flex items-center mb-2">
-                      <Calendar className="h-4 w-4 text-gray-400 mr-2" />
-                      <span className="text-sm text-foreground ">
-                        Delivery Date: {formatDate(orderDetails.deliveryDate)}
-                      </span>
-                    </div>
-                  )}
-                  {orderDetails.deliveryTime && (
-                    <div className="flex items-center mb-2">
-                      <Clock className="h-4 w-4 text-gray-400 mr-2" />
-                      <span className="text-sm text-foreground ">
-                        Delivery Time: {formatTime(orderDetails.deliveryTime)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div>
-                  {orderDetails.specialInstructions && (
-                    <div>
-                      <h4 className="font-medium text-gray-900 mb-2">
-                        Special Instructions
-                      </h4>
-                      <p className="text-sm text-foreground  bg-background p-3 rounded-lg">
-                        {orderDetails.specialInstructions}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Order Items */}
-            <div className="bg-background rounded-lg shadow-lg p-6">
-              <h2 className="text-xl font-cormorant font-bold text-foreground  mb-4">
-                Order Items
-              </h2>
-
-              <div className="space-y-4">
-                {orderDetails.items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex justify-between items-center py-3 border-b border-border  last:border-b-0"
-                  >
-                    <div>
-                      <h4 className="font-medium text-gray-900">
-                        {item.product.name}
-                      </h4>
-                      <p className="text-sm text-foreground ">
-                        Quantity: {item.quantity}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium text-gray-900">
-                        AED {(item.price * item.quantity).toFixed(2)}
-                      </p>
-                      <p className="text-sm text-foreground ">
-                        AED {item.price.toFixed(2)} each
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Help Section */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
-          <h3 className="text-lg font-medium text-blue-800 mb-2">Need Help?</h3>
-          <p className="text-sm text-blue-700 mb-4">
-            If you're having trouble tracking your order or have any questions,
-            please contact our customer service team.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button
-              onClick={() => (window.location.href = "/contact")}
-              variant="outline"
-              className="border-blue-300 text-blue-700 hover:bg-blue-800"
+        {/* Results Section */}
+        <AnimatePresence>
+          {orderDetails && isEmailMatch && !loading && (
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-8"
             >
-              Contact Support
-            </Button>
-            <Button
-              onClick={() => (window.location.href = "/")}
-              variant="outline"
-              className="border-blue-300 text-blue-700 hover:bg-blue-800"
-            >
-              Continue Shopping
-            </Button>
-          </div>
-        </div>
+              {/* 1. Status Timeline Card */}
+              <div className="bg-card border border-border rounded-xl shadow-sm p-6 md:p-8">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-border pb-6">
+                  <div>
+                    <div className="flex items-center gap-3 mb-1">
+                      <h2 className="text-xl font-bold font-cormorant text-foreground">
+                        Order #{orderDetails.id}
+                      </h2>
+                      <StatusBadge status={orderDetails.status} />
+                    </div>
+                    <p className="text-sm text-muted-foreground flex items-center gap-2">
+                      Placed on{" "}
+                      {formatTimestamp(Number(orderDetails.createdAt))}
+                      <button
+                        onClick={() => copyToClipboard(orderDetails.id)}
+                        className="hover:text-primary transition-colors"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                    </p>
+                  </div>
+                  <div className="text-left md:text-right">
+                    <p className="text-sm text-muted-foreground">
+                      Total Amount
+                    </p>
+                    <p className="text-2xl font-bold text-primary">
+                      AED {orderDetails.totalAmount.toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Progress Stepper */}
+                <div className="relative">
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-muted hidden md:block" />
+                  <div className="absolute left-6 top-0 h-full w-1 bg-muted md:hidden" />{" "}
+                  {/* Vertical line for mobile */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-4 relative">
+                    {STEPS.map((step, index) => {
+                      const status = getStepStatus(
+                        orderDetails.status,
+                        step.id
+                      );
+                      const isCompleted =
+                        status === "completed" || status === "current";
+                      const isCurrent = status === "current";
+                      const isCancelled = orderDetails.status === "CANCELLED";
+
+                      return (
+                        <div
+                          key={step.id}
+                          className="flex md:flex-col items-center gap-4 md:gap-2 relative z-10"
+                        >
+                          <div
+                            className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300
+                              ${
+                                isCancelled
+                                  ? "bg-destructive/10 border-destructive text-destructive"
+                                  : isCompleted
+                                  ? "bg-primary text-primary-foreground border-primary"
+                                  : "bg-card border-muted text-muted-foreground"
+                              }
+                            `}
+                          >
+                            <step.icon className="w-5 h-5" />
+                          </div>
+                          <div className="text-left md:text-center pt-2 md:pt-0">
+                            <p
+                              className={`font-semibold text-sm ${
+                                isCurrent ? "text-primary" : "text-foreground"
+                              }`}
+                            >
+                              {step.label}
+                            </p>
+                            {isCurrent && !isCancelled && (
+                              <p className="text-xs text-primary animate-pulse font-medium">
+                                In Progress
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. Details Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Left: Items & Delivery Info */}
+                <div className="lg:col-span-2 space-y-8">
+                  {/* Order Items */}
+                  <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-border bg-muted/20">
+                      <h3 className="font-cormorant font-bold text-lg text-foreground flex items-center gap-2">
+                        <Package className="w-4 h-4" /> Package Details
+                      </h3>
+                    </div>
+                    <div className="divide-y divide-border">
+                      {orderDetails.items.map((item) => (
+                        <div
+                          key={item.id}
+                          className="p-6 flex items-center justify-between hover:bg-muted/10 transition-colors"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center text-muted-foreground">
+                              {/* Placeholder for Product Image */}
+                              <Package className="w-8 h-8 opacity-20" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-foreground text-lg">
+                                {item.product.name}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                Qty: {item.quantity}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-medium text-foreground">
+                              AED {(item.price * item.quantity).toFixed(2)}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {orderDetails.specialInstructions && (
+                      <div className="p-6 bg-muted/30 border-t border-border">
+                        <p className="text-xs font-bold text-muted-foreground uppercase mb-2">
+                          Note from you
+                        </p>
+                        <p className="text-sm text-foreground italic">
+                          "{orderDetails.specialInstructions}"
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Delivery Info */}
+                  <div className="bg-card border border-border rounded-xl shadow-sm p-6">
+                    <h3 className="font-cormorant font-bold text-lg text-foreground mb-4 flex items-center gap-2">
+                      <Truck className="w-4 h-4" /> Delivery Information
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">Method</p>
+                        <p className="font-medium text-foreground">
+                          {orderDetails.deliveryType}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">
+                          Estimated Date
+                        </p>
+                        <p className="font-medium text-foreground flex items-center gap-2">
+                          {orderDetails.deliveryDate
+                            ? formatDate(orderDetails.deliveryDate)
+                            : "Pending Schedule"}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm text-muted-foreground">
+                          Time Slot
+                        </p>
+                        <p className="font-medium text-foreground">
+                          {orderDetails.deliveryTime || "Standard Delivery"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: Customer & Payment */}
+                <div className="space-y-8">
+                  {/* Customer Info */}
+                  <div className="bg-card border border-border rounded-xl shadow-sm p-6">
+                    <h3 className="font-cormorant font-bold text-lg text-foreground mb-4">
+                      Customer Details
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <MapPin className="w-4 h-4 text-primary mt-1 shrink-0" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">
+                            Shipping Address
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                            {orderDetails.address}
+                            <br />
+                            {orderDetails.city}, {orderDetails.emirate}
+                            <br />
+                            {orderDetails.postalCode}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Mail className="w-4 h-4 text-primary shrink-0" />
+                        <div className="overflow-hidden">
+                          <p className="text-sm font-medium text-foreground">
+                            Email
+                          </p>
+                          <p
+                            className="text-sm text-muted-foreground truncate"
+                            title={orderDetails.email}
+                          >
+                            {orderDetails.email}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Phone className="w-4 h-4 text-primary shrink-0" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">
+                            Phone
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {orderDetails.phone}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Payment Info */}
+                  <div className="bg-card border border-border rounded-xl shadow-sm p-6">
+                    <h3 className="font-cormorant font-bold text-lg text-foreground mb-4">
+                      Payment
+                    </h3>
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-sm text-muted-foreground">
+                        Method
+                      </span>
+                      <span className="text-sm font-medium text-foreground">
+                        {orderDetails.paymentMethod}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center pt-4 border-t border-border">
+                      <span className="text-sm text-muted-foreground">
+                        Status
+                      </span>
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          orderDetails.paymentStatus === "PAID"
+                            ? "bg-primary/10 text-primary"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {orderDetails.paymentStatus}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Help Box */}
+                  <div className="bg-muted/30 border border-border rounded-xl p-6 text-center">
+                    <p className="text-sm font-medium text-foreground mb-2">
+                      Need assistance?
+                    </p>
+                    <p className="text-xs text-muted-foreground mb-4">
+                      Our support team is here to help with your order.
+                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button
+                        variant="outline"
+                        className="w-full text-xs"
+                        onClick={() => router.push("/contact")}
+                      >
+                        Support
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="w-full text-xs"
+                        onClick={() => router.push("/")}
+                      >
+                        Shop
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
 }
 
-export default function TrackOrderWrapper() {
+// Wrapper for Suspense (required for useSearchParams)
+export default function TrackOrderPage() {
   return (
-    <Suspense fallback={<div>Loading....</div>}>
-      <TrackOrderPage />
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      }
+    >
+      <TrackOrderContent />
     </Suspense>
   );
 }

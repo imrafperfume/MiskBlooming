@@ -1,530 +1,280 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Package,
-  Eye,
   Download,
   Star,
   Calendar,
-  MapPin,
   CreditCard,
   Truck,
   CheckCircle,
   Clock,
   AlertCircle,
-  Phone,
-  Mail,
   Navigation,
-  Package2,
-  Home,
+  ArrowRight,
 } from "lucide-react";
 import { Button } from "../../../../components/ui/Button";
 import { useQuery } from "@apollo/client";
 import { GET_ORDERS_BY_USER } from "@/src/modules/order/operations";
 import { useAuth } from "@/src/hooks/useAuth";
-import Loading from "@/src/components/layout/Loading";
 import Link from "next/link";
-import { formatDate, handleDownload } from "@/src/lib/utils";
+import { handleDownload } from "@/src/lib/utils";
 
-const orders = [
-  {
-    id: "ORD-2024-001",
-    date: "2024-01-15",
-    status: "delivered",
-    total: 450,
-    trackingNumber: "MB2024001567",
-    estimatedDelivery: "2024-01-16",
-    actualDelivery: "2024-01-16",
-    courierName: "Ahmed Al-Rashid",
-    courierPhone: "+971-50-123-4567",
-    items: [
-      {
-        name: "Premium Red Rose Bouquet",
-        quantity: 1,
-        price: 350,
-        image: "/placeholder-ziv6p.png",
-      },
-      {
-        name: "Belgian Chocolate Box",
-        quantity: 1,
-        price: 100,
-        image: "/placeholder-qre65.png",
-      },
-    ],
-    deliveryAddress: "Downtown Dubai, UAE",
-    paymentMethod: "Credit Card",
-    trackingHistory: [
-      {
-        status: "Order Placed",
-        timestamp: "2024-01-15T10:00:00Z",
-        description: "Your order has been confirmed and is being prepared",
-        icon: Package2,
-        completed: true,
-      },
-      {
-        status: "Preparing",
-        timestamp: "2024-01-15T14:30:00Z",
-        description: "Our florists are carefully arranging your flowers",
-        icon: Package,
-        completed: true,
-      },
-      {
-        status: "Out for Delivery",
-        timestamp: "2024-01-16T09:00:00Z",
-        description: "Your order is on its way with our delivery partner",
-        icon: Truck,
-        completed: true,
-      },
-      {
-        status: "Delivered",
-        timestamp: "2024-01-16T15:30:00Z",
-        description: "Successfully delivered to your address",
-        icon: Home,
-        completed: true,
-      },
-    ],
-  },
-  {
-    id: "ORD-2024-002",
-    date: "2024-01-10",
-    status: "out_for_delivery",
-    total: 280,
-    trackingNumber: "MB2024002891",
-    estimatedDelivery: "2024-01-12",
-    courierName: "Fatima Hassan",
-    courierPhone: "+971-55-987-6543",
-    items: [
-      {
-        name: "Mixed Seasonal Arrangement",
-        quantity: 1,
-        price: 280,
-        image: "/placeholder-jh2wj.png",
-      },
-    ],
-    deliveryAddress: "Business Bay, Dubai",
-    paymentMethod: "Apple Pay",
-    trackingHistory: [
-      {
-        status: "Order Placed",
-        timestamp: "2024-01-10T11:15:00Z",
-        description: "Your order has been confirmed and is being prepared",
-        icon: Package2,
-        completed: true,
-      },
-      {
-        status: "Preparing",
-        timestamp: "2024-01-10T16:45:00Z",
-        description: "Our florists are carefully arranging your flowers",
-        icon: Package,
-        completed: true,
-      },
-      {
-        status: "Out for Delivery",
-        timestamp: "2024-01-12T08:30:00Z",
-        description: "Your order is on its way with our delivery partner",
-        icon: Truck,
-        completed: true,
-      },
-      {
-        status: "Delivered",
-        timestamp: null,
-        description: "Will be delivered to your address",
-        icon: Home,
-        completed: false,
-      },
-    ],
-  },
-  {
-    id: "ORD-2024-003",
-    date: "2024-01-05",
-    status: "preparing",
-    total: 180,
-    trackingNumber: "MB2024003445",
-    estimatedDelivery: "2024-01-06",
-    items: [
-      {
-        name: "Birthday Cake Special",
-        quantity: 1,
-        price: 180,
-        image: "/placeholder-ziv6p.png",
-      },
-    ],
-    deliveryAddress: "Marina, Dubai",
-    paymentMethod: "Credit Card",
-    trackingHistory: [
-      {
-        status: "Order Placed",
-        timestamp: "2024-01-05T13:20:00Z",
-        description: "Your order has been confirmed and is being prepared",
-        icon: Package2,
-        completed: true,
-      },
-      {
-        status: "Preparing",
-        timestamp: "2024-01-05T17:00:00Z",
-        description: "Our florists are carefully arranging your flowers",
-        icon: Package,
-        completed: true,
-      },
-      {
-        status: "Out for Delivery",
-        timestamp: null,
-        description: "Will be dispatched for delivery",
-        icon: Truck,
-        completed: false,
-      },
-      {
-        status: "Delivered",
-        timestamp: null,
-        description: "Will be delivered to your address",
-        icon: Home,
-        completed: false,
-      },
-    ],
-  },
-];
+// --- Components ---
 
-const statusColors = {
-  DELIVERED: "bg-green-100 text-green-800",
-  out_for_delivery: "bg-blue-100 text-blue-800",
-  PROCESSING: "bg-yellow-100 text-yellow-800",
-  CANCELLED: "bg-red-100 text-red-800",
-  PENDING: "bg-background  text-gray-800",
+// Status Badge Component
+const StatusBadge = ({ status }: { status: string }) => {
+  const styles = {
+    DELIVERED: "bg-green-500/10 text-green-600 border-green-500/20",
+    OUT_FOR_DELIVERY: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+    PROCESSING: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
+    CANCELLED: "bg-destructive/10 text-destructive border-destructive/20",
+    PENDING: "bg-muted text-muted-foreground border-border",
+  };
+
+  const icons = {
+    DELIVERED: CheckCircle,
+    OUT_FOR_DELIVERY: Truck,
+    PROCESSING: Clock,
+    CANCELLED: AlertCircle,
+    PENDING: Package,
+  };
+
+  const normalizedStatus = status.toUpperCase().replace(/ /g, "_");
+  const style =
+    styles[normalizedStatus as keyof typeof styles] || styles.PENDING;
+  const Icon = icons[normalizedStatus as keyof typeof icons] || Package;
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${style}`}
+    >
+      <Icon className="w-3.5 h-3.5" />
+      <span className="capitalize">
+        {status.replace(/_/g, " ").toLowerCase()}
+      </span>
+    </span>
+  );
 };
 
-const statusIcons = {
-  delivered: CheckCircle,
-  out_for_delivery: Truck,
-  preparing: Clock,
-  cancelled: AlertCircle,
-  pending: Package,
-};
+// Skeleton Loader
+const OrderSkeleton = () => (
+  <div className="space-y-6 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div className="h-10 bg-muted/50 rounded-lg w-1/3 mx-auto mb-12 animate-pulse" />
+    {[1, 2, 3].map((i) => (
+      <div
+        key={i}
+        className="h-64 bg-card rounded-2xl border border-border animate-pulse"
+      />
+    ))}
+  </div>
+);
+
 export default function OrdersPage() {
-  // const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
-  // const [trackingModalOpen, setTrackingModalOpen] = useState(false);
-  const { data: user, isLoading } = useAuth();
+  const { data: user, isLoading: authLoading } = useAuth();
   const userId = user?.id;
-  console.log("🚀 ~ OrdersPage ~ userId:", userId);
 
-  const { data, loading } = useQuery(GET_ORDERS_BY_USER, {
+  const { data, loading: ordersLoading } = useQuery(GET_ORDERS_BY_USER, {
     variables: { userId: userId },
     skip: !userId,
     fetchPolicy: "cache-and-network",
   });
 
-  if (isLoading || loading) return <Loading />;
-  if (!userId)
+  if (authLoading || ordersLoading) return <OrderSkeleton />;
+
+  if (!userId) {
     return (
-      <div className="min-h-screen flex flex-col gap-2 items-center justify-center">
-        Please log in to view your orders.
-        <Link
-          href="/auth/login"
-          className="bg-foreground 0 px-8 py-4 font-cormorant text-lg text-foreground  rounded-md "
-        >
-          Login
+      <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-4 px-4 text-center">
+        <div className="bg-muted p-4 rounded-full">
+          <Package className="w-8 h-8 text-muted-foreground" />
+        </div>
+        <h2 className="text-2xl font-bold font-cormorant text-foreground">
+          Access Restricted
+        </h2>
+        <p className="text-muted-foreground max-w-md">
+          Please log in to view your order history and track active shipments.
+        </p>
+        <Link href="/auth/login">
+          <Button variant="luxury">Log In Now</Button>
         </Link>
       </div>
     );
+  }
 
   const orders = data?.ordersByUser || [];
-  console.log("🚀 ~ OrdersPage ~ orders:", orders);
-  // const openTracking = (orderId: string) => {
-  //   setSelectedOrder(orderId);
-  //   setTrackingModalOpen(true);
-  // };
-
-  // const selectedOrderData = orders.find((order) => order.id === selectedOrder);
 
   return (
-    <div className="min-h-screen bg-background pt-32 pb-16">
+    <div className="min-h-screen bg-background pt-32 pb-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
+          className="text-center mb-12"
         >
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-cormorant font-bold text-foreground  mb-4">
-              My Orders
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Track your orders and view your purchase history
-            </p>
-          </div>
-
-          <div className="space-y-6">
-            {orders?.map((order: any, index: any) => {
-              const StatusIcon =
-                statusIcons[
-                  order?.status?.toLowerCase() as keyof typeof statusIcons
-                ] ?? Package;
-
-              return (
-                <motion.div
-                  key={order.id}
-                  className="bg-background rounded-2xl shadow-luxury p-6 hover:shadow-xl transition-all duration-300"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-4">
-                    <div className="flex items-center space-x-4 mb-4 lg:mb-0">
-                      <div className="bg-foregroundp-3 rounded-full">
-                        <StatusIcon className="w-6 h-6 text-primary " />
-                      </div>
-                      <div>
-                        <h3 className="text-xl font-cormorant font-bold text-foreground ">
-                          Order {order?.id}
-                        </h3>
-                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                          <span className="flex items-center">
-                            <Calendar className="w-4 h-4 mr-1" />
-                            {order?.createdAt
-                              ? new Date(
-                                  Number(order.createdAt)
-                                ).toLocaleDateString()
-                              : "Not available"}
-                          </span>
-                          <span className="flex items-center">
-                            <CreditCard className="w-4 h-4 mr-1" />
-                            {order?.paymentMethod}
-                          </span>
-                          {order?.trackingNumber && (
-                            <span className="flex items-center">
-                              <Navigation className="w-4 h-4 mr-1" />
-                              {order.trackingNumber}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          statusColors[
-                            order?.status as keyof typeof statusColors
-                          ]
-                        }`}
-                      >
-                        {order?.status
-                          .replace("_", " ")
-                          .replace(/\b\w/g, (l: any) => l.toUpperCase())}
-                      </span>
-                      <div className="text-right">
-                        <div className="text-2xl font-cormorant font-bold text-foreground ">
-                          AED {order?.totalAmount}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Quick Status Progress */}
-                  {/* <div className="mb-4 p-4 bg-cream-50 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-foreground ">
-                        Order Progress
-                      </span>
-                      {order.estimatedDelivery && (
-                        <span className="text-sm text-muted-foreground">
-                          Est. Delivery:{" "}
-                          {new Date(
-                            order.estimatedDelivery
-                          ).toLocaleDateString()}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      {order.trackingHistory.map(
-                        (step: any, stepIndex: any) => (
-                          <div key={stepIndex} className="flex items-center">
-                            <div
-                              className={`w-3 h-3 rounded-full ${
-                                step.completed ? "bg-foreground 0" : "bg-gray-300"
-                              }`}
-                            />
-                            {stepIndex < order.trackingHistory.length - 1 && (
-                              <div
-                                className={`w-8 h-0.5 ${
-                                  order.trackingHistory[stepIndex + 1]
-                                    ?.completed
-                                    ? "bg-foreground 0"
-                                    : "bg-gray-300"
-                                }`}
-                              />
-                            )}
-                          </div>
-                        )
-                      )}
-                    </div>
-                    <div className="flex justify-between mt-2 text-xs text-muted-foreground">
-                      {order.trackingHistory.map(
-                        (step: any, stepIndex: any) => (
-                          <span key={stepIndex} className="text-center">
-                            {step.status}
-                          </span>
-                        )
-                      )}
-                    </div>
-                  </div> */}
-
-                  {/* Courier Information */}
-                  {/* {order.courierName && order.status === "out_for_delivery" && (
-                    <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h4 className="font-medium text-foreground  mb-1">
-                            Your Delivery Partner
-                          </h4>
-                          <p className="text-sm text-muted-foreground">
-                            {order.courierName}
-                          </p>
-                        </div>
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="bg-transparent border-blue-300 text-blue-600 hover:bg-blue-50"
-                          >
-                            <Phone className="w-4 h-4 mr-1" />
-                            Call
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="bg-transparent border-blue-300 text-blue-600 hover:bg-blue-50"
-                          >
-                            <Mail className="w-4 h-4 mr-1" />
-                            Message
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  )} */}
-
-                  <div className="border-t border-cream-200 pt-4">
-                    {/* <div className="grid md:grid-cols-2 gap-4 mb-4">
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <MapPin className="w-4 h-4 mr-2" />
-                        <span>Delivery to: {order.deliveryAddress}</span>
-                      </div>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4 mr-2" />
-                        <span>
-                          {order.actualDelivery
-                            ? `Delivered: ${new Date(
-                                order.actualDelivery
-                              ).toLocaleDateString()}`
-                            : `Est. Delivery: ${new Date(
-                                order.estimatedDelivery
-                              ).toLocaleDateString()}`}
-                        </span>
-                      </div>
-                    </div> */}
-
-                    <div className="space-y-3 mb-4">
-                      {order?.items.map((item: any, itemIndex: any) => (
-                        <div
-                          key={itemIndex}
-                          className="flex items-center space-x-4 p-3 bg-cream-50 rounded-lg"
-                        >
-                          {/* <img
-                            src={item.product?.images[0] || "/placeholder.svg"}
-                            alt={item.product?.name}
-                            className="w-16 h-16 object-cover rounded-lg"
-                          /> */}
-                          <div className="flex-1">
-                            <h4 className="font-medium text-foreground ">
-                              {item.product?.name}
-                            </h4>
-                            <p className="text-sm text-muted-foreground">
-                              Quantity: {item.quantity}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <div className="font-bold text-foreground ">
-                              AED {item.price}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="flex flex-wrap gap-3">
-                      <Link
-                        href={`/track-order?orderId=${order.id}&email=${order.email}`}
-                        className="flex items-center bg-foreground 0 px-4 py-2 text-foreground  rounded-lg hover:bg-primary transition"
-                      >
-                        <Navigation className="w-4 h-4 mr-2" />
-                        Track Order
-                      </Link>
-                      <Button
-                        size={"sm"}
-                        onClick={() => handleDownload(order?.id)}
-                        className="flex items-center bg-transparent"
-                        variant={"outline"}
-                      >
-                        Download Invoice
-                      </Button>
-                      {/* <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center bg-transparent"
-                      >
-                        <Eye className="w-4 h-4 mr-2" />
-                        View Details
-                      </Button> */}
-                      {order.status === "DELIVERED" && (
-                        <>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="flex items-center bg-transparent"
-                          >
-                            <Star className="w-4 h-4 mr-2" />
-                            Leave Review
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="bg-foregroundtext-primary border-border  hover:bg-luxury-100"
-                          >
-                            Reorder
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-
-          {orders.length === 0 && (
-            <motion.div
-              className="text-center py-16"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-2xl font-cormorant font-bold text-foreground  mb-2">
-                No Orders Yet
-              </h3>
-              <p className="text-muted-foreground mb-6">
-                Start shopping to see your orders here
-              </p>
-              <Button variant="luxury" size="lg">
-                Browse Products
-              </Button>
-            </motion.div>
-          )}
+          <h1 className="text-4xl md:text-5xl font-cormorant font-bold text-foreground mb-4">
+            My Orders
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+            Track your orders and view your purchase history
+          </p>
         </motion.div>
-      </div>
 
-      {/* Detailed Tracking Modal */}
+        {/* Orders List */}
+        <div className="space-y-6">
+          {orders.map((order: any, index: number) => (
+            <motion.div
+              key={order.id}
+              className="bg-card rounded-2xl border border-border shadow-sm p-6 hover:shadow-md hover:border-primary/20 transition-all duration-300"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              {/* Card Header */}
+              <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-6">
+                <div className="flex items-start gap-4">
+                  <div className="bg-primary/10 p-3 rounded-full text-primary shrink-0 hidden sm:flex">
+                    <Package className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-cormorant font-bold text-foreground flex items-center gap-2">
+                      Order #{order.id.slice(-6).toUpperCase()}
+                      <span className="text-sm font-sans font-normal text-muted-foreground hidden sm:inline-block">
+                        ({order.id})
+                      </span>
+                    </h3>
+
+                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2 mt-2 text-sm text-muted-foreground">
+                      <span className="flex items-center gap-1.5">
+                        <Calendar className="w-4 h-4" />
+                        {new Date(Number(order.createdAt)).toLocaleDateString(
+                          undefined,
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}
+                      </span>
+                      <span className="flex items-center gap-1.5">
+                        <CreditCard className="w-4 h-4" />
+                        {order.paymentMethod}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between lg:justify-end gap-4 w-full lg:w-auto mt-2 lg:mt-0">
+                  <StatusBadge status={order.status} />
+                  <div className="text-2xl font-cormorant font-bold text-primary">
+                    {/* Currency Formatter */}
+                    {new Intl.NumberFormat("en-AE", {
+                      style: "currency",
+                      currency: "AED",
+                    }).format(order.totalAmount)}
+                  </div>
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <div className="border-t border-border pt-6 mb-6">
+                <div className="space-y-4">
+                  {order.items.map((item: any, i: number) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/30 transition-colors"
+                    >
+                      {/* Product Image Placeholder - Replace with real Image if available */}
+                      <div className="w-12 h-12 bg-muted rounded-md flex items-center justify-center shrink-0">
+                        <Package className="w-6 h-6 text-muted-foreground/40" />
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-foreground truncate">
+                          {item.product?.name}
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          Qty: {item.quantity}
+                        </p>
+                      </div>
+                      <div className="font-semibold text-foreground shrink-0">
+                        {new Intl.NumberFormat("en-AE", {
+                          style: "currency",
+                          currency: "AED",
+                        }).format(item.price)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Actions Footer */}
+              <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border">
+                <Link
+                  href={`/track-order?orderId=${order.id}&email=${order.email}`}
+                  className="flex-1 sm:flex-none"
+                >
+                  <Button className="w-full sm:w-auto" variant="luxury">
+                    <Navigation className="w-4 h-4 mr-2" />
+                    Track Order
+                  </Button>
+                </Link>
+
+                <Button
+                  variant="outline"
+                  className="flex-1 sm:flex-none"
+                  onClick={() => handleDownload(order.id)}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Invoice
+                </Button>
+
+                {order.status === "DELIVERED" && (
+                  <Button
+                    variant="ghost"
+                    className="flex-1 sm:flex-none hover:bg-muted"
+                  >
+                    <Star className="w-4 h-4 mr-2" />
+                    Review
+                  </Button>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Empty State */}
+        {orders.length === 0 && !ordersLoading && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
+            className="flex flex-col items-center justify-center py-20 text-center bg-card rounded-3xl border border-border border-dashed"
+          >
+            <div className="bg-muted p-6 rounded-full mb-6">
+              <Package className="w-12 h-12 text-muted-foreground" />
+            </div>
+            <h3 className="text-2xl font-cormorant font-bold text-foreground mb-2">
+              No Orders Yet
+            </h3>
+            <p className="text-muted-foreground mb-8 max-w-sm">
+              You haven't placed any orders yet. Explore our collection to find
+              the perfect gift.
+            </p>
+            <Link href="/products">
+              <Button
+                variant="luxury"
+                size="lg"
+                className="shadow-lg hover:shadow-xl transition-shadow"
+              >
+                Start Shopping <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 }

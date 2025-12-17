@@ -7,43 +7,46 @@ import React, {
   useState,
   useCallback,
 } from "react";
-import { motion } from "framer-motion";
-import { Search, Grid3X3, List, ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Search, Grid3X3, List, ChevronDown, X, Filter } from "lucide-react";
 import dynamic from "next/dynamic";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { useProducts } from "../../../hooks/useProducts";
 import { useCategories } from "@/src/hooks/useCategories";
+import { Input } from "@/src/components/ui/Input"; // Assuming you have this, otherwise standard input is used below
 
-// Dynamic imports with lightweight fallback
-const Button = dynamic(() => import("../../../components/ui/Button"), {
-  loading: () => <button className="btn-loading">Loading...</button>,
-});
+// Dynamic imports for performance
+const Button = dynamic(() => import("../../../components/ui/Button"));
 const ProductCard = dynamic(
   () => import("../../../components/product/ProductCard"),
   {
-    loading: () => <div className="card-loading">Loading product...</div>,
+    loading: () => <ProductSkeleton />,
   }
 );
 
-// Skeleton components
+// Professional Skeleton Loader
 const ProductSkeleton = () => (
-  <div className="bg-background rounded-2xl h-96 animate-pulse" />
-);
-const FilterSkeleton = () => (
-  <div className="h-10 bg-gray-200 rounded-lg animate-pulse" />
+  <div className="flex flex-col space-y-3">
+    <div className="relative w-full aspect-[3/4] bg-muted/50 rounded-xl animate-pulse overflow-hidden" />
+    <div className="space-y-2 px-1">
+      <div className="h-4 bg-muted/50 rounded w-3/4 animate-pulse" />
+      <div className="h-4 bg-muted/50 rounded w-1/4 animate-pulse" />
+    </div>
+  </div>
 );
 
-// Filters & sorting constants
+// Constants
 const PRICE_RANGES = [
-  { value: "all", label: "All Prices" },
+  { value: "all", label: "Price: All" },
   { value: "under-100", label: "Under AED 100" },
   { value: "100-300", label: "AED 100 - 300" },
   { value: "300-500", label: "AED 300 - 500" },
   { value: "over-500", label: "Over AED 500" },
 ];
+
 const SORT_OPTIONS = [
-  { value: "featured", label: "Featured" },
-  { value: "newest", label: "Newest" },
+  { value: "featured", label: "Sort: Featured" },
+  { value: "newest", label: "Sort: Newest" },
   { value: "price-low", label: "Price: Low to High" },
   { value: "price-high", label: "Price: High to Low" },
   { value: "rating", label: "Highest Rated" },
@@ -51,16 +54,22 @@ const SORT_OPTIONS = [
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
-  const category = searchParams.get("category") || "all";
-  const search = searchParams.get("search") || "";
+  const router = useRouter();
 
-  const [selectedCategory, setSelectedCategory] = useState(category);
+  // URL Params State
+  const categoryParam = searchParams.get("category") || "all";
+  const searchParam = searchParams.get("search") || "";
+
+  // Local State
+  const [selectedCategory, setSelectedCategory] = useState(categoryParam);
   const [subCategory, setSubcategory] = useState("all");
   const [priceRange, setPriceRange] = useState("all");
   const [sortBy, setSortBy] = useState("featured");
-  const [viewMode, setViewMode] = useState("grid");
-  const [searchQuery, setSearchQuery] = useState(search);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [searchQuery, setSearchQuery] = useState(searchParam);
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
+  // Data Fetching
   const productFields = [
     "id",
     "name",
@@ -78,15 +87,21 @@ export default function ProductsPage() {
     "Review {rating}",
   ];
 
-  const { data: products, isLoading } = useProducts(productFields);
-  const { data: categories } = useCategories([
+  const { data: products, isLoading: productsLoading } =
+    useProducts(productFields);
+  const { data: categories, isLoading: categoriesLoading } = useCategories([
     "id",
     "name",
     "subcategories{id name}",
   ]);
 
-  useEffect(() => setSelectedCategory(category), [category]);
+  // Sync state with URL params
+  useEffect(() => {
+    setSelectedCategory(categoryParam);
+    setSearchQuery(searchParam);
+  }, [categoryParam, searchParam]);
 
+  // Derived Data
   const currentCategory = useMemo(
     () => categories?.find((cat) => cat.name === selectedCategory),
     [categories, selectedCategory]
@@ -97,15 +112,12 @@ export default function ProductsPage() {
 
     return products
       .filter((product) => {
+        const query = searchQuery.toLowerCase();
         const matchesSearch =
           !searchQuery ||
-          product.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          product.shortDescription
-            ?.toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          product.tags?.some((tag) =>
-            tag.toLowerCase().includes(searchQuery.toLowerCase())
-          );
+          product.name?.toLowerCase().includes(query) ||
+          product.shortDescription?.toLowerCase().includes(query) ||
+          product.tags?.some((tag) => tag.toLowerCase().includes(query));
 
         const matchesCategory =
           selectedCategory === "all" || product.category === selectedCategory;
@@ -132,7 +144,9 @@ export default function ProductsPage() {
           case "price-high":
             return b.price - a.price;
           case "newest":
-            return b.id.localeCompare(a.id);
+            return b.id.localeCompare(a.id); // Assuming ID is time-sortable or use createdAt
+          case "rating":
+            return (b.Review?.length || 0) - (a.Review?.length || 0);
           case "featured":
             return b.featured === a.featured ? 0 : b.featured ? 1 : -1;
           default:
@@ -154,198 +168,223 @@ export default function ProductsPage() {
     setSubcategory("all");
     setPriceRange("all");
     setSortBy("featured");
-  }, []);
+    router.push("/products"); // Reset URL
+  }, [router]);
 
-  const renderFilters = useCallback(
-    () => (
-      <div className="sm:flex grid grid-cols-2 sm:flex-wrap gap-4 items-center">
-        {/* Category */}
-        <div className="relative">
-          <select
-            value={selectedCategory}
-            onChange={(e) => {
-              setSelectedCategory(e.target.value);
-              setSubcategory("all");
-            }}
-            className="appearance-none bg-background border border-border  rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-ring focus:border-transparent"
-          >
-            <option value="all">All Categories</option>
-            {categories?.map((cat) => (
-              <option key={cat.id} value={cat.name}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="absolute sm:right-2 right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-        </div>
+  const isLoading = productsLoading || categoriesLoading;
+  const hasActiveFilters =
+    selectedCategory !== "all" ||
+    subCategory !== "all" ||
+    priceRange !== "all" ||
+    searchQuery !== "";
 
-        {/* Subcategory */}
-        <div className="relative">
-          <select
-            value={subCategory}
-            onChange={(e) => setSubcategory(e.target.value)}
-            className="appearance-none bg-background border border-border  rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-ring focus:border-transparent"
-          >
-            <option value="all">Select Subcategory</option>
-            {currentCategory?.subcategories?.map((sub) => (
-              <option key={sub.id} value={sub.name}>
-                {sub.name}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="absolute sm:right-2 right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-        </div>
-
-        {/* Price */}
-        <div className="relative">
-          <select
-            value={priceRange}
-            onChange={(e) => setPriceRange(e.target.value)}
-            className="appearance-none bg-background border border-border  rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-ring focus:border-transparent"
-          >
-            {PRICE_RANGES.map((r) => (
-              <option key={r.value} value={r.value}>
-                {r.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="absolute sm:right-2 right-8 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-        </div>
-
-        {/* Sort */}
-        <div className="relative">
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="appearance-none bg-background border border-border  rounded-lg text-sm sm:text-lg sm:px-4 px-2 py-2 sm:pr-8 focus:ring-2 focus:ring-ring focus:border-transparent"
-          >
-            {SORT_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="absolute sm:right-2 right-8 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-        </div>
-      </div>
-    ),
-    [
-      selectedCategory,
-      subCategory,
-      priceRange,
-      sortBy,
-      categories,
-      currentCategory,
-    ]
+  // Helper Component for Select Inputs
+  const FilterSelect = ({
+    value,
+    onChange,
+    options,
+    placeholder,
+    disabled = false,
+  }: {
+    value: string;
+    onChange: (val: string) => void;
+    options: { value: string; label: string }[];
+    placeholder?: string;
+    disabled?: boolean;
+  }) => (
+    <div className="relative group min-w-[160px] w-full sm:w-auto">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        className="w-full appearance-none bg-card text-foreground border border-border rounded-lg text-sm px-4 py-2.5 pr-10 
+        focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:border-primary/50"
+      >
+        {placeholder && <option value="all">{placeholder}</option>}
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+      <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none group-hover:text-primary transition-colors" />
+    </div>
   );
 
   return (
-    <Suspense
-      fallback={
-        <div className="min-h-screen mt-16 bg-background">Loading...</div>
-      }
-    >
-      <div className="min-h-screen mt-16 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header */}
-          <motion.div
-            className="text-center sm:mb-12 mb-4"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1 className="font-cormorant text-4xl md:text-5xl font-bold text-primary  mb-4">
-              Our Collections
-            </h1>
-            <p className="sm:text-xl text-muted-foreground max-w-3xl mx-auto">
-              Discover our exquisite selection of fresh flowers, luxury
-              chocolates, cakes, gift sets, and plants
-            </p>
-          </motion.div>
+    <div className="min-h-screen bg-background pt-24 pb-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header Section */}
+        <motion.div
+          className="text-center mb-10"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <h1 className="font-cormorant text-4xl md:text-5xl font-bold text-foreground mb-3">
+            Our Collections
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            Discover our exquisite selection of fresh flowers, luxury
+            chocolates, cakes, and gifts curated for your special moments.
+          </p>
+        </motion.div>
 
-          {/* Search & Filters */}
-          <motion.div
-            className="mb-4 sm:mb-8"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            <div className="bg-background rounded-2xl sm:p-6 py-4 sm:py-0">
-              <div className="relative mb-6">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+        {/* Controls Bar */}
+        <div className="sticky top-20 z-30 bg-background/80 backdrop-blur-md py-4 -mx-4 px-4 sm:mx-0 sm:px-0 mb-8 border-b border-border/50 transition-all">
+          <div className="flex flex-col gap-4">
+            {/* Top Row: Search & View Toggle */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
+              <div className="relative w-full sm:max-w-md group">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 group-focus-within:text-primary transition-colors" />
                 <input
                   type="text"
-                  placeholder="Search flowers, chocolates, cakes, gifts..."
+                  placeholder="Search products..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2.5 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all placeholder:text-muted-foreground/60"
                 />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
               </div>
 
-              <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
-                {isLoading ? (
-                  <div className="flex gap-4 w-full">
-                    <FilterSkeleton />
-                    <FilterSkeleton />
-                    <FilterSkeleton />
-                  </div>
-                ) : (
-                  renderFilters()
-                )}
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                <button
+                  className="sm:hidden flex items-center gap-2 text-sm font-medium text-foreground bg-card border border-border px-4 py-2.5 rounded-lg"
+                  onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+                >
+                  <Filter className="w-4 h-4" /> Filters
+                </button>
 
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-muted-foreground">
-                    {filteredAndSortedProducts.length} products found
-                  </span>
-                  <div className="flex sm:hidden items-center border border-border  rounded-lg">
-                    <button
-                      onClick={() => setViewMode("grid")}
-                      className={`p-2 ${
-                        viewMode === "grid"
-                          ? "bg-foreground 0 text-foreground "
-                          : "text-muted-foreground hover:text-foreground "
-                      } transition-colors`}
-                    >
-                      <Grid3X3 className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => setViewMode("list")}
-                      className={`p-2 ${
-                        viewMode === "list"
-                          ? "bg-foreground 0 text-foreground "
-                          : "text-muted-foreground hover:text-foreground "
-                      } transition-colors`}
-                    >
-                      <List className="w-4 h-4" />
-                    </button>
-                  </div>
+                <div className="flex items-center gap-2 bg-card border border-border rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode("grid")}
+                    className={`p-1.5 rounded-md transition-all ${
+                      viewMode === "grid"
+                        ? "bg-primary/10 text-primary shadow-sm"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <Grid3X3 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={`p-1.5 rounded-md transition-all ${
+                      viewMode === "list"
+                        ? "bg-primary/10 text-primary shadow-sm"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
             </div>
-          </motion.div>
 
-          {/* Products */}
+            {/* Filters Row (Desktop: Always visible, Mobile: Collapsible) */}
+            <motion.div
+              initial={false}
+              animate={
+                isMobileFiltersOpen
+                  ? { height: "auto", opacity: 1 }
+                  : { height: "auto", opacity: 1 }
+              }
+              className={`flex flex-col sm:flex-row flex-wrap gap-3 items-center ${
+                isMobileFiltersOpen ? "flex" : "hidden sm:flex"
+              }`}
+            >
+              <FilterSelect
+                value={selectedCategory}
+                onChange={(val) => {
+                  setSelectedCategory(val);
+                  setSubcategory("all");
+                }}
+                options={
+                  categories?.map((c) => ({ value: c.name, label: c.name })) ||
+                  []
+                }
+                placeholder="All Categories"
+              />
+
+              <FilterSelect
+                value={subCategory}
+                onChange={setSubcategory}
+                options={
+                  currentCategory?.subcategories?.map((s) => ({
+                    value: s.name,
+                    label: s.name,
+                  })) || []
+                }
+                placeholder="Subcategory"
+                disabled={
+                  selectedCategory === "all" ||
+                  !currentCategory?.subcategories?.length
+                }
+              />
+
+              <FilterSelect
+                value={priceRange}
+                onChange={setPriceRange}
+                options={PRICE_RANGES}
+              />
+
+              <div className="sm:ml-auto w-full sm:w-auto">
+                <FilterSelect
+                  value={sortBy}
+                  onChange={setSortBy}
+                  options={SORT_OPTIONS}
+                />
+              </div>
+
+              {hasActiveFilters && (
+                <button
+                  onClick={handleClearFilters}
+                  className="text-sm text-primary hover:text-primary/80 font-medium underline underline-offset-4 transition-colors px-2"
+                >
+                  Reset
+                </button>
+              )}
+            </motion.div>
+          </div>
+        </div>
+
+        {/* Product Grid */}
+        <AnimatePresence mode="wait">
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <motion.div
+              key="loader"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 sm:gap-x-6 sm:gap-y-10"
+            >
               {[...Array(8)].map((_, i) => (
                 <ProductSkeleton key={i} />
               ))}
-            </div>
+            </motion.div>
           ) : filteredAndSortedProducts.length === 0 ? (
             <motion.div
-              className="text-center py-16"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              key="empty"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className="flex flex-col items-center justify-center py-20 text-center"
             >
-              <div className="w-24 h-24 bg-cream-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Search className="w-12 h-12 text-cream-400" />
+              <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-6">
+                <Search className="w-10 h-10 text-muted-foreground" />
               </div>
-              <h3 className="font-cormorant text-2xl font-bold text-foreground  mb-4">
+              <h3 className="font-cormorant text-2xl font-bold text-foreground mb-2">
                 No products found
               </h3>
-              <p className="text-muted-foreground mb-8">
-                Try adjusting your search or filter criteria
+              <p className="text-muted-foreground mb-6 max-w-md">
+                We couldn't find any products matching your current filters. Try
+                adjusting your search or clearing filters.
               </p>
               <Button onClick={handleClearFilters} variant="luxury">
                 Clear All Filters
@@ -353,14 +392,18 @@ export default function ProductsPage() {
             </motion.div>
           ) : (
             <motion.div
-              className={`grid sm:gap-8 gap-2 ${
-                viewMode === "grid"
-                  ? "grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                  : "grid-cols-1"
-              }`}
+              key="grid"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.5, staggerChildren: 0.1 }}
+              className={`
+                grid gap-x-4 gap-y-8 sm:gap-x-6 sm:gap-y-10
+                ${
+                  viewMode === "grid"
+                    ? "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+                    : "grid-cols-1 max-w-3xl mx-auto"
+                }
+              `}
             >
               {filteredAndSortedProducts.map((product, index) => (
                 <ProductCard
@@ -372,8 +415,17 @@ export default function ProductsPage() {
               ))}
             </motion.div>
           )}
-        </div>
+        </AnimatePresence>
+
+        {/* Results Count Footer */}
+        {!isLoading && filteredAndSortedProducts.length > 0 && (
+          <div className="mt-12 text-center">
+            <p className="text-sm text-muted-foreground">
+              Showing {filteredAndSortedProducts.length} results
+            </p>
+          </div>
+        )}
       </div>
-    </Suspense>
+    </div>
   );
 }

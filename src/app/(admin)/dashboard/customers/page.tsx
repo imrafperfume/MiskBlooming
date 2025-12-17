@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import {
   Search,
   Filter,
-  Eye,
   Mail,
   Phone,
   MapPin,
@@ -12,18 +11,22 @@ import {
   TrendingUp,
   Users,
   ShoppingBag,
-  DollarSign,
   Calendar,
   MoreHorizontal,
   MessageSquare,
   Gift,
+  Shield,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../../../../components/ui/Button";
 import { Input } from "../../../../components/ui/Input";
 import { gql, useMutation, useQuery } from "@apollo/client";
-import Loading from "@/src/components/layout/Loading";
 import { toast } from "sonner";
+
+// --- Types ---
 interface Customer {
   id: string;
   firstName: string;
@@ -37,12 +40,12 @@ interface Customer {
   };
   email: string;
   phoneNumber: string;
-  // location: string;
   createdAt: string;
   stats: { totalOrders: number; totalSpent: number };
   status: string;
 }
 
+// --- GraphQL ---
 const GET_USERS = gql`
   query getUsers {
     users {
@@ -67,6 +70,7 @@ const GET_USERS = gql`
     }
   }
 `;
+
 const UPDATE_ROLE_MUTATION = gql`
   mutation UpdateUserRole($id: ID!, $role: Role!) {
     updateUserRole(id: $id, role: $role) {
@@ -75,38 +79,116 @@ const UPDATE_ROLE_MUTATION = gql`
     }
   }
 `;
+
 const DELETE_USER = gql`
   mutation DeleteUser($id: ID!) {
     deleteUser(id: $id)
   }
 `;
+
+// --- Components ---
+
+// Status Badge Component
+const StatusBadge = ({ status }: { status: string }) => {
+  const styles = {
+    VIP: "bg-purple-500/10 text-purple-600 border-purple-500/20",
+    REGULAR: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+    NEW: "bg-green-500/10 text-green-600 border-green-500/20",
+    DEFAULT: "bg-muted text-muted-foreground border-border",
+  };
+
+  const icons = {
+    VIP: Star,
+    REGULAR: ShoppingBag,
+    NEW: TrendingUp,
+    DEFAULT: Users,
+  };
+
+  const style = styles[status as keyof typeof styles] || styles.DEFAULT;
+  const Icon = icons[status as keyof typeof icons] || icons.DEFAULT;
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border ${style}`}
+    >
+      <Icon className="w-3 h-3" />
+      <span className="capitalize">{status.toLowerCase()}</span>
+    </span>
+  );
+};
+
+// Skeleton Loader
+const CustomerSkeleton = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {[1, 2, 3, 4, 5, 6].map((i) => (
+      <div
+        key={i}
+        className="h-64 bg-card rounded-xl border border-border animate-pulse"
+      />
+    ))}
+  </div>
+);
+
 export default function CustomersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("name");
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
-    null
-  );
-  // Fetch users
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 9;
+
+  // Click outside to close menu
+  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setActiveMenuId(null);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Queries & Mutations
   const { data, loading, error } = useQuery(GET_USERS, {
     fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+
+  const [updateUserRole] = useMutation(UPDATE_ROLE_MUTATION);
+  const [deleteUser] = useMutation(DELETE_USER, {
+    refetchQueries: [{ query: GET_USERS }],
+    awaitRefetchQueries: true,
+  });
 
   const users = data?.users || [];
-  // Filtered customers
+
+  // Filter Logic
   const filteredCustomers = useMemo(() => {
-    return users?.filter((customer: Customer) => {
-      const matchesSearch =
-        customer?.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer?.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer?.email?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus =
-        statusFilter === "all" || customer.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [users, searchTerm, statusFilter]);
+    return users
+      .filter((customer: Customer) => {
+        const searchLower = searchTerm.toLowerCase();
+        const matchesSearch =
+          customer?.firstName?.toLowerCase().includes(searchLower) ||
+          customer?.lastName?.toLowerCase().includes(searchLower) ||
+          customer?.email?.toLowerCase().includes(searchLower);
+
+        const matchesStatus =
+          statusFilter === "all" || customer.status === statusFilter;
+        return matchesSearch && matchesStatus;
+      })
+      .sort((a: Customer, b: Customer) => {
+        if (sortBy === "name")
+          return (a.firstName || "").localeCompare(b.firstName || "");
+        if (sortBy === "totalSpent")
+          return b.stats.totalSpent - a.stats.totalSpent;
+        if (sortBy === "totalOrders")
+          return b.stats.totalOrders - a.stats.totalOrders;
+        return Number(b.createdAt) - Number(a.createdAt);
+      });
+  }, [users, searchTerm, statusFilter, sortBy]);
+
+  // Pagination Logic
   const totalPages = Math.ceil(filteredCustomers.length / pageSize);
   const paginatedCustomers = useMemo(() => {
     return filteredCustomers.slice(
@@ -114,475 +196,395 @@ export default function CustomersPage() {
       currentPage * pageSize
     );
   }, [filteredCustomers, currentPage]);
-  const [updateUserRole] = useMutation(UPDATE_ROLE_MUTATION);
-  const [deleteUser] = useMutation(DELETE_USER, {
-    refetchQueries: [{ query: GET_USERS }],
-    awaitRefetchQueries: true,
-  });
-  // Stats calculation
+
+  // Stats Logic
   const stats = useMemo(() => {
     const totalSpent = users.reduce(
-      (sum: number, c: any) => sum + c.stats.totalSpent,
+      (sum: number, c: any) => sum + (c.stats?.totalSpent || 0),
       0
     );
-
     const totalOrders = users.reduce(
-      (sum: number, c: any) => sum + c.stats.totalOrders,
-      0
-    );
-    const totalRevenue = users?.reduce(
-      (sum: number, c: any) => sum + (Number(c.stats.totalSpent) || 0),
+      (sum: number, c: any) => sum + (c.stats?.totalOrders || 0),
       0
     );
 
     return {
-      total: users?.length,
-      vip: users?.filter((c: any) => c.status === "VIP").length,
-      regular: users?.filter((c: any) => c.status === "REGULAR").length,
-      new: users?.filter((c: any) => c.status === "NEW").length,
-      totalSpent,
-      totalOrders,
-      averageOrderValue:
-        totalOrders > 0 ? Math.round(totalSpent / totalOrders) : 0,
-      totalRevenue,
+      total: users.length,
+      vip: users.filter((c: any) => c.status === "VIP").length,
+      regular: users.filter((c: any) => c.status === "REGULAR").length,
+      new: users.filter((c: any) => c.status === "NEW").length,
+      avgOrderValue: totalOrders > 0 ? Math.round(totalSpent / totalOrders) : 0,
+      totalRevenue: totalSpent,
     };
   }, [users]);
-  console.log("🚀 ~ CustomersPage ~ stats:", stats);
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "VIP":
-        return "bg-purple-100 text-purple-800";
-      case "REGULAR":
-        return "bg-blue-100 text-blue-800";
-      case "NEW":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-background  text-gray-800";
-    }
-  };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "VIP":
-        return <Star className="w-4 h-4" />;
-      case "REGULAR":
-        return <ShoppingBag className="w-4 h-4" />;
-      case "NEW":
-        return <TrendingUp className="w-4 h-4" />;
-      default:
-        return <Users className="w-4 h-4" />;
-    }
-  };
-  if (loading) return <Loading />;
-  if (error) return <p className="mt-5">{error.message}</p>;
-
+  // Handlers
   const handleMakeAdmin = async (customerId: string) => {
+    setActiveMenuId(null);
     try {
-      if (!customerId) return;
-      setSelectedCustomerId(null);
-
-      await updateUserRole({
-        variables: { id: customerId, role: "ADMIN" },
-      });
-      console.log("Make admin for user ID:", customerId);
-      toast.success("User promoted to admin successfully!");
-    } catch (error) {
-      toast.error("Failed to promote user to admin.");
-      console.error("Error promoting user to admin:", error);
+      await updateUserRole({ variables: { id: customerId, role: "ADMIN" } });
+      toast.success("User promoted to admin successfully");
+    } catch (err) {
+      toast.error("Failed to update user role");
     }
   };
+
   const handleDelete = async (customerId: string) => {
+    setActiveMenuId(null);
+    if (!confirm("Are you sure? This action cannot be undone.")) return;
     try {
       await deleteUser({ variables: { id: customerId } });
-      toast.success("User deleted successfully!");
-    } catch (error) {
-      toast.error("Failed to delete user.");
-      console.error("Error deleting user:", error);
+      toast.success("User deleted successfully");
+    } catch (err) {
+      toast.error("Failed to delete user");
     }
   };
+
+  if (error)
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-6">
+        <p className="text-destructive font-medium">Error loading customers</p>
+        <p className="text-muted-foreground text-sm">{error.message}</p>
+      </div>
+    );
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-10">
       {/* Header */}
-      <div className="flex flex-col flex-wrap lg:flex-row lg:items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-cormorant font-bold text-foreground ">
+          <h1 className="font-cormorant text-3xl md:text-4xl font-bold text-foreground tracking-tight">
             Customer Management
           </h1>
-          <p className="text-foreground  mt-2">
-            Manage customer relationships and insights
+          <p className="text-muted-foreground mt-2">
+            Manage relationships, track spending, and view insights.
           </p>
         </div>
-        <div
-          className="flex flex-wrap
-         items-center sm:space-x-4 gap-4 mt-4 lg:mt-0"
-        >
-          <Button variant="outline">
+        <div className="flex flex-wrap gap-3">
+          <Button variant="outline" className="bg-background">
             <MessageSquare className="w-4 h-4 mr-2" />
-            Send Newsletter
+            Newsletter
           </Button>
           <Button variant="luxury">
             <Gift className="w-4 h-4 mr-2" />
-            Create Campaign
+            New Campaign
           </Button>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
-        <motion.div
-          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-foreground ">Total Customers</p>
-              <p className="text-xl font-bold text-foreground ">
-                {users?.length}
-              </p>
-            </div>
-            <Users className="w-6 h-6 text-blue-500" />
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-foreground ">VIP Customers</p>
-              <p className="text-xl font-bold text-purple-600">{stats?.vip}</p>
-            </div>
-            <Star className="w-6 h-6 text-purple-500" />
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-foreground ">Regular</p>
-              <p className="text-xl font-bold text-blue-600">
-                {stats?.regular}
-              </p>
-            </div>
-            <ShoppingBag className="w-6 h-6 text-blue-500" />
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-foreground ">New This Month</p>
-              <p className="text-xl font-bold text-green-600">{stats.new}</p>
-            </div>
-            <TrendingUp className="w-6 h-6 text-green-500" />
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-2">
-              <p className="text-sm text-foreground ">Avg Order Value</p>
-              <div className="text-xl  font-bold text-primary ">
-                <p>AED {stats.averageOrderValue}</p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-foreground ">Total Revenue</p>
-              <p className="text-xl font-bold text-green-600">
-                AED {stats?.totalRevenue}
-              </p>
-            </div>
-            <TrendingUp className="w-6 h-6 text-green-500" />
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Filters */}
-      <motion.div
-        className="bg-background rounded-xl sm:p-6 shadow-sm border border-gray-100"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-      >
-        <div className="flex flex-col lg:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Search customers..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
-          >
-            <option value="all">All Customers</option>
-            <option value="VIP">VIP Customers</option>
-            <option value="REGULAR">Regular Customers</option>
-            <option value="NEW">New Customers</option>
-          </select>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
-          >
-            <option value="name">Sort by Name</option>
-            <option value="totalSpent">Sort by Total Spent</option>
-            <option value="totalOrders">Sort by Orders</option>
-            <option value="joinDate">Sort by Join Date</option>
-          </select>
-          <Button variant="outline">
-            <Filter className="w-4 h-4 mr-2" />
-            More Filters
-          </Button>
-        </div>
-      </motion.div>
-
-      {/* Customers Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {paginatedCustomers.map((customer: Customer, index: any) => (
+      {/* Stats Overview */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        {[
+          {
+            label: "Total Customers",
+            value: stats.total,
+            icon: Users,
+            color: "text-primary",
+          },
+          {
+            label: "VIP Members",
+            value: stats.vip,
+            icon: Star,
+            color: "text-purple-600",
+          },
+          {
+            label: "Regular",
+            value: stats.regular,
+            icon: ShoppingBag,
+            color: "text-blue-600",
+          },
+          {
+            label: "New Users",
+            value: stats.new,
+            icon: TrendingUp,
+            color: "text-green-600",
+          },
+          {
+            label: "Avg. Order",
+            value: `AED ${stats.avgOrderValue}`,
+            icon: ShoppingBag,
+            color: "text-orange-600",
+          },
+          {
+            label: "Revenue",
+            value: `AED ${stats.totalRevenue.toLocaleString()}`,
+            icon: TrendingUp,
+            color: "text-primary",
+          },
+        ].map((stat, idx) => (
           <motion.div
-            key={customer.id}
-            className="bg-background rounded-xl relative overflow-hidden p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
-            initial={{ opacity: 0, y: 20 }}
+            key={idx}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
+            transition={{ delay: idx * 0.05 }}
+            className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow"
           >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-backgroundfrom-luxury-400 to-primary rounded-full flex items-center justify-center">
-                  <span className="text-white font-medium">
-                    {(customer?.firstName?.[0] || "M") +
-                      (customer?.lastName?.[0] || "B")}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground ">
-                    {(customer?.firstName || "Random") +
-                      " " +
-                      (customer?.lastName || "")}
-                  </h3>
-                  <p className="text-sm text-foreground ">{customer.email}</p>
-                </div>
-              </div>
-              <span
-                className={`flex gap-1 absolute right-2 top-2 items-center px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                  customer?.status
-                )}`}
-              >
-                {getStatusIcon(customer.status)}
-                <span className="mr-1 capitalize">{customer.status}</span>
+            <div className="flex justify-between items-start mb-2">
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                {stat.label}
               </span>
+              <stat.icon className={`w-4 h-4 ${stat.color}`} />
             </div>
-
-            <div className="space-y-3 mb-4">
-              <div className="flex items-center text-sm text-foreground ">
-                <Phone className="w-4 h-4 mr-2" />
-                {customer.phoneNumber}
-              </div>
-              <div className="flex items-center text-sm text-foreground ">
-                <MapPin className="w-4 h-4 mr-2" />
-                {/* {customer?.location | "Not available"} */} Not Availabe
-              </div>
-              <div className="flex items-center text-sm text-foreground ">
-                <Calendar className="w-4 h-4 mr-2" />
-                Joined{" "}
-                {customer.createdAt
-                  ? new Date(Number(customer.createdAt)).toLocaleDateString()
-                  : "N/A"}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <div className="text-center p-3 bg-background rounded-lg">
-                <p className="text-lg font-bold text-foreground ">
-                  {customer.stats.totalOrders}
-                </p>
-                <p className="text-xs text-foreground ">Total Orders</p>
-              </div>
-              <div className="text-center p-3 bg-background rounded-lg">
-                <p className="text-lg font-bold text-primary ">
-                  AED {customer.stats.totalSpent.toLocaleString()}
-                  {/* AED {customer.stats.totalSpent.toLocaleString()} */}
-                </p>
-                <p className="text-xs text-foreground ">Total Spent</p>
-              </div>
-            </div>
-
-            <div className="space-y-2 mb-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-foreground ">Avg Order Value:</span>
-                <span className="font-medium">
-                  AED{" "}
-                  {customer.stats.totalOrders
-                    ? Math.round(
-                        customer.stats.totalSpent / customer.stats.totalOrders
-                      )
-                    : 0}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-foreground ">Loyalty Points:</span>
-                <span className="font-medium text-primary ">
-                  {/* {customer.loyaltyPoints} 0 pts */} 0 pts
-                </span>
-              </div>
-              {/* <div className="flex justify-between text-sm">
-                <span className="text-foreground ">Preferred Category:</span>
-                <span className="font-medium">
-                  {customer.preferredCategory}
-                </span>
-              </div> */}
-              <div className="flex justify-between text-sm">
-                <span className="text-foreground ">Last Order:</span>
-                <span className="font-medium">
-                  {customer.lastOrder
-                    ? new Date(
-                        Number(customer.lastOrder.createdAt)
-                      ).toLocaleDateString()
-                    : "N/A"}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex justify-between items-center space-x-2">
-              {/* <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 bg-transparent"
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                View Profile
-              </Button> */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  window.location.href = `mailto:${customer.email}`;
-                }}
-              >
-                <Mail className="w-4 h-4" />
-              </Button>
-
-              <Button
-                onClick={() => {
-                  selectedCustomerId === customer.id
-                    ? setSelectedCustomerId(null) // Close the menu if it's already open
-                    : setSelectedCustomerId(customer.id); // Open the menu for the selected user
-                }}
-                variant="ghost"
-                size="sm"
-              >
-                <MoreHorizontal className="w-4 h-4" />
-              </Button>
-              {selectedCustomerId === customer.id && ( // Only show the menu for the selected user
-                <div className="absolute flex flex-col gap-1 p-4 shadow right-6 bottom-14 bg-background border border-border  rounded-lg z-10">
-                  <span
-                    onClick={() => handleMakeAdmin(customer.id)}
-                    className="text-sm text-foreground  mb-2 cursor-pointer hover:scale-105 transition-transform"
-                  >
-                    Make Admin
-                  </span>
-                  <span
-                    onClick={() => handleDelete(customer?.id)}
-                    className="text-sm text-red-600 cursor-pointer hover:scale-105 transition-transform"
-                  >
-                    Delete User
-                  </span>
-                </div>
-              )}
-            </div>
+            <span
+              className="text-lg font-bold text-foreground truncate"
+              title={String(stat.value)}
+            >
+              {stat.value}
+            </span>
           </motion.div>
         ))}
       </div>
 
-      {filteredCustomers.length === 0 && (
-        <div className="text-center py-12">
-          <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-foreground  mb-2">
+      {/* Controls Bar */}
+      <div className="bg-card border border-border rounded-xl p-4 flex flex-col lg:flex-row gap-4 items-center justify-between shadow-sm">
+        <div className="relative w-full lg:max-w-md group">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <Input
+            placeholder="Search by name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 bg-background border-border"
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="h-10 px-3 bg-background border border-border rounded-lg text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none cursor-pointer"
+          >
+            <option value="all">All Statuses</option>
+            <option value="VIP">VIP</option>
+            <option value="REGULAR">Regular</option>
+            <option value="NEW">New</option>
+          </select>
+
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="h-10 px-3 bg-background border border-border rounded-lg text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none cursor-pointer"
+          >
+            <option value="name">Sort by Name</option>
+            <option value="totalSpent">Highest Spenders</option>
+            <option value="totalOrders">Most Orders</option>
+            <option value="joinDate">Newest Members</option>
+          </select>
+
+          <Button variant="outline" size="sm" className="h-10 bg-background">
+            <Filter className="w-4 h-4 mr-2" /> More
+          </Button>
+        </div>
+      </div>
+
+      {/* Content Grid */}
+      {loading ? (
+        <CustomerSkeleton />
+      ) : filteredCustomers.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 bg-muted/20 rounded-xl border border-dashed border-border">
+          <Users className="w-12 h-12 text-muted-foreground/50 mb-4" />
+          <h3 className="text-lg font-semibold text-foreground">
             No customers found
           </h3>
-          <p className="text-foreground ">
-            Try adjusting your search or filter criteria
+          <p className="text-muted-foreground">
+            Try adjusting your filters or search terms.
           </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {paginatedCustomers.map((customer: any) => (
+            <motion.div
+              key={customer.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="group bg-card border border-border rounded-xl p-6 shadow-sm hover:border-primary/30 hover:shadow-md transition-all relative"
+            >
+              {/* Card Header */}
+              <div className="flex justify-between items-start mb-6">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center text-lg font-bold border border-primary/20">
+                    {customer.firstName?.[0] || "U"}
+                    {customer.lastName?.[0] || ""}
+                  </div>
+                  <div>
+                    <h3
+                      className="font-bold text-foreground truncate max-w-[150px]"
+                      title={`${customer.firstName} ${customer.lastName}`}
+                    >
+                      {customer.firstName} {customer.lastName}
+                    </h3>
+                    <p
+                      className="text-xs text-muted-foreground truncate max-w-[150px]"
+                      title={customer.email}
+                    >
+                      {customer.email}
+                    </p>
+                  </div>
+                </div>
+                <StatusBadge status={customer.status} />
+              </div>
+
+              {/* Stats Row */}
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <div className="bg-muted/40 p-3 rounded-lg text-center">
+                  <p className="text-xl font-bold text-foreground">
+                    {customer.stats.totalOrders}
+                  </p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                    Orders
+                  </p>
+                </div>
+                <div className="bg-muted/40 p-3 rounded-lg text-center">
+                  <p className="text-xl font-bold text-primary">
+                    {/* Compact currency formatter */}
+                    {new Intl.NumberFormat("en-AE", {
+                      style: "currency",
+                      currency: "AED",
+                      maximumFractionDigits: 0,
+                    }).format(customer.stats.totalSpent)}
+                  </p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                    Spent
+                  </p>
+                </div>
+              </div>
+
+              {/* Details List */}
+              <div className="space-y-3 text-sm text-muted-foreground mb-6">
+                <div className="flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>{customer.phoneNumber || "No phone provided"}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>Not Available</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>
+                    Joined{" "}
+                    {new Date(Number(customer.createdAt)).toLocaleDateString()}
+                  </span>
+                </div>
+              </div>
+
+              {/* Actions Footer */}
+              <div className="pt-4 border-t border-border flex items-center justify-between">
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2 hover:text-primary hover:bg-primary/10"
+                    onClick={() =>
+                      (window.location.href = `mailto:${customer.email}`)
+                    }
+                  >
+                    <Mail className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                <div
+                  className="relative"
+                  ref={activeMenuId === customer.id ? menuRef : null}
+                >
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={`h-8 w-8 p-0 ${
+                      activeMenuId === customer.id ? "bg-muted" : ""
+                    }`}
+                    onClick={() =>
+                      setActiveMenuId(
+                        activeMenuId === customer.id ? null : customer.id
+                      )
+                    }
+                  >
+                    <MoreHorizontal className="w-4 h-4" />
+                  </Button>
+
+                  <AnimatePresence>
+                    {activeMenuId === customer.id && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                        className="absolute right-0 bottom-full mb-2 w-48 bg-popover border border-border rounded-lg shadow-xl z-50 overflow-hidden"
+                      >
+                        <button
+                          onClick={() => handleMakeAdmin(customer.id)}
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-muted flex items-center gap-2 text-foreground transition-colors"
+                        >
+                          <Shield className="w-4 h-4" /> Make Admin
+                        </button>
+                        <button
+                          onClick={() => handleDelete(customer.id)}
+                          className="w-full text-left px-4 py-2.5 text-sm hover:bg-destructive/10 text-destructive flex items-center gap-2 transition-colors border-t border-border"
+                        >
+                          <Trash2 className="w-4 h-4" /> Delete User
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
       )}
 
       {/* Pagination */}
       {filteredCustomers.length > 0 && (
-        <div className="flex items-center justify-between mt-6">
-          <p className="text-sm text-foreground ">
-            Showing {(currentPage - 1) * pageSize + 1}–
-            {Math.min(currentPage * pageSize, filteredCustomers.length)} of{" "}
-            {filteredCustomers.length} customers
+        <div className="flex items-center justify-between border-t border-border pt-4">
+          <p className="text-sm text-muted-foreground">
+            Showing{" "}
+            <span className="font-medium text-foreground">
+              {(currentPage - 1) * pageSize + 1}
+            </span>{" "}
+            to{" "}
+            <span className="font-medium text-foreground">
+              {Math.min(currentPage * pageSize, filteredCustomers.length)}
+            </span>{" "}
+            of{" "}
+            <span className="font-medium text-foreground">
+              {filteredCustomers.length}
+            </span>{" "}
+            results
           </p>
-          <div className="flex items-center space-x-2">
+
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              className="bg-background hover:bg-muted"
             >
-              Previous
+              <ChevronLeft className="w-4 h-4 mr-1" /> Prev
             </Button>
 
-            {/* Page numbers */}
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <Button
-                key={page}
-                variant="outline"
-                size="sm"
-                className={
-                  page === currentPage ? "bg-foreground 0 text-white" : ""
-                }
-                onClick={() => setCurrentPage(page)}
-              >
-                {page}
-              </Button>
-            ))}
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              // Logic to show a sliding window of pages could be added here
+              const pageNum = i + 1;
+              return (
+                <Button
+                  key={pageNum}
+                  variant={currentPage === pageNum ? "luxury" : "ghost"}
+                  size="sm"
+                  onClick={() => setCurrentPage(pageNum)}
+                  className="w-8 h-8 p-0"
+                >
+                  {pageNum}
+                </Button>
+              );
+            })}
 
             <Button
               variant="outline"
               size="sm"
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              className="bg-background hover:bg-muted"
             >
-              Next
+              Next <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
         </div>

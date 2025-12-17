@@ -25,8 +25,7 @@ export const UserResolvers = {
         const allUsers = await prisma.user.findMany({
           where: { role: { in: ["USER", "GUEST"] } },
         });
-        if (!allUsers || allUsers.length === 0)
-          throw new Error("No users found");
+        if (!allUsers || allUsers.length === 0) return allUsers;
 
         //  Cache all users
         await redis.set("allUsers", JSON.stringify(allUsers), { ex: 60 * 5 });

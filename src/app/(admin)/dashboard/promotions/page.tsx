@@ -17,13 +17,34 @@ import {
   CheckCircle,
   XCircle,
   MoreHorizontal,
+  Calendar,
+  AlertCircle,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../../../../components/ui/Button";
 import { Input } from "../../../../components/ui/Input";
+import { toast } from "sonner";
+import { CreatePromotionModal } from "@/src/components/dashboard/CreatePromotionModal";
 
-// Mock promotions data
-const mockPromotions = [
+// --- Types ---
+export interface Promotion {
+  id: string;
+  name: string;
+  description: string;
+  type: "percentage" | "fixed" | "buy_x_get_y";
+  value: number;
+  code: string;
+  startDate: string;
+  endDate: string;
+  status: "active" | "scheduled" | "expired" | "paused";
+  usageLimit: number;
+  usageCount: number;
+  minOrderValue: number;
+  revenue: number;
+}
+
+// --- Mock Data (Replace with API call) ---
+const initialPromotions: Promotion[] = [
   {
     id: "1",
     name: "Valentine's Day Special",
@@ -37,7 +58,6 @@ const mockPromotions = [
     usageLimit: 500,
     usageCount: 234,
     minOrderValue: 200,
-    categories: ["roses", "premium-bouquets"],
     revenue: 15680,
   },
   {
@@ -53,7 +73,6 @@ const mockPromotions = [
     usageLimit: 200,
     usageCount: 0,
     minOrderValue: 150,
-    categories: ["chocolates"],
     revenue: 0,
   },
   {
@@ -69,413 +88,358 @@ const mockPromotions = [
     usageLimit: 1000,
     usageCount: 456,
     minOrderValue: 100,
-    categories: ["all"],
     revenue: 22800,
-  },
-  {
-    id: "4",
-    name: "Summer Flash Sale",
-    description: "30% off on seasonal arrangements",
-    type: "percentage",
-    value: 30,
-    code: "SUMMER30",
-    startDate: "2024-06-01",
-    endDate: "2024-06-15",
-    status: "expired",
-    usageLimit: 300,
-    usageCount: 287,
-    minOrderValue: 180,
-    categories: ["seasonal", "mixed-arrangements"],
-    revenue: 18450,
   },
 ];
 
+// --- Helper Components ---
+const StatusBadge = ({ status }: { status: string }) => {
+  const styles = {
+    active: "bg-green-500/10 text-green-600 border-green-500/20",
+    scheduled: "bg-blue-500/10 text-blue-600 border-blue-500/20",
+    expired: "bg-destructive/10 text-destructive border-destructive/20",
+    paused: "bg-orange-500/10 text-orange-600 border-orange-500/20",
+    default: "bg-muted text-muted-foreground border-border",
+  };
+
+  const icons = {
+    active: CheckCircle,
+    scheduled: Clock,
+    expired: XCircle,
+    paused: AlertCircle,
+    default: Tag,
+  };
+
+  const style = styles[status as keyof typeof styles] || styles.default;
+  const Icon = icons[status as keyof typeof icons] || icons.default;
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize ${style}`}
+    >
+      <Icon className="w-3.5 h-3.5" />
+      {status}
+    </span>
+  );
+};
+
 export default function PromotionsPage() {
+  const [promotions, setPromotions] = useState<Promotion[]>(initialPromotions);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
+  // Filter Logic
   const filteredPromotions = useMemo(() => {
-    return mockPromotions.filter((promotion) => {
+    return promotions.filter((promotion) => {
       const matchesSearch =
         promotion.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        promotion.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        promotion.description.toLowerCase().includes(searchTerm.toLowerCase());
+        promotion.code.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus =
         statusFilter === "all" || promotion.status === statusFilter;
       const matchesType = typeFilter === "all" || promotion.type === typeFilter;
       return matchesSearch && matchesStatus && matchesType;
     });
-  }, [searchTerm, statusFilter, typeFilter]);
+  }, [promotions, searchTerm, statusFilter, typeFilter]);
 
+  // Stats Logic
   const stats = useMemo(() => {
     return {
-      total: mockPromotions.length,
-      active: mockPromotions.filter((p) => p.status === "active").length,
-      scheduled: mockPromotions.filter((p) => p.status === "scheduled").length,
-      expired: mockPromotions.filter((p) => p.status === "expired").length,
-      totalRevenue: mockPromotions.reduce((sum, p) => sum + p.revenue, 0),
-      totalUsage: mockPromotions.reduce((sum, p) => sum + p.usageCount, 0),
+      total: promotions.length,
+      active: promotions.filter((p) => p.status === "active").length,
+      scheduled: promotions.filter((p) => p.status === "scheduled").length,
+      expired: promotions.filter((p) => p.status === "expired").length,
+      totalRevenue: promotions.reduce((sum, p) => sum + p.revenue, 0),
+      totalUsage: promotions.reduce((sum, p) => sum + p.usageCount, 0),
     };
-  }, []);
+  }, [promotions]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-100 text-green-800";
-      case "scheduled":
-        return "bg-blue-100 text-blue-800";
-      case "expired":
-        return "bg-background  text-gray-800";
-      case "paused":
-        return "bg-yellow-100 text-yellow-800";
-      default:
-        return "bg-background  text-gray-800";
+  // Handlers
+  const handleDelete = (id: string) => {
+    if (confirm("Are you sure you want to delete this promotion?")) {
+      setPromotions((prev) => prev.filter((p) => p.id !== id));
+      toast.success("Promotion deleted successfully");
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "active":
-        return <CheckCircle className="w-4 h-4" />;
-      case "scheduled":
-        return <Clock className="w-4 h-4" />;
-      case "expired":
-        return <XCircle className="w-4 h-4" />;
-      default:
-        return <Clock className="w-4 h-4" />;
-    }
-  };
-
-  const getTypeIcon = (type: string) => {
-    switch (type) {
-      case "percentage":
-        return <Percent className="w-4 h-4" />;
-      case "fixed":
-        return <Tag className="w-4 h-4" />;
-      case "buy_x_get_y":
-        return <Gift className="w-4 h-4" />;
-      default:
-        return <Tag className="w-4 h-4" />;
-    }
-  };
-
-  const formatPromotionValue = (type: string, value: number) => {
-    switch (type) {
-      case "percentage":
-        return `${value}% off`;
-      case "fixed":
-        return `AED ${value} off`;
-      case "buy_x_get_y":
-        return `Buy 2 get ${value} free`;
-      default:
-        return `${value}`;
-    }
+  const handleCreate = (newPromo: Promotion) => {
+    setPromotions((prev) => [newPromo, ...prev]);
+    setIsCreateModalOpen(false);
+    toast.success("Promotion created successfully");
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-20">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-cormorant font-bold text-foreground ">
+          <h1 className="text-3xl md:text-4xl font-cormorant font-bold text-foreground">
             Promotions & Offers
           </h1>
-          <p className="text-foreground  mt-2">
-            Create and manage discount campaigns
+          <p className="text-muted-foreground mt-2">
+            Create and manage discount campaigns to boost sales.
           </p>
         </div>
-        <div className="flex items-center space-x-4 mt-4 lg:mt-0">
-          <Button variant="outline">
-            <TrendingUp className="w-4 h-4 mr-2" />
-            Analytics
+        <div className="flex flex-wrap gap-3">
+          <Button variant="outline" className="bg-background">
+            <TrendingUp className="w-4 h-4 mr-2" /> Analytics
           </Button>
-          <Button variant="luxury">
-            <Plus className="w-4 h-4 mr-2" />
-            Create Promotion
+          <Button variant="luxury" onClick={() => setIsCreateModalOpen(true)}>
+            <Plus className="w-4 h-4 mr-2" /> Create Promotion
           </Button>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
-        <motion.div
-          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-foreground ">Total Promotions</p>
-              <p className="text-xl font-bold text-foreground ">
-                {stats.total}
-              </p>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        {[
+          {
+            label: "Total Campaigns",
+            value: stats.total,
+            icon: Tag,
+            color: "text-primary",
+          },
+          {
+            label: "Active",
+            value: stats.active,
+            icon: CheckCircle,
+            color: "text-green-600",
+          },
+          {
+            label: "Scheduled",
+            value: stats.scheduled,
+            icon: Clock,
+            color: "text-blue-600",
+          },
+          {
+            label: "Expired",
+            value: stats.expired,
+            icon: XCircle,
+            color: "text-destructive",
+          },
+          {
+            label: "Redemptions",
+            value: stats.totalUsage,
+            icon: Users,
+            color: "text-purple-600",
+          },
+          {
+            label: "Revenue",
+            value: `AED ${stats.totalRevenue.toLocaleString()}`,
+            icon: TrendingUp,
+            color: "text-primary",
+          },
+        ].map((stat, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.05 }}
+            className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow"
+          >
+            <div className="flex justify-between items-start mb-2">
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                {stat.label}
+              </span>
+              <stat.icon className={`w-4 h-4 ${stat.color}`} />
             </div>
-            <Tag className="w-6 h-6 text-blue-500" />
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-foreground ">Active</p>
-              <p className="text-xl font-bold text-green-600">{stats.active}</p>
-            </div>
-            <CheckCircle className="w-6 h-6 text-green-500" />
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-foreground ">Scheduled</p>
-              <p className="text-xl font-bold text-blue-600">
-                {stats.scheduled}
-              </p>
-            </div>
-            <Clock className="w-6 h-6 text-blue-500" />
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-foreground ">Expired</p>
-              <p className="text-xl font-bold text-foreground ">
-                {stats.expired}
-              </p>
-            </div>
-            <XCircle className="w-6 h-6 text-foreground " />
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-foreground ">Total Usage</p>
-              <p className="text-xl font-bold text-purple-600">
-                {stats.totalUsage}
-              </p>
-            </div>
-            <Users className="w-6 h-6 text-purple-500" />
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-background rounded-xl p-4 shadow-sm border border-gray-100"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-foreground ">Revenue Impact</p>
-              <p className="text-xl font-bold text-primary ">
-                AED {stats.totalRevenue.toLocaleString()}
-              </p>
-            </div>
-            <TrendingUp className="w-6 h-6 text-primary " />
-          </div>
-        </motion.div>
+            <span
+              className="text-lg font-bold text-foreground truncate"
+              title={String(stat.value)}
+            >
+              {stat.value}
+            </span>
+          </motion.div>
+        ))}
       </div>
 
-      {/* Filters */}
-      <motion.div
-        className="bg-background rounded-xl p-6 shadow-sm border border-gray-100"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.6 }}
-      >
-        <div className="flex flex-col lg:flex-row gap-4">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Search promotions..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
+      {/* Filters Bar */}
+      <div className="bg-card border border-border rounded-xl p-4 flex flex-col lg:flex-row gap-4 items-center justify-between shadow-sm">
+        <div className="relative w-full lg:max-w-md group">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <Input
+            placeholder="Search by name or code..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 bg-background border-border"
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+            className="h-10 px-3 bg-background border border-border rounded-lg text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none cursor-pointer"
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
             <option value="scheduled">Scheduled</option>
             <option value="expired">Expired</option>
-            <option value="paused">Paused</option>
           </select>
+
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-4 py-3 border border-border  rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+            className="h-10 px-3 bg-background border border-border rounded-lg text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none cursor-pointer"
           >
             <option value="all">All Types</option>
             <option value="percentage">Percentage</option>
             <option value="fixed">Fixed Amount</option>
             <option value="buy_x_get_y">Buy X Get Y</option>
           </select>
-          <Button variant="outline">
-            <Filter className="w-4 h-4 mr-2" />
-            More Filters
+
+          <Button variant="outline" size="sm" className="h-10 bg-background">
+            <Filter className="w-4 h-4 mr-2" /> Filters
           </Button>
         </div>
-      </motion.div>
-
-      {/* Promotions Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {filteredPromotions.map((promotion, index) => (
-          <motion.div
-            key={promotion.id}
-            className="bg-background rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
-          >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-start space-x-3">
-                <div className="p-2 rounded-lg bg-foreground ">
-                  {getTypeIcon(promotion.type)}
-                </div>
-                <div>
-                  <h3 className="font-semibold text-foreground ">
-                    {promotion.name}
-                  </h3>
-                  <p className="text-sm text-foreground  mt-1">
-                    {promotion.description}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span
-                  className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                    promotion.status
-                  )}`}
-                >
-                  {getStatusIcon(promotion.status)}
-                  <span className="ml-1 capitalize">{promotion.status}</span>
-                </span>
-                <Button variant="ghost" size="sm">
-                  <MoreHorizontal className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div className="space-y-3 mb-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground ">Discount:</span>
-                <span className="font-medium text-primary ">
-                  {formatPromotionValue(promotion.type, promotion.value)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground ">Code:</span>
-                <span className="font-mono text-sm bg-background  px-2 py-1 rounded">
-                  {promotion.code}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground ">Valid Period:</span>
-                <span className="text-sm font-medium">
-                  {new Date(promotion.startDate).toLocaleDateString()} -{" "}
-                  {new Date(promotion.endDate).toLocaleDateString()}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground ">Min Order:</span>
-                <span className="text-sm font-medium">
-                  AED {promotion.minOrderValue}
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-3 mb-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground ">Usage:</span>
-                <span className="text-sm font-medium">
-                  {promotion.usageCount} / {promotion.usageLimit}
-                </span>
-              </div>
-              <div className="w-full h-2 bg-gray-200 rounded-full">
-                <div
-                  className="h-2 bg-foreground 0 rounded-full"
-                  style={{
-                    width: `${
-                      (promotion.usageCount / promotion.usageLimit) * 100
-                    }%`,
-                  }}
-                ></div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground ">
-                  Revenue Impact:
-                </span>
-                <span className="text-sm font-medium text-green-600">
-                  AED {promotion.revenue.toLocaleString()}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 bg-transparent"
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                View Details
-              </Button>
-              <Button variant="ghost" size="sm">
-                <Edit className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-          </motion.div>
-        ))}
       </div>
 
-      {filteredPromotions.length === 0 && (
-        <div className="text-center py-12">
-          <Tag className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-foreground  mb-2">
+      {/* Promotions Grid */}
+      {filteredPromotions.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 bg-muted/20 rounded-xl border border-dashed border-border text-center">
+          <Tag className="w-12 h-12 text-muted-foreground/50 mb-4" />
+          <h3 className="text-lg font-semibold text-foreground">
             No promotions found
           </h3>
-          <p className="text-foreground ">
-            Try adjusting your search or filter criteria
+          <p className="text-muted-foreground mt-1">
+            Try adjusting your filters or create a new campaign.
           </p>
         </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {filteredPromotions.map((promotion, idx) => (
+            <motion.div
+              key={promotion.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              className="bg-card border border-border rounded-xl p-6 shadow-sm hover:border-primary/30 transition-all relative group"
+            >
+              {/* Header */}
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex gap-4">
+                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    {promotion.type === "percentage" ? (
+                      <Percent className="w-6 h-6" />
+                    ) : promotion.type === "fixed" ? (
+                      <Tag className="w-6 h-6" />
+                    ) : (
+                      <Gift className="w-6 h-6" />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-foreground text-lg">
+                      {promotion.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {promotion.description}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <StatusBadge status={promotion.status} />
+                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Details Grid */}
+              <div className="grid grid-cols-2 gap-y-4 gap-x-8 mb-6 py-4 border-y border-border/50">
+                <div className="flex flex-col">
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                    Discount
+                  </span>
+                  <span className="font-semibold text-primary">
+                    {promotion.type === "percentage"
+                      ? `${promotion.value}% OFF`
+                      : promotion.type === "fixed"
+                      ? `AED ${promotion.value} OFF`
+                      : `Buy 2 Get ${promotion.value}`}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                    Code
+                  </span>
+                  <code className="font-mono font-medium text-foreground bg-muted px-2 py-0.5 rounded w-fit">
+                    {promotion.code}
+                  </code>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                    Duration
+                  </span>
+                  <span className="text-sm font-medium text-foreground">
+                    {new Date(promotion.startDate).toLocaleDateString()} -{" "}
+                    {new Date(promotion.endDate).toLocaleDateString()}
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                    Min Order
+                  </span>
+                  <span className="text-sm font-medium text-foreground">
+                    AED {promotion.minOrderValue}
+                  </span>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="mb-6">
+                <div className="flex justify-between text-xs mb-1.5">
+                  <span className="text-muted-foreground">
+                    Usage (
+                    {Math.round(
+                      (promotion.usageCount / promotion.usageLimit) * 100
+                    )}
+                    %)
+                  </span>
+                  <span className="font-medium text-foreground">
+                    {promotion.usageCount} / {promotion.usageLimit}
+                  </span>
+                </div>
+                <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary rounded-full"
+                    style={{
+                      width: `${Math.min(
+                        (promotion.usageCount / promotion.usageLimit) * 100,
+                        100
+                      )}%`,
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1 bg-background">
+                  <Eye className="w-4 h-4 mr-2" /> Details
+                </Button>
+                <Button variant="outline" className="flex-1 bg-background">
+                  <Edit className="w-4 h-4 mr-2" /> Edit
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="px-3 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                  onClick={() => handleDelete(promotion.id)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       )}
+
+      {/* Modal */}
+      <CreatePromotionModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onCreate={handleCreate}
+      />
     </div>
   );
 }

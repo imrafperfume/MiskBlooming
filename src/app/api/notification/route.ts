@@ -2,12 +2,13 @@ import { prisma } from "@/src/lib/db";
 
 export async function GET(req: Request) {
   let lastId: string | null = null;
+  const encoder = new TextEncoder();
+  let closed = false;
 
   const stream = new ReadableStream({
-    async start(controller) {
+    start(controller) {
       const interval = setInterval(async () => {
-        // Stop if client disconnected
-        if (req.signal.aborted) {
+        if (closed || req.signal.aborted) {
           clearInterval(interval);
           try {
             controller.close();
@@ -16,52 +17,43 @@ export async function GET(req: Request) {
         }
 
         try {
-          // Safe lastId handling
           const where = lastId ? { id: { gt: lastId } } : {};
+
           const notifications = await prisma.notification.findMany({
             where,
             orderBy: { createdAt: "asc" },
           });
 
-          // Send each notification to client
           for (const n of notifications) {
-            if (req.signal.aborted) break;
+            if (req.signal.aborted || closed) break;
+
             controller.enqueue(
-              new TextEncoder().encode(
-                `data: ${JSON.stringify({
-                  id: n.id,
-                  type: n.type,
-                  message: n.message,
-                  read: n.read,
-                  createdAt: n.createdAt,
-                  orderId: n.orderId,
-                })}\n\n`
-              )
+              encoder.encode(`data: ${JSON.stringify(n)}\n\n`)
             );
+
             lastId = n.id;
           }
         } catch (err) {
-          console.error("SSE Error:", err);
-          // Optional: send error to client
-          controller.enqueue(
-            new TextEncoder().encode(
-              `data: ${JSON.stringify({
-                error: "Failed to fetch notifications",
-              })}\n\n`
-            )
-          );
+          if (!req.signal.aborted) {
+            console.error("SSE Error:", err);
+          }
         }
       }, 2000);
 
-      // Clean up on abort
-      req.signal.addEventListener("abort", () => clearInterval(interval));
+      req.signal.addEventListener("abort", () => {
+        closed = true;
+        clearInterval(interval);
+        try {
+          controller.close();
+        } catch {}
+      });
     },
   });
 
   return new Response(stream, {
     headers: {
       "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
+      "Cache-Control": "no-cache, no-transform",
       Connection: "keep-alive",
     },
   });
