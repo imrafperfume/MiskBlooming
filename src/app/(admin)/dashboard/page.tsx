@@ -17,73 +17,120 @@ import {
   Clock,
   CheckCircle,
   AlertTriangle,
+  Download,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "../../../components/ui/Button";
 import { useQuery } from "@apollo/client";
 import { DASHBOARD_METRICS } from "@/src/modules/dashboard/oprations";
 import Loading from "@/src/components/layout/Loading";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { toast } from "sonner";
+
+// --- Types ---
+interface DashboardMetrics {
+  totalRevenue: number;
+  revenueGrowth: number;
+  totalOrders: number;
+  ordersGrowth: number;
+  activeProducts: number;
+  productsGrowth: number;
+  totalCustomers: number;
+  customersGrowth: number;
+  pendingOrders: number;
+  lowStockItems: number;
+  newReviews: number;
+  completedToday: number;
+  recentOrders: any[];
+  topProducts: any[];
+}
+
+// --- Helper: Status Badges (Theme Compliant) ---
+const StatusBadge = ({ status }: { status: string }) => {
+  const s = status.toLowerCase();
+  let styles = "bg-muted text-muted-foreground"; // Default
+
+  if (s === "delivered" || s === "completed") {
+    styles = "bg-primary/10 text-primary border-primary/20";
+  } else if (s === "processing" || s === "shipped") {
+    styles = "bg-blue-500/10 text-blue-600 border-blue-500/20"; // kept subtle blue for distinction
+  } else if (s === "pending") {
+    styles = "bg-orange-500/10 text-orange-600 border-orange-500/20";
+  } else if (s === "cancelled") {
+    styles = "bg-destructive/10 text-destructive border-destructive/20";
+  }
+
+  return (
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${styles} capitalize`}
+    >
+      {status}
+    </span>
+  );
+};
 
 export default function AdminDashboard() {
   const [timeRange, setTimeRange] = useState(7);
   const router = useRouter();
+
   const { data, loading, error } = useQuery(DASHBOARD_METRICS, {
     fetchPolicy: "cache-and-network",
     variables: { timeRange },
+    onError: (err) => toast.error("Failed to load dashboard data"),
   });
 
-  if (loading) {
-    return <Loading />;
+  if (loading) return <Loading />;
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-6">
+        <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
+        <h2 className="text-xl font-bold text-foreground">
+          Failed to load dashboard
+        </h2>
+        <p className="text-muted-foreground mb-4">
+          There was an issue fetching the latest metrics.
+        </p>
+        <Button onClick={() => window.location.reload()} variant="outline">
+          Try Again
+        </Button>
+      </div>
+    );
   }
 
-  const recentOrders = data?.dashboardMetrics.recentOrders;
-  // console.log("🚀 ~ AdminDashboard ~ recentOrders:", recentOrders);
-  const topProducts = data?.dashboardMetrics.topProducts;
-  // console.log("🚀 ~ AdminDashboard ~ topProducts:", topProducts);
+  const metrics: DashboardMetrics = data?.dashboardMetrics || {};
+  const recentOrders = metrics.recentOrders || [];
+  const topProducts = metrics.topProducts || [];
 
+  // --- Stats Configuration ---
   const stats = [
     {
       name: "Total Revenue",
-      value: data?.dashboardMetrics?.totalRevenue.toLocaleString(),
-      change: `${data?.dashboardMetrics?.revenueGrowth.toFixed(1)}%`,
-      changeType:
-        data?.dashboardMetrics?.revenueGrowth >= 0 ? "increase" : "decrease",
+      value: `AED ${metrics.totalRevenue?.toLocaleString() ?? "0"}`,
+      change: metrics.revenueGrowth ?? 0,
       icon: DollarSign,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
       description: "vs last period",
     },
     {
-      name: "Orders",
-      value: data?.dashboardMetrics?.totalOrders.toLocaleString(),
-      change: `${data?.dashboardMetrics?.ordersGrowth.toFixed(1)}%`,
-      changeType:
-        data?.dashboardMetrics?.ordersGrowth >= 0 ? "increase" : "decrease",
+      name: "Total Orders",
+      value: metrics.totalOrders?.toLocaleString() ?? "0",
+      change: metrics.ordersGrowth ?? 0,
       icon: ShoppingCart,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      description: "total orders",
+      description: "orders placed",
     },
     {
-      name: "Products",
-      value: data?.dashboardMetrics?.activeProducts.toLocaleString(),
-      change: `${data?.dashboardMetrics?.productsGrowth.toFixed(1)}%`,
-      changeType:
-        data?.dashboardMetrics?.productsGrowth >= 0 ? "increase" : "decrease",
+      name: "Active Products",
+      value: metrics.activeProducts?.toLocaleString() ?? "0",
+      change: metrics.productsGrowth ?? 0,
       icon: Package,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-      description: "active products",
+      description: "in inventory",
     },
     {
-      name: "Customers",
-      value: data?.dashboardMetrics?.totalCustomers.toLocaleString(),
-      change: `${data?.dashboardMetrics?.customersGrowth.toFixed(1)}%`,
-      changeType:
-        data?.dashboardMetrics?.customersGrowth >= 0 ? "increase" : "decrease",
+      name: "Total Customers",
+      value: metrics.totalCustomers?.toLocaleString() ?? "0",
+      change: metrics.customersGrowth ?? 0,
       icon: Users,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
       description: "registered users",
     },
   ];
@@ -91,324 +138,353 @@ export default function AdminDashboard() {
   const quickStats = [
     {
       label: "Pending Orders",
-      value: data?.dashboardMetrics?.pendingOrders?.toLocaleString() || "0",
+      value: metrics.pendingOrders,
       icon: Clock,
-      color: "text-yellow-600",
+      alert: metrics.pendingOrders > 10,
     },
     {
       label: "Low Stock Items",
-      value: data?.dashboardMetrics?.lowStockItems?.toLocaleString() || "0",
+      value: metrics.lowStockItems,
       icon: AlertTriangle,
-      color: "text-red-600",
+      alert: metrics.lowStockItems > 0,
     },
     {
       label: "New Reviews",
-      value: data?.dashboardMetrics?.newReviews?.toLocaleString() || "0",
+      value: metrics.newReviews,
       icon: Star,
-      color: "text-blue-600",
+      alert: false,
     },
     {
       label: "Completed Today",
-      value: data?.dashboardMetrics?.completedToday?.toLocaleString() || "0",
+      value: metrics.completedToday,
       icon: CheckCircle,
-      color: "text-green-600",
+      alert: false,
     },
   ];
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "delivered":
-        return "bg-green-200 text-green-800";
-      case "shipped":
-        return "bg-blue-200 text-blue-800";
-      case "processing":
-        return "bg-yellow-200 text-yellow-800";
-      case "pending":
-        return "bg-gray-200 text-gray-800";
-      default:
-        return "bg-gray-200 text-gray-800";
+
+  const downloadReport = async () => {
+    try {
+      const res = await fetch(`/api/dashboard-report?days=${timeRange}`);
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `report-${timeRange}d-${
+        new Date().toISOString().split("T")[0]
+      }.pdf`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      toast.success("Report downloaded successfully");
+    } catch (e) {
+      toast.error("Could not download report");
     }
   };
-  // Handle report download
-  const downloadReport = async () => {
-    const res = await fetch(`/api/dashboard-report?days=${timeRange}`);
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `dashboard-report-${timeRange}-days.pdf`;
-    a.click();
-    window.URL.revokeObjectURL(url);
-  };
+
   return (
-    <div className="space-y-8 overflow-x-hidden w-full">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between">
+    <div className="space-y-8 w-full pb-10">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-cormorant font-bold text-foreground ">
-            Welcome back, Admin!
+          <h1 className="text-3xl md:text-4xl font-cormorant font-bold text-foreground tracking-tight">
+            Dashboard Overview
           </h1>
-          <p className="text-foreground  mt-2">
-            Here's what's happening with your flower shop today.
+          <p className="text-muted-foreground mt-2 text-sm md:text-base">
+            Track performance, manage orders, and analyze trends.
           </p>
         </div>
 
-        <div className="flex sm:flex-row flex-col sm:space-y-0 space-y-2 sm:items-center sm:space-x-4 mt-4 lg:mt-0">
-          <select
-            value={timeRange}
-            onChange={(e) => setTimeRange(parseInt(e.target.value))}
-            className="border border-border rounded-lg px-4 py-2 focus:ring-2 focus:ring-ring focus:border-transparent"
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <select
+              value={timeRange}
+              onChange={(e) => setTimeRange(parseInt(e.target.value))}
+              className="appearance-none bg-background border border-border text-foreground text-sm rounded-lg pl-4 pr-10 py-2.5 focus:ring-1 focus:ring-primary focus:border-primary cursor-pointer hover:bg-muted/50 transition-colors"
+            >
+              <option value={7}>Last 7 days</option>
+              <option value={30}>Last 30 days</option>
+              <option value={90}>Last 90 days</option>
+            </select>
+            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          </div>
+
+          <Button
+            onClick={downloadReport}
+            variant="outline"
+            className="h-10 border-border bg-background hover:bg-muted"
           >
-            <option value={7}>Last 7 days</option>
-            <option value={30}>Last 30 days</option>
-            <option value={90}>Last 90 days</option>
-          </select>
-          <Button onClick={downloadReport} variant="luxury">
-            <Calendar className="w-4 h-4 mr-2" />
-            Export Report
+            <Download className="w-4 h-4 mr-2" />
+            Export
           </Button>
         </div>
       </div>
 
       {/* Main Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <motion.div
-            key={stat.name}
-            className="bg-background rounded-2xl p-6 shadow-sm border border-border hover:shadow-md transition-shadow"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: index * 0.1 }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 rounded-xl ${stat.bgColor}`}>
-                <stat.icon className={`w-6 h-6 ${stat.color}`} />
-              </div>
-              <div className="flex items-center">
-                {stat.changeType === "increase" ? (
-                  <ArrowUpRight className="w-4 h-4 text-green-500 mr-1" />
-                ) : (
-                  <ArrowDownRight className="w-4 h-4 text-red-500 mr-1" />
-                )}
-                <span
-                  className={`text-sm font-medium ${
-                    stat.changeType === "increase"
-                      ? "text-green-600"
-                      : "text-red-600"
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {stats.map((stat, index) => {
+          const isPositive = stat.change >= 0;
+          return (
+            <motion.div
+              key={stat.name}
+              className="bg-card rounded-xl p-6 border border-border shadow-sm hover:shadow-md transition-shadow"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: index * 0.05 }}
+            >
+              <div className="flex justify-between items-start mb-4">
+                <div className="p-2.5 rounded-lg bg-primary/10 text-primary">
+                  <stat.icon className="w-5 h-5" />
+                </div>
+                <div
+                  className={`flex items-center px-2 py-1 rounded-md text-xs font-medium ${
+                    isPositive
+                      ? "bg-primary/10 text-primary"
+                      : "bg-destructive/10 text-destructive"
                   }`}
                 >
-                  {stat.change}
-                </span>
+                  {isPositive ? (
+                    <ArrowUpRight className="w-3 h-3 mr-1" />
+                  ) : (
+                    <ArrowDownRight className="w-3 h-3 mr-1" />
+                  )}
+                  {Math.abs(stat.change).toFixed(1)}%
+                </div>
               </div>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-foreground  mb-1">
-                {stat.value}
-              </p>
-              <p className="text-sm text-foreground ">{stat.name}</p>
-              <p className="text-xs text-foreground mt-1">{stat.description}</p>
-            </div>
-          </motion.div>
-        ))}
+              <div>
+                <h3 className="text-2xl font-bold text-foreground mb-1 tracking-tight">
+                  {stat.value}
+                </h3>
+                <p className="text-sm font-medium text-muted-foreground">
+                  {stat.name}
+                </p>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
 
-      {/* Quick Stats */}
+      {/* Quick Status Bar */}
       <motion.div
-        className="grid grid-cols-2 lg:grid-cols-4 gap-4"
-        initial={{ opacity: 0, y: 20 }}
+        className="grid grid-cols-2 md:grid-cols-4 gap-4"
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.4 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
       >
         {quickStats.map((stat, index) => (
           <div
             key={stat.label}
-            className="bg-background rounded-xl p-4 shadow-sm border border-border"
+            className="group flex items-center justify-between bg-card p-4 rounded-xl border border-border shadow-sm hover:border-primary/50 transition-colors"
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-lg font-bold text-foreground ">
-                  {stat.value}
-                </p>
-                <p className="text-sm text-foreground ">{stat.label}</p>
-              </div>
-              <stat.icon className={`w-5 h-5 ${stat.color}`} />
+            <div>
+              <p
+                className={`text-xl font-bold ${
+                  stat.alert ? "text-destructive" : "text-foreground"
+                }`}
+              >
+                {stat.value?.toLocaleString() || "0"}
+              </p>
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">
+                {stat.label}
+              </p>
             </div>
+            <stat.icon
+              className={`w-5 h-5 ${
+                stat.alert
+                  ? "text-destructive"
+                  : "text-muted-foreground group-hover:text-primary"
+              }`}
+            />
           </div>
         ))}
       </motion.div>
 
+      {/* Content Split: Orders & Products */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Recent Orders */}
         <motion.div
-          className="bg-background rounded-2xl shadow-sm border border-border"
-          initial={{ opacity: 0, x: -20 }}
+          className="bg-card rounded-xl shadow-sm border border-border flex flex-col"
+          initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <div className="sm:p-6 border-b border-border">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-foreground ">
-                Recent Orders
-              </h2>
-              <Button variant="outline" size="sm">
-                <Eye className="w-4 h-4 mr-2" />
-                View All
+          <div className="p-6 border-b border-border flex items-center justify-between">
+            <h2 className="text-xl font-cormorant font-bold text-foreground">
+              Recent Orders
+            </h2>
+            <Link href="/dashboard/orders">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-primary hover:text-primary hover:bg-primary/10"
+              >
+                View All <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
-            </div>
+            </Link>
           </div>
-          <div className="sm:p-6">
-            <div className="space-y-4">
-              {recentOrders?.map((order: any, index: any) => (
-                <motion.div
-                  key={order.id}
-                  className="flex items-center justify-between p-4 rounded-xl hover:bg-primary transition-colors"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                >
-                  <div className="flex flex-wrap items-center space-x-4">
-                    <div>
-                      <p className="font-medium text-sm sm:text-base text-foreground ">
-                        #{order.id}
-                      </p>
-                      <p className="text-sm text-foreground ">
-                        {order.customer.name}
-                      </p>
-                      <p className="text-xs text-foreground ">
-                        {order.product}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium text-foreground ">
-                      {order.amount}
-                    </p>
-                    <span
-                      className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
-                        order.status
-                      )}`}
+
+          <div className="p-4 flex-1 overflow-auto">
+            {recentOrders.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
+                <Package className="w-8 h-8 mb-2 opacity-50" />
+                <p>No recent orders found</p>
+              </div>
+            ) : (
+              <table className="w-full text-sm">
+                <tbody className="divide-y divide-border">
+                  {recentOrders.map((order: any) => (
+                    <tr
+                      key={order.id}
+                      className="group hover:bg-muted/40 transition-colors"
                     >
-                      {order.status}
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+                      <td className="py-3 px-2">
+                        <div className="font-medium text-foreground">
+                          #{order.id}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {order.customer?.name || "Guest"}
+                        </div>
+                      </td>
+                      <td className="py-3 px-2">
+                        <div className="text-foreground max-w-[120px] truncate">
+                          {order.product}
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 text-right">
+                        <div className="font-medium text-foreground">
+                          {order.amount}
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 text-right">
+                        <StatusBadge status={order.status} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </motion.div>
 
         {/* Top Products */}
         <motion.div
-          className="bg-background rounded-2xl shadow-sm border border-border"
-          initial={{ opacity: 0, x: 20 }}
+          className="bg-card rounded-xl shadow-sm border border-border flex flex-col"
+          initial={{ opacity: 0, x: 10 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
+          transition={{ duration: 0.5, delay: 0.35 }}
         >
-          <div className="sm:p-6 border-b border-border">
-            <h2 className="text-xl font-semibold text-foreground ">
-              Top Products
+          <div className="p-6 border-b border-border">
+            <h2 className="text-xl font-cormorant font-bold text-foreground">
+              Top Performing Products
             </h2>
           </div>
-          <div className="sm:p-6">
-            <div className="space-y-4 mt-4 sm:mt-0">
-              {topProducts?.map((product: any, index: any) => (
-                <motion.div
-                  key={product.name}
-                  className="flex items-center justify-between sm:p-4 py-1 sm:py-2 rounded-xl hover:bg-primary transition-colors"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.1 }}
-                >
-                  <div className="flex items-center  sm:space-x-4 space-x-2">
-                    <div className="w-10 h-10 bg-foreground rounded-lg flex items-center justify-center">
-                      <span className="text-primary font-medium text-sm">
+
+          <div className="p-4 flex-1 overflow-auto">
+            {topProducts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-48 text-muted-foreground">
+                <Package className="w-8 h-8 mb-2 opacity-50" />
+                <p>No sales data yet</p>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                {topProducts.map((product: any, index: number) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/40 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm font-bold">
                         {index + 1}
-                      </span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground text-sm">
+                          {product.name}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {product.sales} units sold
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-sm sm:text-base text-foreground ">
-                        {product.name}
+
+                    <div className="text-right">
+                      <p className="font-medium text-foreground text-sm">
+                        {product.revenue}
                       </p>
-                      <p className="text-sm text-foreground ">
-                        {product.sales} sales
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium text-foreground ">
-                      {product.revenue}
-                    </p>
-                    <div className="flex items-center">
-                      {product?.growthPercent > 0 ? (
-                        <TrendingUp className="w-3 h-3 text-green-500 mr-1" />
-                      ) : (
-                        <TrendingDown className="w-3 h-3 text-red-500 mr-1" />
-                      )}
-                      <span
-                        className={`text-xs ${
-                          product.growthPercent > 0
-                            ? "text-green-600"
-                            : "text-red-600"
+                      <div
+                        className={`flex items-center justify-end text-xs ${
+                          product.growthPercent >= 0
+                            ? "text-primary"
+                            : "text-destructive"
                         }`}
                       >
-                        {product.growthPercent > 0 ? "+" : ""}
-                        {product.growthPercent}%
-                      </span>
+                        {product.growthPercent >= 0 ? (
+                          <TrendingUp className="w-3 h-3 mr-1" />
+                        ) : (
+                          <TrendingDown className="w-3 h-3 mr-1" />
+                        )}
+                        {Math.abs(product.growthPercent)}%
+                      </div>
                     </div>
                   </div>
-                </motion.div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </motion.div>
       </div>
 
-      {/* Quick Actions */}
+      {/* Quick Action Tiles */}
       <motion.div
-        className="bg-background rounded-2xl shadow-sm border border-border p-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, delay: 0.7 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
       >
-        <h2 className="text-xl font-semibold text-foreground  mb-6">
-          Quick Actions
+        <h2 className="text-lg font-semibold text-foreground mb-4 pl-1">
+          Management Actions
         </h2>
-        <div className="grid grid-cols-1 overflow-hidden md:grid-cols-3 gap-4">
-          <Button
-            onClick={() => router.push("/dashboard/products/add")}
-            variant="outline"
-            className="justify-start h-auto p-6 bg-popover border-border "
-          >
-            <Package className="w-6 h-6 mr-4 text-blue-600" />
-            <div className="text-left overflow-hidden">
-              <p className="font-medium text-foreground ">Add New Product</p>
-              <p className="text-sm text-foreground ">
-                Create a new flower arrangement
-              </p>
-            </div>
-          </Button>
-          <Button
-            onClick={() => router.push("/dashboard/orders")}
-            variant="outline"
-            className="justify-start h-auto p-6 bg-popover border-border "
-          >
-            <ShoppingCart className="w-6 h-6 mr-4 text-green-600" />
-            <div className="text-left">
-              <p className="font-medium text-foreground ">Process Orders</p>
-              <p className="text-sm text-foreground ">Review pending orders</p>
-            </div>
-          </Button>
-          <Button
-            variant="outline"
-            className="justify-start h-auto p-6 bg-popover border-border "
-          >
-            <TrendingUp className="w-6 h-6 mr-4 text-purple-600" />
-            <div className="text-left">
-              <p className="font-medium text-foreground ">View Analytics</p>
-              <p className="text-sm text-foreground ">
-                Check performance metrics
-              </p>
-            </div>
-          </Button>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            {
+              title: "Add Product",
+              desc: "Create a new flower arrangement",
+              icon: Package,
+              action: () => router.push("/dashboard/products/add"),
+              color: "text-primary",
+            },
+            {
+              title: "Process Orders",
+              desc: "Review and manage pending orders",
+              icon: ShoppingCart,
+              action: () => router.push("/dashboard/orders"),
+              color: "text-primary",
+            },
+            {
+              title: "Analytics",
+              desc: "Deep dive into store performance",
+              icon: TrendingUp,
+              action: () => router.push("/dashboard/analytics"),
+              color: "text-primary",
+            },
+          ].map((item, i) => (
+            <button
+              key={i}
+              onClick={item.action}
+              className="flex items-start p-6 bg-card border border-border rounded-xl text-left hover:border-primary/50 hover:shadow-md transition-all group"
+            >
+              <div
+                className={`p-3 rounded-lg bg-muted group-hover:bg-primary/10 transition-colors mr-4 ${item.color}`}
+              >
+                <item.icon className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {item.desc}
+                </p>
+              </div>
+            </button>
+          ))}
         </div>
       </motion.div>
     </div>

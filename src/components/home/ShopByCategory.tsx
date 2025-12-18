@@ -12,7 +12,13 @@ import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import { useCategories } from "@/src/hooks/useCategories";
 
-const ShopByCategory = () => {
+const ShopByCategory = ({
+  caTitle,
+  caDesc,
+}: {
+  caTitle: string;
+  caDesc: string;
+}) => {
   const {
     data: categories,
     isLoading,
@@ -110,15 +116,15 @@ const ShopByCategory = () => {
             className="font-cormorant text-3xl sm:text-4xl font-bold text-primary  mb-4"
             {...motionProps.header}
           >
-            Shop by Category
+            {caTitle || "Shop by Category"}
           </motion.h2>
           <motion.p
             className="text-muted-foreground  text-base sm:text-lg max-w-2xl mx-auto"
             {...motionProps.header}
             transition={{ duration: 0.4, delay: 0.1 }}
           >
-            Discover our carefully curated collections of premium flowers,
-            gifts, and treats
+            {caDesc ||
+              "Explore our diverse range of categories to find the perfect blooms for every occasion."}
           </motion.p>
         </div>
 

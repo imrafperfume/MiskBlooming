@@ -16,6 +16,11 @@ import {
   Percent,
   DollarSign,
   Truck,
+  Ticket,
+  AlertCircle,
+  Clock,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import { Button } from "@/src/components/ui/Button";
 import { toast } from "sonner";
@@ -27,27 +32,123 @@ import {
 import { formatPrice } from "@/src/lib/utils";
 import { CreateCouponModal } from "@/src/components/dashboard/coupons/CreateCouponModal";
 import type { Coupon } from "@/src/types/coupon";
+import Link from "next/link";
+
+// --- Types & Interfaces ---
+interface StatCardProps {
+  label: string;
+  value: number | string;
+  icon: any;
+  colorClass: string;
+  bgClass: string;
+}
+
+// --- Helper Components ---
+const StatusBadge = ({ coupon }: { coupon: Coupon }) => {
+  const now = new Date();
+  const validFrom = new Date(coupon.validFrom);
+  const validUntil = new Date(coupon.validUntil);
+
+  if (!coupon.isActive) {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border">
+        <XCircle className="w-3 h-3" /> Inactive
+      </span>
+    );
+  }
+
+  if (now < validFrom) {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-600 border border-blue-500/20">
+        <Clock className="w-3 h-3" /> Scheduled
+      </span>
+    );
+  }
+
+  if (now > validUntil) {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-destructive/10 text-destructive border border-destructive/20">
+        <AlertCircle className="w-3 h-3" /> Expired
+      </span>
+    );
+  }
+
+  return (
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-600 border border-green-500/20">
+      <CheckCircle className="w-3 h-3" /> Active
+    </span>
+  );
+};
+
+const DiscountBadge = ({ type, value }: { type: string; value: number }) => {
+  const iconMap: Record<string, any> = {
+    PERCENTAGE: Percent,
+    FIXED_AMOUNT: DollarSign,
+    FREE_SHIPPING: Truck,
+  };
+  const Icon = iconMap[type] || DollarSign;
+
+  const displayValue =
+    type === "PERCENTAGE"
+      ? `${value}%`
+      : type === "FIXED_AMOUNT"
+      ? formatPrice(value)
+      : "Free Shipping";
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="p-1.5 rounded-md bg-primary/10 text-primary">
+        <Icon className="w-3.5 h-3.5" />
+      </div>
+      <span className="font-medium text-foreground">{displayValue}</span>
+    </div>
+  );
+};
+
+// --- Loading Skeleton ---
+const CouponSkeleton = () => (
+  <div className="space-y-6">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      {[1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          className="h-24 bg-card rounded-xl border border-border animate-pulse"
+        />
+      ))}
+    </div>
+    <div className="h-96 bg-card rounded-xl border border-border animate-pulse" />
+  </div>
+);
 
 export default function CouponsPage() {
   const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  // Assuming showEditModal logic is similar to create modal,
+  // currently Edit modal component is not imported but state exists
   const [showEditModal, setShowEditModal] = useState(false);
 
-  const { data, loading, error, refetch } = useQuery(GET_ALL_COUPONS);
+  const { data, loading, error, refetch } = useQuery(GET_ALL_COUPONS, {
+    notifyOnNetworkStatusChange: true,
+  });
+
   const [deleteCoupon] = useMutation(DELETE_COUPON);
   const [toggleCouponStatus] = useMutation(TOGGLE_COUPON_STATUS);
 
   const coupons: Coupon[] = data?.allCoupons || [];
 
   const handleDeleteCoupon = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this coupon?")) return;
-
+    if (
+      !confirm(
+        "Are you sure you want to delete this coupon? This action cannot be undone."
+      )
+    )
+      return;
     try {
       await deleteCoupon({ variables: { id } });
       toast.success("Coupon deleted successfully");
       refetch();
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message || "Failed to delete coupon");
     }
   };
 
@@ -57,356 +158,296 @@ export default function CouponsPage() {
       toast.success("Coupon status updated");
       refetch();
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(error.message || "Failed to update status");
     }
   };
 
   const copyCouponCode = (code: string) => {
     navigator.clipboard.writeText(code);
-    toast.success("Coupon code copied to clipboard");
+    toast.success("Code copied to clipboard");
   };
 
-  const getDiscountDisplay = (coupon: Coupon) => {
-    switch (coupon.discountType) {
-      case "PERCENTAGE":
-        return `${coupon.discountValue}%`;
-      case "FIXED_AMOUNT":
-        return `${formatPrice(coupon.discountValue)}`;
-      case "FREE_SHIPPING":
-        return "Free Shipping";
-      default:
-        return "N/A";
-    }
-  };
-
-  const getDiscountIcon = (type: string) => {
-    switch (type) {
-      case "PERCENTAGE":
-        return <Percent className="w-4 h-4" />;
-      case "FIXED_AMOUNT":
-        return <DollarSign className="w-4 h-4" />;
-      case "FREE_SHIPPING":
-        return <Truck className="w-4 h-4" />;
-      default:
-        return null;
-    }
-  };
-
-  const getStatusBadge = (coupon: Coupon) => {
-    const now = new Date();
-    const validFrom = new Date(coupon.validFrom);
-    const validUntil = new Date(coupon.validUntil);
-
-    if (!coupon.isActive) {
-      return (
-        <span className="px-2 py-1 text-xs font-medium bg-background  text-gray-800 rounded-full">
-          Inactive
-        </span>
-      );
-    }
-
-    if (now < validFrom) {
-      return (
-        <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-          Scheduled
-        </span>
-      );
-    }
-
-    if (now > validUntil) {
-      return (
-        <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full">
-          Expired
-        </span>
-      );
-    }
-
-    return (
-      <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-        Active
-      </span>
-    );
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-luxury-500"></div>
-      </div>
-    );
-  }
+  if (loading) return <CouponSkeleton />;
 
   if (error) {
     return (
-      <div className="text-center py-8">
-        <p className="text-red-600">Error loading coupons: {error.message}</p>
+      <div className="flex flex-col items-center justify-center min-h-[50vh] text-center p-6">
+        <AlertCircle className="w-12 h-12 text-destructive mb-4" />
+        <h2 className="text-xl font-bold text-foreground">
+          Failed to load coupons
+        </h2>
+        <p className="text-muted-foreground mb-4">{error.message}</p>
+        <Button onClick={() => refetch()} variant="outline">
+          Try Again
+        </Button>
       </div>
     );
   }
 
+  // Calculate Stats
+  const now = new Date();
+  const activeCount = coupons.filter(
+    (c) => c.isActive && new Date(c.validUntil) > now
+  ).length;
+  const expiredCount = coupons.filter(
+    (c) => new Date(c.validUntil) < now
+  ).length;
+  const totalUsage = coupons.reduce((sum, c) => sum + (c.usageCount || 0), 0);
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-wrap gap-4 items-center justify-between">
+    <div className="space-y-8 pb-10">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="font-cormorant text-3xl font-bold text-foreground ">
+          <h1 className="font-cormorant text-3xl md:text-4xl font-bold text-foreground tracking-tight">
             Coupon Management
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Manage discount coupons and promotional codes
+          <p className="text-muted-foreground mt-2">
+            Create and manage promotional codes and discounts.
           </p>
         </div>
         <Button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center space-x-2"
+          variant="luxury"
+          className="shadow-md hover:shadow-lg transition-all"
         >
-          <Plus className="w-4 h-4" />
-          <span>Create Coupon</span>
+          <Plus className="w-4 h-4 mr-2" />
+          Create New Coupon
         </Button>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <motion.div
-          className="bg-background p-6 rounded-lg shadow-sm border"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-        >
-          <div className="flex items-center justify-between">
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          {
+            label: "Total Coupons",
+            value: coupons.length,
+            icon: Ticket,
+            color: "text-primary",
+            bg: "bg-primary/10",
+          },
+          {
+            label: "Active Now",
+            value: activeCount,
+            icon: CheckCircle,
+            color: "text-green-600",
+            bg: "bg-green-500/10",
+          },
+          {
+            label: "Total Usage",
+            value: totalUsage,
+            icon: Users,
+            color: "text-purple-600",
+            bg: "bg-purple-500/10",
+          },
+          {
+            label: "Expired",
+            value: expiredCount,
+            icon: Clock,
+            color: "text-destructive",
+            bg: "bg-destructive/10",
+          },
+        ].map((stat, idx) => (
+          <motion.div
+            key={idx}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.05 }}
+            className="bg-card p-5 rounded-xl border border-border shadow-sm flex items-start justify-between hover:shadow-md transition-shadow"
+          >
             <div>
               <p className="text-sm font-medium text-muted-foreground">
-                Total Coupons
+                {stat.label}
               </p>
-              <p className="text-2xl font-bold text-foreground ">
-                {coupons.length}
-              </p>
+              <h3 className="text-2xl font-bold text-foreground mt-1">
+                {stat.value}
+              </h3>
             </div>
-            <div className="p-3 bg-blue-100 rounded-full">
-              <Percent className="w-6 h-6 text-blue-600" />
+            <div className={`p-2.5 rounded-lg ${stat.bg} ${stat.color}`}>
+              <stat.icon className="w-5 h-5" />
             </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-background p-6 rounded-lg shadow-sm border"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Active Coupons
-              </p>
-              <p className="text-2xl font-bold text-foreground ">
-                {
-                  coupons.filter(
-                    (c) => c.isActive && new Date(c.validUntil) > new Date()
-                  ).length
-                }
-              </p>
-            </div>
-            <div className="p-3 bg-green-100 rounded-full">
-              <ToggleRight className="w-6 h-6 text-green-600" />
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-background p-6 rounded-lg shadow-sm border"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Total Usage
-              </p>
-              <p className="text-2xl font-bold text-foreground ">
-                {coupons.reduce((sum, c) => sum + c.usageCount, 0)}
-              </p>
-            </div>
-            <div className="p-3 bg-purple-100 rounded-full">
-              <Users className="w-6 h-6 text-purple-600" />
-            </div>
-          </div>
-        </motion.div>
-
-        <motion.div
-          className="bg-background p-6 rounded-lg shadow-sm border"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">
-                Expired Coupons
-              </p>
-              <p className="text-2xl font-bold text-foreground ">
-                {
-                  coupons.filter((c) => new Date(c.validUntil) < new Date())
-                    .length
-                }
-              </p>
-            </div>
-            <div className="p-3 bg-red-100 rounded-full">
-              <Calendar className="w-6 h-6 text-red-600" />
-            </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        ))}
       </div>
 
-      {/* Coupons Table */}
+      {/* Main Table Card */}
       <motion.div
-        className="bg-background rounded-lg shadow-sm border"
+        className="bg-card rounded-xl shadow-sm border border-border overflow-hidden"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
+        transition={{ delay: 0.3 }}
       >
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-cream-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Coupon
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Discount
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Usage
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Validity
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            {coupons ? (
-              <tbody className="divide-y divide-cream-200">
-                {coupons.map((coupon, index) => (
-                  <motion.tr
+          {coupons.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="bg-muted p-4 rounded-full mb-4">
+                <Ticket className="w-8 h-8 text-muted-foreground/50" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground">
+                No coupons created yet
+              </h3>
+              <p className="text-muted-foreground max-w-sm mt-1 mb-6">
+                Get started by creating your first promotional campaign.
+              </p>
+              <Button
+                onClick={() => setShowCreateModal(true)}
+                variant="outline"
+              >
+                Create Coupon
+              </Button>
+            </div>
+          ) : (
+            <table className="w-full text-left text-sm">
+              <thead className="bg-muted/50 border-b border-border">
+                <tr>
+                  {[
+                    "Code / Name",
+                    "Discount",
+                    "Usage",
+                    "Validity",
+                    "Status",
+                    "Actions",
+                  ].map((head) => (
+                    <th
+                      key={head}
+                      className="px-6 py-4 font-semibold text-muted-foreground"
+                    >
+                      {head}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border bg-card">
+                {coupons.map((coupon) => (
+                  <tr
                     key={coupon.id}
-                    className="hover:bg-cream-50"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 * index }}
+                    className="group hover:bg-muted/30 transition-colors"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <div className="flex items-center space-x-2">
-                          <span className="font-medium text-foreground ">
+                    {/* Code & Name */}
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2">
+                          <code className="px-2 py-0.5 rounded bg-muted font-mono text-sm font-bold text-foreground border border-border">
                             {coupon.code}
-                          </span>
+                          </code>
                           <button
                             onClick={() => copyCouponCode(coupon.code)}
-                            className="text-muted-foreground hover:text-foreground "
+                            className="text-muted-foreground hover:text-primary transition-colors opacity-0 group-hover:opacity-100"
+                            title="Copy Code"
                           >
-                            <Copy className="w-4 h-4" />
+                            <Copy className="w-3.5 h-3.5" />
                           </button>
                         </div>
-                        <p className="text-sm text-muted-foreground">
+                        <span className="text-xs text-muted-foreground font-medium truncate max-w-[150px]">
                           {coupon.name}
-                        </p>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center space-x-2">
-                        {getDiscountIcon(coupon.discountType)}
-                        <span className="font-medium">
-                          {getDiscountDisplay(coupon)}
                         </span>
                       </div>
-                      {coupon.minimumAmount && (
-                        <p className="text-xs text-muted-foreground">
-                          Min: {formatPrice(coupon.minimumAmount)}
-                        </p>
-                      )}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <p className="font-medium">{coupon.usageCount}</p>
-                        {coupon.usageLimit && (
-                          <p className="text-xs text-muted-foreground">
-                            / {coupon.usageLimit}
-                          </p>
+
+                    {/* Discount Value */}
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col gap-1">
+                        <DiscountBadge
+                          type={coupon.discountType}
+                          value={coupon.discountValue}
+                        />
+                        {coupon.minimumAmount && (
+                          <span className="text-xs text-muted-foreground">
+                            Min spend: {formatPrice(coupon.minimumAmount)}
+                          </span>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm">
-                        <p>{new Date(coupon.validFrom).toLocaleDateString()}</p>
-                        <p className="text-muted-foreground">
-                          to {new Date(coupon.validUntil).toLocaleDateString()}
-                        </p>
+
+                    {/* Usage Stats */}
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-1.5 text-foreground">
+                        <span className="font-semibold">
+                          {coupon.usageCount}
+                        </span>
+                        <span className="text-muted-foreground">/</span>
+                        <span className="text-muted-foreground">
+                          {coupon.usageLimit || "∞"}
+                        </span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {getStatusBadge(coupon)}
+
+                    {/* Date Range */}
+                    <td className="px-6 py-4">
+                      <div className="flex flex-col text-xs text-muted-foreground gap-1">
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500/50"></span>
+                          {new Date(coupon.validFrom).toLocaleDateString()}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-destructive/50"></span>
+                          {new Date(coupon.validUntil).toLocaleDateString()}
+                        </span>
+                      </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => setSelectedCoupon(coupon)}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
+
+                    {/* Status Badge */}
+                    <td className="px-6 py-4">
+                      <StatusBadge coupon={coupon} />
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        {/* Edit Action (Placeholder) */}
                         <button
                           onClick={() => {
                             setSelectedCoupon(coupon);
-                            setShowEditModal(true);
+                            setShowCreateModal(true); // Reusing modal for simplicity, ideally use EditModal
                           }}
-                          className="text-indigo-600 hover:text-indigo-900"
+                          className="p-1.5 rounded-md hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
+                          title="View Details"
                         >
-                          <Edit className="w-4 h-4" />
+                          <Eye className="w-4 h-4" />
                         </button>
+
+                        {/* Toggle Status */}
                         <button
                           onClick={() => handleToggleStatus(coupon.id)}
-                          className={
+                          className={`p-1.5 rounded-md hover:bg-muted transition-colors ${
                             coupon.isActive
-                              ? "text-green-600 hover:text-green-900"
-                              : "text-gray-400 hover:text-foreground "
-                          }
+                              ? "text-green-600"
+                              : "text-muted-foreground"
+                          }`}
+                          title={coupon.isActive ? "Deactivate" : "Activate"}
                         >
                           {coupon.isActive ? (
-                            <ToggleRight className="w-6 h-6" />
+                            <ToggleRight className="w-5 h-5" />
                           ) : (
-                            <ToggleLeft className="w-6 h-6" />
+                            <ToggleLeft className="w-5 h-5" />
                           )}
                         </button>
+
+                        {/* Delete Action */}
                         <button
                           onClick={() => handleDeleteCoupon(coupon.id)}
-                          className="text-red-600 hover:text-red-900"
+                          className="p-1.5 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                          title="Delete Coupon"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
-                  </motion.tr>
+                  </tr>
                 ))}
               </tbody>
-            ) : (
-              <tbody className="flex items-center justify-center mt-7 h-44">
-                <p className="text-display-sm">No Coupon Found</p>
-              </tbody>
-            )}
-          </table>
+            </table>
+          )}
         </div>
       </motion.div>
 
-      {/* Create Coupon Modal */}
+      {/* Modals */}
       <CreateCouponModal
         isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
+        onClose={() => {
+          setShowCreateModal(false);
+          setSelectedCoupon(null);
+        }}
         onSuccess={() => refetch()}
       />
     </div>

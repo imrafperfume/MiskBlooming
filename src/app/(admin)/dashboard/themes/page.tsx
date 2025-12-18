@@ -1,3 +1,4 @@
+import CollectionPage from "@/src/components/dashboard/themes/CollectionPage";
 import HomeSection from "@/src/components/dashboard/themes/HomeSection";
 import React from "react";
 
@@ -10,6 +11,7 @@ export default function ThemeManagment() {
       </div>
       <div className="mt-10 space-y-6">
         <HomeSection />
+        <CollectionPage />
       </div>
     </div>
   );

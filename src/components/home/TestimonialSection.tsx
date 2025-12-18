@@ -7,7 +7,13 @@ import { useQuery } from "@apollo/client";
 import { GET_REVIEWS } from "@/src/modules/review/reviewType";
 import Loading from "../layout/Loading";
 
-const TestimonialSection = () => {
+const TestimonialSection = ({
+  taTitle,
+  taDesc,
+}: {
+  taTitle: string;
+  taDesc: string;
+}) => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const { data, loading, error } = useQuery(GET_REVIEWS);
   const testimonials = data?.reviews;
@@ -30,11 +36,11 @@ const TestimonialSection = () => {
           viewport={{ once: true }}
         >
           <h2 className="font-cormorant text-display-md font-bold text-cream-50 mb-6">
-            Voices of <span className="luxury-text">Excellence</span>
+            {taTitle || "What Our Customers Say"}
           </h2>
           <p className="text-cream-200 text-xl max-w-3xl mx-auto leading-relaxed">
-            Discover what our distinguished clientele says about their
-            extraordinary experiences with MiskBlooming
+            {taDesc ||
+              "Hear from our delighted customers who have experienced the magic of MiskBlooming."}
           </p>
         </motion.div>
 

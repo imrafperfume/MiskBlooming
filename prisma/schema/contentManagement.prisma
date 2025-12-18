@@ -1,0 +1,29 @@
+model HomePageContent {
+    id                 String   @id @default("HOME_PAGE")
+    categoryTitle      String
+    categoryDesc       String
+    featureTitle       String
+    featureSubtitle    String
+    featureDesc        String
+    seasonTitle        String
+    seasonSubtitle     String
+    seasonDesc         String
+    excellenceTitle    String
+    excellenceSubtitle String
+    testimonialTitle   String
+    testimonialDesc    String
+    newsletterTitle    String
+    newsletterDesc     String
+    createdAt          DateTime @default(now())
+    updatedAt          DateTime @updatedAt
+
+    @@index([id])
+}
+
+model Collection {
+    id              String   @id @default("COLLECTION")
+    collectionTitle String
+    collectionDesc  String
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+}
