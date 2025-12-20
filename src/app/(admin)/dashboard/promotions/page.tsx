@@ -17,16 +17,19 @@ import {
   CheckCircle,
   XCircle,
   MoreHorizontal,
-  Calendar,
   AlertCircle,
+  ImageIcon,
+  LayoutGrid,
+  ShoppingBag,
+  Globe,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Button } from "../../../../components/ui/Button";
 import { Input } from "../../../../components/ui/Input";
 import { toast } from "sonner";
 import { CreatePromotionModal } from "@/src/components/dashboard/CreatePromotionModal";
 
-// --- Types ---
+// --- Updated Types to match Modal ---
 export interface Promotion {
   id: string;
   name: string;
@@ -41,9 +44,15 @@ export interface Promotion {
   usageCount: number;
   minOrderValue: number;
   revenue: number;
+  bannerImage?: string;
+  scope: {
+    target: "all" | "category" | "product";
+    categories?: string[];
+    products?: string[];
+  };
 }
 
-// --- Mock Data (Replace with API call) ---
+// --- Updated Mock Data ---
 const initialPromotions: Promotion[] = [
   {
     id: "1",
@@ -59,6 +68,9 @@ const initialPromotions: Promotion[] = [
     usageCount: 234,
     minOrderValue: 200,
     revenue: 15680,
+    bannerImage:
+      "https://images.unsplash.com/photo-1518191766482-844ed3c65070?q=80&w=800&auto=format&fit=crop",
+    scope: { target: "category", categories: ["Flowers", "Bouquets"] },
   },
   {
     id: "2",
@@ -74,6 +86,9 @@ const initialPromotions: Promotion[] = [
     usageCount: 0,
     minOrderValue: 150,
     revenue: 0,
+    bannerImage:
+      "https://images.unsplash.com/photo-1599110364762-ecd45ec44253?q=80&w=800&auto=format&fit=crop",
+    scope: { target: "all" },
   },
   {
     id: "3",
@@ -89,35 +104,56 @@ const initialPromotions: Promotion[] = [
     usageCount: 456,
     minOrderValue: 100,
     revenue: 22800,
+    scope: { target: "all" },
   },
 ];
 
-// --- Helper Components ---
-const StatusBadge = ({ status }: { status: string }) => {
-  const styles = {
-    active: "bg-green-500/10 text-green-600 border-green-500/20",
-    scheduled: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-    expired: "bg-destructive/10 text-destructive border-destructive/20",
-    paused: "bg-orange-500/10 text-orange-600 border-orange-500/20",
-    default: "bg-muted text-muted-foreground border-border",
+// --- Scope Badge Component ---
+const ScopeIndicator = ({ scope }: { scope: Promotion["scope"] }) => {
+  const configs = {
+    all: {
+      label: "Entire Store",
+      icon: Globe,
+      color: "text-blue-600 bg-blue-50",
+    },
+    category: {
+      label: "Categories",
+      icon: LayoutGrid,
+      color: "text-purple-600 bg-purple-50",
+    },
+    product: {
+      label: "Specific Products",
+      icon: ShoppingBag,
+      color: "text-orange-600 bg-orange-50",
+    },
   };
 
-  const icons = {
-    active: CheckCircle,
-    scheduled: Clock,
-    expired: XCircle,
-    paused: AlertCircle,
-    default: Tag,
-  };
-
-  const style = styles[status as keyof typeof styles] || styles.default;
-  const Icon = icons[status as keyof typeof icons] || icons.default;
+  const config = configs[scope.target];
+  const Icon = config.icon;
 
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize ${style}`}
+    <div
+      className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${config.color}`}
     >
-      <Icon className="w-3.5 h-3.5" />
+      <Icon className="w-3 h-3" />
+      {config.label}
+    </div>
+  );
+};
+
+const StatusBadge = ({ status }: { status: string }) => {
+  const styles = {
+    active: "bg-green-500 text-white border-green-600",
+    scheduled: "bg-blue-500 text-white border-blue-600",
+    expired: "bg-destructive text-white border-destructive",
+    paused: "bg-orange-500 text-white border-orange-600",
+    default: "bg-muted text-muted-foreground border-border",
+  };
+  const style = styles[status as keyof typeof styles] || styles.default;
+  return (
+    <span
+      className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase shadow-sm border ${style}`}
+    >
       {status}
     </span>
   );
@@ -127,79 +163,68 @@ export default function PromotionsPage() {
   const [promotions, setPromotions] = useState<Promotion[]>(initialPromotions);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [scopeFilter, setScopeFilter] = useState("all");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  // Filter Logic
   const filteredPromotions = useMemo(() => {
-    return promotions.filter((promotion) => {
+    return promotions.filter((p) => {
       const matchesSearch =
-        promotion.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        promotion.code.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus =
-        statusFilter === "all" || promotion.status === statusFilter;
-      const matchesType = typeFilter === "all" || promotion.type === typeFilter;
-      return matchesSearch && matchesStatus && matchesType;
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.code.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === "all" || p.status === statusFilter;
+      const matchesScope =
+        scopeFilter === "all" || p.scope.target === scopeFilter;
+      return matchesSearch && matchesStatus && matchesScope;
     });
-  }, [promotions, searchTerm, statusFilter, typeFilter]);
+  }, [promotions, searchTerm, statusFilter, scopeFilter]);
 
-  // Stats Logic
-  const stats = useMemo(() => {
-    return {
+  const stats = useMemo(
+    () => ({
       total: promotions.length,
       active: promotions.filter((p) => p.status === "active").length,
-      scheduled: promotions.filter((p) => p.status === "scheduled").length,
-      expired: promotions.filter((p) => p.status === "expired").length,
-      totalRevenue: promotions.reduce((sum, p) => sum + p.revenue, 0),
-      totalUsage: promotions.reduce((sum, p) => sum + p.usageCount, 0),
-    };
-  }, [promotions]);
-
-  // Handlers
-  const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this promotion?")) {
-      setPromotions((prev) => prev.filter((p) => p.id !== id));
-      toast.success("Promotion deleted successfully");
-    }
-  };
+      revenue: promotions.reduce((sum, p) => sum + p.revenue, 0),
+      usage: promotions.reduce((sum, p) => sum + p.usageCount, 0),
+    }),
+    [promotions]
+  );
 
   const handleCreate = (newPromo: Promotion) => {
     setPromotions((prev) => [newPromo, ...prev]);
     setIsCreateModalOpen(false);
-    toast.success("Promotion created successfully");
+    toast.success("Marketing campaign published successfully!");
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm("Permanently remove this campaign?")) {
+      setPromotions((prev) => prev.filter((p) => p.id !== id));
+      toast.success("Campaign deleted");
+    }
   };
 
   return (
-    <div className="space-y-8 pb-20">
+    <div className="max-w-[1400px] mx-auto space-y-8 pb-20 p-4 lg:p-0">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl md:text-4xl font-cormorant font-bold text-foreground">
-            Promotions & Offers
+          <h1 className="text-4xl font-cormorant font-bold text-foreground">
+            Marketing & Banners
           </h1>
-          <p className="text-muted-foreground mt-2">
-            Create and manage discount campaigns to boost sales.
+          <p className="text-muted-foreground mt-1">
+            Design your storefront offers and target specific categories.
           </p>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <Button variant="outline" className="bg-background">
-            <TrendingUp className="w-4 h-4 mr-2" /> Analytics
-          </Button>
-          <Button variant="luxury" onClick={() => setIsCreateModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-2" /> Create Promotion
-          </Button>
-        </div>
+        <Button
+          variant="luxury"
+          size="lg"
+          onClick={() => setIsCreateModalOpen(true)}
+        >
+          <Plus className="w-5 h-5 mr-2" /> Create New Campaign
+        </Button>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      {/* Stats Bar */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          {
-            label: "Total Campaigns",
-            value: stats.total,
-            icon: Tag,
-            color: "text-primary",
-          },
           {
             label: "Active",
             value: stats.active,
@@ -207,234 +232,212 @@ export default function PromotionsPage() {
             color: "text-green-600",
           },
           {
-            label: "Scheduled",
-            value: stats.scheduled,
-            icon: Clock,
-            color: "text-blue-600",
-          },
-          {
-            label: "Expired",
-            value: stats.expired,
-            icon: XCircle,
-            color: "text-destructive",
-          },
-          {
-            label: "Redemptions",
-            value: stats.totalUsage,
-            icon: Users,
-            color: "text-purple-600",
-          },
-          {
-            label: "Revenue",
-            value: `AED ${stats.totalRevenue.toLocaleString()}`,
+            label: "Total Revenue",
+            value: `AED ${stats.revenue.toLocaleString()}`,
             icon: TrendingUp,
             color: "text-primary",
           },
-        ].map((stat, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.05 }}
-            className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow"
+          {
+            label: "Usage",
+            value: stats.usage,
+            icon: Users,
+            color: "text-blue-600",
+          },
+          {
+            label: "Campaigns",
+            value: stats.total,
+            icon: Tag,
+            color: "text-muted-foreground",
+          },
+        ].map((stat, i) => (
+          <div
+            key={i}
+            className="bg-card border border-border rounded-xl p-5 flex items-center gap-4 shadow-sm"
           >
-            <div className="flex justify-between items-start mb-2">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                {stat.label}
-              </span>
-              <stat.icon className={`w-4 h-4 ${stat.color}`} />
+            <div className={`p-3 rounded-lg bg-muted/50 ${stat.color}`}>
+              <stat.icon className="w-6 h-6" />
             </div>
-            <span
-              className="text-lg font-bold text-foreground truncate"
-              title={String(stat.value)}
-            >
-              {stat.value}
-            </span>
-          </motion.div>
+            <div>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                {stat.label}
+              </p>
+              <p className="text-2xl font-bold text-foreground">{stat.value}</p>
+            </div>
+          </div>
         ))}
       </div>
 
-      {/* Filters Bar */}
-      <div className="bg-card border border-border rounded-xl p-4 flex flex-col lg:flex-row gap-4 items-center justify-between shadow-sm">
-        <div className="relative w-full lg:max-w-md group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+      {/* Advanced Filter Toolbar */}
+      <div className="flex flex-col lg:flex-row gap-4 justify-between items-center bg-card p-4 rounded-xl border border-border shadow-sm">
+        <div className="relative w-full lg:max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search by name or code..."
+            placeholder="Search code or campaign..."
+            className="pl-10 bg-background"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-background border-border"
           />
         </div>
-
-        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+        <div className="flex flex-wrap gap-2 w-full lg:w-auto">
           <select
+            className="bg-background border border-border rounded-lg px-3 h-10 text-sm outline-none focus:ring-1 focus:ring-primary min-w-[130px]"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-10 px-3 bg-background border border-border rounded-lg text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none cursor-pointer"
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
             <option value="scheduled">Scheduled</option>
-            <option value="expired">Expired</option>
           </select>
-
           <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="h-10 px-3 bg-background border border-border rounded-lg text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none cursor-pointer"
+            className="bg-background border border-border rounded-lg px-3 h-10 text-sm outline-none focus:ring-1 focus:ring-primary min-w-[130px]"
+            value={scopeFilter}
+            onChange={(e) => setScopeFilter(e.target.value)}
           >
-            <option value="all">All Types</option>
-            <option value="percentage">Percentage</option>
-            <option value="fixed">Fixed Amount</option>
-            <option value="buy_x_get_y">Buy X Get Y</option>
+            <option value="all">All Targets</option>
+            <option value="all">Store-wide</option>
+            <option value="category">Categories</option>
+            <option value="product">Products</option>
           </select>
-
-          <Button variant="outline" size="sm" className="h-10 bg-background">
-            <Filter className="w-4 h-4 mr-2" /> Filters
-          </Button>
         </div>
       </div>
 
-      {/* Promotions Grid */}
-      {filteredPromotions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-muted/20 rounded-xl border border-dashed border-border text-center">
-          <Tag className="w-12 h-12 text-muted-foreground/50 mb-4" />
-          <h3 className="text-lg font-semibold text-foreground">
-            No promotions found
-          </h3>
-          <p className="text-muted-foreground mt-1">
-            Try adjusting your filters or create a new campaign.
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredPromotions.map((promotion, idx) => (
-            <motion.div
-              key={promotion.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className="bg-card border border-border rounded-xl p-6 shadow-sm hover:border-primary/30 transition-all relative group"
-            >
-              {/* Header */}
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex gap-4">
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                    {promotion.type === "percentage" ? (
-                      <Percent className="w-6 h-6" />
-                    ) : promotion.type === "fixed" ? (
-                      <Tag className="w-6 h-6" />
-                    ) : (
-                      <Gift className="w-6 h-6" />
-                    )}
+      {/* Promotions List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {filteredPromotions.map((promo, idx) => (
+          <motion.div
+            key={promo.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.05 }}
+            className="group bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col"
+          >
+            {/* Banner Preview */}
+            <div className="relative h-44 w-full bg-muted overflow-hidden shrink-0">
+              {promo.bannerImage ? (
+                <img
+                  src={promo.bannerImage}
+                  alt={promo.name}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground/30 gap-2 font-bold uppercase text-[10px] tracking-widest">
+                  <ImageIcon className="w-10 h-10" /> No Image
+                </div>
+              )}
+
+              <div className="absolute top-3 left-3 flex flex-col gap-2">
+                <StatusBadge status={promo.status} />
+                <ScopeIndicator scope={promo.scope} />
+              </div>
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+              <div className="absolute bottom-3 left-4 right-4 flex justify-between items-end">
+                <div>
+                  <p className="text-white/60 text-[9px] uppercase font-bold tracking-[0.2em]">
+                    Promo Code
+                  </p>
+                  <p className="text-white font-mono text-xl font-black">
+                    {promo.code}
+                  </p>
+                </div>
+                <div className="bg-primary text-white px-3 py-1 rounded-full text-xs font-black shadow-lg">
+                  {promo.type === "percentage"
+                    ? `${promo.value}% OFF`
+                    : `AED ${promo.value} OFF`}
+                </div>
+              </div>
+            </div>
+
+            {/* Content Body */}
+            <div className="p-5 flex flex-col flex-1">
+              <div className="mb-4">
+                <h3 className="text-lg font-bold text-foreground leading-tight group-hover:text-primary transition-colors line-clamp-1">
+                  {promo.name}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1 line-clamp-2 min-h-[32px]">
+                  {promo.description}
+                </p>
+              </div>
+
+              {/* Target Details (If categories) */}
+              {promo.scope.target === "category" && promo.scope.categories && (
+                <div className="mb-4 flex flex-wrap gap-1">
+                  {promo.scope.categories.map((cat) => (
+                    <span
+                      key={cat}
+                      className="text-[9px] bg-muted px-2 py-0.5 rounded-full font-bold text-muted-foreground"
+                    >
+                      #{cat}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Stats & Progress */}
+              <div className="mt-auto space-y-4 pt-4 border-t border-border/50">
+                <div>
+                  <div className="flex justify-between text-[10px] mb-1.5 font-bold uppercase tracking-tight">
+                    <span className="text-muted-foreground">Usage Limit</span>
+                    <span className="text-foreground">
+                      {promo.usageCount} / {promo.usageLimit}
+                    </span>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-foreground text-lg">
-                      {promotion.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {promotion.description}
+                  <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{
+                        width: `${
+                          (promo.usageCount / promo.usageLimit) * 100
+                        }%`,
+                      }}
+                      className="h-full bg-primary"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center bg-muted/30 p-2 rounded-lg">
+                  <div className="text-center flex-1 border-r border-border/50">
+                    <p className="text-[9px] uppercase font-bold text-muted-foreground">
+                      Revenue
+                    </p>
+                    <p className="text-sm font-black">
+                      AED {promo.revenue.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="text-center flex-1">
+                    <p className="text-[9px] uppercase font-bold text-muted-foreground">
+                      Min Order
+                    </p>
+                    <p className="text-sm font-black">
+                      AED {promo.minOrderValue}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <StatusBadge status={promotion.status} />
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 h-9 text-xs font-bold"
+                  >
+                    <Edit className="w-3.5 h-3.5 mr-2" /> Edit
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                    onClick={() => handleDelete(promo.id)}
+                  >
+                    <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
 
-              {/* Details Grid */}
-              <div className="grid grid-cols-2 gap-y-4 gap-x-8 mb-6 py-4 border-y border-border/50">
-                <div className="flex flex-col">
-                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Discount
-                  </span>
-                  <span className="font-semibold text-primary">
-                    {promotion.type === "percentage"
-                      ? `${promotion.value}% OFF`
-                      : promotion.type === "fixed"
-                      ? `AED ${promotion.value} OFF`
-                      : `Buy 2 Get ${promotion.value}`}
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Code
-                  </span>
-                  <code className="font-mono font-medium text-foreground bg-muted px-2 py-0.5 rounded w-fit">
-                    {promotion.code}
-                  </code>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Duration
-                  </span>
-                  <span className="text-sm font-medium text-foreground">
-                    {new Date(promotion.startDate).toLocaleDateString()} -{" "}
-                    {new Date(promotion.endDate).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Min Order
-                  </span>
-                  <span className="text-sm font-medium text-foreground">
-                    AED {promotion.minOrderValue}
-                  </span>
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="mb-6">
-                <div className="flex justify-between text-xs mb-1.5">
-                  <span className="text-muted-foreground">
-                    Usage (
-                    {Math.round(
-                      (promotion.usageCount / promotion.usageLimit) * 100
-                    )}
-                    %)
-                  </span>
-                  <span className="font-medium text-foreground">
-                    {promotion.usageCount} / {promotion.usageLimit}
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full"
-                    style={{
-                      width: `${Math.min(
-                        (promotion.usageCount / promotion.usageLimit) * 100,
-                        100
-                      )}%`,
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-2">
-                <Button variant="outline" className="flex-1 bg-background">
-                  <Eye className="w-4 h-4 mr-2" /> Details
-                </Button>
-                <Button variant="outline" className="flex-1 bg-background">
-                  <Edit className="w-4 h-4 mr-2" /> Edit
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="px-3 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
-                  onClick={() => handleDelete(promotion.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      )}
-
-      {/* Modal */}
+      {/* Create Modal */}
       <CreatePromotionModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}

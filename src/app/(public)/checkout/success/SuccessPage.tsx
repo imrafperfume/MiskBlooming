@@ -1,3 +1,5 @@
+"use client";
+
 import Button from "@/src/components/ui/Button";
 import { formatPrice, handleDownload } from "@/src/lib/utils";
 import { motion } from "framer-motion";
@@ -10,6 +12,8 @@ import {
   Phone,
   Star,
   Truck,
+  Download,
+  Calendar,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -50,354 +54,293 @@ interface Order {
 }
 
 export default function SuccessPage({ order }: { order: Order }) {
+  // Helper to safely format dates from strings or timestamps
+  const formatDate = (dateInput?: string) => {
+    if (!dateInput) return "TBA";
+    const date = isNaN(Number(dateInput))
+      ? new Date(dateInput)
+      : new Date(Number(dateInput));
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
   return (
-    <div className="min-h-screen mt-16 bg-background">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Success Header */}
-        <motion.div
-          className="text-center mb-12"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
+    <div className="min-h-screen bg-background pb-20 pt-10">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6">
+        {/* --- Success Header --- */}
+        <header className="text-center mb-12">
           <motion.div
-            className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{
-              type: "spring",
-              stiffness: 500,
-              damping: 30,
-              delay: 0.2,
-            }}
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-primary/10 mb-6"
           >
-            <CheckCircle className="w-10 h-10 text-green-600" />
+            <CheckCircle className="w-10 h-10 text-primary" />
           </motion.div>
 
-          <h1 className="font-cormorant text-4xl font-bold text-foreground  mb-4">
-            Order Confirmed!
-          </h1>
-          <p className="text-xl text-muted-foreground mb-2">
-            Thank you for choosing Misk Blooming
-          </p>
-          <p className="text-muted-foreground">
-            Your beautiful arrangement is being prepared with love and care
-          </p>
-          <Button
-            onClick={() => handleDownload(order?.id)}
-            variant={"luxury"}
-            size={"sm"}
-            className="mt-6"
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
           >
-            Download Invoice
-          </Button>
-        </motion.div>
+            <h1 className="font-cormorant text-4xl md:text-5xl font-bold text-foreground mb-3">
+              Order Confirmed
+            </h1>
+            <p className="text-muted-foreground text-lg max-w-md mx-auto">
+              Thank you,{" "}
+              <span className="text-foreground font-medium">
+                {order.firstName}
+              </span>
+              . Your floral arrangement is now being handcrafted.
+            </p>
 
-        {/* Order Details Card */}
-        <motion.div
-          className="bg-background rounded-2xl shadow-lg p-8 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          <div className="sm:flex items-center justify-between mb-6">
-            <div>
-              <h2 className="font-cormorant text-2xl font-bold text-foreground ">
-                Order Details
-              </h2>
-              <p className="text-muted-foreground">Order #{order?.id}</p>
-            </div>
-            <div className="sm:text-right sm:mt-0 mt-2">
-              <p className="text-sm text-muted-foreground">Total Amount</p>
-              <p className="text-2xl font-bold text-foreground ">
-                {formatPrice(order?.totalAmount)}
-              </p>
-            </div>
-          </div>
-
-          {/* Order Items */}
-          <div className="space-y-4 mb-6">
-            {order?.items.map((item, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between py-3 border-b border-cream-200 last:border-b-0"
+            <div className="flex flex-wrap justify-center gap-3 mt-8 print:hidden">
+              <Button
+                onClick={() => handleDownload(order?.id)}
+                variant="luxury"
+                className="gap-2"
               >
-                <div className="flex items-center">
-                  <Package className="w-5 h-5 text-primary  mr-3" />
-                  <div>
-                    <p className="font-medium text-sm sm:text-base text-foreground ">
-                      {item.product.name}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Quantity: {item.quantity}
-                    </p>
-                  </div>
-                </div>
-                <p className="font-medium text-foreground ">
-                  {formatPrice(item.price)}
+                <Download className="w-4 h-4" />
+                Download Invoice
+              </Button>
+              <Link href="/track-order">
+                <Button variant="outline" className="bg-background">
+                  Track Status
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+        </header>
+
+        <div className="grid grid-cols-1 gap-8">
+          {/* --- Main Order Card --- */}
+          <motion.section
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="border border-border bg-card rounded-3xl overflow-hidden shadow-sm"
+          >
+            {/* Order Meta Header */}
+            <div className="bg-muted/30 px-8 py-6 border-b border-border flex flex-wrap justify-between items-center gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">
+                  Order Number
                 </p>
+                <p className="text-lg font-medium">#{order.id.toUpperCase()}</p>
               </div>
-            ))}
-          </div>
-
-          {/* ✅ Order Summary */}
-          <div className="bg-foregroundrounded-xl p-6 mt-6">
-            <h3 className="font-semibold text-foreground  mb-4 flex items-center">
-              <Package className="w-5 h-5 text-primary  mr-2" />
-              Order Summary
-            </h3>
-
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">VAT</span>
-                <span className="font-medium">
-                  {formatPrice(order.vatAmount || 0)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Delivery Cost</span>
-                <span className="font-medium">
-                  {order.deliveryCost && order.deliveryCost > 0
-                    ? formatPrice(order.deliveryCost)
-                    : "Free"}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">COD Fee</span>
-                <span className="font-medium">
-                  {formatPrice(order.codFee || 0)}
-                </span>
-              </div>
-              <div className="flex justify-between text-red-600">
-                <span className="text-muted-foreground">Discount</span>
-                <span className="font-medium">
-                  - {formatPrice(order.discount || 0)}
-                </span>
-              </div>
-
-              <div className="border-t border-cream-200 my-2"></div>
-
-              <div className="flex justify-between font-bold text-lg text-foreground ">
-                <span>Total</span>
-                <span>{formatPrice(order.totalAmount)}</span>
+              <div className="sm:text-right">
+                <p className="text-xs uppercase tracking-widest text-muted-foreground font-semibold">
+                  Order Date
+                </p>
+                <p className="text-lg font-medium">
+                  {formatDate(order.createdAt)}
+                </p>
               </div>
             </div>
-          </div>
 
-          {/* Delivery Information */}
-          <div className="bg-foregroundrounded-xl p-6 mt-6">
-            <h3 className="font-semibold text-foreground  mb-4 flex items-center">
-              <Truck className="w-5 h-5 text-primary  mr-2" />
-              Delivery Information
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  Delivery Address
-                </p>
-                <p className="font-medium text-foreground ">
-                  {order?.address}, {order?.emirate}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Delivery Type</p>
-                <p className="font-medium text-foreground ">
-                  {order?.deliveryType}
-                </p>
-              </div>
-              {order?.deliveryDate && (
-                <div className="flex items-center gap-4 justify-between">
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Estimated Delivery
+            <div className="p-8">
+              {/* Items List */}
+              <div className="space-y-6">
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground border-b border-border pb-2">
+                  Purchased Items
+                </h3>
+                {order.items.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex justify-between items-start gap-4"
+                  >
+                    <div className="flex gap-4">
+                      <div className="w-12 h-12 bg-muted rounded-xl flex items-center justify-center flex-shrink-0">
+                        <Package className="w-6 h-6 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">
+                          {item.product.name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Qty: {item.quantity}
+                        </p>
+                      </div>
+                    </div>
+                    <p className="font-medium">
+                      {formatPrice(item.price * item.quantity)}
                     </p>
-                    <p className="font-medium text-foreground ">
-                      {new Date(Number(order?.deliveryDate)).toLocaleDateString(
-                        "en-GB",
-                        { day: "2-digit", month: "short", year: "numeric" }
+                  </div>
+                ))}
+              </div>
+
+              {/* Order Summary */}
+              <div className="mt-10 pt-8 border-t border-border grid grid-cols-1 md:grid-cols-2 gap-10">
+                {/* Delivery Info */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-primary">
+                    <Truck className="w-5 h-5" />
+                    <h4 className="font-semibold uppercase tracking-tight text-sm">
+                      Delivery Details
+                    </h4>
+                  </div>
+                  <div className="text-sm space-y-1 text-muted-foreground">
+                    <p className="text-foreground font-medium">
+                      {order.firstName} {order.lastName}
+                    </p>
+                    <p>{order.address}</p>
+                    <p>
+                      {order.city}, {order.emirate}
+                    </p>
+                    <div className="pt-2 flex flex-col gap-1">
+                      <span className="flex items-center gap-2">
+                        <Calendar className="w-3.5 h-3.5" />{" "}
+                        {formatDate(order.deliveryDate)}
+                      </span>
+                      <span className="text-foreground font-medium italic">
+                        {order.deliveryTime}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Totals */}
+                <div className="bg-muted/20 rounded-2xl p-6 space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span>
+                      {formatPrice(
+                        order.totalAmount +
+                          (order.discount || 0) -
+                          (order.deliveryCost || 0) -
+                          (order.codFee || 0) -
+                          (order.vatAmount || 0)
                       )}
-                    </p>
+                    </span>
                   </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      Delivery Time
-                    </p>
-                    <p className="font-medium text-foreground ">
-                      {order?.deliveryTime}
-                    </p>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">VAT (5%)</span>
+                    <span>{formatPrice(order.vatAmount || 0)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Delivery</span>
+                    <span
+                      className={
+                        order.deliveryCost === 0
+                          ? "text-green-600 font-medium"
+                          : ""
+                      }
+                    >
+                      {order.deliveryCost && order.deliveryCost > 0
+                        ? formatPrice(order.deliveryCost)
+                        : "Free"}
+                    </span>
+                  </div>
+                  {order.discount ? (
+                    <div className="flex justify-between text-sm text-green-600">
+                      <span>Discount Applied</span>
+                      <span>-{formatPrice(order.discount)}</span>
+                    </div>
+                  ) : null}
+                  <div className="border-t border-border pt-3 flex justify-between items-center">
+                    <span className="font-bold text-foreground">
+                      Total Paid
+                    </span>
+                    <span className="text-2xl font-bold text-primary font-cormorant">
+                      {formatPrice(order.totalAmount)}
+                    </span>
                   </div>
                 </div>
-              )}
-            </div>
-          </div>
-        </motion.div>
-
-        {/* What Happens Next */}
-        <motion.div
-          className="bg-background rounded-2xl shadow-lg p-8 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-        >
-          <h2 className="font-cormorant text-2xl font-bold text-foreground  mb-6">
-            What Happens Next?
-          </h2>
-
-          <div className="space-y-6">
-            <div className="flex items-start">
-              <div className="w-8 h-8 bg-foreground 0 text-foreground  rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
-                1
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground  mb-1">
-                  Order Confirmation
-                </h3>
-                <p className="text-muted-foreground">
-                  You'll receive an email confirmation with your order details
-                  and tracking information.
-                </p>
               </div>
             </div>
+          </motion.section>
 
-            <div className="flex items-start">
-              <div className="w-8 h-8 bg-foreground 0 text-foreground  rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
-                2
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground  mb-1">
-                  Fresh Preparation
-                </h3>
-                <p className="text-muted-foreground">
-                  Our expert florists will carefully prepare your arrangement
-                  using the freshest flowers.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start">
-              <div className="w-8 h-8 bg-foreground 0 text-foreground  rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
-                3
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground  mb-1">
-                  Quality Check & Packaging
-                </h3>
-                <p className="text-muted-foreground">
-                  Each arrangement undergoes quality inspection and is packaged
-                  in our signature luxury packaging.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start">
-              <div className="w-8 h-8 bg-foreground 0 text-foreground  rounded-full flex items-center justify-center font-bold text-sm mr-4 flex-shrink-0">
-                4
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground  mb-1">
-                  Delivery
-                </h3>
-                <p className="text-muted-foreground">
-                  Your order will be delivered fresh to your specified address
-                  within the selected time frame.
-                </p>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Contact & Support */}
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-        >
-          <div className="bg-background rounded-2xl shadow-lg p-6">
-            <div className="flex items-center mb-4">
-              <Phone className="w-6 h-6 text-primary  mr-3" />
-              <h3 className="font-cormorant text-xl font-bold text-foreground ">
-                Need Help?
+          {/* --- Next Steps Timeline --- */}
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-card border border-border p-8 rounded-3xl">
+              <h3 className="font-cormorant text-2xl font-bold mb-6">
+                What to expect?
               </h3>
+              <div className="space-y-6 relative before:absolute before:left-[15px] before:top-2 before:bottom-2 before:w-[2px] before:bg-muted">
+                {[
+                  { t: "Preparation", d: "Florists selecting fresh blooms." },
+                  {
+                    t: "Quality Check",
+                    d: "Reviewing arrangement perfection.",
+                  },
+                  { t: "On its Way", d: "Carefully handled transit." },
+                ].map((step, i) => (
+                  <div key={i} className="flex gap-4 relative z-10">
+                    <div className="w-8 h-8 rounded-full bg-background border-2 border-primary flex items-center justify-center text-xs font-bold text-primary">
+                      {i + 1}
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-sm">{step.t}</h4>
+                      <p className="text-xs text-muted-foreground">{step.d}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
-            <p className="text-muted-foreground mb-4">
-              Our customer service team is here to assist you with any questions
-              about your order.
-            </p>
-            <div className="space-y-2">
-              <p className="flex items-center text-sm">
-                <Phone className="w-4 h-4 text-primary  mr-2" />
-                <span className="font-medium">+971 4 123 4567</span>
-              </p>
-              <p className="flex items-center text-sm">
-                <Mail className="w-4 h-4 text-primary  mr-2" />
-                <span className="font-medium">support@miskblooming.ae</span>
-              </p>
-            </div>
-          </div>
 
-          <div className="bg-background rounded-2xl shadow-lg p-6">
-            <div className="flex items-center mb-4">
-              <Gift className="w-6 h-6 text-primary  mr-3" />
-              <h3 className="font-cormorant text-xl font-bold text-foreground ">
-                Special Occasions
-              </h3>
+            {/* --- Support & Help --- */}
+            <div className="flex flex-col gap-6">
+              <div className="bg-card border border-border p-6 rounded-3xl flex-1">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                    <Phone className="w-5 h-5" />
+                  </div>
+                  <h3 className="font-semibold">Support</h3>
+                </div>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Questions about your order? We are available 24/7.
+                </p>
+                <div className="space-y-2 text-sm font-medium">
+                  <p className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer">
+                    <Phone className="w-4 h-4" /> +971 4 123 4567
+                  </p>
+                  <p className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer">
+                    <Mail className="w-4 h-4" /> support@miskblooming.ae
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-primary text-primary-foreground p-6 rounded-3xl flex items-center justify-between">
+                <div>
+                  <h3 className="font-bold">Share the love</h3>
+                  <p className="text-xs opacity-80">
+                    Refer a friend and get 15% off
+                  </p>
+                </div>
+                <Gift className="w-8 h-8 opacity-20" />
+              </div>
             </div>
-            <p className="text-muted-foreground mb-4">
-              Planning ahead? Schedule deliveries for birthdays, anniversaries,
-              and special events.
+          </section>
+
+          {/* --- Feedback --- */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            className="text-center py-10 border-t border-border mt-10"
+          >
+            <Star className="w-6 h-6 text-primary mx-auto mb-4" />
+            <h3 className="font-cormorant text-2xl font-bold mb-2">
+              How was your experience?
+            </h3>
+            <p className="text-muted-foreground text-sm mb-6">
+              Your feedback helps us bloom better.
             </p>
+            <Button variant="outline" size="sm" className="rounded-full px-8">
+              Leave a Review
+            </Button>
+          </motion.div>
+
+          <div className="flex justify-center gap-4 print:hidden">
             <Link href="/products">
-              <Button variant="outline" className="w-full bg-background">
-                Browse Collections
+              <Button variant="ghost" className="gap-2 group">
+                <ArrowRight className="w-4 h-4 rotate-180 transition-transform group-hover:-translate-x-1" />
+                Continue Shopping
               </Button>
             </Link>
           </div>
-        </motion.div>
-
-        {/* Action Buttons */}
-        <motion.div
-          className="flex flex-col sm:flex-row gap-4 justify-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-        >
-          <Link href="/products">
-            <Button variant="luxury" size="lg" className="w-full sm:w-auto">
-              Continue Shopping
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </Link>
-
-          <Link href="/track-order">
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full sm:w-auto bg-background"
-            >
-              Track Your Order
-            </Button>
-          </Link>
-        </motion.div>
-
-        <motion.div
-          className="text-center mt-12 p-6 bg-foregroundrounded-2xl"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.7 }}
-        >
-          <Star className="w-8 h-8 text-primary  mx-auto mb-3" />
-          <h3 className="font-cormorant text-xl font-bold text-foreground  mb-2">
-            Love Your Experience?
-          </h3>
-          <p className="text-muted-foreground mb-4">
-            Share your experience and help others discover the beauty of Misk
-            Blooming
-          </p>
-          <Button variant="outline" className="bg-background">
-            Leave a Review
-          </Button>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
