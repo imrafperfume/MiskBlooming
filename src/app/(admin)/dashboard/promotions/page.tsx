@@ -4,176 +4,123 @@ import { useState, useMemo } from "react";
 import {
   Plus,
   Search,
-  Filter,
   Edit,
-  Eye,
   Trash2,
   Tag,
-  Percent,
-  Gift,
   TrendingUp,
-  Users,
-  Clock,
   CheckCircle,
-  XCircle,
-  MoreHorizontal,
-  AlertCircle,
   ImageIcon,
   LayoutGrid,
   ShoppingBag,
   Globe,
+  Calendar,
+  Copy,
+  PauseCircle,
+  PlayCircle,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "../../../../components/ui/Button";
 import { Input } from "../../../../components/ui/Input";
 import { toast } from "sonner";
 import { CreatePromotionModal } from "@/src/components/dashboard/CreatePromotionModal";
 
-// --- Updated Types to match Modal ---
+export type DiscountType = "PERCENTAGE" | "FIXED";
+export type PromotionStatus = "ACTIVE" | "EXPIRED" | "PAUSED";
+export type ScopeType = "ALL" | "CATEGORY" | "PRODUCT";
+
 export interface Promotion {
   id: string;
   name: string;
-  description: string;
-  type: "percentage" | "fixed" | "buy_x_get_y";
-  value: number;
-  code: string;
-  startDate: string;
-  endDate: string;
-  status: "active" | "scheduled" | "expired" | "paused";
-  usageLimit: number;
-  usageCount: number;
-  minOrderValue: number;
-  revenue: number;
-  bannerImage?: string;
-  scope: {
-    target: "all" | "category" | "product";
-    categories?: string[];
-    products?: string[];
-  };
+  discountType: DiscountType;
+  discountValue: number;
+  startDate: string | Date;
+  endDate: string | Date;
+  isActive: boolean;
+  imageUrl: string;
+  scope: ScopeType;
+  promoCode: string;
+  status: PromotionStatus;
+  categories: string[];
+  products: string[];
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 }
 
-// --- Updated Mock Data ---
 const initialPromotions: Promotion[] = [
   {
     id: "1",
     name: "Valentine's Day Special",
-    description: "20% off on all premium rose bouquets",
-    type: "percentage",
-    value: 20,
-    code: "VALENTINE20",
+    discountType: "PERCENTAGE",
+    discountValue: 20,
+    promoCode: "VALENTINE20",
     startDate: "2024-02-01",
     endDate: "2024-02-14",
-    status: "active",
-    usageLimit: 500,
-    usageCount: 234,
-    minOrderValue: 200,
-    revenue: 15680,
-    bannerImage:
+    status: "ACTIVE",
+    isActive: true,
+    imageUrl:
       "https://images.unsplash.com/photo-1518191766482-844ed3c65070?q=80&w=800&auto=format&fit=crop",
-    scope: { target: "category", categories: ["Flowers", "Bouquets"] },
-  },
-  {
-    id: "2",
-    name: "Mother's Day Bundle",
-    description: "Buy 2 get 1 free on chocolate collections",
-    type: "buy_x_get_y",
-    value: 1,
-    code: "MOTHERSDAY",
-    startDate: "2024-03-15",
-    endDate: "2024-03-31",
-    status: "scheduled",
-    usageLimit: 200,
-    usageCount: 0,
-    minOrderValue: 150,
-    revenue: 0,
-    bannerImage:
-      "https://images.unsplash.com/photo-1599110364762-ecd45ec44253?q=80&w=800&auto=format&fit=crop",
-    scope: { target: "all" },
-  },
-  {
-    id: "3",
-    name: "First Order Discount",
-    description: "AED 50 off for new customers",
-    type: "fixed",
-    value: 50,
-    code: "WELCOME50",
-    startDate: "2024-01-01",
-    endDate: "2024-12-31",
-    status: "active",
-    usageLimit: 1000,
-    usageCount: 456,
-    minOrderValue: 100,
-    revenue: 22800,
-    scope: { target: "all" },
+    scope: "CATEGORY",
+    categories: ["Flowers", "Bouquets"],
+    products: [],
   },
 ];
-
-// --- Scope Badge Component ---
-const ScopeIndicator = ({ scope }: { scope: Promotion["scope"] }) => {
-  const configs = {
-    all: {
-      label: "Entire Store",
-      icon: Globe,
-      color: "text-blue-600 bg-blue-50",
-    },
-    category: {
-      label: "Categories",
-      icon: LayoutGrid,
-      color: "text-purple-600 bg-purple-50",
-    },
-    product: {
-      label: "Specific Products",
-      icon: ShoppingBag,
-      color: "text-orange-600 bg-orange-50",
-    },
-  };
-
-  const config = configs[scope.target];
-  const Icon = config.icon;
-
-  return (
-    <div
-      className={`flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${config.color}`}
-    >
-      <Icon className="w-3 h-3" />
-      {config.label}
-    </div>
-  );
-};
-
-const StatusBadge = ({ status }: { status: string }) => {
-  const styles = {
-    active: "bg-green-500 text-white border-green-600",
-    scheduled: "bg-blue-500 text-white border-blue-600",
-    expired: "bg-destructive text-white border-destructive",
-    paused: "bg-orange-500 text-white border-orange-600",
-    default: "bg-muted text-muted-foreground border-border",
-  };
-  const style = styles[status as keyof typeof styles] || styles.default;
-  return (
-    <span
-      className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase shadow-sm border ${style}`}
-    >
-      {status}
-    </span>
-  );
-};
 
 export default function PromotionsPage() {
   const [promotions, setPromotions] = useState<Promotion[]>(initialPromotions);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [scopeFilter, setScopeFilter] = useState("all");
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingPromo, setEditingPromo] = useState<Promotion | null>(null);
 
+  // --- Handlers ---
+  const handleCreateOrUpdate = (promo: Promotion) => {
+    if (editingPromo) {
+      setPromotions((prev) => prev.map((p) => (p.id === promo.id ? promo : p)));
+      toast.success("Campaign updated successfully");
+    } else {
+      setPromotions((prev) => [promo, ...prev]);
+      toast.success("New campaign published");
+    }
+    setIsModalOpen(false);
+    setEditingPromo(null);
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm("Are you sure you want to delete this campaign?")) {
+      setPromotions((prev) => prev.filter((p) => p.id !== id));
+      toast.success("Campaign removed");
+    }
+  };
+
+  const toggleStatus = (id: string) => {
+    setPromotions((prev) =>
+      prev.map((p) => {
+        if (p.id === id) {
+          const newStatus = p.status === "ACTIVE" ? "PAUSED" : "ACTIVE";
+          toast.info(
+            `Campaign ${newStatus === "ACTIVE" ? "Resumed" : "Paused"}`
+          );
+          return { ...p, status: newStatus as PromotionStatus };
+        }
+        return p;
+      })
+    );
+  };
+
+  const copyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    toast.success("Code copied to clipboard");
+  };
+
+  // --- Filter Logic ---
   const filteredPromotions = useMemo(() => {
     return promotions.filter((p) => {
       const matchesSearch =
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.code.toLowerCase().includes(searchTerm.toLowerCase());
+        p.promoCode.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === "all" || p.status === statusFilter;
-      const matchesScope =
-        scopeFilter === "all" || p.scope.target === scopeFilter;
+      const matchesScope = scopeFilter === "all" || p.scope === scopeFilter;
       return matchesSearch && matchesStatus && matchesScope;
     });
   }, [promotions, searchTerm, statusFilter, scopeFilter]);
@@ -181,28 +128,14 @@ export default function PromotionsPage() {
   const stats = useMemo(
     () => ({
       total: promotions.length,
-      active: promotions.filter((p) => p.status === "active").length,
-      revenue: promotions.reduce((sum, p) => sum + p.revenue, 0),
-      usage: promotions.reduce((sum, p) => sum + p.usageCount, 0),
+      active: promotions.filter((p) => p.status === "ACTIVE").length,
+      paused: promotions.filter((p) => p.status === "PAUSED").length,
     }),
     [promotions]
   );
 
-  const handleCreate = (newPromo: Promotion) => {
-    setPromotions((prev) => [newPromo, ...prev]);
-    setIsCreateModalOpen(false);
-    toast.success("Marketing campaign published successfully!");
-  };
-
-  const handleDelete = (id: string) => {
-    if (confirm("Permanently remove this campaign?")) {
-      setPromotions((prev) => prev.filter((p) => p.id !== id));
-      toast.success("Campaign deleted");
-    }
-  };
-
   return (
-    <div className="max-w-[1400px] mx-auto space-y-8 pb-20 p-4 lg:p-0">
+    <div className="max-w-[1400px] mx-auto space-y-8 pb-20 p-4 lg:p-6">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
@@ -210,15 +143,18 @@ export default function PromotionsPage() {
             Marketing & Banners
           </h1>
           <p className="text-muted-foreground mt-1">
-            Design your storefront offers and target specific categories.
+            Manage storefront promotions and featured homepage banners.
           </p>
         </div>
         <Button
           variant="luxury"
           size="lg"
-          onClick={() => setIsCreateModalOpen(true)}
+          onClick={() => {
+            setEditingPromo(null);
+            setIsModalOpen(true);
+          }}
         >
-          <Plus className="w-5 h-5 mr-2" /> Create New Campaign
+          <Plus className="w-5 h-5 mr-2" /> Create Campaign
         </Button>
       </div>
 
@@ -226,39 +162,39 @@ export default function PromotionsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
-            label: "Active",
+            label: "Total Campaigns",
+            value: stats.total,
+            icon: Tag,
+            color: "text-primary",
+          },
+          {
+            label: "Active Now",
             value: stats.active,
             icon: CheckCircle,
             color: "text-green-600",
           },
           {
-            label: "Total Revenue",
-            value: `AED ${stats.revenue.toLocaleString()}`,
+            label: "Paused",
+            value: stats.paused,
+            icon: PauseCircle,
+            color: "text-amber-500",
+          },
+          {
+            label: "Performance",
+            value: "84%",
             icon: TrendingUp,
-            color: "text-primary",
-          },
-          {
-            label: "Usage",
-            value: stats.usage,
-            icon: Users,
             color: "text-blue-600",
-          },
-          {
-            label: "Campaigns",
-            value: stats.total,
-            icon: Tag,
-            color: "text-muted-foreground",
           },
         ].map((stat, i) => (
           <div
             key={i}
-            className="bg-card border border-border rounded-xl p-5 flex items-center gap-4 shadow-sm"
+            className="bg-card border border-border rounded-2xl p-5 flex items-center gap-4 shadow-sm hover:border-primary/50 transition-colors"
           >
-            <div className={`p-3 rounded-lg bg-muted/50 ${stat.color}`}>
+            <div className={`p-3 rounded-xl bg-muted ${stat.color}`}>
               <stat.icon className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                 {stat.label}
               </p>
               <p className="text-2xl font-bold text-foreground">{stat.value}</p>
@@ -267,181 +203,198 @@ export default function PromotionsPage() {
         ))}
       </div>
 
-      {/* Advanced Filter Toolbar */}
-      <div className="flex flex-col lg:flex-row gap-4 justify-between items-center bg-card p-4 rounded-xl border border-border shadow-sm">
+      {/* Toolbar */}
+      <div className="flex flex-col lg:flex-row gap-4 justify-between items-center bg-card p-4 rounded-2xl border border-border">
         <div className="relative w-full lg:max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search code or campaign..."
-            className="pl-10 bg-background"
+            placeholder="Search campaign name or code..."
+            className="pl-10 bg-background border-border"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <div className="flex flex-wrap gap-2 w-full lg:w-auto">
           <select
-            className="bg-background border border-border rounded-lg px-3 h-10 text-sm outline-none focus:ring-1 focus:ring-primary min-w-[130px]"
+            className="bg-background border border-border rounded-xl px-4 h-11 text-sm outline-none focus:ring-1 focus:ring-primary min-w-[140px] text-foreground"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
           >
             <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="scheduled">Scheduled</option>
+            <option value="ACTIVE">Active</option>
+            <option value="PAUSED">Paused</option>
+            <option value="EXPIRED">Expired</option>
           </select>
           <select
-            className="bg-background border border-border rounded-lg px-3 h-10 text-sm outline-none focus:ring-1 focus:ring-primary min-w-[130px]"
+            className="bg-background border border-border rounded-xl px-4 h-11 text-sm outline-none focus:ring-1 focus:ring-primary min-w-[140px] text-foreground"
             value={scopeFilter}
             onChange={(e) => setScopeFilter(e.target.value)}
           >
             <option value="all">All Targets</option>
-            <option value="all">Store-wide</option>
-            <option value="category">Categories</option>
-            <option value="product">Products</option>
+            <option value="ALL">Store-wide</option>
+            <option value="CATEGORY">Categories</option>
+            <option value="PRODUCT">Products</option>
           </select>
         </div>
       </div>
 
-      {/* Promotions List */}
+      {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {filteredPromotions.map((promo, idx) => (
-          <motion.div
-            key={promo.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.05 }}
-            className="group bg-card border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col"
-          >
-            {/* Banner Preview */}
-            <div className="relative h-44 w-full bg-muted overflow-hidden shrink-0">
-              {promo.bannerImage ? (
-                <img
-                  src={promo.bannerImage}
-                  alt={promo.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-              ) : (
-                <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground/30 gap-2 font-bold uppercase text-[10px] tracking-widest">
-                  <ImageIcon className="w-10 h-10" /> No Image
-                </div>
-              )}
-
-              <div className="absolute top-3 left-3 flex flex-col gap-2">
-                <StatusBadge status={promo.status} />
-                <ScopeIndicator scope={promo.scope} />
-              </div>
-
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute bottom-3 left-4 right-4 flex justify-between items-end">
-                <div>
-                  <p className="text-white/60 text-[9px] uppercase font-bold tracking-[0.2em]">
-                    Promo Code
-                  </p>
-                  <p className="text-white font-mono text-xl font-black">
-                    {promo.code}
-                  </p>
-                </div>
-                <div className="bg-primary text-white px-3 py-1 rounded-full text-xs font-black shadow-lg">
-                  {promo.type === "percentage"
-                    ? `${promo.value}% OFF`
-                    : `AED ${promo.value} OFF`}
-                </div>
-              </div>
-            </div>
-
-            {/* Content Body */}
-            <div className="p-5 flex flex-col flex-1">
-              <div className="mb-4">
-                <h3 className="text-lg font-bold text-foreground leading-tight group-hover:text-primary transition-colors line-clamp-1">
-                  {promo.name}
-                </h3>
-                <p className="text-xs text-muted-foreground mt-1 line-clamp-2 min-h-[32px]">
-                  {promo.description}
-                </p>
-              </div>
-
-              {/* Target Details (If categories) */}
-              {promo.scope.target === "category" && promo.scope.categories && (
-                <div className="mb-4 flex flex-wrap gap-1">
-                  {promo.scope.categories.map((cat) => (
-                    <span
-                      key={cat}
-                      className="text-[9px] bg-muted px-2 py-0.5 rounded-full font-bold text-muted-foreground"
-                    >
-                      #{cat}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {/* Stats & Progress */}
-              <div className="mt-auto space-y-4 pt-4 border-t border-border/50">
-                <div>
-                  <div className="flex justify-between text-[10px] mb-1.5 font-bold uppercase tracking-tight">
-                    <span className="text-muted-foreground">Usage Limit</span>
-                    <span className="text-foreground">
-                      {promo.usageCount} / {promo.usageLimit}
-                    </span>
+        <AnimatePresence mode="popLayout">
+          {filteredPromotions.map((promo) => (
+            <motion.div
+              layout
+              key={promo.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="group bg-card border border-border rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col"
+            >
+              {/* Image Header */}
+              <div className="relative aspect-video bg-muted overflow-hidden">
+                {promo.imageUrl ? (
+                  <img
+                    src={promo.imageUrl}
+                    alt={promo.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground/30">
+                    <ImageIcon className="w-12 h-12" />
                   </div>
-                  <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{
-                        width: `${
-                          (promo.usageCount / promo.usageLimit) * 100
-                        }%`,
+                )}
+
+                {/* Status Badges */}
+                <div className="absolute top-4 left-4 flex flex-col gap-2">
+                  <span
+                    className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-tight border shadow-sm ${
+                      promo.status === "ACTIVE"
+                        ? "bg-green-500 text-white border-green-600"
+                        : promo.status === "PAUSED"
+                        ? "bg-amber-500 text-white border-amber-600"
+                        : "bg-destructive text-white border-destructive"
+                    }`}
+                  >
+                    {promo.status}
+                  </span>
+                </div>
+
+                {/* Promo Code Float */}
+                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+                  <button
+                    onClick={() => copyCode(promo.promoCode)}
+                    className="flex items-center gap-2 bg-background/90 backdrop-blur-md border border-border px-3 py-1.5 rounded-xl hover:bg-primary hover:text-secondary transition-all group/code shadow-lg"
+                  >
+                    <span className="font-mono font-bold text-sm tracking-widest">
+                      {promo.promoCode}
+                    </span>
+                    <Copy className="w-3 h-3 opacity-50 group-hover/code:opacity-100" />
+                  </button>
+                  <div className="bg-primary text-secondary px-4 py-1.5 rounded-xl font-black text-sm shadow-lg">
+                    {promo.discountType === "PERCENTAGE"
+                      ? `${promo.discountValue}% OFF`
+                      : `AED ${promo.discountValue} OFF`}
+                  </div>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="p-6 flex flex-col flex-1 space-y-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground leading-tight group-hover:text-primary transition-colors">
+                      {promo.name}
+                    </h3>
+                    <div className="flex items-center gap-2 mt-1.5 text-xs text-muted-foreground font-medium">
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>
+                        {new Date(promo.startDate).toLocaleDateString()} -{" "}
+                        {new Date(promo.endDate).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-2 bg-muted rounded-xl">
+                    {promo.scope === "ALL" ? (
+                      <Globe className="w-4 h-4 text-primary" />
+                    ) : promo.scope === "CATEGORY" ? (
+                      <LayoutGrid className="w-4 h-4 text-primary" />
+                    ) : (
+                      <ShoppingBag className="w-4 h-4 text-primary" />
+                    )}
+                  </div>
+                </div>
+
+                {promo.scope === "CATEGORY" && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {promo.categories.map((cat) => (
+                      <span
+                        key={cat}
+                        className="text-[10px] bg-muted px-2.5 py-1 rounded-lg font-bold text-muted-foreground uppercase border border-border"
+                      >
+                        #{cat}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="pt-4 border-t border-border mt-auto flex items-center justify-between">
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-xl border-border px-4"
+                      onClick={() => {
+                        setEditingPromo(promo);
+                        setIsModalOpen(true);
                       }}
-                      className="h-full bg-primary"
-                    />
+                    >
+                      <Edit className="w-3.5 h-3.5 mr-2" /> Edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-10 rounded-xl text-destructive hover:bg-destructive/10"
+                      onClick={() => handleDelete(promo.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
-                </div>
 
-                <div className="flex justify-between items-center bg-muted/30 p-2 rounded-lg">
-                  <div className="text-center flex-1 border-r border-border/50">
-                    <p className="text-[9px] uppercase font-bold text-muted-foreground">
-                      Revenue
-                    </p>
-                    <p className="text-sm font-black">
-                      AED {promo.revenue.toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="text-center flex-1">
-                    <p className="text-[9px] uppercase font-bold text-muted-foreground">
-                      Min Order
-                    </p>
-                    <p className="text-sm font-black">
-                      AED {promo.minOrderValue}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 h-9 text-xs font-bold"
+                  <button
+                    onClick={() => toggleStatus(promo.id)}
+                    className={`p-2 rounded-xl transition-all ${
+                      promo.status === "ACTIVE"
+                        ? "text-amber-500 hover:bg-amber-50"
+                        : "text-green-500 hover:bg-green-50"
+                    }`}
+                    title={
+                      promo.status === "ACTIVE"
+                        ? "Pause Campaign"
+                        : "Resume Campaign"
+                    }
                   >
-                    <Edit className="w-3.5 h-3.5 mr-2" /> Edit
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
-                    onClick={() => handleDelete(promo.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                    {promo.status === "ACTIVE" ? (
+                      <PauseCircle className="w-6 h-6" />
+                    ) : (
+                      <PlayCircle className="w-6 h-6" />
+                    )}
+                  </button>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
 
-      {/* Create Modal */}
       <CreatePromotionModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onCreate={handleCreate}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingPromo(null);
+        }}
+        onSave={handleCreateOrUpdate}
+        // Assuming your modal will accept initialData for editing:
+        // initialData={editingPromo}
       />
     </div>
   );
