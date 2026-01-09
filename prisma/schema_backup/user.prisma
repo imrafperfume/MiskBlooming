@@ -18,6 +18,7 @@ model User {
     Order                  Order[]
     Review                 Review[]
     address                String?
+    membershipCard         MembershipCard?
 }
 
 enum Status {

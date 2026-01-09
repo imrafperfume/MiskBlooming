@@ -21,6 +21,7 @@ export const checkoutSchema = z.object({
   deliveryDate: z.string().optional(),
   deliveryTime: z.string().optional(),
   specialInstructions: z.string().max(500, "Special instructions are too long").optional(),
+  hasGiftCard: z.boolean().optional(),
 }).refine((data) => {
   // If delivery type is SCHEDULED, delivery date and time are required
   if (data.deliveryType === "SCHEDULED") {
@@ -44,6 +45,7 @@ export interface CheckoutCalculations {
   codFee: number;
   total: number;
   couponDiscount?: number;
+  giftCardFee?: number;
 }
 
 export interface OrderItem {

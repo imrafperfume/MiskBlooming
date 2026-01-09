@@ -20,7 +20,7 @@ import {
   Download,
   ChevronRight,
 } from "lucide-react";
-import { Button } from "../../../components/ui/Button";
+import { Button } from "../../../components/ui/button";
 import { useQuery } from "@apollo/client";
 import { DASHBOARD_METRICS } from "@/src/modules/dashboard/oprations";
 import Loading from "@/src/components/layout/Loading";

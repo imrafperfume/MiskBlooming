@@ -3,6 +3,19 @@ import { NextResponse } from "next/server";
 import PDFDocument from "pdfkit";
 import path from "path";
 import fs from "fs";
+import { Prisma } from "@prisma/client";
+
+// --- Types ---
+// Define the exact shape of the data we're fetching
+type OrderWithItems = Prisma.OrderGetPayload<{
+  include: {
+    items: {
+      include: {
+        product: true;
+      };
+    };
+  };
+}>;
 
 // --- Configuration ---
 const COLORS = {
@@ -14,7 +27,7 @@ const COLORS = {
   white: "#ffffff",
 };
 
-const COMPANY_INFO = {
+const DEFAULT_COMPANY_INFO = {
   name: "MISK BLOOMING",
   sub: "CHOCOLATES & FLOWERS",
   address: "Location UAE Ajman, Al Tallah",
@@ -22,6 +35,26 @@ const COMPANY_INFO = {
   email: "miskblooming@gmail.com",
   phone: "0504683002",
   instagram: "Miskblooming.ae",
+};
+
+type CompanyInfo = typeof DEFAULT_COMPANY_INFO;
+
+// --- Formatters ---
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat("en-AE", {
+    style: "currency",
+    currency: "AED",
+    minimumFractionDigits: 2,
+  }).format(amount);
+};
+
+const formatDate = (date: Date) => {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "Asia/Dubai",
+  }).format(date);
 };
 
 export async function GET(
@@ -32,22 +65,46 @@ export async function GET(
     const resolvedParams = await params;
     const orderId = resolvedParams.id;
 
+    if (!orderId) {
+      return NextResponse.json({ error: "Order ID is required" }, { status: 400 });
+    }
+
     // 1. Fetch Data
     const order = await prisma.order.findUnique({
       where: { id: orderId },
       include: {
-        items: { include: { product: true } },
+        items: {
+          include: {
+            product: true,
+          },
+        },
       },
     });
+
+    // 2. Fetch Store Settings
+    const storeSettings = await prisma.storeSettings.findFirst();
 
     if (!order) {
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    // 2. Generate PDF
-    const pdfBuffer = await generateInvoicePDF(order);
+    // 3. Prepare Company Info
+    const companyInfo: CompanyInfo = storeSettings
+      ? {
+        name: storeSettings.storeName,
+        sub: storeSettings.description || DEFAULT_COMPANY_INFO.sub,
+        address: storeSettings.address,
+        building: "", // StoreSettings doesn't have a building field yet
+        email: storeSettings.supportEmail,
+        phone: storeSettings.phoneNumber,
+        instagram: storeSettings.instagram || DEFAULT_COMPANY_INFO.instagram,
+      }
+      : DEFAULT_COMPANY_INFO;
 
-    // 3. Return Response
+    // 4. Generate PDF
+    const pdfBuffer = await generateInvoicePDF(order, companyInfo);
+
+    // 5. Return Response
     return new NextResponse(new Uint8Array(pdfBuffer), {
       headers: {
         "Content-Type": "application/pdf",
@@ -57,7 +114,10 @@ export async function GET(
   } catch (error) {
     console.error("Invoice Generation Error:", error);
     return NextResponse.json(
-      { error: "Failed to generate invoice" },
+      {
+        error: "Failed to generate invoice",
+        details: error instanceof Error ? error.message : String(error),
+      },
       { status: 500 }
     );
   }
@@ -66,18 +126,12 @@ export async function GET(
 /**
  * Core PDF Generation Logic
  */
-async function generateInvoicePDF(order: any): Promise<Buffer> {
+/**
+ * Core PDF Generation Logic
+ */
+async function generateInvoicePDF(order: OrderWithItems, companyInfo: CompanyInfo): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    // Create Document
-    const doc = new PDFDocument({ size: "A4", margin: 40, bufferPages: true });
-    const chunks: Buffer[] = [];
-
-    doc.on("data", (chunk: any) => chunks.push(chunk));
-    doc.on("end", () => resolve(Buffer.concat(chunks)));
-    doc.on("error", (err: Error) => reject(err));
-
     // --- Font Setup ---
-    // Make sure these files exist in /public/fonts/ to avoid "Helvetica" fallback
     const regularFontPath = path.join(
       process.cwd(),
       "public/fonts/Poppins-Regular.ttf"
@@ -87,15 +141,37 @@ async function generateInvoicePDF(order: any): Promise<Buffer> {
       "public/fonts/Poppins-Bold.ttf"
     );
 
+    let docOptions: any = { size: "A4", margin: 40, bufferPages: true };
     let fontRegular = "Helvetica";
     let fontBold = "Helvetica-Bold";
 
     // Only use custom fonts if files actually exist
     if (fs.existsSync(regularFontPath) && fs.existsSync(boldFontPath)) {
-      doc.registerFont("Poppins", regularFontPath);
-      doc.registerFont("Poppins-Bold", boldFontPath);
-      fontRegular = "Poppins";
-      fontBold = "Poppins-Bold";
+      docOptions.font = regularFontPath; // Set default font to Custom immediately
+      fontRegular = "Poppins"; // We will register it with alias too just in case, or use path
+      // Actually if we pass path to constructor, it uses that.
+      // But we want to easily switch between regular and bold.
+    }
+
+    // Create Document
+    const doc = new PDFDocument(docOptions);
+    const chunks: Buffer[] = [];
+
+    doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", (err: Error) => reject(err));
+
+    if (fs.existsSync(regularFontPath) && fs.existsSync(boldFontPath)) {
+      try {
+        // Register with aliases for easier usage later
+        doc.registerFont("Poppins", regularFontPath);
+        doc.registerFont("Poppins-Bold", boldFontPath);
+        fontRegular = "Poppins";
+        fontBold = "Poppins-Bold";
+      } catch (e) {
+        reject(new Error(`Failed to register custom fonts: ${e instanceof Error ? e.message : String(e)}`));
+        return;
+      }
     }
 
     // --- Layout ---
@@ -108,7 +184,8 @@ async function generateInvoicePDF(order: any): Promise<Buffer> {
       .font(fontRegular)
       .fontSize(26)
       .fillColor(COLORS.textMain)
-      .text(COMPANY_INFO.name, 0, currentY, {
+      .fillColor(COLORS.textMain)
+      .text(companyInfo.name, 0, currentY, {
         align: "center",
         characterSpacing: 2,
       });
@@ -118,7 +195,8 @@ async function generateInvoicePDF(order: any): Promise<Buffer> {
       .font(fontRegular)
       .fontSize(12)
       .fillColor(COLORS.textMuted)
-      .text(COMPANY_INFO.sub, 0, currentY, {
+      .fillColor(COLORS.textMuted)
+      .text(companyInfo.sub, 0, currentY, {
         align: "center",
         characterSpacing: 3,
       });
@@ -161,7 +239,7 @@ async function generateInvoicePDF(order: any): Promise<Buffer> {
 
     // Left Column
     doc.y = gridTopY;
-    drawInfoRow(col1X, "BILLING TO:", "Walk-in Customer", true);
+    drawInfoRow(col1X, "BILLING TO:", "Walk-in Customer", true); // Default logic maintained
     doc.moveDown(0.5);
     drawInfoRow(col1X, "NAME:", order.firstName || "Guest", true);
     doc.moveDown(0.5);
@@ -179,7 +257,7 @@ async function generateInvoicePDF(order: any): Promise<Buffer> {
     drawInfoRow(
       col2X,
       "DATE ISSUED:",
-      new Date(order.createdAt).toLocaleDateString("en-GB"),
+      formatDate(new Date(order.createdAt)),
       true
     );
 
@@ -217,7 +295,9 @@ async function generateInvoicePDF(order: any): Promise<Buffer> {
 
     // Rows
     let subtotal = 0;
-    order.items.forEach((item: any, index: number) => {
+    order.items.forEach((item, index: number) => {
+      // Assuming item.product.price is correct. If strict types show errors, we might need to cast or access differently.
+      // Based on schema, product.price is Float.
       const itemTotal = item.product.price * item.quantity;
       subtotal += itemTotal;
       const rowHeight = 30;
@@ -238,7 +318,7 @@ async function generateInvoicePDF(order: any): Promise<Buffer> {
         ellipsis: true,
       });
       rowX += colWidths[0];
-      doc.text(item.product.price.toFixed(2), rowX, textY, {
+      doc.text(formatCurrency(item.product.price), rowX, textY, {
         width: colWidths[1],
         align: "center",
       });
@@ -248,7 +328,7 @@ async function generateInvoicePDF(order: any): Promise<Buffer> {
         align: "center",
       });
       rowX += colWidths[2];
-      doc.text(itemTotal.toFixed(2), rowX, textY, {
+      doc.text(formatCurrency(itemTotal), rowX, textY, {
         width: colWidths[3] - 20,
         align: "right",
       });
@@ -285,18 +365,27 @@ async function generateInvoicePDF(order: any): Promise<Buffer> {
     leftY += 25;
 
     doc.fontSize(8).fillColor(COLORS.textMuted);
-    doc.text(`${COMPANY_INFO.name} (sps-l.l.c)`, footerLeftX, leftY);
+    doc.fontSize(8).fillColor(COLORS.textMuted);
+    doc.text(`${companyInfo.name} (sps-l.l.c)`, footerLeftX, leftY);
     leftY += 12;
-    doc.text(COMPANY_INFO.address, footerLeftX, leftY);
+    doc.text(companyInfo.address, footerLeftX, leftY);
     leftY += 12;
-    doc.text(COMPANY_INFO.building, footerLeftX, leftY);
-    leftY += 30;
+    if (companyInfo.building) {
+      doc.text(companyInfo.building, footerLeftX, leftY);
+      leftY += 12; // Only add space if building line exists
+    } else {
+      // Maintain spacing if no building line, or just skip? 
+      // Original code added 12 for text and then 30.
+      // Let's just not print it but keep layout flow if needed.
+      // For now, flexible.
+    }
+    leftY += 18; // Adjust remaining spacing
 
     // Stamp
     const stampY = leftY;
     doc.save();
     doc
-      .circle(footerLeftX + 40, stampY + 20, 30)
+      .circle(footerLeftX + 40, stampY + 20, 30) // Adjusted center to match original visual logic
       .lineWidth(2)
       .strokeColor("#1e40af")
       .stroke();
@@ -313,6 +402,7 @@ async function generateInvoicePDF(order: any): Promise<Buffer> {
     let rightY = currentY;
     const vat = order.vatAmount || 0;
     const discount = order.discount || 0;
+    // Calculation: Subtotal is calculated above.
     const grandTotal = subtotal + vat - discount;
 
     const drawTotal = (l: string, v: string, isBold = false) => {
@@ -324,11 +414,11 @@ async function generateInvoicePDF(order: any): Promise<Buffer> {
       rightY += 20;
     };
 
-    drawTotal("SUBTOTAL", subtotal.toFixed(2));
-    if (discount > 0) drawTotal("DISCOUNT", `- ${discount.toFixed(2)}`);
-    drawTotal("VAT", vat.toFixed(2));
+    drawTotal("SUBTOTAL", formatCurrency(subtotal));
+    if (discount > 0) drawTotal("DISCOUNT", `- ${formatCurrency(discount)}`);
+    drawTotal("VAT", formatCurrency(vat));
     rightY += 5;
-    drawTotal("TOTAL PRICE", grandTotal.toFixed(2), true);
+    drawTotal("TOTAL PRICE", formatCurrency(grandTotal), true);
 
     // End
     doc.end();

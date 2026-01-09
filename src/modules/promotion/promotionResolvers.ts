@@ -12,6 +12,7 @@ export const PromotionResolvers = {
         if (cache) return cache;
 
         const promotions = await prisma.promotion.findMany();
+        if (!promotions) return [];
         await redis.set(CACHE_KEY, JSON.stringify(promotions), {
           ex: 60 * 60, // Cache for 5 minutes
         });
@@ -28,6 +29,7 @@ export const PromotionResolvers = {
         const promotion = await prisma.promotion.findUnique({
           where: { id },
         });
+        if (!promotion) throw new Error("Promotion not found");
         await redis.set(`${CACHE_KEY}:${id}`, JSON.stringify(promotion), {
           ex: 60 * 60, // Cache for 5 minutes
         });

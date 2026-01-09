@@ -28,6 +28,9 @@ export const GET_STORE_SETTINGS = gql`
       expressDeliveryFee
       isScheduledEnabled
       scheduledDeliveryFee
+      # Gift Card
+      isGiftCardEnabled
+      giftCardFee
       facebook
       instagram
       twitter

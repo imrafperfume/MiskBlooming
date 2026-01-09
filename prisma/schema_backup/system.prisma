@@ -46,6 +46,10 @@ model StoreSettings {
 
     // 4. Fees & Thresholds
     codFee    Decimal @default(10.00) @db.Decimal(10, 2) // Cash on Delivery Fee
+    // 5. Gift Card
+    isGiftCardEnabled Boolean @default(false)
+    giftCardFee       Decimal @default(5.00) @db.Decimal(10, 2)
+
     facebook  String?
     instagram String?
     twitter   String?

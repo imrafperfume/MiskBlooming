@@ -1,5 +1,5 @@
-import Button from "@/src/components/ui/Button";
-import { Input } from "@/src/components/ui/Input";
+import Button from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
 import RichTextEditor from "@/src/components/ui/RichTextEditor";
 import { Heart, Plus, Tag, X } from "lucide-react";
 import React from "react";

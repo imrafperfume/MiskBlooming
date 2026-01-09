@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import Button from "../ui/Button";
+import Button from "../ui/button";
 
 interface ProductInfoProps {
   product: Product;

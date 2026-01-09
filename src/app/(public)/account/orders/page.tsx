@@ -14,7 +14,7 @@ import {
   Navigation,
   ArrowRight,
 } from "lucide-react";
-import { Button } from "../../../../components/ui/Button";
+import { Button } from "../../../../components/ui/button";
 import { useQuery } from "@apollo/client";
 import { GET_ORDERS_BY_USER } from "@/src/modules/order/operations";
 import { useAuth } from "@/src/hooks/useAuth";

@@ -2,7 +2,7 @@
 
 import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { ReactNode } from "react";
-import Button from "./ui/Button";
+import Button from "./ui/button";
 
 type DeleteAlertProps = {
   title?: string;

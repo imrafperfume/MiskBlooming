@@ -31,6 +31,8 @@ export const OrderTypeDefs = gql`
     productId: String!
     quantity: Int!
     price: Float!
+    size: String
+    color: String
   }
 
   input CreateOrderInput {
@@ -60,6 +62,8 @@ export const OrderTypeDefs = gql`
 
     items: [OrderItemInput!]!
     couponCode: String
+    hasGiftCard: Boolean
+    giftCardFee: Float
     totalAmount: Float!
   }
 
@@ -87,6 +91,11 @@ export const OrderTypeDefs = gql`
     deliveryCost: Float
     vatAmount: Float
     discount: Float
+    
+    # Gift Card
+    hasGiftCard: Boolean
+    giftCardFee: Float
+
     specialInstructions: String
 
     status: OrderStatus
@@ -103,6 +112,8 @@ export const OrderTypeDefs = gql`
     productId: String!
     quantity: Int!
     price: Float!
+    size: String
+    color: String
     product: Product!
   }
   type OrderStats {

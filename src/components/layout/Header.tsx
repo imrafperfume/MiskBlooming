@@ -24,7 +24,7 @@ import {
   LayoutDashboard,
   House,
 } from "lucide-react";
-import { Button } from "../ui/Button";
+import { Button } from "../ui/button";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
 import { useAuth, useLogout } from "@/src/hooks/useAuth";

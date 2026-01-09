@@ -4,7 +4,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Heart, Truck, Award, Leaf, Gift, ArrowRight } from "lucide-react";
-import { Button } from "../../../components/ui/Button";
+import { Button } from "../../../components/ui/button";
+import { useQuery } from "@apollo/client";
+import { GET_ABOUTCONTENT } from "@/src/modules/contentManagment/oparation";
 
 // Animation Variants for cleaner code and performance
 const fadeInUp = {
@@ -100,13 +102,30 @@ const team = [
 ];
 
 export default function AboutPage() {
+  const { data } = useQuery(GET_ABOUTCONTENT, { fetchPolicy: "cache-first" });
+  const content = data?.getAboutPageContent;
+
   return (
     <main className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Hero Section */}
       <section className="relative py-20 md:py-32 overflow-hidden">
-        {/* Abstract Background Decoration */}
-        <div className="absolute top-0 left-0 w-full h-full bg-primary/5 -z-10" />
-        <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-primary/10 rounded-full blur-3xl opacity-50" />
+        {/* Abstract Background Decoration or Dynamic Image */}
+        {content?.heroImage ? (
+           <div className="absolute inset-0 z-[-10]">
+            <Image
+              src={content.heroImage}
+              alt="About Hero"
+              fill
+              className="object-cover opacity-30"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+          </div>
+        ) : (
+          <>
+            <div className="absolute top-0 left-0 w-full h-full bg-primary/5 -z-10" />
+            <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-primary/10 rounded-full blur-3xl opacity-50" />
+          </>
+        )}
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -119,12 +138,16 @@ export default function AboutPage() {
               Est. 2019 • Dubai, UAE
             </span>
             <h1 className="font-cormorant text-5xl md:text-7xl font-bold mb-8 leading-tight text-foreground">
-              Cultivating Moments of{" "}
-              <span className="text-primary italic">Pure Joy</span>
+              {content?.heroTitle || (
+                <>
+                  Cultivating Moments of{" "}
+                  <span className="text-primary italic">Pure Joy</span>
+                </>
+              )}
             </h1>
             <p className="text-lg md:text-2xl text-muted-foreground leading-relaxed">
-              Dubai's premier destination for luxury flowers and gifts. Bringing
-              elegance and sweetness to your doorstep.
+              {content?.heroDesc ||
+                "Dubai's premier destination for luxury flowers and gifts. Bringing elegance and sweetness to your doorstep."}
             </p>
           </motion.div>
         </div>
@@ -141,19 +164,16 @@ export default function AboutPage() {
               // variants={fadeInUp}
             >
               <h2 className="font-cormorant text-4xl md:text-5xl font-bold text-foreground mb-6">
-                Our Story
+                {content?.storyTitle || "Our Story"}
               </h2>
               <div className="space-y-6 text-muted-foreground text-lg leading-relaxed">
                 <p>
-                  Misk Blooming was born from a simple belief: that flowers have
-                  the power to transform moments into memories. Founded in Dubai
-                  in 2019, we started as a small local florist with a big dream.
+                  {content?.storyDesc1 ||
+                    "Misk Blooming was born from a simple belief: that flowers have the power to transform moments into memories. Founded in Dubai in 2019, we started as a small local florist with a big dream."}
                 </p>
                 <p>
-                  What began as a passion project has grown into Dubai's most
-                  trusted flower and gift delivery service. We've expanded our
-                  offerings to include premium chocolates, fresh cakes, and
-                  thoughtful gift sets, without compromising on quality.
+                  {content?.storyDesc2 ||
+                    "What began as a passion project has grown into Dubai's most trusted flower and gift delivery service. We've expanded our offerings to include premium chocolates, fresh cakes, and thoughtful gift sets, without compromising on quality."}
                 </p>
                 <div className="pt-4">
                   <Link
@@ -177,7 +197,7 @@ export default function AboutPage() {
               <div className="absolute inset-0 border-2 border-primary/20 rounded-2xl transform translate-x-4 translate-y-4 z-0" />
               <div className="relative aspect-[4/5] rounded-2xl overflow-hidden bg-muted z-10 shadow-xl">
                 <Image
-                  src="/placeholder.svg?height=800&width=600&text=Our+Story"
+                  src={content?.storyImage || "/placeholder.svg?height=800&width=600&text=Our+Story"}
                   alt="Misk Blooming Flower Arrangement"
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"

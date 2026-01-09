@@ -74,6 +74,13 @@ const tabs = [
     href: "/dashboard/settings/integrations",
     description: "Connected apps",
   },
+  {
+    id: "admins",
+    name: "Admin Management",
+    icon: Shield,
+    href: "/dashboard/settings/admins",
+    description: "Manage admin roles",
+  },
 ];
 
 export default function SettingsLayout({
@@ -116,19 +123,17 @@ export default function SettingsLayout({
                     href={tab.href}
                     className={`
                       group relative flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200
-                      ${
-                        active
-                          ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      ${active
+                        ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
                       }
                     `}
                   >
                     <tab.icon
-                      className={`w-4 h-4 shrink-0 transition-colors ${
-                        active
+                      className={`w-4 h-4 shrink-0 transition-colors ${active
                           ? "text-primary-foreground"
                           : "group-hover:text-foreground"
-                      }`}
+                        }`}
                     />
                     <div className="flex flex-col leading-none">
                       <span>{tab.name}</span>

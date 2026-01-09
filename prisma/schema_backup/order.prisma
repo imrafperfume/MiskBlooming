@@ -33,6 +33,11 @@ model Order {
     codFee              Float        @default(0)
     vatAmount           Float        @default(0)
     discount            Float        @default(0)
+    
+    // Gift Card
+    hasGiftCard         Boolean      @default(false)
+    giftCardFee         Float        @default(0)
+
     // Order Meta
     status              OrderStatus  @default(PENDING)
     totalAmount         Float

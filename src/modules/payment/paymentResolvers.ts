@@ -11,7 +11,7 @@ export const paymentResolvers = {
       context: { userId: string }
     ) => {
       const { userId } = context;
-      if (!userId) throw new Error("user ID not found");
+      // if (!userId) throw new Error("user ID not found");
       // const role = await isAdmin(userId);
       // if (role.role !== "ADMIN") throw new Error("Not authorized");
       try {

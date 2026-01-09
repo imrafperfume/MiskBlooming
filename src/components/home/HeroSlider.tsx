@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import { Button } from "../ui/Button";
+import { Button } from "../ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import type { HeroSlide } from "../../types";
 import cloudinaryLoader from "@/src/lib/imageLoader";
@@ -22,7 +22,7 @@ interface NormalizedHeroSlide extends Omit<HeroSlide, "buttons"> {
   buttons: ButtonLink[];
 }
 
-const HeroSlider = () => {
+const HeroSlider = ({ slides = [] }: { slides?: any[] }) => {
   // --- State ---
   const [currentSlide, setCurrentSlide] = useState(0);
   const [heroSlides, setHeroSlides] = useState<NormalizedHeroSlide[]>([]);
@@ -31,48 +31,70 @@ const HeroSlider = () => {
 
   // --- Data Fetching (Parallel) ---
   const { data: systemData } = useQuery(GET_SYSTEM_SETTING, {
-    fetchPolicy: "cache-first", // Don't re-fetch layout on every mount
+    fetchPolicy: "cache-first", 
   });
 
   const layout = systemData?.getSystemSetting?.layoutStyle || "full";
 
   useEffect(() => {
-    const controller = new AbortController();
+    if (slides && slides.length > 0) {
+      // Normalize props data
+      const processed = slides.map((slide: any, index: number) => ({
+         id: `slide-${index}`,
+         title: slide.title,
+         subtitle: slide.subtitle, 
+         description: slide.description || slide.subtitle,
+         imageUrl: slide.image || slide.imageUrl, // Handle both structures
+         buttons: slide.link ? [{ text: "Shop Now", link: slide.link }] : (slide.buttons || []),
+         published: true,
+         order: index
+      }));
+       setHeroSlides(processed);
+       setIsLoading(false);
+    } else {
+       // Fetch from existing API (dashboard/hero system)
+       const fetchSlides = async () => {
+         try {
+           const res = await fetch("/api/hero-slides");
+           if (res.ok) {
+             const data = await res.json();
+             if (Array.isArray(data) && data.length > 0) {
+                // Determine if we need to filter by 'published' (usually API returns all for admin, but verify)
+                // Assuming client-side should show only published?
+                // The API seems to return all. Let's filter here if needed, or assume API handles it?
+                // Looking at route.ts, it returns all. Client should filter.
+                const published = data.filter((s: any) => s.published !== false);
+                
+                if (published.length > 0) {
+                    const sorted = published.sort((a: any, b: any) => a.order - b.order);
+                    setHeroSlides(sorted);
+                    setIsLoading(false);
+                    return;
+                }
+             }
+           }
+         } catch (e) {
+           console.error("Failed to fetch hero slides", e);
+         }
 
-    const fetchHeroSlides = async () => {
-      try {
-        const res = await fetch("/api/hero-slides", {
-          signal: controller.signal,
-        });
-        if (!res.ok) throw new Error("Failed to fetch slides");
+          // Fallback if API fails or is empty
+          const defaultSlide: NormalizedHeroSlide = {
+              id: "default-hero",
+              title: "Welcome to Misk Blooming",
+              subtitle: "Luxury Floral Arrangements",
+              description: "Experience the elegance of our hand-crafted bouquets designed for every occasion.",
+              imageUrl: "/luxury-flower-shop.png",
+              buttons: [{ text: "Shop Collection", link: "/products" }],
+              published: true,
+              order: 0
+          };
+          setHeroSlides([defaultSlide]);
+          setIsLoading(false);
+       };
 
-        const rawData: any[] = await res.json();
-
-        // Normalize and Sort Data immediately once
-        const processed = rawData
-          .filter((s) => s.published)
-          .sort((a, b) => a.order - b.order)
-          .map((slide) => ({
-            ...slide,
-            // Ensure buttons is always an array
-            buttons: Array.isArray(slide.buttons)
-              ? slide.buttons
-              : slide.buttons
-              ? [slide.buttons]
-              : [],
-          }));
-
-        setHeroSlides(processed);
-      } catch (error: any) {
-        if (error.name !== "AbortError") console.error("Slider Error:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchHeroSlides();
-    return () => controller.abort();
-  }, []);
+       fetchSlides();
+    }
+  }, [slides]);
 
   // --- Auto Play Logic ---
   const startAutoPlay = useCallback(() => {

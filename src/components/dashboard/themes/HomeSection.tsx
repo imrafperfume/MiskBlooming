@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import { useForm, SubmitHandler, Controller } from "react-hook-form";
+import { ListManager } from "./ListManager";
 import {
   Accordion,
   AccordionContent,
@@ -10,8 +11,8 @@ import {
   AccordionTrigger,
 } from "@radix-ui/react-accordion";
 import { ChevronDown, Save, Loader2, AlertCircle } from "lucide-react";
-import { Input } from "../../ui/Input";
-import Button from "../../ui/Button";
+import { Input } from "../../ui/input";
+import Button from "../../ui/button";
 import { useMutation, useQuery } from "@apollo/client";
 import {
   GET_HOMPAGECONTENT,
@@ -36,6 +37,9 @@ type HomeContentFormData = {
   testimonialDesc: string;
   newsletterTitle: string;
   newsletterDesc: string;
+  heroSlides: { title: string; subtitle: string; image: string; link: string }[];
+  stats: { number: string; label: string }[];
+  testimonials: { name: string; role: string; content: string; image: string }[];
 };
 
 // Define expected return type from GraphQL
@@ -86,6 +90,7 @@ export default function HomeSection() {
   // 2. Form Initialization
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors, isDirty },
@@ -102,8 +107,18 @@ export default function HomeSection() {
 
   // 4. Submit Handler
   const onSubmit: SubmitHandler<HomeContentFormData> = async (formData) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, __typename, ...cleanedData } = formData as any;
+
+    const input = {
+      ...cleanedData,
+      heroSlides: data?.getHomePageContent?.heroSlides || [], // Preserve existing slides as they are managed separately
+      stats: formData.stats || [],
+      testimonials: formData.testimonials || [],
+    };
+
     const promise = updateHomePageContent({
-      variables: { input: formData },
+      variables: { input },
     });
 
     toast.promise(promise, {
@@ -168,6 +183,31 @@ export default function HomeSection() {
 
           <AccordionContent className="px-6 pb-6 pt-2">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+              {/* Hero Slider Section - Managed separately now
+              <ContentSection title="Hero Slides">
+                <div className="col-span-1 md:col-span-2">
+                  <Controller
+                    control={control}
+                    name="heroSlides"
+                    render={({ field }) => (
+                      <ListManager
+                        title="Hero Slides"
+                        items={field.value || []}
+                        onUpdate={field.onChange}
+                        fields={[
+                          { name: "image", label: "Example Data (Use 'image' as key)", type: "image" },
+                          { name: "title", label: "Title", type: "text" },
+                          { name: "subtitle", label: "Subtitle", type: "text" },
+                          { name: "link", label: "Link URL", type: "text" },
+                        ]}
+                        description="Manage the main hero slider images."
+                      />
+                    )}
+                  />
+                </div>
+              </ContentSection>
+              */}
+
               {/* Category Section */}
               <ContentSection title="Category Section">
                 <div className="space-y-1">
@@ -238,6 +278,8 @@ export default function HomeSection() {
                 </div>
               </ContentSection>
 
+
+
               {/* Excellence Section */}
               <ContentSection title="Excellence Section">
                 <Input
@@ -250,6 +292,24 @@ export default function HomeSection() {
                   placeholder="Excellence Subtitle"
                   disabled={saving}
                 />
+                <div className="col-span-1 md:col-span-2">
+                  <Controller
+                    control={control}
+                    name="stats"
+                    render={({ field }) => (
+                      <ListManager
+                        title="Statistics"
+                        items={field.value || []}
+                        onUpdate={field.onChange}
+                        fields={[
+                          { name: "number", label: "Number (e.g. 1000+)", type: "text" },
+                          { name: "label", label: "Label", type: "text" },
+                        ]}
+                        description="Key performance metrics."
+                      />
+                    )}
+                  />
+                </div>
               </ContentSection>
 
               {/* Testimonials Section */}
@@ -264,6 +324,26 @@ export default function HomeSection() {
                   placeholder="Short Description"
                   disabled={saving}
                 />
+                <div className="col-span-1 md:col-span-2">
+                  <Controller
+                    control={control}
+                    name="testimonials"
+                    render={({ field }) => (
+                      <ListManager
+                        title="Client Reviews"
+                        items={field.value || []}
+                        onUpdate={field.onChange}
+                        fields={[
+                          { name: "image", label: "Client Photo", type: "image" },
+                          { name: "name", label: "Client Name", type: "text" },
+                          { name: "role", label: "Client Role", type: "text" },
+                          { name: "content", label: "Review Content", type: "textarea" },
+                        ]}
+                        description="Manage client testimonials."
+                      />
+                    )}
+                  />
+                </div>
               </ContentSection>
 
               {/* Newsletter Section */}

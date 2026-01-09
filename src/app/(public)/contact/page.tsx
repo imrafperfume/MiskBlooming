@@ -3,6 +3,7 @@
 import type React from "react";
 
 import { useState } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   MapPin,
@@ -14,11 +15,16 @@ import {
   Truck,
   Gift,
 } from "lucide-react";
-import { Button } from "../../../components/ui/Button";
-import { Input } from "../../../components/ui/Input";
+import { Button } from "../../../components/ui/button";
+import { Input } from "../../../components/ui/input";
 import MapEmbed from "@/src/components/Map";
+import { useQuery } from "@apollo/client";
+import { GET_CONTACTCONTENT } from "@/src/modules/contentManagment/oparation";
 
 export default function ContactPage() {
+  const { data } = useQuery(GET_CONTACTCONTENT, { fetchPolicy: "cache-first" });
+  const content = data?.getContactPageContent;
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -108,8 +114,18 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="py-24 bg-gradient-to-r from-luxury-500 to-primary text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative py-24 bg-gradient-to-r from-luxury-500 to-primary text-white overflow-hidden">
+        {content?.heroImage && (
+          <div className="absolute inset-0 z-0">
+             <Image // Needs import if not present, but page has it? Checking imports...
+               src={content.heroImage}
+               alt="Contact Hero"
+               fill
+               className="object-cover opacity-40 mix-blend-overlay"
+             />
+          </div>
+        )}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             className="text-center"
             initial={{ opacity: 0, y: 30 }}
@@ -117,11 +133,11 @@ export default function ContactPage() {
             transition={{ duration: 0.6 }}
           >
             <h1 className="font-cormorant text-5xl md:text-6xl font-bold mb-6">
-              Contact Us
+              {content?.heroTitle || "Contact Us"}
             </h1>
             <p className="text-xl md:text-2xl max-w-3xl mx-auto">
-              We're here to help make your special moments even more beautiful.
-              Get in touch with our team today.
+              {content?.heroDesc ||
+                "We're here to help make your special moments even more beautiful. Get in touch with our team today."}
             </p>
           </motion.div>
         </div>

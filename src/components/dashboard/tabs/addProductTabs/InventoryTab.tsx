@@ -1,6 +1,6 @@
 import React from "react";
 import { TabProps } from "../types";
-import { Input } from "@/src/components/ui/Input";
+import { Input } from "@/src/components/ui/input";
 
 function InventoryTab({
   formData,

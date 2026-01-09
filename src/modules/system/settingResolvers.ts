@@ -15,9 +15,11 @@ const formatSettings = (settings: StoreSettings) => {
       : null,
 
     // --- NEW FIELDS (Decimal conversion) ---
-    codFee: Number(settings.codFee),
-    expressDeliveryFee: Number(settings.expressDeliveryFee),
-    scheduledDeliveryFee: Number(settings.scheduledDeliveryFee),
+    codFee: Number((settings as any).codFee || 0),
+    expressDeliveryFee: Number((settings as any).expressDeliveryFee || 0),
+    scheduledDeliveryFee: Number((settings as any).scheduledDeliveryFee || 0),
+    giftCardFee: Number((settings as any).giftCardFee || 5.0),
+    isGiftCardEnabled: (settings as any).isGiftCardEnabled ?? false,
   };
 };
 
@@ -100,18 +102,20 @@ export const SettingResolvers = {
           facebook: args.input.facebook,
           instagram: args.input.instagram,
           twitter: args.input.twitter,
+          isGiftCardEnabled: args.input.isGiftCardEnabled,
+          giftCardFee: args.input.giftCardFee,
         };
 
         if (existingSettings) {
           // UPDATE
           updatedSettings = await prisma.storeSettings.update({
             where: { id: existingSettings.id },
-            data: dataPayload,
+            data: dataPayload as any,
           });
         } else {
           // CREATE (Fallback if no ID exists)
           updatedSettings = await prisma.storeSettings.create({
-            data: dataPayload,
+            data: dataPayload as any,
           });
         }
 
@@ -123,9 +127,9 @@ export const SettingResolvers = {
         });
 
         return formattedResult;
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error saving store settings:", error);
-        throw new Error("Failed to save settings. Please check your inputs.");
+        throw new Error(`Failed to save settings: ${error.message}`);
       }
     },
 
@@ -173,7 +177,9 @@ export const SettingResolvers = {
             facebook: args.input.facebook,
             instagram: args.input.instagram,
             twitter: args.input.twitter,
-          },
+            isGiftCardEnabled: args.input.isGiftCardEnabled,
+            giftCardFee: args.input.giftCardFee,
+          } as any,
         });
 
         const formattedResult = formatSettings(newStore);

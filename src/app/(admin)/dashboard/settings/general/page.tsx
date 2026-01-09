@@ -21,6 +21,7 @@ import {
   CalendarClock,
   Banknote,
   Earth,
+  Gift,
 } from "lucide-react";
 import { toast } from "sonner";
 import { uploadToCloudinary } from "@/src/lib/cloudinary";
@@ -68,6 +69,11 @@ interface StoreSettingsFormData {
   // Scheduled
   isScheduledEnabled: boolean;
   scheduledDeliveryFee: number;
+
+  // Gift Card
+  isGiftCardEnabled: boolean;
+  giftCardFee: number;
+
   facebook?: string;
   instagram?: string;
   twitter?: string;
@@ -124,6 +130,8 @@ export default function StoreSettingsForm() {
       expressDeliveryFee: 30,
       isScheduledEnabled: false,
       scheduledDeliveryFee: 0,
+      isGiftCardEnabled: false,
+      giftCardFee: 5,
       facebook: "",
       instagram: "",
       twitter: "",
@@ -156,6 +164,8 @@ export default function StoreSettingsForm() {
           expressDeliveryFee: s.expressDeliveryFee,
           isScheduledEnabled: s.isScheduledEnabled,
           scheduledDeliveryFee: s.scheduledDeliveryFee,
+          isGiftCardEnabled: s.isGiftCardEnabled,
+          giftCardFee: s.giftCardFee,
           facebook: s.facebook || "",
           instagram: s.instagram || "",
           twitter: s.twitter || "",
@@ -183,6 +193,7 @@ export default function StoreSettingsForm() {
   const deliveryMethod = watch("deliveryMethod");
   const isExpress = watch("isExpressEnabled");
   const isScheduled = watch("isScheduledEnabled");
+  const isGiftCard = watch("isGiftCardEnabled");
 
   // 4. Handlers
   async function onUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -232,6 +243,7 @@ export default function StoreSettingsForm() {
         codFee: Number(formData.codFee),
         expressDeliveryFee: Number(formData.expressDeliveryFee),
         scheduledDeliveryFee: Number(formData.scheduledDeliveryFee),
+        giftCardFee: Number(formData.giftCardFee),
         freeShippingThreshold: formData.freeShippingThreshold
           ? Number(formData.freeShippingThreshold)
           : null,
@@ -334,9 +346,8 @@ export default function StoreSettingsForm() {
               <div className="space-y-2 flex-1">
                 <div className="flex items-center gap-3">
                   <label
-                    className={`cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-background hover:bg-accent h-9 px-4 shadow-sm ${
-                      isUploading ? "opacity-50" : ""
-                    }`}
+                    className={`cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-background hover:bg-accent h-9 px-4 shadow-sm ${isUploading ? "opacity-50" : ""
+                      }`}
                   >
                     <Upload className="w-4 h-4 mr-2" /> Upload
                     <input
@@ -543,11 +554,10 @@ export default function StoreSettingsForm() {
               {/* Method Switcher */}
               <div className="flex bg-muted rounded-md p-1">
                 <label
-                  className={`px-3 py-1 text-xs font-medium rounded-sm cursor-pointer transition-all ${
-                    deliveryMethod === "flat"
-                      ? "bg-background shadow text-foreground"
-                      : "text-muted-foreground"
-                  }`}
+                  className={`px-3 py-1 text-xs font-medium rounded-sm cursor-pointer transition-all ${deliveryMethod === "flat"
+                    ? "bg-background shadow text-foreground"
+                    : "text-muted-foreground"
+                    }`}
                 >
                   <input
                     type="radio"
@@ -558,11 +568,10 @@ export default function StoreSettingsForm() {
                   Flat Rate
                 </label>
                 <label
-                  className={`px-3 py-1 text-xs font-medium rounded-sm cursor-pointer transition-all ${
-                    deliveryMethod === "emirate"
-                      ? "bg-background shadow text-foreground"
-                      : "text-muted-foreground"
-                  }`}
+                  className={`px-3 py-1 text-xs font-medium rounded-sm cursor-pointer transition-all ${deliveryMethod === "emirate"
+                    ? "bg-background shadow text-foreground"
+                    : "text-muted-foreground"
+                    }`}
                 >
                   <input
                     type="radio"
@@ -609,13 +618,13 @@ export default function StoreSettingsForm() {
                         type="number"
                         {...register(
                           `deliveryEmirates.${e.key}` as
-                            | "deliveryEmirates.abu_dhabi"
-                            | "deliveryEmirates.dubai"
-                            | "deliveryEmirates.sharjah"
-                            | "deliveryEmirates.ajman"
-                            | "deliveryEmirates.umm_al_quwain"
-                            | "deliveryEmirates.ras_al_khaimah"
-                            | "deliveryEmirates.fujairah",
+                          | "deliveryEmirates.abu_dhabi"
+                          | "deliveryEmirates.dubai"
+                          | "deliveryEmirates.sharjah"
+                          | "deliveryEmirates.ajman"
+                          | "deliveryEmirates.umm_al_quwain"
+                          | "deliveryEmirates.ras_al_khaimah"
+                          | "deliveryEmirates.fujairah",
                           {
                             valueAsNumber: true,
                             min: 0,
@@ -632,16 +641,14 @@ export default function StoreSettingsForm() {
 
           {/* 3. Express Delivery */}
           <div
-            className={`space-y-4 border rounded-lg p-4 transition-colors ${
-              isExpress ? "border-primary/50 bg-primary/5" : "border-border"
-            }`}
+            className={`space-y-4 border rounded-lg p-4 transition-colors ${isExpress ? "border-primary/50 bg-primary/5" : "border-border"
+              }`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Zap
-                  className={`w-4 h-4 ${
-                    isExpress ? "text-primary" : "text-muted-foreground"
-                  }`}
+                  className={`w-4 h-4 ${isExpress ? "text-primary" : "text-muted-foreground"
+                    }`}
                 />
                 <label
                   htmlFor="enableExpress"
@@ -682,16 +689,14 @@ export default function StoreSettingsForm() {
 
           {/* 4. Scheduled Delivery */}
           <div
-            className={`space-y-4 border rounded-lg p-4 transition-colors ${
-              isScheduled ? "border-primary/50 bg-primary/5" : "border-border"
-            }`}
+            className={`space-y-4 border rounded-lg p-4 transition-colors ${isScheduled ? "border-primary/50 bg-primary/5" : "border-border"
+              }`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CalendarClock
-                  className={`w-4 h-4 ${
-                    isScheduled ? "text-primary" : "text-muted-foreground"
-                  }`}
+                  className={`w-4 h-4 ${isScheduled ? "text-primary" : "text-muted-foreground"
+                    }`}
                 />
                 <label
                   htmlFor="enableSchedule"
@@ -729,8 +734,59 @@ export default function StoreSettingsForm() {
               </div>
             )}
           </div>
+
+          {/* 5. Gift Card */}
+          <div
+            className={`space-y-4 border rounded-lg p-4 transition-colors ${isGiftCard ? "border-primary/50 bg-primary/5" : "border-border"
+              }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Gift
+                  className={`w-4 h-4 ${isGiftCard ? "text-primary" : "text-muted-foreground"
+                    }`}
+                />
+                <label
+                  htmlFor="enableGiftCard"
+                  className="text-sm font-semibold cursor-pointer"
+                >
+                  Gift Card Feature
+                </label>
+              </div>
+              <input
+                id="enableGiftCard"
+                type="checkbox"
+                {...register("isGiftCardEnabled")}
+                className="w-4 h-4 rounded border-input text-primary focus:ring-primary"
+              />
+            </div>
+
+            {isGiftCard && (
+              <div className="grid gap-2 animate-in slide-in-from-top-2 duration-200">
+                <label className="text-xs text-muted-foreground">
+                  Gift Card Fee
+                </label>
+                <div className="relative max-w-[200px]">
+                  <span className="absolute left-3 top-2.5 text-xs font-bold text-muted-foreground">
+                    {currentCurrency}
+                  </span>
+                  <input
+                    type="number"
+                    {...register("giftCardFee", {
+                      valueAsNumber: true,
+                      min: 0,
+                    })}
+                    className="flex h-10 w-full rounded-md border border-input bg-background pl-12 pr-3 py-2 text-sm focus-visible:ring-2"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>{" "}
+      </div>
+
+      <div className="h-px bg-border" />
+
       {/* Socail media Links */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div className="space-y-1">
@@ -795,6 +851,6 @@ export default function StoreSettingsForm() {
           )}
         </button>
       </div>
-    </form>
+    </form >
   );
 }

@@ -15,9 +15,14 @@ export type HomeContentFormData = {
   testimonialDesc: string;
   newsletterTitle: string;
   newsletterDesc: string;
+  heroSlides?: any;
+  stats?: any;
+  testimonials?: any;
 };
 
 export const ManagementTypeDefs = gql`
+  scalar JSON
+
   type HomePageContent {
     id: ID!
     categoryTitle: String!
@@ -34,6 +39,9 @@ export const ManagementTypeDefs = gql`
     testimonialDesc: String!
     newsletterTitle: String!
     newsletterDesc: String!
+    heroSlides: JSON
+    stats: JSON
+    testimonials: JSON
   }
 
   input HomePageContentInput {
@@ -51,6 +59,9 @@ export const ManagementTypeDefs = gql`
     testimonialDesc: String!
     newsletterTitle: String!
     newsletterDesc: String!
+    heroSlides: JSON
+    stats: JSON
+    testimonials: JSON
   }
 
   # //collection content type defs
@@ -71,5 +82,54 @@ export const ManagementTypeDefs = gql`
   type Mutation {
     updateHomePageContent(input: HomePageContentInput!): HomePageContent!
     updateCollectionContent(input: CollectionInput!): Collection!
+    updateAboutPageContent(input: AboutPageInput!): AboutPageContent!
+    updateContactPageContent(input: ContactPageInput!): ContactPageContent!
+  }
+
+  type AboutPageContent {
+    id: ID!
+    heroTitle: String!
+    heroDesc: String!
+    heroImage: String
+    storyTitle: String!
+    storyDesc1: String!
+    storyDesc2: String!
+    storyImage: String
+    stats: JSON!
+    values: JSON!
+    team: JSON!
+  }
+
+  input AboutPageInput {
+    heroTitle: String!
+    heroDesc: String!
+    heroImage: String
+    storyTitle: String!
+    storyDesc1: String!
+    storyDesc2: String!
+    storyImage: String
+    stats: JSON!
+    values: JSON!
+    team: JSON!
+  }
+
+  type ContactPageContent {
+    id: ID!
+    heroTitle: String!
+    heroDesc: String!
+    heroImage: String
+    contactInfo: JSON!
+  }
+
+  input ContactPageInput {
+    heroTitle: String!
+    heroDesc: String!
+    heroImage: String
+    contactInfo: JSON!
+  }
+
+  extend type Query {
+    getAboutPageContent: AboutPageContent!
+    getContactPageContent: ContactPageContent!
   }
 `;

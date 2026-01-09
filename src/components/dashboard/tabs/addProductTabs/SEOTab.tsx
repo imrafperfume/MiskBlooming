@@ -1,5 +1,5 @@
-import Button from "@/src/components/ui/Button";
-import { Input } from "@/src/components/ui/Input";
+import Button from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
 import { Plus, Search, X } from "lucide-react";
 import React from "react";
 import { TabProps } from "../types";

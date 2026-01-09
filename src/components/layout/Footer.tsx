@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import {
   Facebook,
@@ -11,58 +9,77 @@ import {
   Heart,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { gql, useQuery } from "@apollo/client";
+
+const GET_FOOTER_CONTENT = gql`
+  query GetFooterContent {
+    getFooterContent {
+      id
+      brandDesc
+      phone
+      email
+      address
+      facebook
+      instagram
+      twitter
+      newsletterTitle
+      newsletterDesc
+      copyrightText
+      footerLinks {
+        title
+        links {
+            name
+            href
+        }
+      }
+    }
+  }
+`;
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-
-  const footerLinks = {
-    Shop: [
-      { name: "Fresh Flowers", href: "/products?category=roses" },
-      { name: "Premium Chocolates", href: "/products?category=chocolates" },
-      { name: "Fresh Cakes", href: "/products?category=cakes" },
-      { name: "Gift Sets", href: "/products?category=gift-sets" },
-      { name: "Indoor Plants", href: "/products?category=plants" },
-    ],
-    Occasions: [
-      { name: "Valentine's Day", href: "/occasions/valentines" },
-      { name: "Mother's Day", href: "/occasions/mothers-day" },
-      { name: "Birthdays", href: "/occasions/birthday" },
-      { name: "Anniversaries", href: "/occasions/anniversary" },
-      { name: "Congratulations", href: "/occasions/congratulations" },
-    ],
-    Services: [
-      { name: "Same-Day Delivery", href: "/delivery" },
-      { name: "Custom Arrangements", href: "/custom" },
-      { name: "Corporate Orders", href: "/corporate" },
-      { name: "Subscription Service", href: "/subscription" },
-      { name: "Gift Cards", href: "/gift-cards" },
-    ],
-    Support: [
-      { name: "Contact Us", href: "/contact" },
-      { name: "Track Order", href: "/track" },
-      { name: "Care Instructions", href: "/care" },
-      { name: "Return Policy", href: "/returns" },
-      { name: "FAQ", href: "/faq" },
-    ],
-  };
+  const { data, loading } = useQuery(GET_FOOTER_CONTENT);
+  
+  const footerData = data?.getFooterContent;
 
   const socialLinks = [
     {
       name: "Facebook",
       icon: Facebook,
-      href: "https://facebook.com/miskblooming",
+      href: footerData?.facebook || "https://facebook.com/miskblooming",
     },
     {
       name: "Instagram",
       icon: Instagram,
-      href: "https://instagram.com/miskblooming",
+      href: footerData?.instagram || "https://instagram.com/miskblooming",
     },
     {
       name: "Twitter",
       icon: Twitter,
-      href: "https://twitter.com/miskblooming",
+      href: footerData?.twitter || "https://twitter.com/miskblooming",
     },
+  ].filter(link => link.href); // Only show if link exists
+
+  // Default links if not loaded or empty
+  const defaultLinks = [
+    {
+        title: "Shop",
+        links: [
+            { name: "Fresh Flowers", href: "/products?category=roses" },
+            { name: "Premium Chocolates", href: "/products?category=chocolates" },
+        ]
+    },
+    {
+        title: "Support",
+        links: [
+             { name: "Contact Us", href: "/contact" },
+        ]
+    }
   ];
+
+  const sections = footerData?.footerLinks && footerData?.footerLinks.length > 0
+    ? footerData.footerLinks
+    : defaultLinks;
 
   return (
     <footer className="bg-charcoal-900 text-cream-50">
@@ -83,26 +100,23 @@ const Footer = () => {
                 </div>
               </Link>
               <p className="text-cream-200 mb-6 leading-relaxed">
-                Dubai's premier flower and gift delivery service. We bring
-                beauty, joy, and sweetness to your special moments with fresh
-                flowers, luxury chocolates, delicious cakes, and thoughtful
-                gifts.
+                {footerData?.brandDesc || "Dubai's premier flower and gift delivery service. We bring beauty, joy, and sweetness to your special moments."}
               </p>
 
               {/* Contact Info */}
               <div className="space-y-3">
                 <div className="flex items-center">
                   <Phone className="w-4 h-4 mr-3 text-luxury-400" />
-                  <span className="text-cream-200">+971 4 123 4567</span>
+                  <span className="text-cream-200">{footerData?.phone || "+971 4 123 4567"}</span>
                 </div>
                 <div className="flex items-center">
                   <Mail className="w-4 h-4 mr-3 text-luxury-400" />
-                  <span className="text-cream-200">info@miskblooming.ae</span>
+                  <span className="text-cream-200">{footerData?.email || "info@miskblooming.ae"}</span>
                 </div>
                 <div className="flex items-center">
                   <MapPin className="w-4 h-4 mr-3 text-luxury-400" />
                   <span className="text-cream-200">
-                    Dubai Marina, Dubai, UAE
+                    {footerData?.address || "Dubai Marina, Dubai, UAE"}
                   </span>
                 </div>
               </div>
@@ -110,19 +124,19 @@ const Footer = () => {
           </div>
 
           {/* Links Sections */}
-          {Object.entries(footerLinks).map(([title, links], index) => (
+          {sections.map((section: any, index: number) => (
             <motion.div
-              key={title}
+              key={section.title || index}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
               <h3 className="font-cormorant text-lg font-semibold mb-4 text-luxury-400">
-                {title}
+                {section.title}
               </h3>
               <ul className="space-y-2">
-                {links.map((link) => (
+                {section.links.map((link: any) => (
                   <li key={link.name}>
                     <Link
                       href={link.href}
@@ -148,11 +162,10 @@ const Footer = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
               <h3 className="font-cormorant text-2xl font-bold mb-2 text-luxury-400">
-                Stay in Bloom
+                {footerData?.newsletterTitle || "Stay in Bloom"}
               </h3>
               <p className="text-cream-200">
-                Subscribe to our newsletter for exclusive offers, seasonal
-                collections, and flower care tips.
+                {footerData?.newsletterDesc || "Subscribe to our newsletter for exclusive offers, seasonal collections, and flower care tips."}
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
@@ -181,9 +194,7 @@ const Footer = () => {
           >
             <div className="flex items-center mb-4 md:mb-0">
               <p className="text-cream-300 text-sm">
-                © {currentYear} Misk Blooming. Made with{" "}
-                <Heart className="w-4 h-4 inline text-red-500 fill-current" />{" "}
-                in Dubai, UAE
+                © {currentYear} {footerData?.copyrightText || "Misk Blooming. Made in Dubai, UAE"}
               </p>
             </div>
 
@@ -211,28 +222,16 @@ const Footer = () => {
             transition={{ duration: 0.6, delay: 0.6 }}
             viewport={{ once: true }}
           >
-            <Link
-              href="/privacy"
-              className="text-cream-300 hover:text-luxury-400 text-sm transition-colors"
-            >
+            <Link href="/privacy" className="text-cream-300 hover:text-luxury-400 text-sm transition-colors">
               Privacy Policy
             </Link>
-            <Link
-              href="/terms"
-              className="text-cream-300 hover:text-luxury-400 text-sm transition-colors"
-            >
+            <Link href="/terms" className="text-cream-300 hover:text-luxury-400 text-sm transition-colors">
               Terms of Service
             </Link>
-            <Link
-              href="/cookies"
-              className="text-cream-300 hover:text-luxury-400 text-sm transition-colors"
-            >
+            <Link href="/cookies" className="text-cream-300 hover:text-luxury-400 text-sm transition-colors">
               Cookie Policy
             </Link>
-            <Link
-              href="/delivery"
-              className="text-cream-300 hover:text-luxury-400 text-sm transition-colors"
-            >
+            <Link href="/delivery" className="text-cream-300 hover:text-luxury-400 text-sm transition-colors">
               Delivery Information
             </Link>
           </motion.div>

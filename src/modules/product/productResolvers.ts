@@ -54,62 +54,71 @@ export const ProductResolvers = {
         : "allProducts";
       const cache = await redis.get(cacheKey);
       if (cache) {
-        return cache;
+        return typeof cache === "string" ? JSON.parse(cache) : cache;
       }
-      const products = await prisma.product.findMany({
-        where: {
-          ...args.where,
-          status: "active",
-        },
-        include: {
-          images: true,
-          dimensions: true,
-          variantOptions: true,
-          Review: {
-            select: {
-              rating: true,
+      try {
+        const products = await prisma.product.findMany({
+          where: {
+            ...args.where,
+            status: "active",
+          },
+          include: {
+            images: true,
+            dimensions: true,
+            variantOptions: true,
+            Review: {
+              select: {
+                rating: true,
+              },
             },
           },
-        },
-      });
+        });
 
-      if (!products || products.length === 0) return [];
-      await redis.set(cacheKey, JSON.stringify(products), { ex: 60 * 60 * 6 });
-      return products;
+        if (!products || products.length === 0) return [];
+        await redis.set(cacheKey, JSON.stringify(products), { ex: 60 * 60 * 6 });
+        return products;
+      } catch (error: any) {
+        console.error("❌ Prisma Error in products resolver:", error);
+        throw new Error(`Database error: ${error.message || "Unknown error"}`);
+      }
     },
 
     productBySlug: async (_: any, args: { slug: string }) => {
-      const cache: string | null = await redis.get(`product:${args.slug}`);
+      const cache = await redis.get(`product:${args.slug}`);
       if (cache) {
-        return cache;
+        return typeof cache === "string" ? JSON.parse(cache) : cache;
       }
-      const product = await prisma.product.findUnique({
-        where: { slug: args.slug },
-        include: {
-          images: true,
-          dimensions: true,
-          variantOptions: true,
-          Review: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                  email: true,
-                  emailVerified: true,
+      try {
+        const product = await prisma.product.findUnique({
+          where: { slug: args.slug },
+          include: {
+            images: true,
+            dimensions: true,
+            variantOptions: true,
+            Review: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                    emailVerified: true,
+                  },
                 },
               },
             },
           },
-        },
-      });
-      if (!product) throw new Error("Product not found");
-      await redis.set(`product:${args.slug}`, JSON.stringify(product), {
-        ex: 60 * 60 * 6,
-      });
-      console.log(product);
-      return product;
+        });
+        if (!product) throw new Error("Product not found");
+        await redis.set(`product:${args.slug}`, JSON.stringify(product), {
+          ex: 60 * 60 * 6,
+        });
+        return product;
+      } catch (error: any) {
+        console.error(`❌ Prisma Error in productBySlug (${args.slug}):`, error);
+        throw new Error(`Database error: ${error.message || "Unknown error"}`);
+      }
     },
   },
 
@@ -139,28 +148,29 @@ export const ProductResolvers = {
             ...productData,
             images: productData?.images
               ? {
-                  create: productData?.images.map((img: any) => ({
-                    url: img?.url,
-                    publicId: img?.publicId,
-                  })),
-                }
+                create: productData?.images.map((img: any) => ({
+                  url: img?.url,
+                  publicId: img?.publicId,
+                })),
+              }
               : undefined,
             dimensions: productData?.dimensions
               ? {
-                  create: {
-                    length: productData.dimensions.length,
-                    width: productData.dimensions.width,
-                    height: productData.dimensions.height,
-                  },
-                }
+                create: {
+                  weight: productData.dimensions.weight,
+                  length: productData.dimensions.length,
+                  width: productData.dimensions.width,
+                  height: productData.dimensions.height,
+                },
+              }
               : undefined,
             variantOptions: productData?.variantOptions
               ? {
-                  create: productData?.variantOptions.map((opt: any) => ({
-                    name: opt.name,
-                    values: opt.values,
-                  })),
-                }
+                create: productData?.variantOptions.map((opt: any) => ({
+                  name: opt.name,
+                  values: opt.values,
+                })),
+              }
               : undefined,
           },
           include: {
@@ -173,8 +183,19 @@ export const ProductResolvers = {
         await redis.del("featured-products");
         return product;
       } catch (error: any) {
-        console.error(error);
-        throw new Error("Failed to create product");
+        console.error("❌ Create Product Error:", error);
+
+        // Provide specific error messages
+        if (error.code === 'P2002') {
+          const field = error.meta?.target?.[0] || 'field';
+          throw new Error(`A product with this ${field} already exists`);
+        }
+
+        if (error.message.includes('slug')) {
+          throw new Error("Product with this slug already exists");
+        }
+
+        throw new Error(error.message || "Failed to create product. Please check all required fields.");
       }
     },
 
@@ -200,33 +221,33 @@ export const ProductResolvers = {
             // Dimensions update
             dimensions: rest.dimensions
               ? {
-                  upsert: {
-                    create: rest.dimensions,
-                    update: rest.dimensions,
-                  },
-                }
+                upsert: {
+                  create: rest.dimensions,
+                  update: rest.dimensions,
+                },
+              }
               : undefined,
 
             // Images update
             images: rest.images
               ? {
-                  deleteMany: {},
-                  create: rest.images.map((img) => ({
-                    url: img.url,
-                    publicId: img.publicId,
-                  })),
-                }
+                deleteMany: {},
+                create: rest.images.map((img) => ({
+                  url: img.url,
+                  publicId: img.publicId,
+                })),
+              }
               : undefined,
 
             // ✅ Variant Options update
             variantOptions: variantOptions
               ? {
-                  deleteMany: {}, // remove old
-                  create: variantOptions.map((opt) => ({
-                    name: opt.name,
-                    values: opt.values,
-                  })),
-                }
+                deleteMany: {}, // remove old
+                create: variantOptions.map((opt) => ({
+                  name: opt.name,
+                  values: opt.values,
+                })),
+              }
               : undefined,
           },
 
@@ -238,11 +259,22 @@ export const ProductResolvers = {
 
         await redis.del(`product:${slug}`);
         await redis.del("allProducts");
+        await redis.del("featured-products");
 
         return updated;
-      } catch (error) {
-        console.error(error);
-        throw new Error("Failed to update product");
+      } catch (error: any) {
+        console.error("❌ Update Product Error:", error);
+
+        if (error.code === 'P2025') {
+          throw new Error("Product not found");
+        }
+
+        if (error.code === 'P2002') {
+          const field = error.meta?.target?.[0] || 'field';
+          throw new Error(`A product with this ${field} already exists`);
+        }
+
+        throw new Error(error.message || "Failed to update product");
       }
     },
 

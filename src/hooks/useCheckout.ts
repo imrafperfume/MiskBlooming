@@ -3,11 +3,12 @@
 import { useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useCartStore } from "../store/cartStore";
 import { CREATE_ORDER } from "../modules/order/operations";
+import { GET_STORE_SETTINGS } from "../modules/system/opration";
 import {
   checkoutSchema,
   type CheckoutFormData,
@@ -23,46 +24,73 @@ export function useCheckout(userId?: string) {
 
   const { items, getTotalPrice, clearCart, appliedCoupon, couponDiscount } =
     useCartStore();
-  console.log("🚀 ~ useCheckout ~ appliedCoupon:", appliedCoupon);
   const router = useRouter();
   const [createOrder, { loading, error }] = useMutation(CREATE_ORDER);
+
+  // Fetch store settings for fee configuration
+  const { data: settingsData } = useQuery(GET_STORE_SETTINGS);
+  const settings = settingsData?.getStoreSettings;
 
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
       deliveryType: "STANDARD",
       paymentMethod: "COD",
+      hasGiftCard: false,
     },
   });
 
   const { watch } = form;
   const deliveryType = watch("deliveryType");
   const paymentMethod = watch("paymentMethod");
+  const hasGiftCard = watch("hasGiftCard");
 
   const calculateTotals = useCallback((): CheckoutCalculations => {
     const subtotal = getTotalPrice();
-    let deliveryFee =
-      deliveryType === "EXPRESS"
-        ? 50
-        : deliveryType === "SCHEDULED"
-        ? 25
-        : subtotal > 500
-        ? 0
-        : 25;
+
+    // Dynamic Delivery Fee
+    let deliveryFee = 0;
+    if (deliveryType === "EXPRESS") {
+      deliveryFee = Number(settings?.expressDeliveryFee || 30);
+    } else if (deliveryType === "SCHEDULED") {
+      deliveryFee = Number(settings?.scheduledDeliveryFee || 10);
+    } else {
+      // STANDARD
+      const threshold = settings?.freeShippingThreshold ? Number(settings.freeShippingThreshold) : null;
+      if (threshold !== null && subtotal >= threshold) {
+        deliveryFee = 0;
+      } else {
+        deliveryFee = Number(settings?.deliveryFlatRate || 15);
+      }
+    }
 
     // Apply free shipping coupon
     if (appliedCoupon?.discountType === "FREE_SHIPPING") {
       deliveryFee = 0;
     }
 
-    const tax = (subtotal - couponDiscount) * 0.05; // 5% VAT on discounted amount
-    const codFee = paymentMethod === "COD" ? 10 : 0;
-    const total = subtotal - couponDiscount + deliveryFee + tax + codFee;
+    // Gift Card Fee
+    const giftCardFee = (hasGiftCard && settings?.isGiftCardEnabled) ? Number(settings.giftCardFee) : 0;
 
-    return { subtotal, deliveryFee, tax, codFee, total, couponDiscount };
+    const vatRate = Number(settings?.vatRate || 5) / 100;
+    const tax = Number(((subtotal - couponDiscount) * vatRate).toFixed(2));
+    const codFee = paymentMethod === "COD" ? Number(settings?.codFee || 10) : 0;
+    const total = Number((subtotal - couponDiscount + deliveryFee + tax + codFee + giftCardFee).toFixed(2));
+
+    return {
+      subtotal: Number(subtotal.toFixed(2)),
+      deliveryFee: Number(deliveryFee.toFixed(2)),
+      tax,
+      codFee: Number(codFee.toFixed(2)),
+      total,
+      couponDiscount: Number(couponDiscount.toFixed(2)),
+      giftCardFee: Number(giftCardFee.toFixed(2))
+    };
   }, [
     deliveryType,
     paymentMethod,
+    hasGiftCard,
+    settings,
     getTotalPrice,
     appliedCoupon,
     couponDiscount,
@@ -74,7 +102,7 @@ export function useCheckout(userId?: string) {
       setIsProcessing(true);
 
       try {
-        const { total, deliveryFee, codFee, couponDiscount, tax } =
+        const { total, deliveryFee, codFee, couponDiscount, tax, giftCardFee } =
           calculateTotals();
 
         const isGuest = !userId || userId === "";
@@ -88,11 +116,15 @@ export function useCheckout(userId?: string) {
             productId: item.product.id,
             quantity: item.quantity,
             price: item.product.price,
+            size: item.size, // Pass size
+            color: item.color, // Pass color
           })),
           deliveryCost: Number(deliveryFee.toFixed(2)),
           codFee: Number(codFee.toFixed(2)),
           vatAmount: Number(tax.toFixed(2)),
           discount: Number(couponDiscount?.toFixed(2)),
+          giftCardFee: Number((giftCardFee || 0).toFixed(2)),
+          hasGiftCard: !!data.hasGiftCard,
           isGuest,
         };
 
@@ -107,9 +139,8 @@ export function useCheckout(userId?: string) {
           clearCart();
           toast.success("Order Successful");
           // Always redirect to guest success page since we're using guest checkout by default
-          const successUrl = `/checkout/success?orderId=${
-            order.id
-          }&email=${encodeURIComponent(data.email)}`;
+          const successUrl = `/checkout/success?orderId=${order.id
+            }&email=${encodeURIComponent(data.email)}`;
           router.push(successUrl);
           return;
         }
@@ -142,6 +173,7 @@ export function useCheckout(userId?: string) {
             deliveryFee: deliveryFee,
             tax: tax,
             couponDiscount: couponDiscount,
+            giftCardFee: giftCardFee, // Pass gift card fee to Stripe intent creation if needed
           }),
         });
 
@@ -204,5 +236,6 @@ export function useCheckout(userId?: string) {
     handleSubmit,
     nextStep,
     prevStep,
+    settings, // Expose settings for UI
   };
 }

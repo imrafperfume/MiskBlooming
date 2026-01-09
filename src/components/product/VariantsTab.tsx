@@ -1,6 +1,6 @@
 import React from "react";
 import { Plus, X, Trash2 } from "lucide-react";
-import { Button } from "@/src/components/ui/Button";
+import { Button } from "@/src/components/ui/button";
 import {
   ProductFormData,
   // Ensure your VariantOption type has 'id' as optional (id?: string)

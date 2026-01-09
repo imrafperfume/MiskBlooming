@@ -114,7 +114,7 @@ export const couponTypeDefs = gql`
     validateCoupon(
       code: String!
       orderAmount: Float!
-      userId: String!
+      userId: String
     ): CouponValidationResult!
   }
 

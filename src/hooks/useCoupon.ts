@@ -13,7 +13,7 @@ export function useCoupon() {
     async (
       code: string,
       orderAmount: number,
-      userId: string
+      userId?: string
     ): Promise<CouponValidationResult> => {
       setIsValidating(true);
 
@@ -22,7 +22,7 @@ export function useCoupon() {
           variables: {
             code: code.toUpperCase(),
             orderAmount,
-            userId: userId,
+            ...(userId && { userId }),
           },
         });
 

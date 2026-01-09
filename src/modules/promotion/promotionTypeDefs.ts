@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client";
 
-export const PromtionTypeDefs = gql`
+export const PromotionTypeDefs = gql`
   enum PromotionScope {
     ALL
     CATEGORY
@@ -16,6 +16,7 @@ export const PromtionTypeDefs = gql`
     ACTIVE
     EXPIRED
     PAUSED
+    DRAFT
   }
 
   type Promotion {
@@ -47,6 +48,8 @@ export const PromtionTypeDefs = gql`
     promoCode: String!
     categories: [String!]
     products: [String!]
+    status: PromotionStatus!
+    isActive: Boolean!
   }
 
   input UpdatePromotionInput {

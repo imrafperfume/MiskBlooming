@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, Grid3X3, List, ChevronDown } from "lucide-react";
-import { Button } from "../../../components/ui/Button";
+import { Button } from "../../../components/ui/button";
 
 type Occasion = {
   id: number;

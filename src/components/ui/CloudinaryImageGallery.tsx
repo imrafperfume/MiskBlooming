@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Star, X, Move, Eye, Download, Cloud, Settings } from "lucide-react";
-import { Button } from "./Button";
+import { Button } from "./button";
 import type { getResponsiveImageUrls } from "../../lib/cloudinary";
 
 interface CloudinaryImage {
@@ -126,11 +126,10 @@ export function CloudinaryImageGallery({
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      className={`relative group bg-background rounded-lg border-2 overflow-hidden transition-all duration-200 ${
-                        featuredIndex === index
-                          ? "border-yellow-400 shadow-lg"
-                          : "border-border  hover:border-border "
-                      } ${snapshot.isDragging ? "shadow-xl scale-105" : ""}`}
+                      className={`relative group bg-background rounded-lg border-2 overflow-hidden transition-all duration-200 ${featuredIndex === index
+                        ? "border-yellow-400 shadow-lg"
+                        : "border-border  hover:border-border "
+                        } ${snapshot.isDragging ? "shadow-xl scale-105" : ""}`}
                     >
                       {/* Drag Handle */}
                       <div

@@ -27,8 +27,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { toast } from "sonner";
 
-import { Button } from "../../../../components/ui/Button";
-import { Input } from "../../../../components/ui/Input";
+import { Button } from "../../../../components/ui/button";
+import { Input } from "../../../../components/ui/input";
 import { useCategories } from "@/src/hooks/useCategories";
 
 // --- GraphQL ---

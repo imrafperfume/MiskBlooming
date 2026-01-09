@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Heart, ShoppingBag, Trash2, ArrowLeft, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "../../../components/ui/Button";
+import { Button } from "../../../components/ui/button";
 import { useWishlistStore } from "../../../store/wishlistStore";
 import { useCartStore } from "../../../store/cartStore";
 import { formatPrice } from "../../../lib/utils";

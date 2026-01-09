@@ -13,10 +13,12 @@ import dynamic from "next/dynamic";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useProducts } from "../../../hooks/useProducts";
 import { useCategories } from "@/src/hooks/useCategories";
-import { Input } from "@/src/components/ui/Input"; // Assuming you have this, otherwise standard input is used below
+import { Input } from "@/src/components/ui/input"; // Assuming you have this, otherwise standard input is used below
+import { useQuery } from "@apollo/client";
+import { GET_COLLECTIONCONTENT } from "@/src/modules/contentManagment/oparation";
 
 // Dynamic imports for performance
-const Button = dynamic(() => import("../../../components/ui/Button"));
+const Button = dynamic(() => import("../../../components/ui/button"));
 const ProductCard = dynamic(
   () => import("../../../components/product/ProductCard"),
   {
@@ -94,6 +96,11 @@ export default function ProductsPage() {
     "name",
     "subcategories{id name}",
   ]);
+
+  const { data: collectionData } = useQuery(GET_COLLECTIONCONTENT, {
+    fetchPolicy: "cache-first",
+  });
+  const content = collectionData?.getCollectionContent;
 
   // Sync state with URL params
   useEffect(() => {
@@ -222,11 +229,11 @@ export default function ProductsPage() {
           transition={{ duration: 0.5 }}
         >
           <h1 className="font-cormorant text-4xl md:text-5xl font-bold text-foreground mb-3">
-            Our Collections
+            {content?.collectionTitle || "Our Collections"}
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Discover our exquisite selection of fresh flowers, luxury
-            chocolates, cakes, and gifts curated for your special moments.
+            {content?.collectionDesc ||
+              "Discover our exquisite selection of fresh flowers, luxury chocolates, cakes, and gifts curated for your special moments."}
           </p>
         </motion.div>
 

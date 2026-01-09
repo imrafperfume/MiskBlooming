@@ -1,6 +1,6 @@
 "use client";
 
-import Button from "@/src/components/ui/Button";
+import Button from "@/src/components/ui/button";
 import { formatPrice, handleDownload } from "@/src/lib/utils";
 import { motion } from "framer-motion";
 import {
@@ -21,6 +21,8 @@ interface OrderItem {
   id: string;
   quantity: number;
   price: number;
+  size?: string;
+  color?: string;
   product: {
     name: string;
   };
@@ -51,9 +53,11 @@ interface Order {
   deliveryCost?: number;
   createdAt: string;
   items: OrderItem[];
+  hasGiftCard?: boolean;
+  giftCardFee?: number;
 }
 
-export default function SuccessPage({ order }: { order: Order }) {
+export default function SuccessPage({ order, settings }: { order: Order; settings?: any }) {
   // Helper to safely format dates from strings or timestamps
   const formatDate = (dateInput?: string) => {
     if (!dateInput) return "TBA";
@@ -159,9 +163,19 @@ export default function SuccessPage({ order }: { order: Order }) {
                         <p className="font-medium text-foreground">
                           {item.product.name}
                         </p>
-                        <p className="text-sm text-muted-foreground">
-                          Qty: {item.quantity}
-                        </p>
+                        <div className="flex gap-3 text-sm text-muted-foreground mt-0.5">
+                          <span>Qty: {item.quantity}</span>
+                          {item.size && (
+                            <span className="flex items-center gap-1 before:content-['•'] before:mr-2">
+                              Size: {item.size}
+                            </span>
+                          )}
+                          {item.color && (
+                            <span className="flex items-center gap-1 before:content-['•'] before:mr-2">
+                              Color: {item.color}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <p className="font-medium">
@@ -208,17 +222,20 @@ export default function SuccessPage({ order }: { order: Order }) {
                     <span>
                       {formatPrice(
                         order.totalAmount +
-                          (order.discount || 0) -
-                          (order.deliveryCost || 0) -
-                          (order.codFee || 0) -
-                          (order.vatAmount || 0)
+                        (order.discount || 0) -
+                        (order.deliveryCost || 0) -
+                        (order.codFee || 0) -
+                        (order.vatAmount || 0) -
+                        (order.giftCardFee || 0)
                       )}
                     </span>
                   </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">VAT (5%)</span>
-                    <span>{formatPrice(order.vatAmount || 0)}</span>
-                  </div>
+                  {order.vatAmount ? (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">VAT ({settings?.vatRate || 5}%)</span>
+                      <span>{formatPrice(order.vatAmount)}</span>
+                    </div>
+                  ) : null}
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Delivery</span>
                     <span
@@ -233,6 +250,20 @@ export default function SuccessPage({ order }: { order: Order }) {
                         : "Free"}
                     </span>
                   </div>
+                  {order.codFee ? (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">COD Fee</span>
+                      <span>{formatPrice(order.codFee)}</span>
+                    </div>
+                  ) : null}
+                  {order.giftCardFee ? (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground flex items-center gap-1.5">
+                        <Gift className="w-3.5 h-3.5" /> Gift Card Fee
+                      </span>
+                      <span>{formatPrice(order.giftCardFee)}</span>
+                    </div>
+                  ) : null}
                   {order.discount ? (
                     <div className="flex justify-between text-sm text-green-600">
                       <span>Discount Applied</span>
@@ -294,10 +325,10 @@ export default function SuccessPage({ order }: { order: Order }) {
                 </p>
                 <div className="space-y-2 text-sm font-medium">
                   <p className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer">
-                    <Phone className="w-4 h-4" /> +971 4 123 4567
+                    <Phone className="w-4 h-4" /> {settings?.phoneNumber || "+971 4 123 4567"}
                   </p>
                   <p className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer">
-                    <Mail className="w-4 h-4" /> support@miskblooming.ae
+                    <Mail className="w-4 h-4" /> {settings?.supportEmail || "support@miskblooming.ae"}
                   </p>
                 </div>
               </div>

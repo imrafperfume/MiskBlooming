@@ -185,17 +185,60 @@ export const CouponResolvers = {
 
     validateCoupon: async (
       _: any,
-      args: { code: string; orderAmount: number; userId: string }
+      args: { code: string; orderAmount: number; userId?: string }
     ) => {
       const { code, orderAmount, userId } = args;
 
-      if (!userId) {
-        return { isValid: false, error: "User not authenticated" };
-      }
-
-      const coupon = await prisma.coupon.findUnique({
+      // Try to find as a regular coupon first
+      let coupon = await prisma.coupon.findUnique({
         where: { code: code.toUpperCase() },
       });
+
+      let isPromotion = false;
+
+      // If not found as coupon, try to find as a promotion
+      if (!coupon) {
+        const promotion = await prisma.promotion.findFirst({
+          where: {
+            promoCode: {
+              equals: code,
+              mode: "insensitive",
+            },
+          },
+        });
+
+        if (promotion) {
+          // Map Promotion to Coupon-like structure
+          coupon = {
+            id: promotion.id,
+            code: promotion.promoCode,
+            name: promotion.name,
+            discountType:
+              promotion.discountType === "PERCENTAGE"
+                ? "PERCENTAGE"
+                : "FIXED_AMOUNT",
+            discountValue: promotion.discountValue,
+            validFrom: promotion.startDate,
+            validUntil: promotion.endDate,
+            isActive: promotion.isActive && promotion.status === "ACTIVE",
+            minimumAmount: null,
+            maximumDiscount: null,
+            usageLimit: null,
+            usageCount: 0,
+            userUsageLimit: null,
+            newUsersOnly: false,
+            description: "",
+            applicableProducts: promotion.products,
+            applicableCategories: promotion.categories,
+            applicableUsers: [],
+            createdAt: promotion.createdAt,
+            updatedAt: promotion.updatedAt,
+            createdBy: null,
+          } as any;
+          isPromotion = true;
+        }
+      }
+
       if (!coupon) {
         return { isValid: false, error: "Invalid coupon code" };
       }
@@ -204,12 +247,16 @@ export const CouponResolvers = {
       const validFrom = new Date(coupon.validFrom);
       const validUntil = new Date(coupon.validUntil);
 
-      // Coupon active & valid period check
+      // Coupon/Promotion active & valid period check
       if (!coupon.isActive || now < validFrom || now > validUntil) {
-        return { isValid: false, error: "Coupon is not valid or has expired" };
+        return {
+          isValid: false,
+          error: `${isPromotion ? "Promotion" : "Coupon"
+            } is not valid or has expired`,
+        };
       }
 
-      // Minimum order amount
+      // Minimum order amount (only for regular coupons for now)
       if (coupon.minimumAmount && orderAmount < coupon.minimumAmount) {
         return {
           isValid: false,
@@ -217,35 +264,42 @@ export const CouponResolvers = {
         };
       }
 
-      // Global usage limit
-      if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
+      // Global usage limit (only for regular coupons)
+      if (
+        !isPromotion &&
+        coupon.usageLimit &&
+        coupon.usageCount >= coupon.usageLimit
+      ) {
         return {
           isValid: false,
           error: "This coupon has reached its usage limit",
         };
       }
 
-      // Per-user usage & new users only check
-      let userUsageCount = 0;
-      let userOrderCount = 0;
+      // Per-user usage & new users only check (only for regular coupons and when userId is provided)
+      if (!isPromotion && userId && (coupon.userUsageLimit || coupon.newUsersOnly)) {
+        let userUsageCount = 0;
+        let userOrderCount = 0;
 
-      if (coupon.userUsageLimit || coupon.newUsersOnly) {
         await prisma.$transaction(async (tx) => {
-          if (coupon.userUsageLimit) {
+          if (coupon!.userUsageLimit) {
             userUsageCount = await tx.couponUsage.count({
-              where: { couponId: coupon.id, userId },
+              where: { couponId: coupon!.id, userId },
             });
           }
-          if (coupon.newUsersOnly) {
+          if (coupon!.newUsersOnly) {
             userOrderCount = await tx.order.count({ where: { userId } });
           }
         });
+
+        if (userOrderCount || userUsageCount) {
+          return {
+            isValid: false,
+            error: "This coupon only for new user or already applied",
+          };
+        }
       }
-      if (userOrderCount || userUsageCount)
-        return {
-          isValid: false,
-          error: "This coupon only for new user or already applied",
-        };
+
       // Calculate discount
       let discountAmount = 0;
       if (coupon.discountType === "PERCENTAGE") {

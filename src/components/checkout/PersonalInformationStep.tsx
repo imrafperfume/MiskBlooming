@@ -2,8 +2,8 @@
 
 import { User } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { Button } from "../ui/Button";
-import { Input } from "../ui/Input";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import { CheckoutStep } from "./CheckoutStep";
 import type { CheckoutFormData } from "../../types/checkout";
 

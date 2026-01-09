@@ -2,7 +2,7 @@ import { Product } from "@/src/types";
 import { motion } from "framer-motion";
 import { Star, CheckCircle, User, Lock } from "lucide-react";
 import Link from "next/link";
-import Button from "../../ui/Button";
+import Button from "../../ui/button";
 import { formatTimestamp } from "@/src/lib/utils";
 
 interface ReviewsTabProps {

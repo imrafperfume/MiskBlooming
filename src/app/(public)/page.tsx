@@ -3,9 +3,10 @@
 import { Suspense, lazy } from "react";
 import { Award } from "lucide-react";
 import dynamic from "next/dynamic";
-import { Button } from "../../components/ui/Button";
+import { Button } from "../../components/ui/button";
 import { LazyWrapper } from "../../components/ui/LazyWrapper";
 import HeroSlider from "../../components/home/HeroSlider";
+import PromotionBanner from "../../components/home/PromotionBanner";
 import ShopByCategory from "../../components/home/ShopByCategory";
 import { useFeaturedProducts } from "@/src/hooks/useProducts";
 import { useQuery } from "@apollo/client";
@@ -86,12 +87,14 @@ export default function HomePage() {
     <div className="overflow-hidden bg-background">
       {/* --- Critical Path (Above the Fold) --- */}
       {/* Render these immediately for LCP (Largest Contentful Paint) */}
-      <HeroSlider />
+      <HeroSlider slides={(content as any)?.heroSlides ?? []} />
+
 
       <ShopByCategory
         caTitle={content?.categoryTitle}
         caDesc={content?.categoryDesc}
       />
+      <PromotionBanner />
 
       {/* --- Deferred Sections (Below the Fold) --- */}
 
@@ -117,7 +120,11 @@ export default function HomePage() {
 
       {/* In Season */}
       <LazyWrapper>
-        <InSeason />
+        <InSeason
+          title={content?.seasonTitle}
+          subtitle={content?.seasonSubtitle}
+          description={content?.seasonDesc}
+        />
       </LazyWrapper>
 
       {/* Stats Section - Static HTML (Fastest render) */}
@@ -141,15 +148,14 @@ export default function HomePage() {
           </div>
 
           <dl className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0">
-            {STATS_DATA.map((s, i) => (
+            {((content as any)?.stats || STATS_DATA).map((s: any, i: number) => (
               <div
                 key={i}
                 className={`
                   flex flex-col items-center justify-center text-center p-4
-                  ${
-                    i !== STATS_DATA.length - 1
-                      ? "lg:border-r border-charcoal-900/10"
-                      : ""
+                  ${i !== STATS_DATA.length - 1
+                    ? "lg:border-r border-charcoal-900/10"
+                    : ""
                   }
                   transition-transform duration-300 hover:-translate-y-1 will-change-transform
                 `}
@@ -171,6 +177,7 @@ export default function HomePage() {
         <TestimonialSection
           taTitle={content?.testimonialTitle}
           taDesc={content?.testimonialDesc}
+          testimonials={(content as any)?.testimonials ?? []}
         />
       </LazyWrapper>
 

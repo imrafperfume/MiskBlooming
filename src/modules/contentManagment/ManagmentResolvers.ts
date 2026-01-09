@@ -4,7 +4,53 @@ import { HomeContentFormData } from "./managmentTypeDefs";
 import { validateAdmin } from "@/src/lib/isAdmin";
 
 const CACHE_KEY = "home_page_content";
+
+import { GraphQLScalarType, Kind } from "graphql";
+
+const JSONScalar = new GraphQLScalarType({
+  name: "JSON",
+  description: "JSON custom scalar type",
+  parseValue(value: any) {
+    return value; // value from the client input variables
+  },
+  serialize(value: any) {
+    return value; // value sent to the client
+  },
+  parseLiteral(ast) {
+    if (ast.kind === Kind.OBJECT) {
+      return parseObject(ast);
+    }
+    return null;
+  },
+});
+
+function parseObject(ast: any) {
+  const value = Object.create(null);
+  ast.fields.forEach((field: any) => {
+    value[field.name.value] = parseValue(field.value);
+  });
+  return value;
+}
+
+function parseValue(ast: any) {
+  switch (ast.kind) {
+    case Kind.STRING:
+    case Kind.BOOLEAN:
+      return ast.value;
+    case Kind.INT:
+    case Kind.FLOAT:
+      return parseFloat(ast.value);
+    case Kind.OBJECT:
+      return parseObject(ast);
+    case Kind.LIST:
+      return ast.values.map(parseValue);
+    default:
+      return null;
+  }
+}
+
 export const ManagementResolvers = {
+  JSON: JSONScalar,
   Query: {
     getHomePageContent: async () => {
       try {
@@ -44,6 +90,47 @@ export const ManagementResolvers = {
         throw new Error(error.message || "Failed to fetch collection content");
       }
     },
+    getAboutPageContent: async () => {
+      try {
+        const cache = await redis.get("about_page_content");
+        if (cache) return cache;
+        const content = await (prisma as any).aboutPageContent.findFirst();
+        if (!content) return {
+          id: "null",
+          heroTitle: "About Us",
+          heroDesc: "Welcome to our story.",
+          storyTitle: "Our Story",
+          storyDesc1: "It began with a dream...",
+          storyDesc2: "And continues today...",
+          stats: [],
+          values: [],
+          team: []
+        };
+        await redis.set("about_page_content", JSON.stringify(content), { ex: 3600 });
+        return content;
+      } catch (error) {
+        console.error("Error in getAboutPageContent:", error);
+        throw new Error("Failed to fetch about content: " + (error instanceof Error ? error.message : String(error)));
+      }
+    },
+    getContactPageContent: async () => {
+      try {
+        const cache = await redis.get("contact_page_content");
+        if (cache) return cache;
+        const content = await (prisma as any).contactPageContent.findFirst();
+        if (!content) return {
+          id: "null",
+          heroTitle: "Contact Us",
+          heroDesc: "Get in touch",
+          contactInfo: []
+        };
+        await redis.set("contact_page_content", JSON.stringify(content), { ex: 3600 });
+        return content;
+      } catch (error) {
+        console.error("Error in getContactPageContent:", error);
+        throw new Error("Failed to fetch contact content: " + (error instanceof Error ? error.message : String(error)));
+      }
+    },
   },
   Mutation: {
     updateHomePageContent: async (
@@ -56,17 +143,13 @@ export const ManagementResolvers = {
         const fields = args.input;
         const data = await prisma.homePageContent.upsert({
           where: { id: "HOME_PAGE" },
-          update: { ...fields }, // fields directly, no `input`
-          create: { id: "HOME_PAGE", ...fields }, // add id for primary key
+          update: { ...fields },
+          create: { id: "HOME_PAGE", ...fields },
         });
-        await redis.del(CACHE_KEY); // Invalidate cache
+        await redis.del(CACHE_KEY);
         return data;
       } catch (error) {
-        throw new Error(
-          error instanceof Error
-            ? error.message
-            : "Failed to update home page content"
-        );
+        throw new Error(error instanceof Error ? error.message : "Failed to update home content");
       }
     },
     updateCollectionContent: async (
@@ -82,14 +165,48 @@ export const ManagementResolvers = {
           update: { ...fields },
           create: { id: "COLLECTION", ...fields },
         });
-        await redis.del("collection_content"); // Invalidate cache
+        await redis.del("collection_content");
         return data;
       } catch (error) {
-        throw new Error(
-          error instanceof Error
-            ? error.message
-            : "Failed to update collection content"
-        );
+        throw new Error(error instanceof Error ? error.message : "Failed to update collection content");
+      }
+    },
+    updateAboutPageContent: async (
+      _: any,
+      args: { input: any },
+      context: { userId: string }
+    ) => {
+      await validateAdmin(context?.userId);
+      try {
+        const fields = args.input;
+        const data = await (prisma as any).aboutPageContent.upsert({
+          where: { id: "ABOUT_PAGE" },
+          update: { ...fields },
+          create: { id: "ABOUT_PAGE", ...fields },
+        });
+        await redis.del("about_page_content");
+        return data;
+      } catch (error) {
+        throw new Error(error instanceof Error ? error.message : "Failed to update about content");
+      }
+    },
+    updateContactPageContent: async (
+      _: any,
+      args: { input: any },
+      context: { userId: string }
+    ) => {
+      await validateAdmin(context?.userId);
+      try {
+        const fields = args.input;
+        const data = await (prisma as any).contactPageContent.upsert({
+          where: { id: "CONTACT_PAGE" },
+          update: { ...fields },
+          create: { id: "CONTACT_PAGE", ...fields },
+        });
+        await redis.del("contact_page_content");
+        return data;
+      } catch (error) {
+        throw new Error(error instanceof Error ? error.message : "Failed to update contact content");
       }
     },
   },

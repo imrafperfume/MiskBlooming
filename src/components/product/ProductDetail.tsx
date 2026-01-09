@@ -15,7 +15,7 @@ import { useProduct } from "@/src/hooks/useProducts";
 import { useCartStore } from "@/src/store/cartStore";
 import { useWishlistStore } from "@/src/store/wishlistStore";
 import Link from "next/link";
-import Button from "../ui/Button";
+import Button from "../ui/button";
 
 interface ProductDetailProps {
   slug: { slug: string };

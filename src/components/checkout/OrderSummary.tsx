@@ -14,6 +14,7 @@ interface OrderSummaryProps {
   tax: number;
   total: number;
   couponDiscount?: number;
+  vatRate?: number;
 }
 
 export function OrderSummary({
@@ -24,7 +25,19 @@ export function OrderSummary({
   tax,
   total,
   couponDiscount = 0,
-}: OrderSummaryProps) {
+  giftCardFee = 0,
+  hasGiftCard = false,
+  onGiftCardChange,
+  isGiftCardEnabled = false,
+  giftCardFeeAmount = 0,
+  vatRate = 5,
+}: OrderSummaryProps & {
+  giftCardFee?: number;
+  hasGiftCard?: boolean;
+  onGiftCardChange?: (checked: boolean) => void;
+  isGiftCardEnabled?: boolean;
+  giftCardFeeAmount?: number;
+}) {
   return (
     <motion.div
       className="bg-background rounded-2xl p-6 shadow-lg sticky top-8"
@@ -93,8 +106,30 @@ export function OrderSummary({
           </div>
         )}
 
+        {/* Gift Card Option */}
+        {isGiftCardEnabled && onGiftCardChange && (
+          <div className="py-2">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={hasGiftCard}
+                onChange={(e) => onGiftCardChange(e.target.checked)}
+                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <span className="text-sm text-foreground">Include Gift Card (+{formatPrice(giftCardFeeAmount)})</span>
+            </label>
+          </div>
+        )}
+
+        {giftCardFee > 0 && (
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Gift Card</span>
+            <span className="font-medium">{formatPrice(giftCardFee)}</span>
+          </div>
+        )}
+
         <div className="flex justify-between">
-          <span className="text-muted-foreground">VAT (5%)</span>
+          <span className="text-muted-foreground">VAT ({vatRate}%)</span>
           <span className="font-medium">{formatPrice(tax)}</span>
         </div>
 

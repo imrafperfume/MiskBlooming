@@ -9,8 +9,8 @@ import { toast } from "sonner";
 import clsx from "clsx"; // Assuming you have clsx or classnames, otherwise use template literals
 
 // Component Imports
-import { Input } from "../../ui/Input";
-import Button from "../../ui/Button";
+import { Input } from "../../ui/input";
+import Button from "../../ui/button";
 
 // GraphQL Imports
 import {

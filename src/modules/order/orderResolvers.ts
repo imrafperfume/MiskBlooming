@@ -1,13 +1,17 @@
 import { prisma } from "@/src/lib/db";
+// Force TS Re-eval
 import { isAdmin } from "@/src/lib/isAdmin";
 import { sendPushToAll } from "@/src/lib/notify";
 import { hashPassword } from "@/src/lib/password";
 import { redis } from "@/src/lib/redis";
+import { sendOrderConfirmationEmail } from "@/src/lib/email";
 import { randomBytes } from "crypto";
 export interface OrderItemInput {
   productId: string;
   quantity: number;
   price: number;
+  size?: string;
+  color?: string;
 }
 
 export interface CreateOrderInput {
@@ -42,6 +46,10 @@ export interface CreateOrderInput {
 
   // Coupon
   couponCode?: string;
+
+  // Gift Card
+  hasGiftCard?: boolean;
+  giftCardFee?: number;
 
   // Order Total
   totalAmount: number;
@@ -229,13 +237,17 @@ export const OrderResolvers = {
           userId = user.id;
         }
 
-        // 2. Fetch Fresh Product Data (Verify existence and price)
+        // 2 Fetch settings for fees
+        const settings = await prisma.storeSettings.findFirst() as any;
+        if (!settings) throw new Error("Store settings not found");
+
+        // 3. Fetch Fresh Product Data (Verify existence and price)
         const productIds = inputItems.map((item) => item.productId);
         const dbProducts = await prisma.product.findMany({
           where: { id: { in: productIds } },
         });
 
-        // 3. Validation & Server-side Price Calculation
+        // 4. Validation & Server-side Price Calculation
         let calculatedSubtotal = 0;
         const itemsToCreate = inputItems.map((inputItem) => {
           const product = dbProducts.find((p) => p.id === inputItem.productId);
@@ -252,27 +264,68 @@ export const OrderResolvers = {
             productId: product.id,
             quantity: inputItem.quantity,
             price: product.price, // Use DB price
+            size: inputItem.size, // Save size
+            color: inputItem.color, // Save color
           };
-        });
+        }) as any[];
 
         // 4. Coupon Logic
         let discountAmount = 0;
         let couponId = null;
+        let promotionId = null;
 
         if (couponCode) {
-          const coupon = await prisma.coupon.findUnique({
+          // Try to find a regular coupon first
+          let coupon = await prisma.coupon.findUnique({
             where: { code: couponCode.toUpperCase() },
           });
 
-          if (!coupon || !coupon.isActive)
-            throw new Error("Invalid or expired coupon");
+          let isPromotion = false;
+
+          if (!coupon) {
+            // Try to find a promotion
+            const promotion = await prisma.promotion.findFirst({
+              where: {
+                promoCode: {
+                  equals: couponCode,
+                  mode: "insensitive",
+                },
+              },
+            });
+
+            if (promotion) {
+              // Map Promotion to Coupon-like structure for the next steps
+              coupon = {
+                id: promotion.id,
+                code: promotion.promoCode,
+                discountType:
+                  promotion.discountType === "PERCENTAGE"
+                    ? "PERCENTAGE"
+                    : "FIXED_AMOUNT",
+                discountValue: promotion.discountValue,
+                validFrom: promotion.startDate,
+                validUntil: promotion.endDate,
+                isActive: promotion.isActive && promotion.status === "ACTIVE",
+                minimumAmount: null,
+                maximumDiscount: null,
+                usageLimit: null,
+                usageCount: 0,
+              } as any;
+              isPromotion = true;
+              promotionId = promotion.id;
+            }
+          }
+
+          if (!coupon || !coupon.isActive) {
+            throw new Error(`Invalid or expired ${isPromotion ? "promotion" : "coupon"}`);
+          }
 
           const now = new Date();
           if (
             now < new Date(coupon.validFrom) ||
             now > new Date(coupon.validUntil)
           ) {
-            throw new Error("Coupon has expired");
+            throw new Error(`${isPromotion ? "Promotion" : "Coupon"} has expired`);
           }
 
           if (
@@ -284,7 +337,11 @@ export const OrderResolvers = {
             );
           }
 
-          if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit) {
+          if (
+            !isPromotion &&
+            coupon.usageLimit &&
+            coupon.usageCount >= coupon.usageLimit
+          ) {
             throw new Error("Coupon usage limit reached");
           }
 
@@ -297,17 +354,57 @@ export const OrderResolvers = {
             ) {
               discountAmount = coupon.maximumDiscount;
             }
-          } else {
+          } else if (coupon.discountType === "FIXED_AMOUNT") {
             discountAmount = coupon.discountValue;
           }
 
           discountAmount = Math.min(discountAmount, calculatedSubtotal);
-          couponId = coupon.id;
+
+          if (!isPromotion) {
+            couponId = coupon.id;
+          }
         }
 
-        const finalTotal = calculatedSubtotal - discountAmount;
+        // 6. Dynamic Fee Calculation
+        let deliveryCost = 0;
+        if (input.deliveryType === "EXPRESS") {
+          deliveryCost = Number(settings.expressDeliveryFee || 30);
+        } else if (input.deliveryType === "SCHEDULED") {
+          deliveryCost = Number(settings.scheduledDeliveryFee || 10);
+        } else {
+          // STANDARD: Flat rate or free if over threshold
+          const threshold = settings.freeShippingThreshold ? Number(settings.freeShippingThreshold) : null;
+          if (threshold !== null && calculatedSubtotal >= threshold) {
+            deliveryCost = 0;
+          } else {
+            deliveryCost = Number(settings.deliveryFlatRate || 15);
+          }
+        }
 
-        // 5. TRANSACTION: The "Atomic" Operation
+        // Override if coupon gives free shipping
+        const couponResult = couponCode ? await prisma.coupon.findUnique({ where: { code: couponCode.toUpperCase() } }) : null;
+        if (couponResult?.discountType === "FREE_SHIPPING") {
+          deliveryCost = 0;
+        }
+
+        const codFee = input.paymentMethod === "COD" ? Number(settings.codFee || 10) : 0;
+        const giftCardFee = (input.hasGiftCard && settings.isGiftCardEnabled) ? Number(settings.giftCardFee || 0) : 0;
+
+        // VAT calculation (5%)
+        const vatRate = Number(settings.vatRate || 5) / 100;
+        const vatAmount = Number(((calculatedSubtotal - discountAmount) * vatRate).toFixed(2));
+
+        const finalTotal = Number((calculatedSubtotal - discountAmount + deliveryCost + codFee + giftCardFee + vatAmount).toFixed(2));
+
+
+
+        // 5. Payment Verification (Server-Side)
+        // NOTE: For Stripe Checkout flow, payment happens AFTER order creation.
+        // So we skip verification here. The Webhook will handle it.
+        // Unless we switch to PaymentIntents (Elements) in the future.
+
+        // 6. TRANSACTION: The "Atomic" Operation
+        console.time(`OrderTransaction:${input.email}`);
         const order = await prisma.$transaction(async (tx) => {
           // A. Update Stock and verify availability (Atomic Check)
           for (const item of itemsToCreate) {
@@ -341,23 +438,30 @@ export const OrderResolvers = {
               ...orderInput,
               userId,
               totalAmount: finalTotal, // Use our calculated total
-              deliveryDate: input.deliveryDate
-                ? new Date(input.deliveryDate)
-                : null,
               items: {
                 create: itemsToCreate,
               },
               couponUsage: couponId
                 ? {
-                    create: {
-                      couponId,
-                      discountAmount,
-                      orderAmount: finalTotal,
-                      userId: userId!,
-                      email: input.email,
-                    },
-                  }
+                  create: {
+                    couponId,
+                    discountAmount,
+                    orderAmount: finalTotal,
+                    userId: userId!,
+                    email: input.email,
+                  },
+                }
                 : undefined,
+              // Force extra fields that Typescript doesn't know about yet
+              ...({
+                hasGiftCard: !!input.hasGiftCard,
+                giftCardFee: giftCardFee,
+                deliveryCost: deliveryCost,
+                codFee: codFee,
+                vatAmount: vatAmount,
+                discount: discountAmount,
+                deliveryDate: input.deliveryDate ? new Date(input.deliveryDate) : null,
+              } as any),
             },
             include: {
               items: { include: { product: true } },
@@ -370,25 +474,38 @@ export const OrderResolvers = {
           await tx.notification.create({
             data: {
               type: "order_created",
-              message: `New order received: ${createdOrder.id}`,
+              message: `New order received: ${createdOrder.id} (${finalTotal} AED)`,
               orderId: createdOrder.id,
             },
           });
 
           return createdOrder;
+        }, {
+          timeout: 20000, // 20 seconds
+          isolationLevel: 'Serializable',
         });
+        console.timeEnd(`OrderTransaction:${input.email}`);
 
-        // 6. Post-Transaction Tasks (Background)
-        // Push notifications
+        // 7. Post-Transaction Tasks (Background)
+
+        // A. Send Email Invoice (ONLY FOR COD)
+        // For Stripe, the Webhook should send the email after payment success.
+        if (orderInput.paymentMethod === "COD") {
+          sendOrderConfirmationEmail(order, { firstName: input.firstName, email: input.email })
+            .catch(e => console.error("Email Error:", e));
+        }
+
+        // B. Push notifications
         sendPushToAll({
           title: "New Order",
           body: `Order #${order.id} received`,
           url: `/dashboard/orders/${order.id}`,
         }).catch((e) => console.error("Push Error:", e));
 
-        // Clear Redis Cache
+        // C. Clear Redis Cache
         const cacheKeys = [
           "allOrders",
+          "allProducts",
           "orderStats",
           "featured-products",
           ...(userId ? [`ordersByUser:${userId}`] : []),
@@ -403,7 +520,11 @@ export const OrderResolvers = {
         return order;
       } catch (error) {
         console.error("Order Creation Error:", error);
-        if (error instanceof Error) throw error;
+        // Enhance error message for user
+        if (error instanceof Error) {
+          if (error.message.includes("Insufficient stock")) return new Error(error.message);
+          // if (error.message.includes("Payment")) return new Error(error.message);
+        }
         throw new Error(
           "An unexpected error occurred while processing your order."
         );

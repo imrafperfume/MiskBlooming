@@ -1,0 +1,22 @@
+model MembershipCard {
+  id              String   @id @default(cuid())
+  cardNumber      String   @unique
+  cardHolderName  String
+  expirationDate  DateTime
+  membershipType  MembershipType @default(Mmbebr)
+  issueDate       DateTime @default(now())
+  
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+enum MembershipType {
+  Mmbebr
+  VIP
+  PREMIUM
+  GOLD
+  PLATINUM
+}

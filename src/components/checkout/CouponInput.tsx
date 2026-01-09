@@ -3,15 +3,17 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Tag, X, CheckCircle, AlertCircle } from "lucide-react";
-import { Button } from "../ui/Button";
+import { Button } from "../ui/button";
 import { useCoupon } from "../../hooks/useCoupon";
 import { useCartStore } from "../../store/cartStore";
+import { useAuth } from "../../hooks/useAuth";
 import { toast } from "sonner";
 
 export function CouponInput() {
   const [couponCode, setCouponCode] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const { data: user } = useAuth();
   const { validateCouponCode, isValidating } = useCoupon();
   const {
     appliedCoupon,
@@ -27,7 +29,11 @@ export function CouponInput() {
       return;
     }
 
-    const result = await validateCouponCode(couponCode.trim(), getTotalPrice());
+    const result = await validateCouponCode(
+      couponCode.trim(),
+      getTotalPrice(),
+      user?.id
+    );
 
     if (result.isValid && result.coupon) {
       applyCoupon(result.coupon);
@@ -83,8 +89,8 @@ export function CouponInput() {
                 {appliedCoupon.discountType === "PERCENTAGE"
                   ? `${appliedCoupon.discountValue}% off`
                   : appliedCoupon.discountType === "FIXED_AMOUNT"
-                  ? `AED ${appliedCoupon.discountValue} off`
-                  : "Free shipping"}
+                    ? `AED ${appliedCoupon.discountValue} off`
+                    : "Free shipping"}
               </p>
             </div>
           </div>

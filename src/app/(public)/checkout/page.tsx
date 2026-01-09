@@ -57,6 +57,7 @@ export default function CheckoutPage() {
     handleSubmit,
     nextStep,
     prevStep,
+    settings, // <--- Destructure this
   } = useCheckout(userId || "");
 
   const calculations = useMemo(() => calculateTotals(), [calculateTotals]);
@@ -134,6 +135,12 @@ export default function CheckoutPage() {
                     onBack={prevStep}
                     userId={userId || ""}
                     subtotal={calculations.subtotal}
+                    isGiftCardEnabled={settings?.isGiftCardEnabled ?? false}
+                    giftCardFeeAmount={Number(settings?.giftCardFee ?? 0)}
+                    deliveryFlatRate={Number(settings?.deliveryFlatRate ?? 15)}
+                    expressDeliveryFee={Number(settings?.expressDeliveryFee ?? 30)}
+                    scheduledDeliveryFee={Number(settings?.scheduledDeliveryFee ?? 10)}
+                    freeShippingThreshold={settings?.freeShippingThreshold ? Number(settings.freeShippingThreshold) : null}
                   />
                 )}
                 {currentStep >= 3 && (
@@ -145,6 +152,7 @@ export default function CheckoutPage() {
                     total={calculations.total}
                     clientSecret={clientSecret}
                     orderId={orderId}
+                    codFee={Number(settings?.codFee ?? 10)}
                   />
                 )}
               </form>
@@ -162,6 +170,14 @@ export default function CheckoutPage() {
                 tax={calculations.tax}
                 total={calculations.total}
                 couponDiscount={calculations.couponDiscount}
+                vatRate={Number(settings?.vatRate || 5)}
+
+                // Gift Card Props
+                hasGiftCard={form.watch("hasGiftCard")}
+                onGiftCardChange={(checked) => form.setValue("hasGiftCard", checked)}
+                isGiftCardEnabled={settings?.isGiftCardEnabled ?? false}
+                giftCardFeeAmount={Number(settings?.giftCardFee ?? 0)}
+                giftCardFee={calculations.giftCardFee}
               />
             </Suspense>
           </div>

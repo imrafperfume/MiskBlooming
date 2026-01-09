@@ -28,6 +28,14 @@ import { settingTypeDefs } from "@/src/modules/system/settingTypeDefs";
 import { SettingResolvers } from "@/src/modules/system/settingResolvers";
 import { ManagementTypeDefs } from "@/src/modules/contentManagment/managmentTypeDefs";
 import { ManagementResolvers } from "@/src/modules/contentManagment/ManagmentResolvers";
+import { PromotionResolvers } from "@/src/modules/promotion/promotionResolvers";
+import { PromotionTypeDefs } from "@/src/modules/promotion/promotionTypeDefs";
+import { notificationTypeDefs } from "@/src/modules/notification/notificationTypeDefs";
+import { notificationResolvers } from "@/src/modules/notification/notificationResolvers";
+import { membershipTypeDefs } from "@/src/modules/membership/membershipTypeDefs";
+import { membershipResolvers } from "@/src/modules/membership/membershipResolvers";
+import { footerTypeDefs } from "@/src/modules/content/footerTypeDefs";
+import { footerResolvers } from "@/src/modules/content/footerResolvers";
 
 const typeDefs = mergeTypeDefs([
   `
@@ -50,6 +58,10 @@ const typeDefs = mergeTypeDefs([
   ThemeTypeDefs,
   settingTypeDefs,
   ManagementTypeDefs,
+  PromotionTypeDefs,
+  notificationTypeDefs,
+  membershipTypeDefs,
+  footerTypeDefs,
 ]);
 
 interface ContextType {
@@ -69,6 +81,10 @@ const resolvers = mergeResolvers([
   themeResolvers,
   SettingResolvers,
   ManagementResolvers,
+  PromotionResolvers,
+  notificationResolvers,
+  membershipResolvers,
+  footerResolvers,
 ]) as IResolvers<any, ContextType & YogaInitialContext>;
 
 const schema = createSchema<ContextType>({
@@ -85,13 +101,21 @@ const yoga = createYoga<ContextType>({
       const ip = request.headers.get("x-forwarded-for") || "unknown";
       const key = `rate:${ip}`;
       const limit = userId ? 150 : 60;
+
       const allowed = await rateLimit(key, limit, "1 m");
       if (!allowed) {
         throw new Error("Too many requests. Please try again later.");
       }
       return { userId };
     } catch (error: any) {
-      console.error(error);
+      console.error("GraphQL Context error:", error.message || error);
+
+      // If it's the rate limit error, propagate it
+      if (error.message?.includes("Too many requests")) {
+        throw error;
+      }
+
+      // Otherwise, log it and return generic error to client
       throw new Error("Internal Server Error");
     }
   },

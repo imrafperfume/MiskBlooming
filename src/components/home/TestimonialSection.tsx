@@ -23,15 +23,30 @@ interface Review {
 const TestimonialSection = ({
   taTitle,
   taDesc,
+  testimonials: propTestimonials,
 }: {
   taTitle?: string;
   taDesc?: string;
+  testimonials?: any[];
 }) => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-  const { data, loading, error } = useQuery(GET_REVIEWS);
+  // Only query if no props provided OR if we want to mix. For now prefer props.
+  const { data, loading, error } = useQuery(GET_REVIEWS, {
+     skip: !!propTestimonials?.length
+  });
 
-  // Defensive: Ensure default empty array
-  const testimonials: Review[] = data?.reviews || [];
+  // Normalize prop data to Review interface
+  const normalizedProps = (propTestimonials || []).map((t, i) => ({
+      id: `manual-${i}`,
+      comment: t.content,
+      rating: 5, // Default to 5 star for curated
+      user: {
+          firstName: t.name,
+          lastName: t.role // Using role as last name hack or better, add role to display
+      }
+  }));
+
+  const testimonials: Review[] = normalizedProps.length > 0 ? normalizedProps : (data?.reviews || []);
 
   if (loading) return <Loading />;
 
