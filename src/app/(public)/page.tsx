@@ -1,54 +1,25 @@
-"use client";
-
-import { Suspense, lazy } from "react";
-import { Award } from "lucide-react";
-import dynamic from "next/dynamic";
-import { Button } from "../../components/ui/button";
+import { Suspense } from "react";
+import { prisma } from "@/src/lib/db";
+import { HomePageContent } from "@prisma/client";
 import { LazyWrapper } from "../../components/ui/LazyWrapper";
 import HeroSlider from "../../components/home/HeroSlider";
 import PromotionBanner from "../../components/home/PromotionBanner";
 import ShopByCategory from "../../components/home/ShopByCategory";
-import { useFeaturedProducts } from "@/src/hooks/useProducts";
-import { useQuery } from "@apollo/client";
-import { GET_HOMPAGECONTENT } from "@/src/modules/contentManagment/oparation";
-import { HomePageContent } from "@prisma/client";
+import { Metadata } from "next";
 
-// --- 1. Dynamic Imports with Preloading Capabilities ---
-// We use 'dynamic' for components that need browser APIs or heavy interactivity
-const SpecialOccasions = dynamic(
-  () => import("../../components/home/SpecialOccasions"),
-  {
-    loading: () => <SectionLoader height="h-[600px]" />,
-    ssr: false,
-  }
-);
+import InSeason from "../../components/home/InSeason";
+import TestimonialSection from "../../components/home/TestimonialSection";
+import FeaturedProducts from "../../components/home/FeaturedProducts";
+import Newsletter from "@/src/components/home/Newsletter";
 
-const InSeason = dynamic(() => import("../../components/home/InSeason"), {
-  loading: () => <SectionLoader height="h-[500px]" />,
-  ssr: false,
-});
-
-const TestimonialSection = dynamic(
-  () => import("../../components/home/TestimonialSection"),
-  {
-    loading: () => <SectionLoader height="h-[600px]" />,
-    ssr: false,
-  }
-);
-
-// We use React.lazy for standard React components to split bundles
-const FeaturedProducts = lazy(
-  () => import("../../components/home/FeaturedProducts")
-);
-
-// --- 2. Optimized Loader (Memoized) ---
+// --- Loader ---
 const SectionLoader = ({ height = "h-96" }: { height?: string }) => (
   <div
     className={`w-full ${height} bg-cream-50/50 animate-pulse rounded-lg my-8`}
   />
 );
 
-// --- 3. Static Data (Moved outside component to prevent re-creation) ---
+// --- Static Data ---
 const STATS_DATA = [
   { number: "1,000+", label: "Distinguished Clients" },
   { number: "10,000+", label: "Luxury Arrangements" },
@@ -56,78 +27,102 @@ const STATS_DATA = [
   { number: "99.9%", label: "Satisfaction Rate" },
 ];
 
-export default function HomePage() {
-  // --- 4. Parallel Data Fetching ---
-  // Ensure these hooks don't block the UI painting
-  const { data: featuredProducts, isLoading } = useFeaturedProducts([
-    "id",
-    "name",
-    "slug",
-    "category",
-    "shortDescription",
-    "price",
-    "compareAtPrice",
-    "quantity",
-    "images {url}",
-    "featured",
-    "status",
-    "tags",
-    "featuredImage",
-    "Review {rating}",
+export const metadata: Metadata = {
+  title: "Misk Blooming | Luxury Floral Arrangements in Dubai",
+  description: "Experience the elegance of our hand-crafted bouquets designed for every occasion. Premier flower delivery in Dubai and UAE.",
+  openGraph: {
+    title: "Misk Blooming | Luxury Floral Arrangements",
+    description: "Premier flower delivery in Dubai and UAE.",
+    type: 'website',
+  }
+};
+
+export default async function HomePage() {
+  // --- Data Fetching ---
+  const [
+    homePageContent,
+    featuredProductsRaw,
+    systemSettings,
+    promotionsRaw,
+    categoriesRaw
+  ] = await Promise.all([
+    prisma.homePageContent.findFirst({
+      where: { id: "HOME_PAGE" },
+    }),
+    prisma.product.findMany({
+      where: {
+        featured: true,
+        status: "active",
+      },
+      take: 10,
+      include: {
+        images: true,
+        Review: {
+          select: {
+            rating: true,
+            id: true,
+            comment: true,
+            createdAt: true,
+            user: true,
+          },
+        },
+      },
+    }),
+    prisma.themeSetting.findFirst(),
+    prisma.promotion.findMany({
+      where: { status: "ACTIVE", isActive: true }
+    }),
+    prisma.category.findMany()
   ]);
 
-  const { data } = useQuery(GET_HOMPAGECONTENT, {
-    fetchPolicy: "cache-first", // Prefer cache for speed
-    nextFetchPolicy: "cache-first",
-  });
+  // Fallbacks if data is missing
+  const content = homePageContent || {} as HomePageContent;
+  const layout = systemSettings?.layoutStyle || "full";
 
-  const content: HomePageContent = data?.getHomePageContent;
+  // Transform data to be plain objects (serializing dates)
+  const featuredProducts = JSON.parse(JSON.stringify(featuredProductsRaw));
+  const promotions = JSON.parse(JSON.stringify(promotionsRaw));
+  const categories = JSON.parse(JSON.stringify(categoriesRaw));
 
   return (
     <div className="overflow-hidden bg-background">
-      {/* --- Critical Path (Above the Fold) --- */}
-      {/* Render these immediately for LCP (Largest Contentful Paint) */}
-      <HeroSlider slides={(content as any)?.heroSlides ?? []} />
-
+      {/* Critical Path */}
+      <HeroSlider
+        slides={(content.heroSlides as any) ?? []}
+        layout={layout}
+      />
 
       <ShopByCategory
-        caTitle={content?.categoryTitle}
-        caDesc={content?.categoryDesc}
+        caTitle={content.categoryTitle}
+        caDesc={content.categoryDesc}
+        categories={categories}
       />
-      <PromotionBanner />
 
-      {/* --- Deferred Sections (Below the Fold) --- */}
+      <PromotionBanner promotions={promotions} />
 
-      {/* Featured Products */}
+      {/* Deferred Sections */}
       <LazyWrapper>
         <Suspense fallback={<SectionLoader height="h-[800px]" />}>
           <FeaturedProducts
-            faTitle={content?.featureTitle}
-            faSubtitle={content?.featureSubtitle}
-            faDesc={content?.featureDesc}
-            featuredProducts={featuredProducts ?? []}
-            isLoading={isLoading}
+            faTitle={content.featureTitle}
+            faSubtitle={content.featureSubtitle}
+            faDesc={content.featureDesc}
+            featuredProducts={featuredProducts}
+            isLoading={false}
           />
         </Suspense>
       </LazyWrapper>
 
-      {/* Special Occasions (Commented out in your code, but kept structure) */}
-      {/* 
-      <LazyWrapper>
-        <SpecialOccasions />
-      </LazyWrapper> 
-      */}
-
       {/* In Season */}
       <LazyWrapper>
         <InSeason
-          title={content?.seasonTitle}
-          subtitle={content?.seasonSubtitle}
-          description={content?.seasonDesc}
+          title={content.seasonTitle}
+          subtitle={content.seasonSubtitle}
+          description={content.seasonDesc}
         />
       </LazyWrapper>
 
-      {/* Stats Section - Static HTML (Fastest render) */}
+      {/* Stats Section */}
       <section
         className="py-24 luxury-gradient border-t border-charcoal-900/10"
         aria-labelledby="stats-heading"
@@ -139,16 +134,16 @@ export default function HomePage() {
               className="font-cormorant flex flex-col items-center justify-center text-foreground"
             >
               <span className="block text-xl font-medium mb-3 opacity-80">
-                {content?.excellenceTitle || "Our Excellence"}
+                {content.excellenceTitle || "Our Excellence"}
               </span>
               <span className="text-display-md font-bold text-charcoal-900 leading-none">
-                {content?.excellenceSubtitle || "By The Numbers"}
+                {content.excellenceSubtitle || "By The Numbers"}
               </span>
             </h2>
           </div>
 
           <dl className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0">
-            {((content as any)?.stats || STATS_DATA).map((s: any, i: number) => (
+            {((content.stats as any) || STATS_DATA).map((s: any, i: number) => (
               <div
                 key={i}
                 className={`
@@ -172,51 +167,20 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials - Heavy component, strictly lazy loaded */}
+      {/* Testimonials */}
       <LazyWrapper>
         <TestimonialSection
-          taTitle={content?.testimonialTitle}
-          taDesc={content?.testimonialDesc}
-          testimonials={(content as any)?.testimonials ?? []}
+          taTitle={content.testimonialTitle}
+          taDesc={content.testimonialDesc}
+          testimonials={(content.testimonials as any) ?? []}
         />
       </LazyWrapper>
 
-      {/* Newsletter - Static Content */}
-      <section className="py-24 bg-background">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="flex items-center justify-center mb-6">
-            <Award className="w-8 h-8 text-primary mx-3" />
-            <h2 className="font-cormorant text-display-sm font-bold text-foreground">
-              {content?.newsletterTitle || "Stay Updated with MiskBlooming"}
-            </h2>
-            <Award className="w-8 h-8 text-primary mx-3" />
-          </div>
-          <p className="text-muted-foreground text-xl mb-8 max-w-2xl mx-auto">
-            {content?.newsletterDesc ||
-              "Subscribe to our newsletter for the latest in luxury floral designs, exclusive offers, and more."}
-          </p>
-          <form
-            className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto"
-            onSubmit={(e) => e.preventDefault()}
-          >
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="flex-1 px-6 py-4 rounded-xl border border-border  
-              focus:ring-2 focus:ring-ring transition-all bg-background"
-              required
-            />
-            <Button
-              variant="luxury"
-              size="lg"
-              type="submit"
-              className="hover:text-secondary"
-            >
-              Subscribe
-            </Button>
-          </form>
-        </div>
-      </section>
+      {/* Newsletter */}
+      <Newsletter
+        title={content.newsletterTitle}
+        description={content.newsletterDesc}
+      />
     </div>
   );
 }

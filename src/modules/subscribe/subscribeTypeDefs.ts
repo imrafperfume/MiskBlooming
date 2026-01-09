@@ -14,7 +14,7 @@ export const SubscribeTypeDefs = gql`
     getSubscriber: Subscribe
   }
   type Mutation {
-    createSubscriber(input: SubscribeInput!): SubscribeInput!
-    updateSubscriber(input: SubscribeInput!): SubscribeInput!
+    createSubscriber(input: SubscribeInput!): Subscribe!
+    updateSubscriber(input: SubscribeInput!): Subscribe!
   }
 `;

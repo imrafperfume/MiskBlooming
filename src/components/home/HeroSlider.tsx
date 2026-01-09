@@ -8,8 +8,7 @@ import { Button } from "../ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import type { HeroSlide } from "../../types";
 import cloudinaryLoader from "@/src/lib/imageLoader";
-import { useQuery } from "@apollo/client";
-import { GET_SYSTEM_SETTING } from "@/src/modules/theme/operation";
+
 
 // --- Types ---
 interface ButtonLink {
@@ -22,77 +21,73 @@ interface NormalizedHeroSlide extends Omit<HeroSlide, "buttons"> {
   buttons: ButtonLink[];
 }
 
-const HeroSlider = ({ slides = [] }: { slides?: any[] }) => {
+const HeroSlider = ({ slides = [], layout = "full" }: { slides?: any[], layout?: string }) => {
   // --- State ---
   const [currentSlide, setCurrentSlide] = useState(0);
   const [heroSlides, setHeroSlides] = useState<NormalizedHeroSlide[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
 
-  // --- Data Fetching (Parallel) ---
-  const { data: systemData } = useQuery(GET_SYSTEM_SETTING, {
-    fetchPolicy: "cache-first", 
-  });
+  // Layout is now passed as a prop
 
-  const layout = systemData?.getSystemSetting?.layoutStyle || "full";
 
   useEffect(() => {
     if (slides && slides.length > 0) {
       // Normalize props data
       const processed = slides.map((slide: any, index: number) => ({
-         id: `slide-${index}`,
-         title: slide.title,
-         subtitle: slide.subtitle, 
-         description: slide.description || slide.subtitle,
-         imageUrl: slide.image || slide.imageUrl, // Handle both structures
-         buttons: slide.link ? [{ text: "Shop Now", link: slide.link }] : (slide.buttons || []),
-         published: true,
-         order: index
+        id: `slide-${index}`,
+        title: slide.title,
+        subtitle: slide.subtitle,
+        description: slide.description || slide.subtitle,
+        imageUrl: slide.image || slide.imageUrl, // Handle both structures
+        buttons: slide.link ? [{ text: "Shop Now", link: slide.link }] : (slide.buttons || []),
+        published: true,
+        order: index
       }));
-       setHeroSlides(processed);
-       setIsLoading(false);
+      setHeroSlides(processed);
+      setIsLoading(false);
     } else {
-       // Fetch from existing API (dashboard/hero system)
-       const fetchSlides = async () => {
-         try {
-           const res = await fetch("/api/hero-slides");
-           if (res.ok) {
-             const data = await res.json();
-             if (Array.isArray(data) && data.length > 0) {
-                // Determine if we need to filter by 'published' (usually API returns all for admin, but verify)
-                // Assuming client-side should show only published?
-                // The API seems to return all. Let's filter here if needed, or assume API handles it?
-                // Looking at route.ts, it returns all. Client should filter.
-                const published = data.filter((s: any) => s.published !== false);
-                
-                if (published.length > 0) {
-                    const sorted = published.sort((a: any, b: any) => a.order - b.order);
-                    setHeroSlides(sorted);
-                    setIsLoading(false);
-                    return;
-                }
-             }
-           }
-         } catch (e) {
-           console.error("Failed to fetch hero slides", e);
-         }
+      // Fetch from existing API (dashboard/hero system)
+      const fetchSlides = async () => {
+        try {
+          const res = await fetch("/api/hero-slides");
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+              // Determine if we need to filter by 'published' (usually API returns all for admin, but verify)
+              // Assuming client-side should show only published?
+              // The API seems to return all. Let's filter here if needed, or assume API handles it?
+              // Looking at route.ts, it returns all. Client should filter.
+              const published = data.filter((s: any) => s.published !== false);
 
-          // Fallback if API fails or is empty
-          const defaultSlide: NormalizedHeroSlide = {
-              id: "default-hero",
-              title: "Welcome to Misk Blooming",
-              subtitle: "Luxury Floral Arrangements",
-              description: "Experience the elegance of our hand-crafted bouquets designed for every occasion.",
-              imageUrl: "/luxury-flower-shop.png",
-              buttons: [{ text: "Shop Collection", link: "/products" }],
-              published: true,
-              order: 0
-          };
-          setHeroSlides([defaultSlide]);
-          setIsLoading(false);
-       };
+              if (published.length > 0) {
+                const sorted = published.sort((a: any, b: any) => a.order - b.order);
+                setHeroSlides(sorted);
+                setIsLoading(false);
+                return;
+              }
+            }
+          }
+        } catch (e) {
+          console.error("Failed to fetch hero slides", e);
+        }
 
-       fetchSlides();
+        // Fallback if API fails or is empty
+        const defaultSlide: NormalizedHeroSlide = {
+          id: "default-hero",
+          title: "Welcome to Misk Blooming",
+          subtitle: "Luxury Floral Arrangements",
+          description: "Experience the elegance of our hand-crafted bouquets designed for every occasion.",
+          imageUrl: "/luxury-flower-shop.png",
+          buttons: [{ text: "Shop Collection", link: "/products" }],
+          published: true,
+          order: 0
+        };
+        setHeroSlides([defaultSlide]);
+        setIsLoading(false);
+      };
+
+      fetchSlides();
     }
   }, [slides]);
 
@@ -224,10 +219,9 @@ const HeroSlider = ({ slides = [] }: { slides?: any[] }) => {
                           size="lg"
                           className={`
                             transition-all duration-300
-                            ${
-                              idx === 0
-                                ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105"
-                                : "bg-white/10 text-white backdrop-blur-md hover:bg-white/20 border border-white/30"
+                            ${idx === 0
+                              ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:scale-105"
+                              : "bg-white/10 text-white backdrop-blur-md hover:bg-white/20 border border-white/30"
                             }
                           `}
                         >
@@ -254,11 +248,10 @@ const HeroSlider = ({ slides = [] }: { slides?: any[] }) => {
                 stopAutoPlay();
                 setCurrentSlide(index);
               }}
-              className={`h-1.5 rounded-full transition-all duration-500 ${
-                index === currentSlide
-                  ? "bg-primary w-12"
-                  : "bg-white/40 hover:bg-white/80 w-6"
-              }`}
+              className={`h-1.5 rounded-full transition-all duration-500 ${index === currentSlide
+                ? "bg-primary w-12"
+                : "bg-white/40 hover:bg-white/80 w-6"
+                }`}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
