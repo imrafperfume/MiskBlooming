@@ -55,6 +55,9 @@ export const settingTypeDefs = gql`
 
     isScheduledEnabled: Boolean!
     scheduledDeliveryFee: Float!
+    # Gift Card
+    isGiftCardEnabled: Boolean!
+    giftCardFee: Float!
     facebook: String
     instagram: String
     twitter: String
@@ -91,6 +94,8 @@ export const settingTypeDefs = gql`
     expressDeliveryFee: Float
     isScheduledEnabled: Boolean
     scheduledDeliveryFee: Float
+    isGiftCardEnabled: Boolean
+    giftCardFee: Float
     facebook: String
     instagram: String
     twitter: String

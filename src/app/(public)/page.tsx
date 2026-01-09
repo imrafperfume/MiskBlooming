@@ -1,42 +1,64 @@
 "use client";
 
-import { Suspense, lazy, useState, useEffect } from "react";
+import { Suspense, lazy } from "react";
 import { Award } from "lucide-react";
 import dynamic from "next/dynamic";
-import { Button } from "../../components/ui/Button";
+import { Button } from "../../components/ui/button";
 import { LazyWrapper } from "../../components/ui/LazyWrapper";
-
-// Critical above-the-fold components (direct import)
 import HeroSlider from "../../components/home/HeroSlider";
+import PromotionBanner from "../../components/home/PromotionBanner";
 import ShopByCategory from "../../components/home/ShopByCategory";
 import { useFeaturedProducts } from "@/src/hooks/useProducts";
 import { useQuery } from "@apollo/client";
 import { GET_HOMPAGECONTENT } from "@/src/modules/contentManagment/oparation";
 import { HomePageContent } from "@prisma/client";
 
-// Non-critical sections (dynamic imports with suspense)
+// --- 1. Dynamic Imports with Preloading Capabilities ---
+// We use 'dynamic' for components that need browser APIs or heavy interactivity
+const SpecialOccasions = dynamic(
+  () => import("../../components/home/SpecialOccasions"),
+  {
+    loading: () => <SectionLoader height="h-[600px]" />,
+    ssr: false,
+  }
+);
+
+const InSeason = dynamic(() => import("../../components/home/InSeason"), {
+  loading: () => <SectionLoader height="h-[500px]" />,
+  ssr: false,
+});
+
+const TestimonialSection = dynamic(
+  () => import("../../components/home/TestimonialSection"),
+  {
+    loading: () => <SectionLoader height="h-[600px]" />,
+    ssr: false,
+  }
+);
+
+// We use React.lazy for standard React components to split bundles
 const FeaturedProducts = lazy(
   () => import("../../components/home/FeaturedProducts")
 );
-const SpecialOccasions = dynamic(
-  () => import("../../components/home/SpecialOccasions"),
-  { ssr: false, loading: () => <SectionLoader /> }
-);
-const InSeason = dynamic(() => import("../../components/home/InSeason"), {
-  ssr: false,
-  loading: () => <SectionLoader />,
-});
-const TestimonialSection = dynamic(
-  () => import("../../components/home/TestimonialSection"),
-  { ssr: false, loading: () => <SectionLoader height="h-64" /> }
+
+// --- 2. Optimized Loader (Memoized) ---
+const SectionLoader = ({ height = "h-96" }: { height?: string }) => (
+  <div
+    className={`w-full ${height} bg-cream-50/50 animate-pulse rounded-lg my-8`}
+  />
 );
 
-// Skeleton loaders (fast paint, avoids CLS)
-const SectionLoader = ({ height = "h-96" }: { height?: string }) => (
-  <div className={`${height} bg-cream-200 animate-pulse rounded-lg`} />
-);
+// --- 3. Static Data (Moved outside component to prevent re-creation) ---
+const STATS_DATA = [
+  { number: "1,000+", label: "Distinguished Clients" },
+  { number: "10,000+", label: "Luxury Arrangements" },
+  { number: "5", label: "Years of Excellence" },
+  { number: "99.9%", label: "Satisfaction Rate" },
+];
 
 export default function HomePage() {
+  // --- 4. Parallel Data Fetching ---
+  // Ensure these hooks don't block the UI painting
   const { data: featuredProducts, isLoading } = useFeaturedProducts([
     "id",
     "name",
@@ -53,136 +75,121 @@ export default function HomePage() {
     "featuredImage",
     "Review {rating}",
   ]);
-  const { data, loading, error } = useQuery(GET_HOMPAGECONTENT);
-  const content: HomePageContent = data?.getHomePageContent;
-  console.log("🚀 ~ HomePage ~ content:", content);
-  const [isVisible, setIsVisible] = useState({
-    featured: false,
-    special: false,
-    season: false,
-    testimonial: false,
+
+  const { data } = useQuery(GET_HOMPAGECONTENT, {
+    fetchPolicy: "cache-first", // Prefer cache for speed
+    nextFetchPolicy: "cache-first",
   });
 
-  // Intersection Observer (lazy hydration strategy)
-  useEffect(() => {
-    const sections = Object.keys(isVisible) as (keyof typeof isVisible)[];
-    const observers: IntersectionObserver[] = [];
-
-    sections.forEach((key) => {
-      const el = document.getElementById(key);
-      if (!el) return;
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (entries[0].isIntersecting) {
-            setIsVisible((prev) => ({ ...prev, [key]: true }));
-            observer.disconnect();
-          }
-        },
-        { threshold: 0.1 }
-      );
-
-      observer.observe(el);
-      observers.push(observer);
-    });
-
-    return () => observers.forEach((o) => o.disconnect());
-  }, []);
-
-  const stats = [
-    { number: "1,000+", label: "Distinguished Clients" },
-    { number: "10,000+", label: "Luxury Arrangements" },
-    { number: "5", label: "Years of Excellence" },
-    { number: "99.9%", label: "Satisfaction Rate" },
-  ];
+  const content: HomePageContent = data?.getHomePageContent;
 
   return (
-    <div className="overflow-hidden">
-      {/* Hero + Category (critical, above the fold) */}
-      <HeroSlider />
+    <div className="overflow-hidden bg-background">
+      {/* --- Critical Path (Above the Fold) --- */}
+      {/* Render these immediately for LCP (Largest Contentful Paint) */}
+      <HeroSlider slides={(content as any)?.heroSlides ?? []} />
+
+
       <ShopByCategory
         caTitle={content?.categoryTitle}
         caDesc={content?.categoryDesc}
       />
+      <PromotionBanner />
+
+      {/* --- Deferred Sections (Below the Fold) --- */}
 
       {/* Featured Products */}
-      <div id="featured">
-        <LazyWrapper>
-          <Suspense fallback={<SectionLoader height="h-80" />}>
-            {isVisible.featured ? (
-              <FeaturedProducts
-                faTitle={content?.featureTitle}
-                faSubtitle={content?.featureSubtitle}
-                faDesc={content?.featureDesc}
-                featuredProducts={featuredProducts ?? []}
-                isLoading={isLoading}
-              />
-            ) : (
-              <SectionLoader height="h-80" />
-            )}
-          </Suspense>
-        </LazyWrapper>
-      </div>
+      <LazyWrapper>
+        <Suspense fallback={<SectionLoader height="h-[800px]" />}>
+          <FeaturedProducts
+            faTitle={content?.featureTitle}
+            faSubtitle={content?.featureSubtitle}
+            faDesc={content?.featureDesc}
+            featuredProducts={featuredProducts ?? []}
+            isLoading={isLoading}
+          />
+        </Suspense>
+      </LazyWrapper>
 
-      {/* Special Occasions */}
-      {/* <div id="special">
-        <LazyWrapper>
-          {isVisible.special ? <SpecialOccasions /> : <SectionLoader />}
-        </LazyWrapper>
-      </div> */}
+      {/* Special Occasions (Commented out in your code, but kept structure) */}
+      {/* 
+      <LazyWrapper>
+        <SpecialOccasions />
+      </LazyWrapper> 
+      */}
 
       {/* In Season */}
-      <div id="season">
-        <LazyWrapper>
-          {isVisible.season ? <InSeason /> : <SectionLoader />}
-        </LazyWrapper>
-      </div>
+      <LazyWrapper>
+        <InSeason
+          title={content?.seasonTitle}
+          subtitle={content?.seasonSubtitle}
+          description={content?.seasonDesc}
+        />
+      </LazyWrapper>
 
-      {/* Stats (static, no motion for better TBT) */}
-      <section className="py-24 luxury-gradient">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="font-cormorant flex flex-col items-center gap-1 justify-center text-2xl font-bold text-foreground mb-16">
-            {content?.excellenceTitle}
-            <span className="text-charcoal-900  text-display-md ">
-              {content?.excellenceSubtitle}
-            </span>
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            {stats.map((s, i) => (
-              <div key={i}>
-                <div className="text-4xl lg:text-5xl font-bold text-foreground  mb-2">
+      {/* Stats Section - Static HTML (Fastest render) */}
+      <section
+        className="py-24 luxury-gradient border-t border-charcoal-900/10"
+        aria-labelledby="stats-heading"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <h2
+              id="stats-heading"
+              className="font-cormorant flex flex-col items-center justify-center text-foreground"
+            >
+              <span className="block text-xl font-medium mb-3 opacity-80">
+                {content?.excellenceTitle || "Our Excellence"}
+              </span>
+              <span className="text-display-md font-bold text-charcoal-900 leading-none">
+                {content?.excellenceSubtitle || "By The Numbers"}
+              </span>
+            </h2>
+          </div>
+
+          <dl className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0">
+            {((content as any)?.stats || STATS_DATA).map((s: any, i: number) => (
+              <div
+                key={i}
+                className={`
+                  flex flex-col items-center justify-center text-center p-4
+                  ${i !== STATS_DATA.length - 1
+                    ? "lg:border-r border-charcoal-900/10"
+                    : ""
+                  }
+                  transition-transform duration-300 hover:-translate-y-1 will-change-transform
+                `}
+              >
+                <dd className="text-5xl lg:text-6xl font-bold text-foreground tracking-tight mb-3 font-cormorant">
                   {s.number}
-                </div>
-                <p className="text-charcoal-900 font-bold">{s.label}</p>
+                </dd>
+                <dt className="text-sm font-bold text-charcoal-900 uppercase tracking-widest opacity-90">
+                  {s.label}
+                </dt>
               </div>
             ))}
-          </div>
+          </dl>
         </div>
       </section>
 
-      {/* Testimonials */}
-      <div id="testimonial">
-        <LazyWrapper>
-          {isVisible.testimonial ? (
-            <TestimonialSection
-              taTitle={content?.testimonialTitle}
-              taDesc={content?.testimonialDesc}
-            />
-          ) : (
-            <SectionLoader height="h-64" />
-          )}
-        </LazyWrapper>
-      </div>
+      {/* Testimonials - Heavy component, strictly lazy loaded */}
+      <LazyWrapper>
+        <TestimonialSection
+          taTitle={content?.testimonialTitle}
+          taDesc={content?.testimonialDesc}
+          testimonials={(content as any)?.testimonials ?? []}
+        />
+      </LazyWrapper>
 
-      {/* Newsletter */}
+      {/* Newsletter - Static Content */}
       <section className="py-24 bg-background">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="flex items-center justify-center mb-6">
-            <Award className="w-8 h-8 text-primary  mx-3" />
-            <h2 className="font-cormorant text-display-sm font-bold text-foreground ">
+            <Award className="w-8 h-8 text-primary mx-3" />
+            <h2 className="font-cormorant text-display-sm font-bold text-foreground">
               {content?.newsletterTitle || "Stay Updated with MiskBlooming"}
             </h2>
-            <Award className="w-8 h-8 text-primary  mx-3" />
+            <Award className="w-8 h-8 text-primary mx-3" />
           </div>
           <p className="text-muted-foreground text-xl mb-8 max-w-2xl mx-auto">
             {content?.newsletterDesc ||

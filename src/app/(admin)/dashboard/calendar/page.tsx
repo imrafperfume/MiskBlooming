@@ -15,8 +15,8 @@ import {
   Filter,
   Search,
 } from "lucide-react";
-import { Button } from "../../../../components/ui/Button";
-import { Input } from "../../../../components/ui/Input";
+import { Button } from "../../../../components/ui/button";
+import { Input } from "../../../../components/ui/input";
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());

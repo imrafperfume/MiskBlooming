@@ -14,7 +14,7 @@ import {
   Eye,
   RefreshCw,
 } from "lucide-react";
-import { Button } from "../../../../components/ui/Button";
+import { Button } from "../../../../components/ui/button";
 
 export default function ReportsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState("monthly");

@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
         }
 
         try {
-          await prisma.order.update({
+          const updatedOrder = await prisma.order.update({
             where: { id: orderId },
             data: {
               paymentStatus: "PAID",
@@ -76,8 +76,20 @@ export async function POST(req: NextRequest) {
               cardLast4: last4 || null,
               status: "PROCESSING",
             },
+            include: {
+              items: { include: { product: true } }, // Include items for email
+              user: true, 
+            }
           });
           console.log(`Order ${orderId} marked as PAID`);
+          
+          // Send Email
+          const { sendOrderConfirmationEmail } = await import("@/src/lib/email");
+          await sendOrderConfirmationEmail(updatedOrder, { 
+             firstName: updatedOrder.firstName, 
+             email: updatedOrder.email 
+          });
+
         } catch (err) {
           console.error(`Failed to update order ${orderId}:`, err);
         }

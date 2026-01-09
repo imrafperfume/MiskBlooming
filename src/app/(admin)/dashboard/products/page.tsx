@@ -27,8 +27,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { toast } from "sonner";
 
-import { Button } from "../../../../components/ui/Button";
-import { Input } from "../../../../components/ui/Input";
+import { Button } from "../../../../components/ui/button";
+import { Input } from "../../../../components/ui/input";
 import { useCategories } from "@/src/hooks/useCategories";
 
 // --- GraphQL ---
@@ -428,14 +428,14 @@ export default function ProductsPage() {
                     <td className="px-6 py-4">
                       <span
                         className={`font-medium ${
-                          product.quantity > 10
+                          product?.quantity > 10
                             ? "text-green-600"
-                            : product.quantity > 0
+                            : product?.quantity > 0
                             ? "text-yellow-600"
                             : "text-destructive"
                         }`}
                       >
-                        {product.quantity} units
+                        {product?.quantity} units
                       </span>
                     </td>
 

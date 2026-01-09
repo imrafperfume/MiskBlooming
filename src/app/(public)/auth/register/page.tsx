@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Button } from "../../../../components/ui/Button";
+import { Button } from "../../../../components/ui/button";
 import { RegisterInput, registerSchema } from "@/src/lib/zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";

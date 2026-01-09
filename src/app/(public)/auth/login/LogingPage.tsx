@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import Button from "@/src/components/ui/Button";
+import Button from "@/src/components/ui/button";
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 
 import Link from "next/link";

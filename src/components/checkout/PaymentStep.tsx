@@ -2,7 +2,7 @@
 
 import { CreditCard, Banknote, Wallet, Shield, Lock } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { Button } from "../ui/Button";
+import { Button } from "../ui/button";
 import { CheckoutStep } from "./CheckoutStep";
 import { formatPrice } from "../../lib/utils";
 import type { CheckoutFormData } from "../../types/checkout";
@@ -19,26 +19,8 @@ interface PaymentStepProps {
   total: number;
   clientSecret?: string | null;
   orderId?: string;
+  codFee?: number;
 }
-
-const paymentMethods = [
-  {
-    id: "STRIPE",
-    name: "Card / Apple Pay / Google Pay",
-    description: "Secure one‑tap checkout via Stripe",
-    icon: CreditCard,
-    fee: 0,
-    popular: true,
-  },
-  {
-    id: "COD",
-    name: "Cash on Delivery",
-    description: "Pay when your flowers arrive",
-    icon: Banknote,
-    fee: 10,
-    popular: false,
-  },
-];
 
 export function PaymentStep({
   form,
@@ -46,9 +28,29 @@ export function PaymentStep({
   onSubmit,
   isProcessing,
   total,
+  codFee = 10,
 }: // clientSecret,
-// orderId,
-PaymentStepProps) {
+  // orderId,
+  PaymentStepProps) {
+  const paymentMethods = [
+    {
+      id: "STRIPE",
+      name: "Card / Apple Pay / Google Pay",
+      description: "Secure one‑tap checkout via Stripe",
+      icon: CreditCard,
+      fee: 0,
+      popular: true,
+    },
+    {
+      id: "COD",
+      name: "Cash on Delivery",
+      description: "Pay when your flowers arrive",
+      icon: Banknote,
+      fee: codFee,
+      popular: false,
+    },
+  ];
+
   const { register, watch, setValue } = form;
   const paymentMethod = watch("paymentMethod");
   const router = useRouter();
@@ -85,11 +87,10 @@ PaymentStepProps) {
               availablePaymentMethods.map((method) => (
                 <label
                   key={method.id}
-                  className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
-                    paymentMethod === method.id
-                      ? "border-border bg-primary "
-                      : "border-border  hover:bg-primary hover:border-border"
-                  }`}
+                  className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${paymentMethod === method.id
+                    ? "border-border bg-primary "
+                    : "border-border  hover:bg-primary hover:border-border"
+                    }`}
                 >
                   <input
                     type="radio"
@@ -138,7 +139,7 @@ PaymentStepProps) {
             </div>
             <p className="text-sm text-primary">
               Pay with cash when your flowers are delivered. A service fee of
-              AED 10 applies. Please have the exact amount ready for our
+              AED {codFee} applies. Please have the exact amount ready for our
               delivery partner.
             </p>
           </div>

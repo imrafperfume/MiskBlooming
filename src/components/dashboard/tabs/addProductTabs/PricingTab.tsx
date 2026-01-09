@@ -1,4 +1,4 @@
-import { Input } from "@/src/components/ui/Input";
+import { Input } from "@/src/components/ui/input";
 import { DollarSign } from "lucide-react";
 import React from "react";
 import { TabProps } from "../types";

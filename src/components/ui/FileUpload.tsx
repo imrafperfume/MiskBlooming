@@ -11,7 +11,7 @@ import {
   CheckCircle,
   Loader2,
 } from "lucide-react";
-import { Button } from "./Button";
+import { Button } from "./button";
 
 interface UploadedFile {
   id: string;
@@ -317,7 +317,7 @@ export function FileUpload({
           >
             <ImageIcon className="w-4 h-4 mr-2" />
             Choose Files
-          </Button>
+          </button>
         </div>
 
         {isDragOver && (
@@ -369,7 +369,7 @@ export function FileUpload({
                         className="p-1"
                       >
                         <X className="w-4 h-4" />
-                      </Button>
+                      </button>
                     </div>
                   </div>
 
@@ -407,7 +407,7 @@ export function FileUpload({
                         onClick={() => retryUpload(file.id)}
                       >
                         Retry Upload
-                      </Button>
+                      </button>
                     </div>
                   )}
                 </div>

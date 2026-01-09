@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Truck } from "lucide-react";
-import { Button } from "../ui/Button";
+import { Button } from "../ui/button";
 
 export function EmptyCart() {
   return (

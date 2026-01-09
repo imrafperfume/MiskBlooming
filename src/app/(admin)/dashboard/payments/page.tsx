@@ -18,8 +18,8 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { Button } from "../../../../components/ui/Button";
-import { Input } from "../../../../components/ui/Input";
+import { Button } from "../../../../components/ui/button";
+import { Input } from "../../../../components/ui/input";
 
 // Mock payments data
 const mockPayments = [

@@ -29,7 +29,7 @@ import * as Select from "@radix-ui/react-select";
 import { toast } from "sonner";
 import { formatTimestamp, handleDownload } from "@/src/lib/utils";
 import { GET_ORDER_BY_ID } from "@/src/modules/order/operations";
-import Button from "@/src/components/ui/Button";
+import Button from "@/src/components/ui/button";
 
 // --- GraphQL Mutation ---
 const UPDATE_ORDER_STATUS = gql`
@@ -76,6 +76,8 @@ interface Order {
   codFee: number;
   vatAmount: number;
   discount: number;
+  hasGiftCard: boolean;
+  giftCardFee: number;
 }
 
 // --- Helper Components ---
@@ -218,6 +220,11 @@ export default function OrderDetails() {
                   Order #{order.id.slice(-6).toUpperCase()}
                 </h1>
                 <StatusBadge status={order.status} />
+                {order.hasGiftCard && (
+                  <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border bg-purple-500/10 text-purple-600 border-purple-500/20">
+                    Gift Card Included
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Calendar className="w-4 h-4" />
@@ -398,6 +405,12 @@ export default function OrderDetails() {
                     <div className="flex justify-between text-green-600">
                       <span>Discount</span>
                       <span>- AED {order.discount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  {order.giftCardFee > 0 && (
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Gift Card Fee</span>
+                      <span>AED {order.giftCardFee.toFixed(2)}</span>
                     </div>
                   )}
                   <div className="border-t border-border pt-3 mt-3 flex justify-between items-center">

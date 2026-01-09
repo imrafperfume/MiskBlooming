@@ -8,7 +8,7 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
-import { Button } from "../ui/Button";
+import { Button } from "../ui/button";
 import { Loader2, CreditCard, Shield } from "lucide-react";
 
 // Initialize Stripe

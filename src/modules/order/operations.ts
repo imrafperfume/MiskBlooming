@@ -34,10 +34,14 @@ export const GET_ORDER_BY_ID = gql`
       status
       totalAmount
       createdAt
+      hasGiftCard
+      giftCardFee
       items {
         id
         quantity
         price
+        size
+        color
         product {
           name
         }
@@ -96,6 +100,8 @@ export const GET_ORDERS_BY_USER = gql`
         productId
         quantity
         price
+        size
+        color
         product {
           id
           name

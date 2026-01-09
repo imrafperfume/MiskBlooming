@@ -24,8 +24,8 @@ import {
 } from "@/src/modules/category/categoryTypes";
 import { toast } from "sonner";
 import Image from "next/image";
-import Button from "@/src/components/ui/Button";
-import { Input } from "@/src/components/ui/Input";
+import Button from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
 
 // --- Types ---
 type Category = {

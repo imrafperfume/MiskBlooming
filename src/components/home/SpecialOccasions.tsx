@@ -12,7 +12,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "../ui/Button";
+import { Button } from "../ui/button";
 import occasionsData from "../../data/occasions.json";
 
 interface Occasion {

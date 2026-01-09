@@ -2,8 +2,8 @@
 
 import { Truck } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { Button } from "../ui/Button";
-import { Input } from "../ui/Input";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
 import { CheckoutStep } from "./CheckoutStep";
 import { CouponInput } from "./CouponInput";
 import type { CheckoutFormData } from "../../types/checkout";
@@ -15,6 +15,12 @@ interface ShippingInformationStepProps {
   onBack: () => void;
   subtotal: number;
   userId: string;
+  isGiftCardEnabled?: boolean;
+  giftCardFeeAmount?: number;
+  deliveryFlatRate?: number;
+  expressDeliveryFee?: number;
+  scheduledDeliveryFee?: number;
+  freeShippingThreshold?: number | null;
 }
 
 const emirates = [
@@ -33,6 +39,12 @@ export function ShippingInformationStep({
   onBack,
   subtotal,
   userId,
+  isGiftCardEnabled = false,
+  giftCardFeeAmount = 0,
+  deliveryFlatRate = 15,
+  expressDeliveryFee = 30,
+  scheduledDeliveryFee = 10,
+  freeShippingThreshold = null,
 }: ShippingInformationStepProps) {
   const {
     register,
@@ -155,7 +167,7 @@ export function ShippingInformationStep({
                 </div>
                 <div className="text-sm text-muted-foreground group-hover:text-foreground">
                   Next day delivery across UAE •{" "}
-                  {subtotal > 500 ? "Free" : "AED 25"}
+                  {freeShippingThreshold !== null && subtotal >= freeShippingThreshold ? "Free" : `AED ${deliveryFlatRate}`}
                 </div>
               </div>
             </label>
@@ -175,7 +187,7 @@ export function ShippingInformationStep({
                   </span>
                 </div>
                 <div className="text-sm text-muted-foreground group-hover:text-foreground">
-                  Fresh flowers delivered today in Dubai • AED 50
+                  Fresh flowers delivered today in Dubai • AED {expressDeliveryFee}
                 </div>
               </div>
             </label>
@@ -192,7 +204,7 @@ export function ShippingInformationStep({
                   Scheduled Delivery
                 </div>
                 <div className="text-sm text-muted-foreground group-hover:text-foreground">
-                  Perfect timing for special occasions • AED 25
+                  Perfect timing for special occasions • AED {scheduledDeliveryFee}
                 </div>
               </div>
             </label>
@@ -224,6 +236,32 @@ export function ShippingInformationStep({
           </div>
         )}
 
+
+        {isGiftCardEnabled && (
+          <div className="p-4 border-2 border-primary/20 bg-primary/5 rounded-xl">
+            <h3 className="font-medium text-foreground flex items-center mb-3">
+              <span className="mr-2">🎁</span> Gift Options
+            </h3>
+            <label className="flex items-center cursor-pointer group">
+              <div className="relative flex items-center">
+                <input
+                  type="checkbox"
+                  {...register("hasGiftCard")}
+                  className="w-5 h-5 rounded border-2 border-border text-primary focus:ring-primary transition-all duration-300"
+                />
+              </div>
+              <div className="ml-3">
+                <span className="text-sm font-medium text-foreground">
+                  Include Gift Card and Special Packaging
+                </span>
+                <p className="text-xs text-muted-foreground group-hover:text-primary transition-colors">
+                  Add a beautiful gift card and premium packaging for just AED {giftCardFeeAmount}
+                </p>
+              </div>
+            </label>
+          </div>
+        )}
+
         <div>
           <label className="block text-sm font-medium text-foreground  mb-2">
             Special Instructions (Optional)
@@ -237,7 +275,7 @@ export function ShippingInformationStep({
         </div>
 
         {/* Coupon Input */}
-        {userId && <CouponInput />}
+        <CouponInput />
       </div>
 
       <div className="mt-6 flex sm:flex-row flex-col gap-4 sm:gap-0 justify-between">
@@ -248,6 +286,6 @@ export function ShippingInformationStep({
           Continue to Payment
         </Button>
       </div>
-    </CheckoutStep>
+    </CheckoutStep >
   );
 }

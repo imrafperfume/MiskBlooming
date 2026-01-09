@@ -21,8 +21,8 @@ import {
 } from "lucide-react";
 
 import { GET_ORDER_BY_ID } from "@/src/modules/order/operations";
-import { Button } from "@/src/components/ui/Button";
-import { Input } from "@/src/components/ui/Input";
+import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
 import { formatDate, formatTimestamp } from "@/src/lib/utils";
 import { toast } from "sonner";
 

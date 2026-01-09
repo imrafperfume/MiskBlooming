@@ -5,9 +5,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Sparkles, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
-import { Button } from "../ui/Button";
+import { Button } from "../ui/button";
 
-const InSeason = () => {
+interface InSeasonProps {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+}
+
+const InSeason = ({ title, subtitle, description }: InSeasonProps) => {
   const [hoveredItem, setHoveredItem] = useState<number | null>(null);
 
   const seasonalItems = [
@@ -62,16 +68,20 @@ const InSeason = () => {
           <div className="flex items-center justify-center mb-4">
             <Sparkles className="w-6 h-6 text-primary  mr-2" />
             <span className="text-primary  font-medium tracking-wide">
-              SEASONAL COLLECTION
+              {title || "SEASONAL COLLECTION"}
             </span>
             <Sparkles className="w-6 h-6 text-primary  ml-2" />
           </div>
           <h2 className="font-cormorant text-display-md font-bold text-foreground  mb-6">
-            Fresh <span className="luxury-text">In Season</span>
+            {subtitle || (
+              <>
+                Fresh <span className="luxury-text">In Season</span>
+              </>
+            )}
           </h2>
           <p className="text-muted-foreground text-xl max-w-3xl mx-auto">
-            Discover our seasonal collection featuring the freshest flowers,
-            special occasion cakes, and limited-time treats
+            {description ||
+              "Discover our seasonal collection featuring the freshest flowers, special occasion cakes, and limited-time treats"}
           </p>
         </motion.div>
 

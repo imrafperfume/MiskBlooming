@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { CheckCircle, XCircle, ArrowRight } from "lucide-react";
-import { Button } from "../../../../components/ui/Button";
+import { Button } from "../../../../components/ui/button";
 
 function VerifyEmailPage() {
   const [verificationStatus, setVerificationStatus] = useState<

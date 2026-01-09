@@ -4,7 +4,7 @@ import type React from "react";
 
 import { useState } from "react";
 import { Star, X, Eye, Download, Move, Trash2, ImageIcon } from "lucide-react";
-import { Button } from "./Button";
+import { Button } from "./button";
 
 interface ImageGalleryProps {
   images: string[];
@@ -166,7 +166,7 @@ export function ImageGallery({
                   onClick={() => setSelectedImage(image)}
                 >
                   <Eye className="w-4 h-4" />
-                </Button>
+                </button>
 
                 {/* Set Featured */}
                 {featuredIndex !== index && (
@@ -178,7 +178,7 @@ export function ImageGallery({
                     onClick={() => setFeatured(index)}
                   >
                     <Star className="w-4 h-4" />
-                  </Button>
+                  </button>
                 )}
 
                 {/* Download */}
@@ -190,7 +190,7 @@ export function ImageGallery({
                   onClick={() => downloadImage(image, index)}
                 >
                   <Download className="w-4 h-4" />
-                </Button>
+                </button>
 
                 {/* Remove */}
                 <Button
@@ -201,7 +201,7 @@ export function ImageGallery({
                   onClick={() => removeImage(index)}
                 >
                   <Trash2 className="w-4 h-4" />
-                </Button>
+                </button>
               </div>
             </div>
 
@@ -230,7 +230,7 @@ export function ImageGallery({
               onClick={() => setSelectedImage(null)}
             >
               <X className="w-4 h-4" />
-            </Button>
+            </button>
           </div>
         </div>
       )}

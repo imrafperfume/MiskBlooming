@@ -4,195 +4,246 @@ import { useState, useMemo } from "react";
 import {
   Plus,
   Search,
-  Filter,
   Edit,
-  Eye,
   Trash2,
   Tag,
-  Percent,
-  Gift,
   TrendingUp,
-  Users,
-  Clock,
   CheckCircle,
-  XCircle,
-  MoreHorizontal,
+  ImageIcon,
+  LayoutGrid,
+  ShoppingBag,
+  Globe,
   Calendar,
-  AlertCircle,
+  Copy,
+  PauseCircle,
+  PlayCircle,
+  Ghost,
+  Loader2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "../../../../components/ui/Button";
-import { Input } from "../../../../components/ui/Input";
+import { Button } from "../../../../components/ui/button";
+import { Input } from "../../../../components/ui/input";
 import { toast } from "sonner";
-import { CreatePromotionModal } from "@/src/components/dashboard/CreatePromotionModal";
+import {
+  CreatePromotionModal,
+  PromotionInput,
+} from "@/src/components/dashboard/CreatePromotionModal";
+import { useMutation, useQuery } from "@apollo/client";
+import {
+  CREATE_PROMOTION,
+  DELETE_PROMOTION,
+  GET_PROMOTIONS,
+  UPDATE_PROMOTION,
+} from "@/src/modules/promotion/operation";
+import Loading from "@/src/components/layout/Loading";
 
 // --- Types ---
+export type DiscountType = "PERCENTAGE" | "FIXED";
+export type PromotionStatus = "ACTIVE" | "PAUSED" | "DRAFT" | "EXPIRED";
+export type ScopeType = "ALL" | "CATEGORY" | "PRODUCT";
+
 export interface Promotion {
   id: string;
   name: string;
-  description: string;
-  type: "percentage" | "fixed" | "buy_x_get_y";
-  value: number;
-  code: string;
-  startDate: string;
-  endDate: string;
-  status: "active" | "scheduled" | "expired" | "paused";
-  usageLimit: number;
-  usageCount: number;
-  minOrderValue: number;
-  revenue: number;
+  discountType: DiscountType;
+  discountValue: number;
+  startDate: string; // ISO String from DB
+  endDate: string; // ISO String from DB
+  isActive: boolean;
+  imageUrl: string;
+  scope: ScopeType;
+  promoCode: string;
+  status: PromotionStatus;
+  categories: string[];
+  products: string[]; // IDs
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-// --- Mock Data (Replace with API call) ---
-const initialPromotions: Promotion[] = [
-  {
-    id: "1",
-    name: "Valentine's Day Special",
-    description: "20% off on all premium rose bouquets",
-    type: "percentage",
-    value: 20,
-    code: "VALENTINE20",
-    startDate: "2024-02-01",
-    endDate: "2024-02-14",
-    status: "active",
-    usageLimit: 500,
-    usageCount: 234,
-    minOrderValue: 200,
-    revenue: 15680,
-  },
-  {
-    id: "2",
-    name: "Mother's Day Bundle",
-    description: "Buy 2 get 1 free on chocolate collections",
-    type: "buy_x_get_y",
-    value: 1,
-    code: "MOTHERSDAY",
-    startDate: "2024-03-15",
-    endDate: "2024-03-31",
-    status: "scheduled",
-    usageLimit: 200,
-    usageCount: 0,
-    minOrderValue: 150,
-    revenue: 0,
-  },
-  {
-    id: "3",
-    name: "First Order Discount",
-    description: "AED 50 off for new customers",
-    type: "fixed",
-    value: 50,
-    code: "WELCOME50",
-    startDate: "2024-01-01",
-    endDate: "2024-12-31",
-    status: "active",
-    usageLimit: 1000,
-    usageCount: 456,
-    minOrderValue: 100,
-    revenue: 22800,
-  },
-];
-
-// --- Helper Components ---
-const StatusBadge = ({ status }: { status: string }) => {
-  const styles = {
-    active: "bg-green-500/10 text-green-600 border-green-500/20",
-    scheduled: "bg-blue-500/10 text-blue-600 border-blue-500/20",
-    expired: "bg-destructive/10 text-destructive border-destructive/20",
-    paused: "bg-orange-500/10 text-orange-600 border-orange-500/20",
-    default: "bg-muted text-muted-foreground border-border",
-  };
-
-  const icons = {
-    active: CheckCircle,
-    scheduled: Clock,
-    expired: XCircle,
-    paused: AlertCircle,
-    default: Tag,
-  };
-
-  const style = styles[status as keyof typeof styles] || styles.default;
-  const Icon = icons[status as keyof typeof icons] || icons.default;
-
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize ${style}`}
-    >
-      <Icon className="w-3.5 h-3.5" />
-      {status}
-    </span>
-  );
-};
-
 export default function PromotionsPage() {
-  const [promotions, setPromotions] = useState<Promotion[]>(initialPromotions);
+  // --- Data Fetching ---
+  const { data, loading, error, refetch } = useQuery(GET_PROMOTIONS, {
+    fetchPolicy: "cache-and-network",
+    notifyOnNetworkStatusChange: true,
+  });
+
+  const [createPromotion] = useMutation(CREATE_PROMOTION);
+  const [updatePromotion] = useMutation(UPDATE_PROMOTION);
+  const [deletePromotion] = useMutation(DELETE_PROMOTION);
+
+  // --- UI State ---
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [scopeFilter, setScopeFilter] = useState("all");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingPromo, setEditingPromo] = useState<Promotion | null>(null);
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null); // For individual button loading states
 
-  // Filter Logic
-  const filteredPromotions = useMemo(() => {
-    return promotions.filter((promotion) => {
-      const matchesSearch =
-        promotion.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        promotion.code.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesStatus =
-        statusFilter === "all" || promotion.status === statusFilter;
-      const matchesType = typeFilter === "all" || promotion.type === typeFilter;
-      return matchesSearch && matchesStatus && matchesType;
-    });
-  }, [promotions, searchTerm, statusFilter, typeFilter]);
+  const promotions: Promotion[] = data?.getPromotions || [];
 
-  // Stats Logic
-  const stats = useMemo(() => {
-    return {
-      total: promotions.length,
-      active: promotions.filter((p) => p.status === "active").length,
-      scheduled: promotions.filter((p) => p.status === "scheduled").length,
-      expired: promotions.filter((p) => p.status === "expired").length,
-      totalRevenue: promotions.reduce((sum, p) => sum + p.revenue, 0),
-      totalUsage: promotions.reduce((sum, p) => sum + p.usageCount, 0),
+  // --- Handlers ---
+
+  const handleSave = async (formData: PromotionInput) => {
+    // Sanitizing the payload for GraphQL
+    const payload = {
+      name: formData.name,
+      promoCode: formData.promoCode,
+      discountType: formData.discountType,
+      discountValue: Number(formData.discountValue),
+      startDate: new Date(formData.startDate).toISOString(), // Ensure ISO format for DB
+      endDate: new Date(formData.endDate).toISOString(),
+      scope: formData.scope,
+      status: formData.status,
+      isActive: formData.status === "ACTIVE",
+      imageUrl: formData.imageUrl,
+      categories: formData.categories,
+      products: formData.products,
     };
-  }, [promotions]);
 
-  // Handlers
-  const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this promotion?")) {
-      setPromotions((prev) => prev.filter((p) => p.id !== id));
-      toast.success("Promotion deleted successfully");
+    try {
+      if (editingPromo?.id) {
+        // Update
+        await updatePromotion({
+          variables: {
+            id: editingPromo.id,
+            input: payload,
+          },
+        });
+        toast.success("Campaign updated successfully");
+      } else {
+        // Create
+        await createPromotion({
+          variables: {
+            input: payload,
+          },
+        });
+        toast.success("New campaign published");
+      }
+
+      await refetch();
+      setIsModalOpen(false);
+      setEditingPromo(null);
+    } catch (err: any) {
+      console.error("Save Error:", err);
+      toast.error(err.message || "Failed to save campaign");
+      throw err; // Re-throw to let Modal stop loading state if needed
     }
   };
 
-  const handleCreate = (newPromo: Promotion) => {
-    setPromotions((prev) => [newPromo, ...prev]);
-    setIsCreateModalOpen(false);
-    toast.success("Promotion created successfully");
+  const handleDelete = async (id: string) => {
+    // In production, use a custom modal here instead of window.confirm
+    if (
+      !confirm(
+        "Are you sure you want to delete this campaign? This action cannot be undone."
+      )
+    )
+      return;
+
+    setActionLoadingId(id);
+    try {
+      await deletePromotion({
+        variables: { id },
+      });
+      toast.success("Campaign deleted");
+      await refetch();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete");
+    } finally {
+      setActionLoadingId(null);
+    }
   };
 
+  const toggleStatus = async (id: string, currentStatus: PromotionStatus) => {
+    const newStatus: PromotionStatus =
+      currentStatus === "ACTIVE" ? "PAUSED" : "ACTIVE";
+    setActionLoadingId(id);
+
+    try {
+      await updatePromotion({
+        variables: {
+          id,
+          input: {
+            status: newStatus,
+            isActive: newStatus === "ACTIVE",
+          },
+        },
+      });
+      toast.success(
+        `Campaign ${newStatus === "ACTIVE" ? "Resumed" : "Paused"}`
+      );
+      await refetch();
+    } catch (error) {
+      toast.error("Status update failed");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const copyCode = (code: string) => {
+    navigator.clipboard.writeText(code);
+    toast.success("Code copied to clipboard");
+  };
+
+  // --- Derived State & Stats ---
+
+  const filteredPromotions = useMemo(() => {
+    return promotions.filter((p) => {
+      const sTerm = searchTerm.toLowerCase();
+      const matchesSearch =
+        (p.name?.toLowerCase() || "").includes(sTerm) ||
+        (p.promoCode?.toLowerCase() || "").includes(sTerm);
+      const matchesStatus = statusFilter === "all" || p.status === statusFilter;
+      const matchesScope = scopeFilter === "all" || p.scope === scopeFilter;
+      return matchesSearch && matchesStatus && matchesScope;
+    });
+  }, [promotions, searchTerm, statusFilter, scopeFilter]);
+
+  const stats = useMemo(
+    () => ({
+      total: promotions.length,
+      active: promotions.filter((p) => p.status === "ACTIVE").length,
+      paused: promotions.filter((p) => p.status === "PAUSED").length,
+    }),
+    [promotions]
+  );
+
+  // --- Render ---
+
+  if (loading && !data) return <Loading />;
+  if (error)
+    return (
+      <div className="p-10 text-center text-red-500">
+        Error loading promotions. Please refresh.
+      </div>
+    );
+
   return (
-    <div className="space-y-8 pb-20">
+    <div className="max-w-[1400px] mx-auto space-y-8 pb-24 p-4 lg:p-6 bg-background min-h-screen">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border pb-8">
         <div>
-          <h1 className="text-3xl md:text-4xl font-cormorant font-bold text-foreground">
-            Promotions & Offers
+          <h1 className="text-4xl lg:text-5xl font-cormorant font-bold text-foreground tracking-tight">
+            Marketing & <span className="text-primary">Banners</span>
           </h1>
-          <p className="text-muted-foreground mt-2">
-            Create and manage discount campaigns to boost sales.
+          <p className="text-muted-foreground mt-2 text-lg">
+            Manage your store's promotional offers and visual campaigns.
           </p>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <Button variant="outline" className="bg-background">
-            <TrendingUp className="w-4 h-4 mr-2" /> Analytics
-          </Button>
-          <Button variant="luxury" onClick={() => setIsCreateModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-2" /> Create Promotion
-          </Button>
-        </div>
+        <Button
+          variant="luxury"
+          size="lg"
+          className="shadow-xl shadow-primary/10 transition-transform hover:scale-105"
+          onClick={() => {
+            setEditingPromo(null);
+            setIsModalOpen(true);
+          }}
+        >
+          <Plus className="w-5 h-5 mr-2" /> New Campaign
+        </Button>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      {/* Stats Bar */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           {
             label: "Total Campaigns",
@@ -201,244 +252,306 @@ export default function PromotionsPage() {
             color: "text-primary",
           },
           {
-            label: "Active",
+            label: "Active Now",
             value: stats.active,
             icon: CheckCircle,
             color: "text-green-600",
           },
           {
-            label: "Scheduled",
-            value: stats.scheduled,
-            icon: Clock,
-            color: "text-blue-600",
+            label: "Paused",
+            value: stats.paused,
+            icon: PauseCircle,
+            color: "text-orange-500",
           },
           {
-            label: "Expired",
-            value: stats.expired,
-            icon: XCircle,
-            color: "text-destructive",
-          },
-          {
-            label: "Redemptions",
-            value: stats.totalUsage,
-            icon: Users,
-            color: "text-purple-600",
-          },
-          {
-            label: "Revenue",
-            value: `AED ${stats.totalRevenue.toLocaleString()}`,
+            label: "Conversion Rate",
+            value: "N/A",
             icon: TrendingUp,
-            color: "text-primary",
-          },
-        ].map((stat, idx) => (
-          <motion.div
-            key={idx}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: idx * 0.05 }}
-            className="bg-card p-4 rounded-xl border border-border shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow"
+            color: "text-blue-500",
+          }, // Placeholder for future analytics
+        ].map((stat, i) => (
+          <div
+            key={i}
+            className="bg-card border border-border hover:border-primary/30 rounded-2xl p-6 transition-all shadow-sm hover:shadow-md"
           >
-            <div className="flex justify-between items-start mb-2">
-              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                {stat.label}
+            <div className="flex justify-between items-start">
+              <stat.icon className={`w-5 h-5 ${stat.color}`} />
+              <span className="text-3xl font-bold text-foreground">
+                {stat.value}
               </span>
-              <stat.icon className={`w-4 h-4 ${stat.color}`} />
             </div>
-            <span
-              className="text-lg font-bold text-foreground truncate"
-              title={String(stat.value)}
-            >
-              {stat.value}
-            </span>
-          </motion.div>
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] mt-4">
+              {stat.label}
+            </p>
+          </div>
         ))}
       </div>
 
-      {/* Filters Bar */}
-      <div className="bg-card border border-border rounded-xl p-4 flex flex-col lg:flex-row gap-4 items-center justify-between shadow-sm">
+      {/* Toolbar */}
+      <div className="flex flex-col lg:flex-row gap-4 justify-between items-center bg-card p-4 rounded-2xl border border-border shadow-sm">
         <div className="relative w-full lg:max-w-md group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <Input
-            placeholder="Search by name or code..."
+            placeholder="Search campaign name or code..."
+            className="pl-12 bg-background border-border h-12 rounded-xl focus:ring-primary/50"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-background border-border"
           />
         </div>
-
-        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+        <div className="flex flex-wrap gap-2 w-full lg:w-auto">
           <select
+            className="bg-background border border-border rounded-xl px-4 h-12 text-sm font-bold outline-none focus:ring-1 focus:ring-primary min-w-[140px] text-foreground cursor-pointer hover:bg-muted/50 transition-colors"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-10 px-3 bg-background border border-border rounded-lg text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none cursor-pointer"
           >
-            <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="scheduled">Scheduled</option>
-            <option value="expired">Expired</option>
+            <option value="all">Status: All</option>
+            <option value="ACTIVE">Active</option>
+            <option value="PAUSED">Paused</option>
           </select>
-
           <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="h-10 px-3 bg-background border border-border rounded-lg text-sm focus:ring-1 focus:ring-primary focus:border-primary outline-none cursor-pointer"
+            className="bg-background border border-border rounded-xl px-4 h-12 text-sm font-bold outline-none focus:ring-1 focus:ring-primary min-w-[140px] text-foreground cursor-pointer hover:bg-muted/50 transition-colors"
+            value={scopeFilter}
+            onChange={(e) => setScopeFilter(e.target.value)}
           >
-            <option value="all">All Types</option>
-            <option value="percentage">Percentage</option>
-            <option value="fixed">Fixed Amount</option>
-            <option value="buy_x_get_y">Buy X Get Y</option>
+            <option value="all">Target: All</option>
+            <option value="ALL">Store-wide</option>
+            <option value="CATEGORY">Categories</option>
+            <option value="PRODUCT">Products</option>
           </select>
-
-          <Button variant="outline" size="sm" className="h-10 bg-background">
-            <Filter className="w-4 h-4 mr-2" /> Filters
-          </Button>
         </div>
       </div>
 
-      {/* Promotions Grid */}
+      {/* Grid Content */}
       {filteredPromotions.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 bg-muted/20 rounded-xl border border-dashed border-border text-center">
-          <Tag className="w-12 h-12 text-muted-foreground/50 mb-4" />
-          <h3 className="text-lg font-semibold text-foreground">
-            No promotions found
+        <div className="flex flex-col items-center justify-center py-20 text-center border-2 border-dashed border-border rounded-[2rem]">
+          <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-4">
+            <Ghost className="w-10 h-10 text-muted-foreground" />
+          </div>
+          <h3 className="text-xl font-bold text-foreground">
+            No campaigns found
           </h3>
-          <p className="text-muted-foreground mt-1">
-            Try adjusting your filters or create a new campaign.
+          <p className="text-muted-foreground max-w-sm mt-2">
+            We couldn't find any promotions matching your search filters. Try
+            adjusting your terms or create a new one.
           </p>
+          <Button
+            variant="outline"
+            className="mt-6"
+            onClick={() => {
+              setSearchTerm("");
+              setStatusFilter("all");
+              setScopeFilter("all");
+            }}
+          >
+            Clear Filters
+          </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredPromotions.map((promotion, idx) => (
-            <motion.div
-              key={promotion.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              className="bg-card border border-border rounded-xl p-6 shadow-sm hover:border-primary/30 transition-all relative group"
-            >
-              {/* Header */}
-              <div className="flex justify-between items-start mb-4">
-                <div className="flex gap-4">
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                    {promotion.type === "percentage" ? (
-                      <Percent className="w-6 h-6" />
-                    ) : promotion.type === "fixed" ? (
-                      <Tag className="w-6 h-6" />
-                    ) : (
-                      <Gift className="w-6 h-6" />
-                    )}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+          <AnimatePresence mode="popLayout">
+            {filteredPromotions.map((promo) => (
+              <motion.div
+                layout
+                key={promo.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="group bg-card border border-border rounded-[2rem] overflow-hidden hover:border-primary/50 transition-all duration-300 flex flex-col hover:shadow-2xl"
+              >
+                {/* Banner Image */}
+                <div className="relative aspect-[16/9] bg-muted overflow-hidden">
+                  {promo.imageUrl ? (
+                    <img
+                      src={promo.imageUrl}
+                      alt={promo.name}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-muted-foreground/20 bg-muted">
+                      <ImageIcon size={48} />
+                    </div>
+                  )}
+
+                  <div className="absolute top-4 left-4 z-10">
+                    <span
+                      className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border backdrop-blur-md shadow-sm ${
+                        promo.status === "ACTIVE"
+                          ? "bg-green-500/90 text-white border-transparent"
+                          : "bg-background/90 text-foreground border-border"
+                      }`}
+                    >
+                      {promo.status}
+                    </span>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-foreground text-lg">
-                      {promotion.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {promotion.description}
-                    </p>
+
+                  {/* Overlay Gradient */}
+                  <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent h-2/3" />
+
+                  {/* Overlay Content */}
+                  <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end text-white">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copyCode(promo.promoCode);
+                      }}
+                      className="flex items-center gap-2 bg-white/20 backdrop-blur-md border border-white/30 px-3 py-1.5 rounded-xl hover:bg-white/30 transition-all group/code"
+                    >
+                      <span className="font-mono font-bold text-sm tracking-wider">
+                        {promo.promoCode}
+                      </span>
+                      <Copy
+                        size={12}
+                        className="opacity-70 group-hover/code:opacity-100"
+                      />
+                    </button>
+
+                    <div className="bg-primary text-secondary px-4 py-1.5 rounded-xl font-black text-sm shadow-lg">
+                      {promo.discountType === "PERCENTAGE"
+                        ? `${promo.discountValue}% OFF`
+                        : `AED ${promo.discountValue}`}
+                    </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <StatusBadge status={promotion.status} />
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-                  </Button>
-                </div>
-              </div>
 
-              {/* Details Grid */}
-              <div className="grid grid-cols-2 gap-y-4 gap-x-8 mb-6 py-4 border-y border-border/50">
-                <div className="flex flex-col">
-                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Discount
-                  </span>
-                  <span className="font-semibold text-primary">
-                    {promotion.type === "percentage"
-                      ? `${promotion.value}% OFF`
-                      : promotion.type === "fixed"
-                      ? `AED ${promotion.value} OFF`
-                      : `Buy 2 Get ${promotion.value}`}
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Code
-                  </span>
-                  <code className="font-mono font-medium text-foreground bg-muted px-2 py-0.5 rounded w-fit">
-                    {promotion.code}
-                  </code>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Duration
-                  </span>
-                  <span className="text-sm font-medium text-foreground">
-                    {new Date(promotion.startDate).toLocaleDateString()} -{" "}
-                    {new Date(promotion.endDate).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs text-muted-foreground uppercase tracking-wider">
-                    Min Order
-                  </span>
-                  <span className="text-sm font-medium text-foreground">
-                    AED {promotion.minOrderValue}
-                  </span>
-                </div>
-              </div>
+                {/* Card Body */}
+                <div className="p-6 flex flex-col flex-1 gap-4">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-1">
+                      <h3
+                        className="text-xl font-bold text-foreground line-clamp-1"
+                        title={promo.name}
+                      >
+                        {promo.name}
+                      </h3>
+                      <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                        <Calendar size={14} className="text-primary" />
+                        <span>
+                          {new Date(promo.startDate).toLocaleDateString()} —{" "}
+                          {new Date(promo.endDate).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
 
-              {/* Progress Bar */}
-              <div className="mb-6">
-                <div className="flex justify-between text-xs mb-1.5">
-                  <span className="text-muted-foreground">
-                    Usage (
-                    {Math.round(
-                      (promotion.usageCount / promotion.usageLimit) * 100
+                    {/* Scope Icon */}
+                    <div className="p-2.5 bg-muted rounded-xl border border-border text-primary shrink-0">
+                      {promo.scope === "ALL" ? (
+                        <Globe size={18} />
+                      ) : promo.scope === "CATEGORY" ? (
+                        <LayoutGrid size={18} />
+                      ) : (
+                        <ShoppingBag size={18} />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Tags (Categories/Products) */}
+                  {promo.scope === "CATEGORY" &&
+                    promo.categories?.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {promo.categories.slice(0, 3).map((cat) => (
+                          <span
+                            key={cat}
+                            className="text-[9px] bg-muted px-2 py-1 rounded-md font-bold text-muted-foreground uppercase border border-border"
+                          >
+                            {cat}
+                          </span>
+                        ))}
+                        {promo.categories.length > 3 && (
+                          <span className="text-[9px] px-2 py-1 text-muted-foreground">
+                            + {promo.categories.length - 3}
+                          </span>
+                        )}
+                      </div>
                     )}
-                    %)
-                  </span>
-                  <span className="font-medium text-foreground">
-                    {promotion.usageCount} / {promotion.usageLimit}
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full"
-                    style={{
-                      width: `${Math.min(
-                        (promotion.usageCount / promotion.usageLimit) * 100,
-                        100
-                      )}%`,
-                    }}
-                  />
-                </div>
-              </div>
 
-              {/* Actions */}
-              <div className="flex gap-2">
-                <Button variant="outline" className="flex-1 bg-background">
-                  <Eye className="w-4 h-4 mr-2" /> Details
-                </Button>
-                <Button variant="outline" className="flex-1 bg-background">
-                  <Edit className="w-4 h-4 mr-2" /> Edit
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="px-3 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
-                  onClick={() => handleDelete(promotion.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </motion.div>
-          ))}
+                  {/* Footer Actions */}
+                  <div className="pt-4 border-t border-border mt-auto flex items-center justify-between gap-3">
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={actionLoadingId === promo.id}
+                        className="rounded-xl border-border h-9 font-bold text-xs"
+                        onClick={() => {
+                          setEditingPromo(promo);
+                          setIsModalOpen(true);
+                        }}
+                      >
+                        <Edit className="w-3.5 h-3.5 mr-2" /> Edit
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        disabled={actionLoadingId === promo.id}
+                        className="w-9 h-9 rounded-xl text-destructive hover:bg-destructive/10"
+                        onClick={() => handleDelete(promo.id)}
+                      >
+                        {actionLoadingId === promo.id ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
+
+                    <button
+                      disabled={actionLoadingId === promo.id}
+                      onClick={() => toggleStatus(promo.id, promo.status)}
+                      className={`p-1.5 rounded-full transition-all disabled:opacity-50 ${
+                        promo.status === "ACTIVE"
+                          ? "text-primary hover:bg-primary/10"
+                          : "text-green-600 hover:bg-green-600/10"
+                      }`}
+                      title={
+                        promo.status === "ACTIVE"
+                          ? "Pause Campaign"
+                          : "Resume Campaign"
+                      }
+                    >
+                      {actionLoadingId === promo.id ? (
+                        <Loader2 className="w-6 h-6 animate-spin p-1" />
+                      ) : promo.status === "ACTIVE" ? (
+                        <PauseCircle size={28} />
+                      ) : (
+                        <PlayCircle size={28} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       )}
 
       {/* Modal */}
       <CreatePromotionModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onCreate={handleCreate}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingPromo(null);
+        }}
+        onSave={handleSave}
+        // Critical: Ensure dates are pure strings (YYYY-MM-DD) for the input fields
+        initialData={
+          editingPromo
+            ? {
+                id: editingPromo.id,
+                name: editingPromo.name,
+                promoCode: editingPromo.promoCode,
+                discountType: editingPromo.discountType,
+                discountValue: editingPromo.discountValue,
+                startDate: new Date(editingPromo.startDate).toISOString(),
+                endDate: new Date(editingPromo.endDate).toISOString(),
+                scope: editingPromo.scope,
+                status: editingPromo.status,
+                isActive: editingPromo.isActive,
+                imageUrl: editingPromo.imageUrl,
+                categories: editingPromo.categories,
+                products: editingPromo.products,
+              }
+            : null
+        }
       />
     </div>
   );

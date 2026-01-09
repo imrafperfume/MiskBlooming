@@ -4,7 +4,7 @@ import { Star } from "lucide-react";
 import { useMutation } from "@apollo/client";
 import { CREATE_REVIEW } from "@/src/modules/review/reviewType";
 import { toast } from "sonner";
-import Button from "../../ui/Button";
+import Button from "../../ui/button";
 
 interface ReviewFormProps {
   productId: string;

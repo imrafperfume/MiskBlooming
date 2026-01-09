@@ -1,4 +1,5 @@
 // lib/prisma.ts
+// Force reload database module - 2026-01-08 16:43
 import { PrismaClient } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import dotenv from "dotenv";

@@ -1,0 +1,88 @@
+model HomePageContent {
+    id                 String   @id @default("HOME_PAGE")
+    categoryTitle      String
+    categoryDesc       String
+    featureTitle       String
+    featureSubtitle    String
+    featureDesc        String
+    seasonTitle        String
+    seasonSubtitle     String
+    seasonDesc         String
+    excellenceTitle    String
+    excellenceSubtitle String
+    testimonialTitle   String
+    testimonialDesc    String
+    newsletterTitle    String
+
+    newsletterDesc     String
+    heroSlides         Json?    // List of { title: string, subtitle: string, image: string, link: string }
+    stats              Json?    // List of { number: string, label: string }
+    testimonials       Json?    // List of { name: string, role: string, content: string, image: string }
+    createdAt          DateTime @default(now())
+    updatedAt          DateTime @updatedAt
+
+    @@index([id])
+}
+
+model Collection {
+    id              String   @id @default("COLLECTION")
+    collectionTitle String
+    collectionDesc  String
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+}
+
+model AboutPageContent {
+    id          String   @id @default("ABOUT_PAGE")
+    heroTitle   String
+    heroDesc    String
+    heroImage   String?
+    storyTitle  String
+    storyDesc1  String
+    storyDesc2  String
+    storyImage  String?
+    stats       Json     // List of { number: string, label: string }
+    values      Json     // List of { title: string, description: string, icon: string }
+    team        Json     // List of { name: string, role: string, description: string, image: string }
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+model ContactPageContent {
+    id          String   @id @default("CONTACT_PAGE")
+    heroTitle   String
+    heroDesc    String
+    heroImage   String?
+    contactInfo Json     // List of { title: string, details: string[], description: string }
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}
+
+model FooterContent {
+    id              String   @id @default("FOOTER")
+    brandDesc       String   @default("Dubai's premier flower and gift delivery service.")
+    
+    // Contact
+    phone           String   @default("+971 4 123 4567")
+    email           String   @default("info@miskblooming.ae")
+    address         String   @default("Dubai Marina, Dubai, UAE")
+
+    // Social
+    facebook        String?  @default("https://facebook.com/miskblooming")
+    instagram       String?  @default("https://instagram.com/miskblooming")
+    twitter         String?  @default("https://twitter.com/miskblooming")
+
+    // Newsletter
+    newsletterTitle String   @default("Stay in Bloom")
+    newsletterDesc  String   @default("Subscribe to our newsletter for exclusive offers, seasonal collections, and flower care tips.")
+
+    // Copyright
+    copyrightText   String   @default("Misk Blooming. Made in Dubai, UAE")
+
+    // Navigation Links (Stored as JSON)
+    // Structure: [ { title: "Shop", links: [{ name: "Roses", href: "..." }] }, ... ]
+    footerLinks     Json
+
+    createdAt       DateTime @default(now())
+    updatedAt       DateTime @updatedAt
+}

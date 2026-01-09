@@ -14,7 +14,7 @@ import {
   Trash2,
   AlertTriangle,
 } from "lucide-react";
-import { Button } from "../../../../components/ui/Button";
+import { Button } from "../../../../components/ui/button";
 import { useAuth } from "@/src/hooks/useAuth";
 import Loading from "@/src/components/layout/Loading";
 import { useMutation } from "@apollo/client";

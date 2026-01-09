@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "../../../../../components/ui/Button";
+import { Button } from "../../../../../components/ui/button";
 import {
   ArrowLeft,
   Save,
@@ -385,20 +385,62 @@ export default function AddProductPage() {
   // Validation
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
+
+    // Basic Info
     if (!formData.name.trim()) newErrors.name = "Product name is required";
+    if (formData.name.length < 3) newErrors.name = "Name must be at least 3 characters";
     if (!formData.slug.trim()) newErrors.slug = "Product slug is required";
-    if (!formData.description.trim())
+    if (!/^[a-z0-9-]+$/.test(formData.slug)) {
+      newErrors.slug = "Slug must contain only lowercase letters, numbers, and hyphens";
+    }
+    if (!formData.description.trim()) {
       newErrors.description = "Description is required";
+    }
+    if (formData.description.length < 20) {
+      newErrors.description = "Description must be at least 20 characters";
+    }
     if (!formData.category) newErrors.category = "Category is required";
-    if (formData.price <= 0) newErrors.price = "Price > 0 required";
-    if (formData.images.length === 0) newErrors.images = "Image required";
-    if (!formData.sku.trim()) newErrors.sku = "SKU required";
+
+    // Pricing
+    if (formData.price <= 0) newErrors.price = "Price must be greater than 0";
+    if (formData.compareAtPrice > 0 && formData.compareAtPrice <= formData.price) {
+      newErrors.compareAtPrice = "Compare price must be greater than regular price";
+    }
+
+    // Inventory
+    if (!formData.sku.trim()) newErrors.sku = "SKU is required";
+    if (formData.trackQuantity && formData.quantity < 0) {
+      newErrors.quantity = "Quantity cannot be negative";
+    }
+
+    // Images
+    if (formData.images.length === 0) {
+      newErrors.images = "At least one product image is required";
+    }
+    if (formData.images.length > 10) {
+      newErrors.images = "Maximum 10 images allowed";
+    }
+
+    // SEO
+    if (formData.seoTitle.length > 60) {
+      newErrors.seoTitle = "SEO title should be under 60 characters";
+    }
+    if (formData.seoDescription.length > 160) {
+      newErrors.seoDescription = "SEO description should be under 160 characters";
+    }
 
     setErrors(newErrors);
+
     if (Object.keys(newErrors).length > 0) {
-      toast.error("Please fix validation errors before saving.");
+      // Scroll to first error tab
+      const firstErrorTab = tabs.find(tab => tab.error);
+      if (firstErrorTab) {
+        setActiveTab(firstErrorTab.id);
+      }
+      toast.error(`Please fix ${Object.keys(newErrors).length} validation error(s)`);
       return false;
     }
+
     return true;
   };
 
@@ -425,12 +467,19 @@ export default function AddProductPage() {
       if (res.errors) throw new Error(res.errors[0].message);
 
       toast.success(
-        `Product ${status === "active" ? "published" : "saved"} successfully!`
+        `Product "${formData.name}" ${status === "active" ? "published" : "saved"} successfully!`
       );
       setSaveStatus("saved");
       setIsDirty(false);
 
-      if (status === "active") router.push("/dashboard/products");
+      // Reset form if draft, navigate if published
+      if (status === "draft") {
+        setFormData(initialFormData);
+        setActiveTab("basic");
+        toast.info("Form reset. You can create another product.");
+      } else {
+        router.push("/dashboard/products");
+      }
     } catch (error: any) {
       console.error(error);
       setSaveStatus("error");
@@ -686,7 +735,7 @@ export default function AddProductPage() {
                     <span>
                       {Math.round(
                         (tabs.filter((t) => !t.error).length / tabs.length) *
-                          100
+                        100
                       )}
                       %
                     </span>
@@ -695,10 +744,9 @@ export default function AddProductPage() {
                     <div
                       className="h-full bg-primary transition-all duration-500 ease-out"
                       style={{
-                        width: `${
-                          (tabs.filter((t) => !t.error).length / tabs.length) *
+                        width: `${(tabs.filter((t) => !t.error).length / tabs.length) *
                           100
-                        }%`,
+                          }%`,
                       }}
                     />
                   </div>
@@ -724,13 +772,13 @@ export default function AddProductPage() {
                     selectedCategory={
                       categoryObj
                         ? {
-                            id: categoryObj.id,
-                            name: categoryObj.name,
-                            desription: (categoryObj as any).description,
-                            subcategories: categoryObj.subcategories?.map(
-                              (s: any) => s.name
-                            ),
-                          }
+                          id: categoryObj.id,
+                          name: categoryObj.name,
+                          desription: (categoryObj as any).description,
+                          subcategories: categoryObj.subcategories?.map(
+                            (s: any) => s.name
+                          ),
+                        }
                         : undefined
                     }
                     removeTag={removeTag}

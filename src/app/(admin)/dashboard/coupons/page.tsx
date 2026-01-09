@@ -22,7 +22,7 @@ import {
   CheckCircle,
   XCircle,
 } from "lucide-react";
-import { Button } from "@/src/components/ui/Button";
+import { Button } from "@/src/components/ui/button";
 import { toast } from "sonner";
 import {
   GET_ALL_COUPONS,

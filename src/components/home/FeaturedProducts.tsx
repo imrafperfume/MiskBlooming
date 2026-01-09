@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React, { useMemo, useState } from "react";
-import Button from "../ui/Button";
+import Button from "../ui/button";
 import { ArrowRight, Grid3X3, List, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import ProductCard from "../product/ProductCard";

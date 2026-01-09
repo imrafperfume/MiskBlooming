@@ -4,7 +4,7 @@ import { memo, useCallback } from "react";
 import Link from "next/link";
 import { Star, Heart, ShoppingBag, Eye, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
-import { Button } from "../ui/Button";
+import { Button } from "../ui/button";
 import { useCartStore } from "../../store/cartStore";
 import { useWishlistStore } from "../../store/wishlistStore";
 import type { Product } from "../../types";

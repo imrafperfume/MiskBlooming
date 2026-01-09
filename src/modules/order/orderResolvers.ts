@@ -1,13 +1,17 @@
 import { prisma } from "@/src/lib/db";
+// Force TS Re-eval
 import { isAdmin } from "@/src/lib/isAdmin";
 import { sendPushToAll } from "@/src/lib/notify";
 import { hashPassword } from "@/src/lib/password";
 import { redis } from "@/src/lib/redis";
+import { sendOrderConfirmationEmail } from "@/src/lib/email";
 import { randomBytes } from "crypto";
 export interface OrderItemInput {
   productId: string;
   quantity: number;
   price: number;
+  size?: string;
+  color?: string;
 }
 
 export interface CreateOrderInput {
@@ -42,6 +46,10 @@ export interface CreateOrderInput {
 
   // Coupon
   couponCode?: string;
+
+  // Gift Card
+  hasGiftCard?: boolean;
+  giftCardFee?: number;
 
   // Order Total
   totalAmount: number;
@@ -206,86 +214,140 @@ export const OrderResolvers = {
   Mutation: {
     createOrder: async (_: any, { input }: { input: CreateOrderInput }) => {
       try {
-        const { isGuest, couponCode, ...orderInput } = input;
-        console.log("🚀 ~ couponCode:", couponCode);
+        const { isGuest, couponCode, items: inputItems, ...orderInput } = input;
         let userId = input.userId;
 
-        // Guest user creation or find
+        // 1. Guest User Logic
         if (isGuest && !userId) {
           const password = randomBytes(4).toString("hex");
           const passwordHash = await hashPassword(password);
 
           const user = await prisma.user.upsert({
-            where: { email: input.email },
-            update: {},
+            where: { email: input.email.toLowerCase() },
+            update: {}, // Don't overwrite existing user data if they already exist
             create: {
               firstName: input.firstName,
               lastName: input.lastName,
               phoneNumber: input.phone,
-              email: input.email,
+              email: input.email.toLowerCase(),
               passwordHash,
               isGuest: true,
             },
           });
-
           userId = user.id;
         }
 
-        // Validate products
-        const productIds = input.items.map((item) => item.productId);
-        const existingProducts = await prisma.product.findMany({
+        // 2 Fetch settings for fees
+        const settings = await prisma.storeSettings.findFirst() as any;
+        if (!settings) throw new Error("Store settings not found");
+
+        // 3. Fetch Fresh Product Data (Verify existence and price)
+        const productIds = inputItems.map((item) => item.productId);
+        const dbProducts = await prisma.product.findMany({
           where: { id: { in: productIds } },
-          select: { id: true, name: true, status: true, quantity: true },
         });
 
-        const missingProductIds = productIds.filter(
-          (id) => !existingProducts.find((p) => p.id === id)
-        );
-        if (missingProductIds.length > 0)
-          throw new Error(
-            `Products not found: ${missingProductIds.join(", ")}`
-          );
+        // 4. Validation & Server-side Price Calculation
+        let calculatedSubtotal = 0;
+        const itemsToCreate = inputItems.map((inputItem) => {
+          const product = dbProducts.find((p) => p.id === inputItem.productId);
 
-        const inactiveProducts = existingProducts.filter(
-          (p) => p.status !== "active"
-        );
-        if (inactiveProducts.length > 0)
-          throw new Error(
-            `Products are not available: ${inactiveProducts
-              .map((p) => p.name)
-              .join(", ")}`
-          );
+          if (!product)
+            throw new Error(`Product ${inputItem.productId} not found`);
+          if (product.status !== "active")
+            throw new Error(`${product.name} is no longer available`);
 
-        // Coupon validation
-        let couponUsage = null;
+          // CRITICAL: Use product.price from DB, NOT input.price from frontend
+          calculatedSubtotal += product.price * inputItem.quantity;
+
+          return {
+            productId: product.id,
+            quantity: inputItem.quantity,
+            price: product.price, // Use DB price
+            size: inputItem.size, // Save size
+            color: inputItem.color, // Save color
+          };
+        }) as any[];
+
+        // 4. Coupon Logic
+        let discountAmount = 0;
+        let couponId = null;
+        let promotionId = null;
+
         if (couponCode) {
-          const coupon = await prisma.coupon.findUnique({
+          // Try to find a regular coupon first
+          let coupon = await prisma.coupon.findUnique({
             where: { code: couponCode.toUpperCase() },
           });
 
-          if (!coupon) throw new Error("Invalid coupon code");
+          let isPromotion = false;
+
+          if (!coupon) {
+            // Try to find a promotion
+            const promotion = await prisma.promotion.findFirst({
+              where: {
+                promoCode: {
+                  equals: couponCode,
+                  mode: "insensitive",
+                },
+              },
+            });
+
+            if (promotion) {
+              // Map Promotion to Coupon-like structure for the next steps
+              coupon = {
+                id: promotion.id,
+                code: promotion.promoCode,
+                discountType:
+                  promotion.discountType === "PERCENTAGE"
+                    ? "PERCENTAGE"
+                    : "FIXED_AMOUNT",
+                discountValue: promotion.discountValue,
+                validFrom: promotion.startDate,
+                validUntil: promotion.endDate,
+                isActive: promotion.isActive && promotion.status === "ACTIVE",
+                minimumAmount: null,
+                maximumDiscount: null,
+                usageLimit: null,
+                usageCount: 0,
+              } as any;
+              isPromotion = true;
+              promotionId = promotion.id;
+            }
+          }
+
+          if (!coupon || !coupon.isActive) {
+            throw new Error(`Invalid or expired ${isPromotion ? "promotion" : "coupon"}`);
+          }
 
           const now = new Date();
           if (
-            !coupon.isActive ||
             now < new Date(coupon.validFrom) ||
             now > new Date(coupon.validUntil)
           ) {
-            throw new Error("Coupon is not valid or has expired");
+            throw new Error(`${isPromotion ? "Promotion" : "Coupon"} has expired`);
           }
 
-          if (coupon.minimumAmount && input.totalAmount < coupon.minimumAmount)
+          if (
+            coupon.minimumAmount &&
+            calculatedSubtotal < coupon.minimumAmount
+          ) {
             throw new Error(
-              `Minimum order amount of ${coupon.minimumAmount} AED required for this coupon`
+              `Minimum order of ${coupon.minimumAmount} AED required`
             );
+          }
 
-          if (coupon.usageLimit && coupon.usageCount >= coupon.usageLimit)
-            throw new Error("This coupon has reached its usage limit");
+          if (
+            !isPromotion &&
+            coupon.usageLimit &&
+            coupon.usageCount >= coupon.usageLimit
+          ) {
+            throw new Error("Coupon usage limit reached");
+          }
 
-          // Discount calculation
-          let discountAmount = 0;
+          // Calculate Discount
           if (coupon.discountType === "PERCENTAGE") {
-            discountAmount = (input.totalAmount * coupon.discountValue) / 100;
+            discountAmount = (calculatedSubtotal * coupon.discountValue) / 100;
             if (
               coupon.maximumDiscount &&
               discountAmount > coupon.maximumDiscount
@@ -295,40 +357,112 @@ export const OrderResolvers = {
           } else if (coupon.discountType === "FIXED_AMOUNT") {
             discountAmount = coupon.discountValue;
           }
-          discountAmount = Math.min(discountAmount, input.totalAmount);
 
-          couponUsage = {
-            couponId: coupon.id,
-            discountAmount,
-            orderAmount: input.totalAmount,
-            userId: userId,
-            email: input.email,
-          };
+          discountAmount = Math.min(discountAmount, calculatedSubtotal);
+
+          if (!isPromotion) {
+            couponId = coupon.id;
+          }
         }
 
-        // Build orderData
-        const orderData: any = {
-          ...orderInput,
-          userId,
-          deliveryDate: input.deliveryDate
-            ? new Date(input.deliveryDate)
-            : null,
-          items: {
-            create: input.items.map((item) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              price: item.price,
-            })),
-          },
-          couponUsage: couponUsage ? { create: { ...couponUsage } } : undefined,
-        };
+        // 6. Dynamic Fee Calculation
+        let deliveryCost = 0;
+        if (input.deliveryType === "EXPRESS") {
+          deliveryCost = Number(settings.expressDeliveryFee || 30);
+        } else if (input.deliveryType === "SCHEDULED") {
+          deliveryCost = Number(settings.scheduledDeliveryFee || 10);
+        } else {
+          // STANDARD: Flat rate or free if over threshold
+          const threshold = settings.freeShippingThreshold ? Number(settings.freeShippingThreshold) : null;
+          if (threshold !== null && calculatedSubtotal >= threshold) {
+            deliveryCost = 0;
+          } else {
+            deliveryCost = Number(settings.deliveryFlatRate || 15);
+          }
+        }
 
-        console.log("orderData", orderData);
+        // Override if coupon gives free shipping
+        const couponResult = couponCode ? await prisma.coupon.findUnique({ where: { code: couponCode.toUpperCase() } }) : null;
+        if (couponResult?.discountType === "FREE_SHIPPING") {
+          deliveryCost = 0;
+        }
 
-        // Transaction: create order, update stock, send notification
+        const codFee = input.paymentMethod === "COD" ? Number(settings.codFee || 10) : 0;
+        const giftCardFee = (input.hasGiftCard && settings.isGiftCardEnabled) ? Number(settings.giftCardFee || 0) : 0;
+
+        // VAT calculation (5%)
+        const vatRate = Number(settings.vatRate || 5) / 100;
+        const vatAmount = Number(((calculatedSubtotal - discountAmount) * vatRate).toFixed(2));
+
+        const finalTotal = Number((calculatedSubtotal - discountAmount + deliveryCost + codFee + giftCardFee + vatAmount).toFixed(2));
+
+
+
+        // 5. Payment Verification (Server-Side)
+        // NOTE: For Stripe Checkout flow, payment happens AFTER order creation.
+        // So we skip verification here. The Webhook will handle it.
+        // Unless we switch to PaymentIntents (Elements) in the future.
+
+        // 6. TRANSACTION: The "Atomic" Operation
+        console.time(`OrderTransaction:${input.email}`);
         const order = await prisma.$transaction(async (tx) => {
+          // A. Update Stock and verify availability (Atomic Check)
+          for (const item of itemsToCreate) {
+            const updatedProduct = await tx.product.updateMany({
+              where: {
+                id: item.productId,
+                quantity: { gte: item.quantity }, // Only update if enough stock exists
+              },
+              data: {
+                quantity: { decrement: item.quantity },
+              },
+            });
+
+            if (updatedProduct.count === 0) {
+              const p = dbProducts.find((x) => x.id === item.productId);
+              throw new Error(`Insufficient stock for ${p?.name || "product"}`);
+            }
+          }
+
+          // B. Increment Coupon Count
+          if (couponId) {
+            await tx.coupon.update({
+              where: { id: couponId },
+              data: { usageCount: { increment: 1 } },
+            });
+          }
+
+          // C. Create Order
           const createdOrder = await tx.order.create({
-            data: orderData,
+            data: {
+              ...orderInput,
+              userId,
+              totalAmount: finalTotal, // Use our calculated total
+              items: {
+                create: itemsToCreate,
+              },
+              couponUsage: couponId
+                ? {
+                  create: {
+                    couponId,
+                    discountAmount,
+                    orderAmount: finalTotal,
+                    userId: userId!,
+                    email: input.email,
+                  },
+                }
+                : undefined,
+              // Force extra fields that Typescript doesn't know about yet
+              ...({
+                hasGiftCard: !!input.hasGiftCard,
+                giftCardFee: giftCardFee,
+                deliveryCost: deliveryCost,
+                codFee: codFee,
+                vatAmount: vatAmount,
+                discount: discountAmount,
+                deliveryDate: input.deliveryDate ? new Date(input.deliveryDate) : null,
+              } as any),
+            },
             include: {
               items: { include: { product: true } },
               user: true,
@@ -336,69 +470,64 @@ export const OrderResolvers = {
             },
           });
 
-          console.log("🚀 ~ createdOrder:", createdOrder);
-
-          // Stock update
-          await Promise.all(
-            createdOrder.items.map(async (item) => {
-              const product = existingProducts.find(
-                (p) => p.id === item.productId
-              );
-              if (!product)
-                throw new Error(`Product not found: ${item.productId}`);
-              if (product.quantity < item.quantity)
-                throw new Error(`Insufficient stock for ${product.name}`);
-
-              await tx.product.update({
-                where: { id: item.productId },
-                data: { quantity: { decrement: item.quantity } },
-              });
-            })
-          );
-
-          // Notification
-          const notification = await tx.notification.create({
+          // D. Create Internal Notification
+          await tx.notification.create({
             data: {
               type: "order_created",
-              message: `New order received: ${createdOrder.id}`,
+              message: `New order received: ${createdOrder.id} (${finalTotal} AED)`,
               orderId: createdOrder.id,
             },
           });
 
-          // Push notification (background)
-          sendPushToAll({
-            title: "New Order",
-            body: notification.message,
-            url: `/dashboard/orders/${createdOrder.id}`,
-          }).catch((e) => console.error("sendPushToAll error:", e));
-
           return createdOrder;
+        }, {
+          timeout: 20000, // 20 seconds
+          isolationLevel: 'Serializable',
         });
+        console.timeEnd(`OrderTransaction:${input.email}`);
 
-        // Clear Redis caches
-        await redis.del("allOrders");
-        await redis.del("orderStats");
-        await redis.del(`orderById:${order.id}`);
-        await redis.del("featured-products");
-        await Promise.all(
-          order.items.map((i) => redis.del(`product:${i.product.slug}`))
-        );
-        if (userId) await redis.del(`ordersByUser:${userId}`);
+        // 7. Post-Transaction Tasks (Background)
 
-        // Update coupon usage count
-        if (couponUsage) {
-          await prisma.coupon.update({
-            where: { id: couponUsage.couponId },
-            data: { usageCount: { increment: 1 } },
-          });
+        // A. Send Email Invoice (ONLY FOR COD)
+        // For Stripe, the Webhook should send the email after payment success.
+        if (orderInput.paymentMethod === "COD") {
+          sendOrderConfirmationEmail(order, { firstName: input.firstName, email: input.email })
+            .catch(e => console.error("Email Error:", e));
         }
+
+        // B. Push notifications
+        sendPushToAll({
+          title: "New Order",
+          body: `Order #${order.id} received`,
+          url: `/dashboard/orders/${order.id}`,
+        }).catch((e) => console.error("Push Error:", e));
+
+        // C. Clear Redis Cache
+        const cacheKeys = [
+          "allOrders",
+          "allProducts",
+          "orderStats",
+          "featured-products",
+          ...(userId ? [`ordersByUser:${userId}`] : []),
+          ...(Array.isArray((order as any).items)
+            ? (order as any).items.map((i: any) => `product:${i.product.slug}`)
+            : []),
+        ];
+        console.log("🚀 ~ cacheKeys:", cacheKeys);
+
+        await Promise.all(cacheKeys.map((key) => redis.del(key)));
 
         return order;
       } catch (error) {
-        console.error(error);
-        if (error instanceof Error)
-          throw new Error(`Failed to create order: ${error.message}`);
-        throw new Error("Failed to create order");
+        console.error("Order Creation Error:", error);
+        // Enhance error message for user
+        if (error instanceof Error) {
+          if (error.message.includes("Insufficient stock")) return new Error(error.message);
+          // if (error.message.includes("Payment")) return new Error(error.message);
+        }
+        throw new Error(
+          "An unexpected error occurred while processing your order."
+        );
       }
     },
     updateOrderStatus: async (

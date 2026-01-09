@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "../../../components/ui/Button";
+import { Button } from "../../../components/ui/button";
 import { useCartStore } from "../../../store/cartStore";
 import { useCoupon } from "../../../hooks/useCoupon";
 import { toast } from "sonner";
