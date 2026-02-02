@@ -36,6 +36,8 @@ import { membershipTypeDefs } from "@/src/modules/membership/membershipTypeDefs"
 import { membershipResolvers } from "@/src/modules/membership/membershipResolvers";
 import { footerTypeDefs } from "@/src/modules/content/footerTypeDefs";
 import { footerResolvers } from "@/src/modules/content/footerResolvers";
+import { SubscribeTypeDefs } from "@/src/modules/subscribe/subscribeTypeDefs";
+import { SubscribeResolvers } from "@/src/modules/subscribe/subscribeResolvers";
 
 const typeDefs = mergeTypeDefs([
   `
@@ -62,6 +64,7 @@ const typeDefs = mergeTypeDefs([
   notificationTypeDefs,
   membershipTypeDefs,
   footerTypeDefs,
+  SubscribeTypeDefs
 ]);
 
 interface ContextType {
@@ -85,6 +88,7 @@ const resolvers = mergeResolvers([
   notificationResolvers,
   membershipResolvers,
   footerResolvers,
+  SubscribeResolvers
 ]) as IResolvers<any, ContextType & YogaInitialContext>;
 
 const schema = createSchema<ContextType>({

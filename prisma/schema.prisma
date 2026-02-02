@@ -378,6 +378,11 @@ model Order {
     // Gift Card
     hasGiftCard         Boolean      @default(false)
     giftCardFee         Float        @default(0)
+    giftRecipient       String?
+    giftSender          String?
+    giftMessage         String?
+    giftCardSize        String?
+    giftCardTheme       String?
 
     // Order Meta
     status              OrderStatus  @default(PENDING)
@@ -782,3 +787,12 @@ model PasswordResetToken {
 }
 
 
+
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

@@ -50,6 +50,11 @@ export interface CreateOrderInput {
   // Gift Card
   hasGiftCard?: boolean;
   giftCardFee?: number;
+  giftCardSize?: string;
+  giftCardTheme?: string;
+  giftRecipient?: string;
+  giftSender?: string;
+  giftMessage?: string;
 
   // Order Total
   totalAmount: number;
@@ -214,8 +219,8 @@ export const OrderResolvers = {
   Mutation: {
     createOrder: async (_: any, { input }: { input: CreateOrderInput }) => {
       try {
-        const { isGuest, couponCode, items: inputItems, ...orderInput } = input;
-        let userId = input.userId;
+        const { isGuest, couponCode, items: inputItems, userId: inputUserId, ...orderInput } = input;
+        let userId = inputUserId;
 
         // 1. Guest User Logic
         if (isGuest && !userId) {
@@ -436,7 +441,7 @@ export const OrderResolvers = {
           const createdOrder = await tx.order.create({
             data: {
               ...orderInput,
-              userId,
+              user: userId ? { connect: { id: userId } } : undefined,
               totalAmount: finalTotal, // Use our calculated total
               items: {
                 create: itemsToCreate,

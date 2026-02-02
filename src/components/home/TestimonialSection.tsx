@@ -3,9 +3,7 @@
 import { useState } from "react";
 import { Star, Quote } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useQuery } from "@apollo/client";
-import { GET_REVIEWS } from "@/src/modules/review/reviewType";
-import Loading from "../layout/Loading";
+
 
 // Define strict types for production safety
 interface User {
@@ -23,35 +21,26 @@ interface Review {
 const TestimonialSection = ({
   taTitle,
   taDesc,
-  testimonials: propTestimonials,
+  testimonials: propTestimonials = [],
 }: {
   taTitle?: string;
   taDesc?: string;
   testimonials?: any[];
 }) => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
-  // Only query if no props provided OR if we want to mix. For now prefer props.
-  const { data, loading, error } = useQuery(GET_REVIEWS, {
-     skip: !!propTestimonials?.length
-  });
 
   // Normalize prop data to Review interface
-  const normalizedProps = (propTestimonials || []).map((t, i) => ({
-      id: `manual-${i}`,
-      comment: t.content,
-      rating: 5, // Default to 5 star for curated
-      user: {
-          firstName: t.name,
-          lastName: t.role // Using role as last name hack or better, add role to display
-      }
+  const testimonials: Review[] = propTestimonials.map((t, i) => ({
+    id: t.id || `manual-${i}`,
+    comment: t.content || t.comment,
+    rating: t.rating || 5,
+    user: {
+      firstName: t.name || t.user?.firstName || "Client",
+      lastName: t.role || t.user?.lastName || ""
+    }
   }));
 
-  const testimonials: Review[] = normalizedProps.length > 0 ? normalizedProps : (data?.reviews || []);
-
-  if (loading) return <Loading />;
-
-  // Production Check: Don't render section if data fails or is empty
-  if (error || !testimonials.length) return null;
+  if (!testimonials.length) return null;
 
   const current = testimonials[activeTestimonial];
 
@@ -107,11 +96,10 @@ const TestimonialSection = ({
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-4 h-4 ${
-                          i < (current?.rating || 0)
-                            ? "text-primary fill-primary"
-                            : "text-charcoal-800 fill-charcoal-800"
-                        }`}
+                        className={`w-4 h-4 ${i < (current?.rating || 0)
+                          ? "text-primary fill-primary"
+                          : "text-charcoal-800 fill-charcoal-800"
+                          }`}
                       />
                     ))}
                   </div>
@@ -135,10 +123,9 @@ const TestimonialSection = ({
                 className={`
                   group w-full text-left p-5 rounded-lg transition-all duration-300 border
                   flex items-start gap-4
-                  ${
-                    index === activeTestimonial
-                      ? "bg-charcoal-800 border-primary shadow-lg scale-[1.02]"
-                      : "bg-transparent border-charcoal-800 hover:bg-charcoal-800/50 hover:border-charcoal-700"
+                  ${index === activeTestimonial
+                    ? "bg-charcoal-800 border-primary shadow-lg scale-[1.02]"
+                    : "bg-transparent border-charcoal-800 hover:bg-charcoal-800/50 hover:border-charcoal-700"
                   }
                 `}
               >
@@ -146,11 +133,10 @@ const TestimonialSection = ({
                 <div
                   className={`
                   w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0
-                  ${
-                    index === activeTestimonial
+                  ${index === activeTestimonial
                       ? "bg-primary text-charcoal-900"
                       : "bg-charcoal-700 text-cream-200"
-                  }
+                    }
                 `}
                 >
                   {testimonial.user?.firstName?.charAt(0)}
@@ -159,11 +145,10 @@ const TestimonialSection = ({
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-center mb-1">
                     <h5
-                      className={`font-semibold text-sm truncate ${
-                        index === activeTestimonial
-                          ? "text-cream-50"
-                          : "text-cream-200"
-                      }`}
+                      className={`font-semibold text-sm truncate ${index === activeTestimonial
+                        ? "text-cream-50"
+                        : "text-cream-200"
+                        }`}
                     >
                       {testimonial.user?.firstName} {testimonial.user?.lastName}
                     </h5>
@@ -171,11 +156,10 @@ const TestimonialSection = ({
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
-                          className={`w-3 h-3 ${
-                            i < testimonial.rating
-                              ? "text-primary fill-primary"
-                              : "text-charcoal-700 fill-charcoal-700"
-                          }`}
+                          className={`w-3 h-3 ${i < testimonial.rating
+                            ? "text-primary fill-primary"
+                            : "text-charcoal-700 fill-charcoal-700"
+                            }`}
                         />
                       ))}
                     </div>

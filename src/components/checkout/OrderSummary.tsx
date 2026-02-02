@@ -31,12 +31,14 @@ export function OrderSummary({
   isGiftCardEnabled = false,
   giftCardFeeAmount = 0,
   vatRate = 5,
+  onCustomizeGiftCard,
 }: OrderSummaryProps & {
   giftCardFee?: number;
   hasGiftCard?: boolean;
   onGiftCardChange?: (checked: boolean) => void;
   isGiftCardEnabled?: boolean;
   giftCardFeeAmount?: number;
+  onCustomizeGiftCard?: () => void;
 }) {
   return (
     <motion.div
@@ -118,6 +120,15 @@ export function OrderSummary({
               />
               <span className="text-sm text-foreground">Include Gift Card (+{formatPrice(giftCardFeeAmount)})</span>
             </label>
+            {hasGiftCard && onCustomizeGiftCard && (
+              <button
+                type="button"
+                onClick={onCustomizeGiftCard}
+                className="text-xs text-primary font-medium underline hover:text-primary/80 transition-colors ml-6 mt-1 block"
+              >
+                Customize Card
+              </button>
+            )}
           </div>
         )}
 

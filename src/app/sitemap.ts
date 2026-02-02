@@ -23,24 +23,41 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const BASE_URL =
     process.env.NEXT_PUBLIC_URL || "https://misk-blooming.vercel.app";
 
+  const staticRoutes = [
+    { url: "", priority: 1, changeFrequency: "daily" as const },
+    { url: "/about", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/contact", priority: 0.8, changeFrequency: "monthly" as const },
+    { url: "/privacy", priority: 0.5, changeFrequency: "monthly" as const },
+    { url: "/terms", priority: 0.5, changeFrequency: "monthly" as const },
+    { url: "/cookies", priority: 0.5, changeFrequency: "monthly" as const },
+    { url: "/delivery", priority: 0.6, changeFrequency: "monthly" as const },
+    { url: "/track-order", priority: 0.6, changeFrequency: "yearly" as const },
+    { url: "/products", priority: 0.9, changeFrequency: "daily" as const },
+    { url: "/occasions", priority: 0.9, changeFrequency: "daily" as const },
+  ];
+
   try {
     const [{ data: productsData }, { data: categoriesData }] =
       (await Promise.all([
-        yogaFetch(GET_PRODUCTS_SITEMAP),
-        yogaFetch(GET_CATEGORIES_SITEMAP),
+        yogaFetch(GET_PRODUCTS_SITEMAP).catch((err) => {
+          console.error("Failed to fetch products for sitemap", err);
+          return { data: { products: [] } };
+        }),
+        yogaFetch(GET_CATEGORIES_SITEMAP).catch((err) => {
+          console.error("Failed to fetch categories for sitemap", err);
+          return { data: { categories: [] } };
+        }),
       ])) as [
         { data?: { products?: SitemapProduct[] } },
         { data?: { categories?: Category[] } }
       ];
 
-    const routes: MetadataRoute.Sitemap = [
-      {
-        url: BASE_URL,
-        lastModified: safeDate(),
-        changeFrequency: "daily",
-        priority: 1,
-      },
-    ];
+    const routes: MetadataRoute.Sitemap = staticRoutes.map((route) => ({
+      url: `${BASE_URL}${route.url}`,
+      lastModified: safeDate(),
+      changeFrequency: route.changeFrequency,
+      priority: route.priority,
+    }));
 
     categoriesData?.categories?.forEach((c: Category) => {
       if (!c?.name) return;
@@ -65,13 +82,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return routes;
   } catch (error) {
     console.error("Sitemap generation error:", error);
-    return [
-      {
-        url: BASE_URL,
-        lastModified: safeDate(),
-        changeFrequency: "daily",
-        priority: 1,
-      },
-    ];
+    // Return at least the static routes if dynamic fetching fails completely
+    return staticRoutes.map((route) => ({
+      url: `${BASE_URL}${route.url}`,
+      lastModified: safeDate(),
+      changeFrequency: route.changeFrequency,
+      priority: route.priority,
+    }));
   }
 }

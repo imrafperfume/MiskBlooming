@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, Suspense } from "react";
+import { useMemo, Suspense, useState } from "react";
 import dynamic from "next/dynamic";
 import { useCheckout } from "@/src/hooks/useCheckout";
 import { useCartStore } from "../../../store/cartStore";
@@ -10,6 +10,7 @@ import {
   CheckoutProgress,
   EmptyCart,
 } from "@/src/components/checkout";
+import { GiftCardCreator } from "@/src/components/checkout/GiftCardCreator";
 
 // Lazy-load heavy components only
 const ShippingInformationStep = dynamic(() =>
@@ -43,6 +44,7 @@ function SkeletonBox({ className }: { className: string }) {
 }
 
 export default function CheckoutPage() {
+  const [isGiftCardModalOpen, setGiftCardModalOpen] = useState(false);
   const { items } = useCartStore();
   const { data: user } = useAuth();
   const userId = user?.id;
@@ -87,6 +89,12 @@ export default function CheckoutPage() {
         {/* Header & Progress */}
         <CheckoutHeader />
         <CheckoutProgress currentStep={currentStep} />
+
+        <GiftCardCreator
+          isOpen={isGiftCardModalOpen}
+          onClose={() => setGiftCardModalOpen(false)}
+          form={form}
+        />
 
         {/* Guest Checkout Notice */}
         <div className="mb-6 p-4 bg-primary-foreground border border-border rounded-lg">
@@ -174,7 +182,11 @@ export default function CheckoutPage() {
 
                 // Gift Card Props
                 hasGiftCard={form.watch("hasGiftCard")}
-                onGiftCardChange={(checked) => form.setValue("hasGiftCard", checked)}
+                onGiftCardChange={(checked) => {
+                  form.setValue("hasGiftCard", checked);
+                  if (checked) setGiftCardModalOpen(true);
+                }}
+                onCustomizeGiftCard={() => setGiftCardModalOpen(true)}
                 isGiftCardEnabled={settings?.isGiftCardEnabled ?? false}
                 giftCardFeeAmount={Number(settings?.giftCardFee ?? 0)}
                 giftCardFee={calculations.giftCardFee}

@@ -1,7 +1,7 @@
 import { prisma } from "@/src/lib/db";
 import { validateAdmin } from "@/src/lib/isAdmin";
 import { redis } from "@/src/lib/redis";
-import { StoreSettings } from "@prisma/client";
+import { StoreSettings, DeliveryMethod } from "@prisma/client";
 
 // Helper: Convert Prisma Decimals to Javascript Numbers for GraphQL & JSON
 const formatSettings = (settings: StoreSettings) => {
@@ -15,21 +15,58 @@ const formatSettings = (settings: StoreSettings) => {
       : null,
 
     // --- NEW FIELDS (Decimal conversion) ---
-    codFee: Number((settings as any).codFee || 0),
-    expressDeliveryFee: Number((settings as any).expressDeliveryFee || 0),
-    scheduledDeliveryFee: Number((settings as any).scheduledDeliveryFee || 0),
-    giftCardFee: Number((settings as any).giftCardFee || 5.0),
-    isGiftCardEnabled: (settings as any).isGiftCardEnabled ?? false,
+    codFee: Number(settings.codFee || 0),
+    expressDeliveryFee: Number(settings.expressDeliveryFee || 0),
+    scheduledDeliveryFee: Number(settings.scheduledDeliveryFee || 0),
+    giftCardFee: Number(settings.giftCardFee || 5.0),
+    isGiftCardEnabled: settings.isGiftCardEnabled ?? false,
   };
 };
+
+interface DeliveryEmiratesInput {
+  abu_dhabi: number;
+  dubai: number;
+  sharjah: number;
+  ajman: number;
+  umm_al_quwain: number;
+  ras_al_khaimah: number;
+  fujairah: number;
+  [key: string]: number;
+}
+
+interface UpdateStoreSettingsInput {
+  storeName?: string;
+  description?: string;
+  logoUrl?: string;
+  supportEmail?: string;
+  phoneNumber?: string;
+  currency?: string;
+  timezone?: string;
+  address?: string;
+  vatRate?: number;
+  deliveryMethod?: DeliveryMethod;
+  deliveryFlatRate?: number;
+  freeShippingThreshold?: number;
+  deliveryEmirates?: DeliveryEmiratesInput;
+  codFee?: number;
+  isExpressEnabled?: boolean;
+  expressDeliveryFee?: number;
+  isScheduledEnabled?: boolean;
+  scheduledDeliveryFee?: number;
+  isGiftCardEnabled?: boolean;
+  giftCardFee?: number;
+  facebook?: string;
+  instagram?: string;
+  twitter?: string;
+}
 
 const CACHE_KEY = "store_settings";
 
 export const SettingResolvers = {
   Query: {
-    getStoreSettings: async (_: any, __: any, context: { userId: string }) => {
-      // 1. Security Check
-      await validateAdmin(context.userId);
+    getStoreSettings: async (_: unknown, __: unknown, context: { userId: string }) => {
+      // 1. Security Check - Public route now
+      // await validateAdmin(context.userId);
 
       try {
         // 2. Check Redis Cache
@@ -64,8 +101,8 @@ export const SettingResolvers = {
   Mutation: {
     // UPSERT Logic (Update if exists, Create if not)
     updateStoreSettings: async (
-      _: any,
-      args: { input: any },
+      _: unknown,
+      args: { input: UpdateStoreSettingsInput },
       context: { userId: string } // Standardized to userId
     ) => {
       await validateAdmin(context.userId);
@@ -110,12 +147,19 @@ export const SettingResolvers = {
           // UPDATE
           updatedSettings = await prisma.storeSettings.update({
             where: { id: existingSettings.id },
-            data: dataPayload as any,
+            data: dataPayload,
           });
         } else {
           // CREATE (Fallback if no ID exists)
           updatedSettings = await prisma.storeSettings.create({
-            data: dataPayload as any,
+            data: {
+              ...dataPayload,
+              storeName: args.input.storeName || "",
+              supportEmail: args.input.supportEmail || "",
+              phoneNumber: args.input.phoneNumber || "",
+              address: args.input.address || "",
+              currency: args.input.currency || "AED",
+            },
           });
         }
 
@@ -135,8 +179,8 @@ export const SettingResolvers = {
 
     // Strict Create (Throws if exists)
     createStoreSettings: async (
-      _: any,
-      args: { input: any },
+      _: unknown,
+      args: { input: UpdateStoreSettingsInput },
       context: { userId: string }
     ) => {
       await validateAdmin(context.userId);
@@ -152,14 +196,14 @@ export const SettingResolvers = {
 
         const newStore = await prisma.storeSettings.create({
           data: {
-            storeName: args.input.storeName,
+            storeName: args.input.storeName || "",
             description: args.input.description,
             logoUrl: args.input.logoUrl,
-            supportEmail: args.input.supportEmail,
-            phoneNumber: args.input.phoneNumber,
-            currency: args.input.currency,
-            timezone: args.input.timezone,
-            address: args.input.address,
+            supportEmail: args.input.supportEmail || "",
+            phoneNumber: args.input.phoneNumber || "",
+            currency: args.input.currency || "AED",
+            timezone: args.input.timezone || "GST",
+            address: args.input.address || "",
             vatRate: args.input.vatRate,
 
             // Delivery
@@ -179,7 +223,7 @@ export const SettingResolvers = {
             twitter: args.input.twitter,
             isGiftCardEnabled: args.input.isGiftCardEnabled,
             giftCardFee: args.input.giftCardFee,
-          } as any,
+          },
         });
 
         const formattedResult = formatSettings(newStore);

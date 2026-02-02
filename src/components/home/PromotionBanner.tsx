@@ -1,7 +1,6 @@
 "use client";
 
-import { useQuery } from "@apollo/client";
-import { GET_ACTIVE_PROMOTIONS } from "@/src/modules/promotion/operations";
+
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { Tag, ArrowRight, Loader2, Sparkles } from "lucide-react";
@@ -10,14 +9,13 @@ import { useState, useEffect } from "react";
 
 const AUTO_PLAY_INTERVAL = 10000;
 
-export default function PromotionBanner() {
-    const { data, loading } = useQuery(GET_ACTIVE_PROMOTIONS);
+export default function PromotionBanner({ promotions = [] }: { promotions?: any[] }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [progress, setProgress] = useState(0);
 
-    const activePromotions = data?.getPromotions?.filter(
+    const activePromotions = promotions.filter(
         (p: any) => p.status === "ACTIVE" && p.isActive
-    ) || [];
+    );
 
     useEffect(() => {
         if (activePromotions.length <= 1) return;
@@ -37,19 +35,7 @@ export default function PromotionBanner() {
         return () => clearInterval(timer);
     }, [currentIndex, activePromotions.length]);
 
-    if (loading) {
-        return (
-            <div className="w-full h-[500px] flex items-center justify-center bg-cream-50/50">
-                <div className="flex flex-col items-center gap-6">
-                    <div className="relative">
-                        <Loader2 className="w-12 h-12 animate-spin text-luxury-500" />
-                        <Sparkles className="absolute -top-2 -right-2 w-5 h-5 text-luxury-300 animate-pulse" />
-                    </div>
-                    <p className="text-xs font-bold text-luxury-700 uppercase tracking-[0.4em] animate-pulse">Curating Excellence</p>
-                </div>
-            </div>
-        );
-    }
+
 
     if (activePromotions.length === 0) return null;
 

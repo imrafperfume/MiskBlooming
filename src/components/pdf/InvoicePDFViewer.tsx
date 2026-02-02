@@ -1,16 +1,16 @@
-"use client";
-
 import { PDFViewer } from "@react-pdf/renderer";
-import InvoiceDocument from "./InvoiceDocument";
+import InvoiceDocument, { CompanyInfo } from "./InvoiceDocument";
+import { InvoiceDisplayData } from "@/src/types/invoice";
 
 interface InvoicePDFViewerProps {
-  sale: any;
+  data: InvoiceDisplayData;
+  companyInfo?: CompanyInfo;
 }
 
-export default function InvoicePDFViewer({ sale }: InvoicePDFViewerProps) {
+export default function InvoicePDFViewer({ data, companyInfo }: InvoicePDFViewerProps) {
   return (
     <PDFViewer className="w-full h-full border-none">
-      <InvoiceDocument sale={sale} />
+      <InvoiceDocument data={data} companyInfo={companyInfo} />
     </PDFViewer>
   );
 }

@@ -21,16 +21,31 @@ export const checkoutSchema = z.object({
   deliveryDate: z.string().optional(),
   deliveryTime: z.string().optional(),
   specialInstructions: z.string().max(500, "Special instructions are too long").optional(),
+
+  // Gift Card
   hasGiftCard: z.boolean().optional(),
+  giftCardSize: z.string().optional(),
+  giftCardTheme: z.string().optional(),
+  giftRecipient: z.string().optional(),
+  giftSender: z.string().optional(),
+  giftMessage: z.string().max(300, "Message is too long").optional(),
 }).refine((data) => {
   // If delivery type is SCHEDULED, delivery date and time are required
   if (data.deliveryType === "SCHEDULED") {
-    return data.deliveryDate && data.deliveryTime;
+    return !!(data.deliveryDate && data.deliveryTime);
   }
   return true;
 }, {
   message: "Delivery date and time are required for scheduled delivery",
   path: ["deliveryDate"],
+}).refine((data) => {
+  if (data.hasGiftCard) {
+    return !!(data.giftCardSize && data.giftCardTheme && data.giftRecipient && data.giftSender && data.giftMessage);
+  }
+  return true;
+}, {
+  message: "Please complete all gift card details",
+  path: ["giftCardSize"], // Pointing to first field, or could be general
 });
 
 export type CheckoutFormData = z.infer<typeof checkoutSchema>;

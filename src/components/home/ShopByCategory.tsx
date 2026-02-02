@@ -10,20 +10,17 @@ import { Autoplay } from "swiper/modules";
 
 // Import Swiper styles
 import "swiper/css";
-import { useCategories } from "@/src/hooks/useCategories";
+
 
 const ShopByCategory = ({
   caTitle,
   caDesc,
+  categories = [],
 }: {
   caTitle: string;
   caDesc: string;
+  categories?: any[];
 }) => {
-  const {
-    data: categories,
-    isLoading,
-    error,
-  } = useCategories(["id", "name", "description", "imageUrl"]);
 
   // Memoize motion props to prevent unnecessary re-renders
   const motionProps = useMemo(
@@ -73,39 +70,9 @@ const ShopByCategory = ({
   const getImageUrl = (category: any) =>
     category?.imageUrl || "/images/placeholder-category.jpg";
 
-  // Loading skeleton
-  if (isLoading) {
-    return (
-      <section className="py-16 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <div className="h-10 bg-gray-200 rounded w-64 mx-auto mb-4 animate-pulse"></div>
-            <div className="h-5 bg-gray-200 rounded w-96 mx-auto animate-pulse"></div>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="text-center">
-                <div className="aspect-square bg-gray-200 rounded-full mb-4 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2 animate-pulse"></div>
-                <div className="h-3 bg-gray-200 rounded w-full mx-auto animate-pulse"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    );
-  }
 
-  // Error state
-  if (error || !categories) {
-    return (
-      <section className="py-16 bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-foreground ">Failed to load categories</p>
-        </div>
-      </section>
-    );
-  }
+
+
 
   return (
     <section className="py-16 bg-background">
