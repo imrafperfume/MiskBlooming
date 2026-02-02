@@ -20,6 +20,7 @@ import {
   Copy,
   Download,
   ChevronLeft,
+  Gift,
 } from "lucide-react";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useState } from "react";
@@ -46,6 +47,8 @@ interface OrderItem {
   id: string;
   quantity: number;
   price: number;
+  size?: string;
+  color?: string;
   product: {
     name: string;
   };
@@ -78,6 +81,11 @@ interface Order {
   discount: number;
   hasGiftCard: boolean;
   giftCardFee: number;
+  giftCardSize?: string;
+  giftCardTheme?: string;
+  giftRecipient?: string;
+  giftSender?: string;
+  giftMessage?: string;
 }
 
 // --- Helper Components ---
@@ -358,12 +366,29 @@ export default function OrderDetails() {
                     </div>
 
                     <div className="flex-1">
+
                       <h4 className="font-medium text-foreground text-lg">
                         {item.product.name}
                       </h4>
                       <p className="text-sm text-muted-foreground mt-1">
                         Item ID: {item.id.slice(0, 8)}
                       </p>
+
+                      {/* Size & Color */}
+                      {(item.size || item.color) && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {item.size && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-muted text-muted-foreground border border-border">
+                              Size: {item.size}
+                            </span>
+                          )}
+                          {item.color && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-muted text-muted-foreground border border-border">
+                              Color: {item.color}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <div className="text-right">
                       <p className="font-medium text-foreground">
@@ -560,9 +585,49 @@ export default function OrderDetails() {
                 </div>
               </div>
             </div>
+            {/* Gift Card Details */}
+            {order.hasGiftCard && (
+              <div className="bg-card border border-border rounded-xl p-6 shadow-sm">
+                <h3 className="font-semibold text-foreground flex items-center gap-2 mb-4">
+                  <Gift className="w-4 h-4 text-purple-600" />
+                  Gift Card Details
+                </h3>
+                <div className="space-y-4 text-sm">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-muted-foreground text-xs">Size</p>
+                      <p className="font-medium">{order.giftCardSize || "A6"}</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground text-xs">Theme</p>
+                      <p className="font-medium">{order.giftCardTheme || "Standard"}</p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-border pt-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <p className="text-muted-foreground text-xs">From</p>
+                        <p className="font-medium">{order.giftSender || "-"}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-muted-foreground text-xs">To</p>
+                        <p className="font-medium">{order.giftRecipient || "-"}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {order.giftMessage && (
+                    <div className="bg-muted/30 p-3 rounded-lg border border-border/50 italic text-muted-foreground">
+                      "{order.giftMessage}"
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

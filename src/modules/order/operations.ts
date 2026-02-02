@@ -36,6 +36,11 @@ export const GET_ORDER_BY_ID = gql`
       createdAt
       hasGiftCard
       giftCardFee
+      giftCardSize
+      giftCardTheme
+      giftRecipient
+      giftSender
+      giftMessage
       items {
         id
         quantity

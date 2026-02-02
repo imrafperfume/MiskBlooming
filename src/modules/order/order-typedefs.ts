@@ -64,6 +64,11 @@ export const OrderTypeDefs = gql`
     couponCode: String
     hasGiftCard: Boolean
     giftCardFee: Float
+    giftCardSize: String
+    giftCardTheme: String
+    giftRecipient: String
+    giftSender: String
+    giftMessage: String
     totalAmount: Float!
   }
 
@@ -95,6 +100,11 @@ export const OrderTypeDefs = gql`
     # Gift Card
     hasGiftCard: Boolean
     giftCardFee: Float
+    giftCardSize: String
+    giftCardTheme: String
+    giftRecipient: String
+    giftSender: String
+    giftMessage: String
 
     specialInstructions: String
 

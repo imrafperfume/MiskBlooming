@@ -37,6 +37,15 @@ import {
 } from "@radix-ui/react-dropdown-menu";
 import { useRouter } from "next/navigation";
 import { useCategories } from "@/src/hooks/useCategories";
+import { useQuery } from "@apollo/client";
+import { GET_STORE_SETTINGS } from "@/src/modules/system/opration";
+
+interface StoreSettingsQuery {
+  getStoreSettings: {
+    logoUrl?: string;
+    storeName: string;
+  } | null;
+}
 
 const Header = () => {
   const pathname = usePathname();
@@ -56,6 +65,7 @@ const Header = () => {
 
   const { data: user, isLoading } = useAuth();
   const { data: categories } = useCategories(["id", "name", "description"]);
+  const { data: storeSettings } = useQuery<StoreSettingsQuery>(GET_STORE_SETTINGS);
 
   // Memoized navigation with active state detection
   const navigation = useMemo(() => {
@@ -77,43 +87,6 @@ const Header = () => {
             description: cat.description || "",
           })) ?? [],
       },
-      // {
-      //   name: "Occasions",
-      //   href: "/occasions",
-      //   isActive: pathname.startsWith("/occasions"),
-      //   dropdown: [
-      //     {
-      //       name: "Valentine's Day",
-      //       href: "/occasions/valentines",
-      //       description: "Romantic arrangements",
-      //     },
-      //     {
-      //       name: "Mother's Day",
-      //       href: "/occasions/mothers-day",
-      //       description: "Show your love",
-      //     },
-      //     {
-      //       name: "Birthday",
-      //       href: "/occasions/birthday",
-      //       description: "Celebration essentials",
-      //     },
-      //     {
-      //       name: "Anniversary",
-      //       href: "/occasions/anniversary",
-      //       description: "Memorable moments",
-      //     },
-      //     {
-      //       name: "Congratulations",
-      //       href: "/occasions/congratulations",
-      //       description: "Success celebrations",
-      //     },
-      //     {
-      //       name: "Sympathy",
-      //       href: "/occasions/sympathy",
-      //       description: "Thoughtful condolences",
-      //     },
-      //   ],
-      // },
       {
         name: "About",
         href: "/about",
@@ -165,7 +138,6 @@ const Header = () => {
 
   const logout = useLogout("/");
 
-  // Memoized logo component
   const Logo = useMemo(
     () => (
       <Link
@@ -173,8 +145,8 @@ const Header = () => {
         className="relative w-40 h-14 lg:w-48 lg:h-24 md:w-40 md:h-20 text-xl font-cormorant font-bold text-secondary"
       >
         <Image
-          src="/images/logo.jpg"
-          alt="Miskblooming"
+          src={storeSettings?.getStoreSettings?.logoUrl || "/images/logo.jpg"}
+          alt={storeSettings?.getStoreSettings?.storeName || "Miskblooming"}
           fill
           priority
           style={{ objectFit: "contain" }}
@@ -182,7 +154,7 @@ const Header = () => {
         />
       </Link>
     ),
-    []
+    [storeSettings]
   );
 
   // Memoized mobile menu buttons
@@ -454,11 +426,10 @@ const Header = () => {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => router.push("/")}
-                className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 flex-1 ${
-                  pathname === "/"
-                    ? "text-primary bg-foreground"
-                    : "text-foreground hover:text-primary "
-                }`}
+                className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 flex-1 ${pathname === "/"
+                  ? "text-primary bg-foreground"
+                  : "text-foreground hover:text-primary "
+                  }`}
               >
                 <House className="w-5 h-5" />
                 <span className="text-xs mt-1 font-medium">Home</span>
@@ -474,11 +445,10 @@ const Header = () => {
               {/* Wishlist */}
               <motion.div
                 whileTap={{ scale: 0.95 }}
-                className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 flex-1 ${
-                  pathname === "/wishlist"
-                    ? "text-primary bg-foreground "
-                    : "text-foreground hover:text-primary "
-                }`}
+                className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 flex-1 ${pathname === "/wishlist"
+                  ? "text-primary bg-foreground "
+                  : "text-foreground hover:text-primary "
+                  }`}
               >
                 <Link
                   href="/wishlist"
@@ -514,11 +484,10 @@ const Header = () => {
               {/* Cart */}
               <motion.div
                 whileTap={{ scale: 0.95 }}
-                className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 flex-1 ${
-                  pathname === "/cart"
-                    ? "text-primary bg-foreground "
-                    : "text-foreground hover:text-primary "
-                }`}
+                className={`flex flex-col items-center justify-center p-2 rounded-lg transition-all duration-200 flex-1 ${pathname === "/cart"
+                  ? "text-primary bg-foreground "
+                  : "text-foreground hover:text-primary "
+                  }`}
               >
                 <Link
                   href="/cart"
@@ -688,16 +657,14 @@ const Header = () => {
             >
               <Link
                 href={item.href}
-                className={`text-foreground hover:text-primary transition-colors font-medium relative group flex items-center ${
-                  item.isActive ? "text-primary font-semibold" : ""
-                }`}
+                className={`text-foreground hover:text-primary transition-colors font-medium relative group flex items-center ${item.isActive ? "text-primary font-semibold" : ""
+                  }`}
               >
                 {item.name}
                 {item.dropdown && <ChevronDown className="w-4 h-4 ml-1" />}
                 <span
-                  className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${
-                    item.isActive ? "w-full" : "w-0 group-hover:w-full"
-                  }`}
+                  className={`absolute -bottom-1 left-0 h-0.5 bg-primary transition-all duration-300 ${item.isActive ? "w-full" : "w-0 group-hover:w-full"
+                    }`}
                 ></span>
               </Link>
 
@@ -790,9 +757,8 @@ const Header = () => {
                         </Link>
                         {item.dropdown && (
                           <ChevronDown
-                            className={`w-4 h-4 transition-transform ${
-                              activeDropdown === item.name ? "rotate-180" : ""
-                            }`}
+                            className={`w-4 h-4 transition-transform ${activeDropdown === item.name ? "rotate-180" : ""
+                              }`}
                           />
                         )}
                       </button>

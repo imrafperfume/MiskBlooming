@@ -125,6 +125,11 @@ export function useCheckout(userId?: string) {
           discount: Number(couponDiscount?.toFixed(2)),
           giftCardFee: Number((giftCardFee || 0).toFixed(2)),
           hasGiftCard: !!data.hasGiftCard,
+          giftCardSize: data.giftCardSize,
+          giftCardTheme: data.giftCardTheme,
+          giftRecipient: data.giftRecipient,
+          giftSender: data.giftSender,
+          giftMessage: data.giftMessage,
           isGuest,
         };
 

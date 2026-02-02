@@ -59,7 +59,7 @@ export interface InvoiceReport {
   invoiceId: string;
   reportType: ReportType;
   generatedAt: string;
-  data: any;
+  data: ReportData;
   createdAt: string;
 }
 
@@ -147,4 +147,38 @@ export interface ReportData {
     count: number;
     amount: number;
   }>;
+}
+
+export interface InvoiceDisplayData {
+  id: string;
+  issueDate: string;
+  dueDate?: string;
+  status: string; // InvoiceStatus or string
+
+  // Customer Info
+  customer: {
+    name: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+    city?: string;
+  };
+
+  // Line Items
+  items: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+    total: number;
+  }>;
+
+  // Financials
+  subtotal: number;
+  taxAmount: number; // VAT
+  discount: number;
+  deliveryFee: number;
+  totalAmount: number;
+
+  // Meta
+  paymentMethod?: string;
 }

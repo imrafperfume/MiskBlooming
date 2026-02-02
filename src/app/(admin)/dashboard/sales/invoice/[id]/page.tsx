@@ -41,21 +41,41 @@ export default function InvoicePage() {
   const router = useRouter();
   const id = params?.id as string;
 
-  const { data, loading, error } = useQuery(GET_SALE_DETAILS, {
+  // Import Store Settings Query (Assume it's exported from operations or similar, strict typing inline for now if needed or import)
+  // Actually, let's use the one from opration.ts if we can, or just define it here to be safe and quick.
+  // Better to use the existing one from `src/modules/system/opration.ts`.
+  // But for now, defining it here to ensure it works without import issues.
+  const GET_STORE_SETTINGS = gql`
+    query GetStoreSettings {
+      getStoreSettings {
+        storeName
+        description
+        logoUrl
+        supportEmail
+        phoneNumber
+        address
+      }
+    }
+  `;
+
+  const { data: saleData, loading: saleLoading, error: saleError } = useQuery(GET_SALE_DETAILS, {
     variables: { id },
     skip: !id,
   });
 
-  const sale = data?.sale;
+  const { data: settingsData } = useQuery(GET_STORE_SETTINGS);
 
-  if (loading)
+  const sale = saleData?.sale;
+  const settings = settingsData?.getStoreSettings;
+
+  if (saleLoading)
     return (
       <div className="h-screen flex items-center justify-center bg-gray-100">
         <Loading />
       </div>
     );
 
-  if (error)
+  if (saleError)
     return (
       <div className="h-screen flex items-center justify-center text-red-500">
         Error loading invoice.
@@ -79,7 +99,44 @@ export default function InvoicePage() {
       </div>
 
       <div className="w-full max-w-5xl h-[850px] bg-white rounded-lg shadow-2xl overflow-hidden">
-        <InvoicePDFViewer sale={sale} />
+        {sale && (
+          <InvoicePDFViewer
+            data={{
+              id: sale.id,
+              issueDate: new Date(Number(sale.createdAt)).toLocaleDateString(
+                "en-GB"
+              ),
+              status: "PAID",
+              customer: {
+                name: "Walk-in Customer",
+                email: "N/A",
+                phone: "N/A",
+                city: "Dubai",
+              },
+              items: sale.orderItems.map((item: any) => ({
+                name: item.product.name,
+                quantity: item.quantity,
+                price: item.product.price,
+                total: item.product.price * item.quantity,
+              })),
+              subtotal: sale.subtotal,
+              taxAmount: sale.vat,
+              discount: sale.discount,
+              deliveryFee: 0,
+              totalAmount: sale.grandTotal,
+              paymentMethod: sale.paymentMethod,
+            }}
+            companyInfo={settings ? {
+              name: settings.storeName,
+              sub: settings.description,
+              address: settings.address,
+              email: settings.supportEmail,
+              phone: settings.phoneNumber,
+              logoUrl: settings.logoUrl,
+              legal: "MISK BLOOMING CHOCOLATES & FLOWERS (SPS-L.L.C)" // Keep legal hardcoded or add to settings if exists.
+            } : undefined}
+          />
+        )}
       </div>
     </div>
   );
