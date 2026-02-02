@@ -39,7 +39,7 @@ const GET_FOOTER_CONTENT = gql`
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { data, loading } = useQuery(GET_FOOTER_CONTENT);
-  
+
   const footerData = data?.getFooterContent;
 
   const socialLinks = [
@@ -63,17 +63,17 @@ const Footer = () => {
   // Default links if not loaded or empty
   const defaultLinks = [
     {
-        title: "Shop",
-        links: [
-            { name: "Fresh Flowers", href: "/products?category=roses" },
-            { name: "Premium Chocolates", href: "/products?category=chocolates" },
-        ]
+      title: "Shop",
+      links: [
+        { name: "Fresh Flowers", href: "/products?category=roses" },
+        { name: "Premium Chocolates", href: "/products?category=chocolates" },
+      ]
     },
     {
-        title: "Support",
-        links: [
-             { name: "Contact Us", href: "/contact" },
-        ]
+      title: "Support",
+      links: [
+        { name: "Contact Us", href: "/contact" },
+      ]
     }
   ];
 
@@ -194,7 +194,7 @@ const Footer = () => {
           >
             <div className="flex items-center mb-4 md:mb-0">
               <p className="text-cream-300 text-sm">
-                © {currentYear} {footerData?.copyrightText || "Misk Blooming. Made in Dubai, UAE"}
+                © {currentYear} {footerData?.copyrightText || "Misk Blooming. Made in Dubai, UAE"} <span className="mx-2">|</span> Enoy Tech
               </p>
             </div>
 
