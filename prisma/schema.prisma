@@ -779,12 +779,14 @@ model PasswordResetToken {
     userId    String
     user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
     tokenHash String    @unique
+    resetCode String?   // 6-digit code for email verification
     expiresAt DateTime
     usedAt    DateTime?
     createdAt DateTime  @default(now())
 
     @@index([userId])
     @@index([expiresAt])
+    @@index([resetCode])
 }
 
 

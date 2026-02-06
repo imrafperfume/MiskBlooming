@@ -1,22 +1,50 @@
 // app/api/auth/reset-password/route.ts
 import { NextResponse } from 'next/server';
 import { prisma } from '@/src/lib/db';
-import { resetSchema } from '@/src/lib/zod';
-import { sha256 } from '@/src/lib/crypto';
+import { resetPasswordWithCodeSchema } from '@/src/lib/zod';
 import { hashPassword } from '@/src/lib/password';
 
 export async function POST(req: Request) {
-    const { token, password } = resetSchema.parse(await req.json());
-    const th = sha256(token);
-    const row = await prisma.passwordResetToken.findUnique({ where: { tokenHash: th } });
-    if (!row || row.usedAt || row.expiresAt < new Date())
-        return NextResponse.json({ error: 'bad_token' }, { status: 400 });
+    try {
+        const { email, code, password } = resetPasswordWithCodeSchema.parse(await req.json());
 
-    await prisma.$transaction([
-        prisma.user.update({ where: { id: row.userId }, data: { passwordHash: await hashPassword(password) } }),
-        prisma.passwordResetToken.update({ where: { tokenHash: th }, data: { usedAt: new Date() } }),
-        prisma.session.updateMany({ where: { userId: row.userId }, data: { revoked: true } }) // force logout everywhere
-    ]);
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user) {
+            return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+        }
 
-    return NextResponse.json({ ok: true });
+        const resetToken = await prisma.passwordResetToken.findFirst({
+            where: {
+                userId: user.id,
+                resetCode: code,
+                usedAt: null,
+                expiresAt: { gte: new Date() }
+            }
+        });
+
+        if (!resetToken) {
+            return NextResponse.json({ error: 'Invalid or expired code' }, { status: 400 });
+        }
+
+        // Update password, mark token as used, and revoke all sessions
+        await prisma.$transaction([
+            prisma.user.update({
+                where: { id: user.id },
+                data: { passwordHash: await hashPassword(password) }
+            }),
+            prisma.passwordResetToken.update({
+                where: { id: resetToken.id },
+                data: { usedAt: new Date() }
+            }),
+            prisma.session.updateMany({
+                where: { userId: user.id },
+                data: { revoked: true }
+            })
+        ]);
+
+        return NextResponse.json({ ok: true });
+    } catch (error) {
+        console.error("Reset password error:", error);
+        return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    }
 }

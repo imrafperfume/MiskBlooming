@@ -46,8 +46,18 @@ export const resetSchema = z.object({
     token: z.string().min(10),
     password: z.string().min(12).max(128),
 });
+export const verifyResetCodeSchema = z.object({
+    email: z.string().email(),
+    code: z.string().length(6).regex(/^\d{6}$/, "Code must be 6 digits")
+});
+export const resetPasswordWithCodeSchema = z.object({
+    email: z.string().email(),
+    code: z.string().length(6).regex(/^\d{6}$/, "Code must be 6 digits"),
+    password: z.string().min(8, "Password must be at least 8 characters").max(128)
+});
 export const verifySchema = z.object({ token: z.string().min(10) });
 export type RegisterInput = z.infer<typeof registerSchema>;
+
 
 
 

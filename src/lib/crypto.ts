@@ -11,3 +11,9 @@ export function safeEqual(a: string, b: string) {
   if (ab.length !== bb.length) return false;
   return timingSafeEqual(ab, bb);
 }
+
+// Generate a 6-digit numeric code for password reset
+export function generateResetCode(): string {
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  return code;
+}

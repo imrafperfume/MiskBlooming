@@ -27,7 +27,8 @@ export default async function HomePage() {
     featuredProductsRaw,
     systemSettings,
     promotionsRaw,
-    categoriesRaw
+    categoriesRaw,
+    seasonalProductsRaw
   ] = await Promise.all([
     prisma.homePageContent.findFirst({
       where: { id: "HOME_PAGE" },
@@ -55,7 +56,17 @@ export default async function HomePage() {
     prisma.promotion.findMany({
       where: { status: "ACTIVE", isActive: true }
     }),
-    prisma.category.findMany()
+    prisma.category.findMany(),
+    prisma.product.findMany({
+      where: {
+        category: "Seasonal",
+        status: "active",
+      },
+      take: 8,
+      include: {
+        images: true,
+      },
+    })
   ]);
 
   // Fallbacks if data is missing
@@ -66,6 +77,7 @@ export default async function HomePage() {
   const featuredProducts = JSON.parse(JSON.stringify(featuredProductsRaw));
   const promotions = JSON.parse(JSON.stringify(promotionsRaw));
   const categories = JSON.parse(JSON.stringify(categoriesRaw));
+  const seasonalProducts = JSON.parse(JSON.stringify(seasonalProductsRaw));
 
   return (
     <div className="overflow-hidden bg-background">
@@ -102,6 +114,7 @@ export default async function HomePage() {
           title={content.seasonTitle}
           subtitle={content.seasonSubtitle}
           description={content.seasonDesc}
+          products={seasonalProducts}
         />
       </LazyWrapper>
 

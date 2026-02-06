@@ -104,10 +104,6 @@ const InSeason = ({ title, subtitle, description, products = [] }: InSeasonProps
                 <h3 className="font-cormorant text-lg font-semibold text-foreground  mb-2 group-hover:text-primary  transition-colors">
                   {item.name}
                 </h3>
-
-                <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
-                  {item.description}
-                </p>
               </div>
             </motion.div>
           ))}
