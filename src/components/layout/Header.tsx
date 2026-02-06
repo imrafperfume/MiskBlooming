@@ -142,16 +142,20 @@ const Header = () => {
     () => (
       <Link
         href="/"
-        className="relative w-40 h-14 lg:w-48 lg:h-24 md:w-40 md:h-20 text-xl font-cormorant font-bold text-secondary"
+        className="relative w-40 h-14 lg:w-48 lg:h-24 md:w-40 md:h-20 text-xl font-cormorant font-bold text-secondary flex items-center justify-center"
       >
-        <Image
-          src={storeSettings?.getStoreSettings?.logoUrl || "/images/logo.jpg"}
-          alt={storeSettings?.getStoreSettings?.storeName || "Miskblooming"}
-          fill
-          priority
-          style={{ objectFit: "contain" }}
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        />
+        {storeSettings?.getStoreSettings?.logoUrl ? (
+          <Image
+            src={storeSettings.getStoreSettings.logoUrl}
+            alt={storeSettings.getStoreSettings.storeName || "Store Logo"}
+            fill
+            priority
+            style={{ objectFit: "contain" }}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        ) : (
+          <span className="text-2xl font-bold">{storeSettings?.getStoreSettings?.storeName}</span>
+        )}
       </Link>
     ),
     [storeSettings]
@@ -397,7 +401,7 @@ const Header = () => {
             <form onSubmit={handleSearch} className="relative w-full">
               <input
                 type="text"
-                placeholder="Search flowers, chocolates, cakes, gifts..."
+                placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-6 py-2 pl-12 pr-4 border border-border rounded-full focus:ring-2 focus:ring-primary focus:border-transparent focus:outline-none transition-all duration-300 bg-background/80 backdrop-blur-sm"
@@ -409,16 +413,19 @@ const Header = () => {
           {/* Right Side - Same as yours */}
           <div className="flex px-4 py-2 sm:shadow-none sm:border-none border-t border-border shadow-[0_-2px_4px_rgba(0,0,0,0.1)] sm:py-0 sm:px-0 sm:relative bg-background fixed bottom-0 left-0 sm:w-auto w-full items-center md:space-x-4 lg:space-x-4 gap-4 sm:gap-0 sm:justify-end justify-between mt-4 sm:mt-0">
             {/* Delivery Location - Same as yours */}
-            {/* <div className="hidden lg:flex items-center text-sm">
-              <MapPin className="w-4 h-4 mr-1 text-primary " />
-              <span className="">Deliver To</span>
-              <Button
-                variant="ghost"
-                className="flex items-center -ml-2 luxury-text text-primary font-medium hover:text-primary transition-colors"
-              >
-                Dubai <ChevronDown className="w-4 h-4 ml-1" />
-              </Button>
-            </div> */}
+            {/* Delivery Location */}
+            {user?.address && (
+              <div className="hidden lg:flex items-center text-sm">
+                <MapPin className="w-4 h-4 mr-1 text-primary " />
+                <span className="">Deliver To</span>
+                <Button
+                  variant="ghost"
+                  className="flex items-center -ml-2 luxury-text text-primary font-medium hover:text-primary transition-colors"
+                >
+                  {user.address} <ChevronDown className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+            )}
 
             {/* Mobile Bottom Navigation Bar */}
             <div className="sm:hidden flex items-center justify-around shadow-[0_-2px_6px_rgba(0,0,0,0.1)] w-full absolute bottom-0 left-0 right-0 bg-background border-t border-border  py-2">
@@ -711,7 +718,7 @@ const Header = () => {
               <form onSubmit={handleSearch} className="relative">
                 <input
                   type="text"
-                  placeholder="Search flowers, chocolates, cakes, gifts..."
+                  placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full px-6 py-3 pl-12 pr-4 border border-border  rounded-full focus:ring-2 focus:outline-none focus:ring-primary focus:border-transparent bg-background/80 backdrop-blur-sm"
@@ -786,13 +793,15 @@ const Header = () => {
                     </div>
                   </motion.div>
                 ))}
-                <div className="flex items-center pt-2">
-                  <MapPin className="w-4 h-4 mr-1 text-primary " />
-                  <span className="mr-1 text-sm">Deliver To</span>
-                  <button className="flex items-center luxury-text font-medium text-sm">
-                    Dubai <ChevronDown className="w-4 h-4 ml-1" />
-                  </button>
-                </div>
+                {user?.address && (
+                  <div className="flex items-center pt-2">
+                    <MapPin className="w-4 h-4 mr-1 text-primary " />
+                    <span className="mr-1 text-sm">Deliver To</span>
+                    <button className="flex items-center luxury-text font-medium text-sm">
+                      {user.address} <ChevronDown className="w-4 h-4 ml-1" />
+                    </button>
+                  </div>
+                )}
               </div>
             </motion.nav>
           )}

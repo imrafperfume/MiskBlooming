@@ -32,7 +32,7 @@ type AboutContentFormData = {
   storyImage?: string;
   // We'll manage complex lists as simpler fields for now or just standard JSON
   stats: { number: string; label: string }[];
-  values: { title: string; description: string }[];
+  values: { title: string; description: string; icon: string }[];
   team: { name: string; role: string; description: string; image: string }[];
 };
 
@@ -122,18 +122,18 @@ export default function AboutSection() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             <ContentSection title="Hero Section">
               <div className="col-span-1 md:col-span-2 space-y-4">
-                 <Controller
-                    control={control}
-                    name="heroImage"
-                    render={({ field }) => (
-                      <ImageUploadField
-                        label="Hero Banner Image"
-                        value={field.value}
-                        onChange={field.onChange}
-                        folder="misk-blooming/about"
-                      />
-                    )}
-                  />
+                <Controller
+                  control={control}
+                  name="heroImage"
+                  render={({ field }) => (
+                    <ImageUploadField
+                      label="Hero Banner Image"
+                      value={field.value}
+                      onChange={field.onChange}
+                      folder="misk-blooming/about"
+                    />
+                  )}
+                />
               </div>
               <Input
                 {...register("heroTitle")}
@@ -148,19 +148,19 @@ export default function AboutSection() {
             </ContentSection>
 
             <ContentSection title="Our Story">
-               <div className="col-span-1 border-r border-border pr-4">
-                 <Controller
-                    control={control}
-                    name="storyImage"
-                    render={({ field }) => (
-                      <ImageUploadField
-                        label="Story Image"
-                        value={field.value}
-                        onChange={field.onChange}
-                        folder="misk-blooming/about"
-                      />
-                    )}
-                  />
+              <div className="col-span-1 border-r border-border pr-4">
+                <Controller
+                  control={control}
+                  name="storyImage"
+                  render={({ field }) => (
+                    <ImageUploadField
+                      label="Story Image"
+                      value={field.value}
+                      onChange={field.onChange}
+                      folder="misk-blooming/about"
+                    />
+                  )}
+                />
               </div>
               <div className="col-span-1 space-y-4">
                 <Input
@@ -168,19 +168,19 @@ export default function AboutSection() {
                   placeholder="Story Title"
                   disabled={saving}
                 />
-                 <Input
+                <Input
                   {...register("storyDesc1")}
                   placeholder="Paragraph 1"
                   disabled={saving}
                 />
-                 <Input
+                <Input
                   {...register("storyDesc2")}
                   placeholder="Paragraph 2"
                   disabled={saving}
                 />
               </div>
             </ContentSection>
-            
+
             <ContentSection title="Key Statistics">
               <div className="col-span-1 md:col-span-2">
                 <Controller
@@ -213,6 +213,7 @@ export default function AboutSection() {
                       items={field.value || []}
                       onUpdate={field.onChange}
                       fields={[
+                        { name: "icon", label: "Icon (Heart, Truck, Award, Leaf, Gift)", type: "text" },
                         { name: "title", label: "Title", type: "text" },
                         { name: "description", label: "Description", type: "textarea" },
                       ]}

@@ -59,7 +59,26 @@ export const ManagementResolvers = {
           return cache;
         }
         const content = await prisma.homePageContent.findFirst();
-        if (!content) return "Home page content not found";
+        if (!content) return {
+          id: "HOME_PAGE",
+          heroSlides: [],
+          stats: [],
+          testimonials: [],
+          categoryTitle: "",
+          categoryDesc: "",
+          featureTitle: "",
+          featureSubtitle: "",
+          featureDesc: "",
+          seasonTitle: "",
+          seasonSubtitle: "",
+          seasonDesc: "",
+          excellenceTitle: "",
+          excellenceSubtitle: "",
+          testimonialTitle: "",
+          testimonialDesc: "",
+          newsletterTitle: "",
+          newsletterDesc: "",
+        };
         await redis.set(CACHE_KEY, JSON.stringify(content), {
           ex: 60 * 60,
         }); // 1 hour
@@ -119,9 +138,11 @@ export const ManagementResolvers = {
         if (cache) return cache;
         const content = await (prisma as any).contactPageContent.findFirst();
         if (!content) return {
-          id: "null",
+          id: "CONTACT_PAGE",
           heroTitle: "Contact Us",
           heroDesc: "Get in touch",
+          heroImage: null,
+          mapEmbedUrl: "",
           contactInfo: []
         };
         await redis.set("contact_page_content", JSON.stringify(content), { ex: 3600 });

@@ -11,49 +11,14 @@ interface InSeasonProps {
   title?: string;
   subtitle?: string;
   description?: string;
+  products: any[];
 }
 
-const InSeason = ({ title, subtitle, description }: InSeasonProps) => {
+const InSeason = ({ title, subtitle, description, products = [] }: InSeasonProps) => {
   const [hoveredItem, setHoveredItem] = useState<number | null>(null);
 
-  const seasonalItems = [
-    {
-      id: 1,
-      name: "Spring Tulip Bouquet",
-      description: "Fresh tulips in vibrant spring colors",
-      image: "/images/occasions/Congratulations.jpg",
-      category: "Seasonal Flowers",
-      badge: "Limited Time",
-    },
-    {
-      id: 2,
-      name: "Mother's Day Special",
-      description: "Strawberry vanilla cake with fresh berries",
-      price: 250,
-      image: "/images/occasions/mothersday.jpg",
-      category: "Fresh Flowers & Cakes",
-      badge: "Pre-Order",
-    },
-    {
-      id: 3,
-      name: "Birthday special gift set",
-      description: "Collection of flowering plants for spring",
-      price: 280,
-      originalPrice: 320,
-      image: "/images/occasions/birthday.jpg",
-      category: "Birthday Gifts",
-      badge: "New Arrival",
-    },
-    {
-      id: 4,
-      name: "Anniversary Easter Chocolates",
-      description: "Artisanal chocolates in Easter themes",
-      price: 150,
-      image: "/images/occasions/Anniversary.jpg",
-      category: "Aniversary & Chocolates",
-      badge: "Seasonal",
-    },
-  ];
+  // Use products prop instead of static data
+  const seasonalItems = products;
 
   return (
     <section className="py-24 bg-background">
@@ -100,7 +65,7 @@ const InSeason = ({ title, subtitle, description }: InSeasonProps) => {
             >
               <div className="relative aspect-square overflow-hidden">
                 <Image
-                  src={item.image || "/placeholder.svg"}
+                  src={item.images?.[0]?.url || item.image || "/placeholder.svg"}
                   alt={item.name}
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -110,7 +75,7 @@ const InSeason = ({ title, subtitle, description }: InSeasonProps) => {
                 {/* Badge */}
                 <div className="absolute top-4 left-4">
                   <span className="bg-primary text-foreground  px-3 py-1 rounded-full text-sm font-bold">
-                    {item.badge}
+                    {item.badge || item.tags?.[0] || "Seasonal"}
                   </span>
                 </div>
 
