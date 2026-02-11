@@ -73,17 +73,8 @@ const HeroSlider = ({ slides = [], layout = "full" }: { slides?: any[], layout?:
         }
 
         // Fallback if API fails or is empty
-        const defaultSlide: NormalizedHeroSlide = {
-          id: "default-hero",
-          title: "Welcome to Misk Blooming",
-          subtitle: "Luxury Floral Arrangements",
-          description: "Experience the elegance of our hand-crafted bouquets designed for every occasion.",
-          imageUrl: "/luxury-flower-shop.png",
-          buttons: [{ text: "Shop Collection", link: "/products" }],
-          published: true,
-          order: 0
-        };
-        setHeroSlides([defaultSlide]);
+        // User requested NO default data. If empty, show nothing.
+        setHeroSlides([]);
         setIsLoading(false);
       };
 

@@ -4,6 +4,7 @@ import { Cormorant_Garamond, Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { QueryProvider } from "../providers/QueryProvider";
 import { Toaster } from "sonner";
+import { prisma } from "../lib/db";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -37,16 +38,41 @@ const playfair = Playfair_Display({
   adjustFontFallback: true,
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://www.miskblooming.com"),
-  title: {
-    default: "MiskBlooming - Luxury Flowers & Exquisite Gifts",
-    template: "%s | MiskBlooming",
-  },
-  description: `Order Premium flowers & chocolates. Same Day delivery in Dubai with Misk Blooming.
-Fresh blooms, gourmet chocolates, elegant packaging & same-day delivery across UAE.
-Perfect for every occasion`,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await prisma.storeSettings.findFirst();
+
+  // Strict "No Demo Data" policy:
+  // If settings exist, use them.
+  // If not, fallback to empty strings.
+  const title = settings?.storeName || "";
+  const description = settings?.description || "";
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
+
+  return {
+    metadataBase: new URL(baseUrl),
+    title: {
+      default: title,
+      template: `%s | ${title}`,
+    },
+    description: description,
+    alternates: {
+      canonical: "/",
+      languages: {
+        "en-AE": "/en-ae",
+        "ar-AE": "/ar",
+      },
+    },
+    openGraph: {
+      title: title,
+      description: description,
+      url: baseUrl,
+      siteName: title,
+      locale: "en_AE",
+      type: "website",
+    },
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -78,33 +104,6 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-
-        {/* Preload critical images */}
-        <link rel="preload" href="/og-image.jpg" as="image" type="image/jpeg" />
-        <link
-          rel="preload"
-          href="/twitter-image.jpg"
-          as="image"
-          type="image/jpeg"
-        />
-
-        {/* newley added */}
-        <link
-          rel="alternate"
-          href="https://www.miskblooming.com/"
-          hrefLang="en-ae"
-        />
-        <link
-          rel="alternate"
-          href="https://www.miskblooming.com/ar/"
-          hrefLang="ar-ae"
-        />
-        <link
-          rel="alternate"
-          href="https://www.miskblooming.com/"
-          hrefLang="x-default"
-        />
-        <link rel="canonical" href="https://www.miskblooming.com/" />
       </head>
 
       <body

@@ -118,6 +118,7 @@ export const ManagementTypeDefs = gql`
     heroTitle: String!
     heroDesc: String!
     heroImage: String
+    mapEmbedUrl: String
     contactInfo: JSON!
   }
 
@@ -125,6 +126,7 @@ export const ManagementTypeDefs = gql`
     heroTitle: String!
     heroDesc: String!
     heroImage: String
+    mapEmbedUrl: String
     contactInfo: JSON!
   }
 

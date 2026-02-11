@@ -25,6 +25,7 @@ type ContactContentFormData = {
   heroTitle: string;
   heroDesc: string;
   heroImage?: string;
+  mapEmbedUrl?: string; // Google Maps Embed URL
   contactInfo: { title: string; details: string[] | string; description: string }[];
 };
 
@@ -65,7 +66,7 @@ export default function ContactSection() {
   const onSubmit: SubmitHandler<ContactContentFormData> = async (formData) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, __typename, ...cleanedData } = formData as any;
-    
+
     const input = {
       ...cleanedData,
       contactInfo: formData.contactInfo || [],
@@ -111,18 +112,18 @@ export default function ContactSection() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
             <ContentSection title="Hero Section">
               <div className="col-span-1 md:col-span-2 space-y-4">
-                 <Controller
-                    control={control}
-                    name="heroImage"
-                    render={({ field }) => (
-                      <ImageUploadField
-                        label="Hero Banner Image"
-                        value={field.value}
-                        onChange={field.onChange}
-                        folder="misk-blooming/contact"
-                      />
-                    )}
-                  />
+                <Controller
+                  control={control}
+                  name="heroImage"
+                  render={({ field }) => (
+                    <ImageUploadField
+                      label="Hero Banner Image"
+                      value={field.value}
+                      onChange={field.onChange}
+                      folder="misk-blooming/contact"
+                    />
+                  )}
+                />
               </div>
               <Input
                 {...register("heroTitle")}
@@ -167,14 +168,25 @@ export default function ContactSection() {
                         )
                       }
                       fields={[
-                         { name: "title", label: "Title (Phone, Email, etc.)", type: "text" },
-                         { name: "details", label: "Details (One per line)", type: "textarea" },
-                         { name: "description", label: "Description", type: "text" },
+                        { name: "title", label: "Title (Phone, Email, etc.)", type: "text" },
+                        { name: "details", label: "Details (One per line)", type: "textarea" },
+                        { name: "description", label: "Description", type: "text" },
                       ]}
                       description="Manage contact methods and details."
                     />
                   )}
                 />
+              </div>
+              <div className="col-span-1 md:col-span-2 mt-4">
+                <Input
+                  {...register("mapEmbedUrl")}
+                  label="Google Maps Embed URL (src attribute only)"
+                  placeholder="https://www.google.com/maps/embed?..."
+                  disabled={saving}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Paste the "src" URL from the Google Maps "Embed a map" code.
+                </p>
               </div>
             </ContentSection>
 

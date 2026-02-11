@@ -19,23 +19,6 @@ const SectionLoader = ({ height = "h-96" }: { height?: string }) => (
   />
 );
 
-// --- Static Data ---
-const STATS_DATA = [
-  { number: "1,000+", label: "Distinguished Clients" },
-  { number: "10,000+", label: "Luxury Arrangements" },
-  { number: "5", label: "Years of Excellence" },
-  { number: "99.9%", label: "Satisfaction Rate" },
-];
-
-export const metadata: Metadata = {
-  title: "Misk Blooming | Luxury Floral Arrangements in Dubai",
-  description: "Experience the elegance of our hand-crafted bouquets designed for every occasion. Premier flower delivery in Dubai and UAE.",
-  openGraph: {
-    title: "Misk Blooming | Luxury Floral Arrangements",
-    description: "Premier flower delivery in Dubai and UAE.",
-    type: 'website',
-  }
-};
 
 export default async function HomePage() {
   // --- Data Fetching ---
@@ -44,7 +27,8 @@ export default async function HomePage() {
     featuredProductsRaw,
     systemSettings,
     promotionsRaw,
-    categoriesRaw
+    categoriesRaw,
+    seasonalProductsRaw
   ] = await Promise.all([
     prisma.homePageContent.findFirst({
       where: { id: "HOME_PAGE" },
@@ -72,7 +56,17 @@ export default async function HomePage() {
     prisma.promotion.findMany({
       where: { status: "ACTIVE", isActive: true }
     }),
-    prisma.category.findMany()
+    prisma.category.findMany(),
+    prisma.product.findMany({
+      where: {
+        category: "Seasonal",
+        status: "active",
+      },
+      take: 8,
+      include: {
+        images: true,
+      },
+    })
   ]);
 
   // Fallbacks if data is missing
@@ -83,6 +77,7 @@ export default async function HomePage() {
   const featuredProducts = JSON.parse(JSON.stringify(featuredProductsRaw));
   const promotions = JSON.parse(JSON.stringify(promotionsRaw));
   const categories = JSON.parse(JSON.stringify(categoriesRaw));
+  const seasonalProducts = JSON.parse(JSON.stringify(seasonalProductsRaw));
 
   return (
     <div className="overflow-hidden bg-background">
@@ -119,6 +114,7 @@ export default async function HomePage() {
           title={content.seasonTitle}
           subtitle={content.seasonSubtitle}
           description={content.seasonDesc}
+          products={seasonalProducts}
         />
       </LazyWrapper>
 
@@ -134,21 +130,21 @@ export default async function HomePage() {
               className="font-cormorant flex flex-col items-center justify-center text-foreground"
             >
               <span className="block text-xl font-medium mb-3 opacity-80">
-                {content.excellenceTitle || "Our Excellence"}
+                {content.excellenceTitle}
               </span>
               <span className="text-display-md font-bold text-charcoal-900 leading-none">
-                {content.excellenceSubtitle || "By The Numbers"}
+                {content.excellenceSubtitle}
               </span>
             </h2>
           </div>
 
           <dl className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-0">
-            {((content.stats as any) || STATS_DATA).map((s: any, i: number) => (
+            {(content.stats as any)?.map((s: any, i: number) => (
               <div
                 key={i}
                 className={`
                   flex flex-col items-center justify-center text-center p-4
-                  ${i !== STATS_DATA.length - 1
+                  ${i !== ((content.stats as any)?.length || 0) - 1
                     ? "lg:border-r border-charcoal-900/10"
                     : ""
                   }
