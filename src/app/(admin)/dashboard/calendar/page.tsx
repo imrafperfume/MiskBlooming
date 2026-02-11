@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Calendar,
@@ -19,8 +19,21 @@ import { Button } from "../../../../components/ui/button";
 import { Input } from "../../../../components/ui/input";
 
 export default function CalendarPage() {
+  const [mounted, setMounted] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<"month" | "week" | "day">("month");
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Calendar className="w-8 h-8 text-primary animate-pulse" />
+      </div>
+    );
+  }
 
   const events = [
     {

@@ -1,5 +1,6 @@
 
 import { prisma } from "@/src/lib/db";
+export const dynamic = "force-dynamic";
 import { Metadata } from "next";
 import ContactClient from "./ContactClient";
 

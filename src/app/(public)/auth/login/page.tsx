@@ -15,6 +15,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 function LoginFormWrapper() {
+  const [mounted, setMounted] = useState(false);
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [showPassword, setShowPassword] = useState(false);
@@ -22,11 +23,21 @@ function LoginFormWrapper() {
   const router = useRouter();
   const [csrf, setCsrf] = useState("");
   const queryClient = useQueryClient();
+
   useEffect(() => {
+    setMounted(true);
     fetch("/api/auth/csrf", { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => setCsrf(d));
   }, []);
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const {
     register,
