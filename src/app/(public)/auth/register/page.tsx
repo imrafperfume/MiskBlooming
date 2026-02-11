@@ -13,16 +13,27 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
+  const [mounted, setMounted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [csrf, setCsrf] = useState("");
   const router = useRouter();
+
   useEffect(() => {
+    setMounted(true);
     fetch("/api/auth/csrf", { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => setCsrf(d));
   }, []);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
   const {
     register,
     handleSubmit,
@@ -112,9 +123,8 @@ export default function RegisterPage() {
                     <input
                       {...register("firstName")}
                       type="text"
-                      className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${
-                        errors.firstName ? "border-red-500" : "border-border "
-                      }`}
+                      className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${errors.firstName ? "border-red-500" : "border-border "
+                        }`}
                       placeholder="First name"
                     />
                   </div>
@@ -135,9 +145,8 @@ export default function RegisterPage() {
                   <input
                     {...register("lastName")}
                     type="text"
-                    className={`block w-full px-3 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${
-                      errors.lastName ? "border-red-500" : "border-border "
-                    }`}
+                    className={`block w-full px-3 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${errors.lastName ? "border-red-500" : "border-border "
+                      }`}
                     placeholder="Last name"
                   />
                   {errors.lastName && (
@@ -163,9 +172,8 @@ export default function RegisterPage() {
                   <input
                     {...register("email")}
                     type="email"
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${
-                      errors.email ? "border-red-500" : "border-border "
-                    }`}
+                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${errors.email ? "border-red-500" : "border-border "
+                      }`}
                     placeholder="Enter your email"
                   />
                 </div>
@@ -191,9 +199,8 @@ export default function RegisterPage() {
                   <input
                     {...register("phoneNumber")}
                     type="tel"
-                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${
-                      errors.phoneNumber ? "border-red-500" : "border-border "
-                    }`}
+                    className={`block w-full pl-10 pr-3 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${errors.phoneNumber ? "border-red-500" : "border-border "
+                      }`}
                     placeholder="+971 50 123 4567"
                   />
                 </div>
@@ -219,9 +226,8 @@ export default function RegisterPage() {
                   <input
                     {...register("password")}
                     type={showPassword ? "text" : "password"}
-                    className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${
-                      errors.password ? "border-red-500" : "border-border "
-                    }`}
+                    className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${errors.password ? "border-red-500" : "border-border "
+                      }`}
                     placeholder="Create a password"
                   />
                   <button
@@ -258,11 +264,10 @@ export default function RegisterPage() {
                   <input
                     {...register("confirmPassword")}
                     type={showConfirmPassword ? "text" : "password"}
-                    className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${
-                      errors.confirmPassword
+                    className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${errors.confirmPassword
                         ? "border-red-500"
                         : "border-border "
-                    }`}
+                      }`}
                     placeholder="Confirm your password"
                   />
                   <button

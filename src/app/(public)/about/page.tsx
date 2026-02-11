@@ -1,5 +1,6 @@
 
 import { prisma } from "../../../lib/db";
+export const dynamic = "force-dynamic";
 import { Metadata } from "next";
 import AboutClient from "./AboutClient";
 

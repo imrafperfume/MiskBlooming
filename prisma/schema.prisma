@@ -1,315 +1,573 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl", "linux-musl-openssl-3.0.x"]
+}
+
 datasource db {
   provider = "postgresql"
-
 }
 
-generator client {
-  provider        = "prisma-client-js"
-  binaryTargets   = ["native", "linux-musl", "linux-musl-openssl-3.0.x"]
-  
-}
-
-// Source: category.prisma
 model Category {
-    id            String        @id @default(cuid())
-    name          String        @unique
-    description   String?
-    imageUrl      String?
-    subcategories SubCategory[]
-    createdAt     DateTime      @default(now())
-    updatedAt     DateTime      @updatedAt
+  id            String        @id @default(cuid())
+  name          String        @unique
+  description   String?
+  imageUrl      String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  subcategories SubCategory[]
 }
 
 model SubCategory {
-    id         String   @id @default(cuid())
-    name       String
-    categoryId String
-    category   Category @relation(fields: [categoryId], references: [id])
-    createdAt  DateTime @default(now())
-    updatedAt  DateTime @updatedAt
+  id         String   @id @default(cuid())
+  name       String
+  categoryId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  category   Category @relation(fields: [categoryId], references: [id])
 
-    @@unique([name, categoryId])
+  @@unique([name, categoryId])
 }
 
-
-// Source: contentManagement.prisma
 model HomePageContent {
-    id                 String   @id @default("HOME_PAGE")
-    categoryTitle      String
-    categoryDesc       String
-    featureTitle       String
-    featureSubtitle    String
-    featureDesc        String
-    seasonTitle        String
-    seasonSubtitle     String
-    seasonDesc         String
-    excellenceTitle    String
-    excellenceSubtitle String
-    testimonialTitle   String
-    testimonialDesc    String
-    newsletterTitle    String
+  id                 String   @id @default("HOME_PAGE")
+  categoryTitle      String
+  categoryDesc       String
+  featureTitle       String
+  featureSubtitle    String
+  featureDesc        String
+  seasonTitle        String
+  seasonSubtitle     String
+  seasonDesc         String
+  excellenceTitle    String
+  excellenceSubtitle String
+  testimonialTitle   String
+  testimonialDesc    String
+  newsletterTitle    String
+  newsletterDesc     String
+  heroSlides         Json?
+  stats              Json?
+  testimonials       Json?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
-    newsletterDesc     String
-    heroSlides         Json?    // List of { title: string, subtitle: string, image: string, link: string }
-    stats              Json?    // List of { number: string, label: string }
-    testimonials       Json?    // List of { name: string, role: string, content: string, image: string }
-    createdAt          DateTime @default(now())
-    updatedAt          DateTime @updatedAt
-
-    @@index([id])
+  @@index([id])
 }
 
 model Collection {
-    id              String   @id @default("COLLECTION")
-    collectionTitle String
-    collectionDesc  String
-    createdAt       DateTime @default(now())
-    updatedAt       DateTime @updatedAt
+  id              String   @id @default("COLLECTION")
+  collectionTitle String
+  collectionDesc  String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model AboutPageContent {
-    id          String   @id @default("ABOUT_PAGE")
-    heroTitle   String
-    heroDesc    String
-    heroImage   String?
-    storyTitle  String
-    storyDesc1  String
-    storyDesc2  String
-    storyImage  String?
-    stats       Json     // List of { number: string, label: string }
-    values      Json     // List of { title: string, description: string, icon: string }
-    team        Json     // List of { name: string, role: string, description: string, image: string }
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id         String   @id @default("ABOUT_PAGE")
+  heroTitle  String
+  heroDesc   String
+  heroImage  String?
+  storyTitle String
+  storyDesc1 String
+  storyDesc2 String
+  storyImage String?
+  stats      Json
+  values     Json
+  team       Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model ContactPageContent {
-    id          String   @id @default("CONTACT_PAGE")
-    heroTitle   String
-    heroDesc    String
-    heroImage   String?
-    mapEmbedUrl String?  @default("")
-    contactInfo Json     // List of { title: string, details: string[], description: string }
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+  id          String   @id @default("CONTACT_PAGE")
+  heroTitle   String
+  heroDesc    String
+  heroImage   String?
+  contactInfo Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  mapEmbedUrl String?  @default("")
 }
 
 model FooterContent {
-    id              String   @id @default("FOOTER")
-    brandDesc       String   @default("Dubai's premier flower and gift delivery service.")
-    
-    // Contact
-    phone           String   @default("+971 4 123 4567")
-    email           String   @default("info@miskblooming.ae")
-    address         String   @default("Dubai Marina, Dubai, UAE")
-
-    // Social
-    facebook        String?  @default("https://facebook.com/miskblooming")
-    instagram       String?  @default("https://instagram.com/miskblooming")
-    twitter         String?  @default("https://twitter.com/miskblooming")
-
-    // Newsletter
-    newsletterTitle String   @default("Stay in Bloom")
-    newsletterDesc  String   @default("Subscribe to our newsletter for exclusive offers, seasonal collections, and flower care tips.")
-
-    // Copyright
-    copyrightText   String   @default("Misk Blooming. Made in Dubai, UAE")
-
-    // Navigation Links (Stored as JSON)
-    // Structure: [ { title: "Shop", links: [{ name: "Roses", href: "..." }] }, ... ]
-    footerLinks     Json
-
-    createdAt       DateTime @default(now())
-    updatedAt       DateTime @updatedAt
+  id              String   @id @default("FOOTER")
+  brandDesc       String   @default("Dubai's premier flower and gift delivery service.")
+  phone           String   @default("+971 4 123 4567")
+  email           String   @default("info@miskblooming.ae")
+  address         String   @default("Dubai Marina, Dubai, UAE")
+  facebook        String?  @default("https://facebook.com/miskblooming")
+  instagram       String?  @default("https://instagram.com/miskblooming")
+  twitter         String?  @default("https://twitter.com/miskblooming")
+  newsletterTitle String   @default("Stay in Bloom")
+  newsletterDesc  String   @default("Subscribe to our newsletter for exclusive offers, seasonal collections, and flower care tips.")
+  copyrightText   String   @default("Misk Blooming. Made in Dubai, UAE")
+  footerLinks     Json
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
-
-// Source: coupon.prisma
 model Coupon {
-    id          String  @id @default(cuid())
-    code        String  @unique
-    name        String
-    description String?
+  id                   String        @id @default(cuid())
+  code                 String        @unique
+  name                 String
+  description          String?
+  discountType         DiscountType
+  discountValue        Float
+  minimumAmount        Float?
+  maximumDiscount      Float?
+  usageLimit           Int?
+  usageCount           Int           @default(0)
+  userUsageLimit       Int?          @default(1)
+  validFrom            DateTime
+  validUntil           DateTime
+  isActive             Boolean       @default(true)
+  applicableProducts   String[]
+  applicableCategories String[]
+  applicableUsers      String[]
+  newUsersOnly         Boolean       @default(false)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+  createdBy            String?
+  usages               CouponUsage[]
 
-    // Discount Configuration
-    discountType    DiscountType
-    discountValue   Float
-    minimumAmount   Float? // Minimum order amount to apply coupon
-    maximumDiscount Float? // Maximum discount amount (for percentage coupons)
-
-    // Usage Limits
-    usageLimit     Int? // Total usage limit (null = unlimited)
-    usageCount     Int  @default(0) // Current usage count
-    userUsageLimit Int? @default(1) // Per user usage limit
-
-    // Validity
-    validFrom  DateTime
-    validUntil DateTime
-    isActive   Boolean  @default(true)
-
-    // Product/Category Restrictions
-    applicableProducts   String[] // Product IDs that this coupon applies to (empty = all products)
-    applicableCategories String[] // Categories that this coupon applies to (empty = all categories)
-
-    // User Restrictions
-    applicableUsers String[] // User IDs that can use this coupon (empty = all users)
-    newUsersOnly    Boolean  @default(false) // Only for new users
-
-    // Metadata
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    createdBy String? // Admin user ID who created this coupon
-
-    // Relations
-    usages CouponUsage[]
-
-    @@index([code])
-    @@index([isActive])
-    @@index([validFrom, validUntil])
+  @@index([code])
+  @@index([isActive])
+  @@index([validFrom, validUntil])
 }
 
 model CouponUsage {
-    id       String @id @default(cuid())
-    couponId String
-    orderId  String @unique
-    userId   String
-    email    String
+  id             String   @id @default(cuid())
+  couponId       String
+  orderId        String   @unique
+  userId         String
+  email          String
+  discountAmount Float
+  orderAmount    Float
+  usedAt         DateTime @default(now())
+  coupon         Coupon   @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  order          Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
-    // Usage Details
-    discountAmount Float
-    orderAmount    Float
-    usedAt         DateTime @default(now())
-
-    // Relations
-    coupon Coupon @relation(fields: [couponId], references: [id], onDelete: Cascade)
-    order  Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-    @@index([couponId])
-    @@index([orderId])
-    @@index([userId])
-    @@index([email])
+  @@index([couponId])
+  @@index([orderId])
+  @@index([userId])
+  @@index([email])
 }
 
-enum DiscountType {
-    PERCENTAGE
-    FIXED_AMOUNT
-    FREE_SHIPPING
-}
-
-
-// Source: heroSlide.prisma
 model HeroSlide {
-    id          String  @id @default(cuid())
-    title       String
-    subtitle    String?
-    description String?
-    imageUrl    String
-    published   Boolean @default(false)
-    order       Int     @default(0)
-
-    // Array of buttons -> Stored as JSON
-    buttons   Json?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  title       String
+  subtitle    String?
+  description String?
+  imageUrl    String
+  published   Boolean  @default(false)
+  order       Int      @default(0)
+  buttons     Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
-
-// Source: invoice.prisma
 model Invoice {
-    id            String @id @default(cuid())
-    invoiceNumber String @unique
-    orderId       String @unique
-    order         Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-    // Invoice Details
-    issueDate DateTime      @default(now())
-    dueDate   DateTime?
-    status    InvoiceStatus @default(DRAFT)
-
-    // Financial Details
-    subtotal    Float
-    taxRate     Float @default(0.05) // 5% VAT
-    taxAmount   Float
-    discount    Float @default(0)
-    totalAmount Float
-
-    // Payment Info
-    paymentStatus PaymentStatus @default(PENDING)
-    paidAt        DateTime?
-    paymentMethod String?
-
-    // Additional Info
-    notes String?
-    terms String?
-
-    // Timestamps
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    // Relations
-    payments Payment[]
-    reports  InvoiceReport[]
+  id            String          @id @default(cuid())
+  invoiceNumber String          @unique
+  orderId       String          @unique
+  issueDate     DateTime        @default(now())
+  dueDate       DateTime?
+  status        InvoiceStatus   @default(DRAFT)
+  subtotal      Float
+  taxRate       Float           @default(0.05)
+  taxAmount     Float
+  discount      Float           @default(0)
+  totalAmount   Float
+  paymentStatus PaymentStatus   @default(PENDING)
+  paidAt        DateTime?
+  paymentMethod String?
+  notes         String?
+  terms         String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  order         Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  reports       InvoiceReport[]
+  payments      Payment[]
 }
 
 model Payment {
-    id        String  @id @default(cuid())
-    invoiceId String
-    invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-
-    amount        Float
-    paymentDate   DateTime @default(now())
-    paymentMethod String
-    reference     String?
-    notes         String?
-
-    createdAt DateTime @default(now())
+  id            String   @id @default(cuid())
+  invoiceId     String
+  amount        Float
+  paymentDate   DateTime @default(now())
+  paymentMethod String
+  reference     String?
+  notes         String?
+  createdAt     DateTime @default(now())
+  invoice       Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 }
 
 model InvoiceReport {
-    id        String  @id @default(cuid())
-    invoiceId String
-    invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  id          String     @id @default(cuid())
+  invoiceId   String
+  reportType  ReportType
+  generatedAt DateTime   @default(now())
+  data        Json
+  createdAt   DateTime   @default(now())
+  invoice     Invoice    @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+}
 
-    reportType  ReportType
-    generatedAt DateTime   @default(now())
-    data        Json // Store report data as JSON
+model MembershipCard {
+  id             String         @id @default(cuid())
+  cardNumber     String         @unique
+  cardHolderName String
+  expirationDate DateTime
+  membershipType MembershipType @default(Mmbebr)
+  issueDate      DateTime       @default(now())
+  userId         String         @unique
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-    createdAt DateTime @default(now())
+model Notification {
+  id        String   @id @default(cuid())
+  type      String
+  message   String
+  orderId   String   @default("")
+  createdAt DateTime @default(now())
+  read      Boolean  @default(false)
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String   @unique
+  keys      Json
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id                  String        @id @default(cuid())
+  userId              String?
+  firstName           String
+  lastName            String
+  email               String
+  phone               String
+  address             String
+  city                String
+  emirate             String
+  postalCode          String?
+  paymentMethod       PaymentMethod
+  paymentStatus       PaymentStatus @default(PENDING)
+  stripePaymentId     String?
+  cardLast4           String?
+  deliveryType        DeliveryType
+  deliveryDate        DateTime?
+  deliveryTime        String?
+  deliveryCost        Float         @default(0)
+  specialInstructions String?
+  codFee              Float         @default(0)
+  vatAmount           Float         @default(0)
+  discount            Float         @default(0)
+  hasGiftCard         Boolean       @default(false)
+  giftCardFee         Float         @default(0)
+  giftRecipient       String?
+  giftSender          String?
+  giftMessage         String?
+  giftCardSize        String?
+  giftCardTheme       String?
+  status              OrderStatus   @default(PENDING)
+  totalAmount         Float
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  couponUsage         CouponUsage?
+  invoice             Invoice?
+  user                User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items               OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  quantity  Int     @default(1)
+  price     Float
+  size      String?
+  color     String?
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model PaymentSetting {
+  id            String   @id @default(cuid())
+  stripeEnabled Boolean  @default(false)
+  codEnabled    Boolean  @default(false)
+  updatedAt     DateTime @updatedAt
+
+  @@index([id])
+}
+
+model Product {
+  id                    String            @unique @default(uuid())
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  name                  String
+  slug                  String            @unique
+  description           String
+  shortDescription      String
+  category              String
+  subcategory           String
+  tags                  String[]
+  price                 Float
+  compareAtPrice        Float
+  costPerItem           Float
+  sku                   String?           @unique
+  barcode               String?
+  trackQuantity         Boolean           @default(false)
+  quantity              Int
+  lowStockThreshold     Int
+  requiresShipping      Boolean           @default(false)
+  featuredImage         Int
+  seoTitle              String
+  seoDescription        String
+  seoKeywords           String[]
+  status                ProductStatus     @default(draft)
+  featured              Boolean           @default(false)
+  deliveryZones         String[]
+  deliveryTime          String
+  freeDeliveryThreshold Float
+  giftWrapping          Boolean           @default(false)
+  personalization       Boolean           @default(false)
+  careInstructions      String?
+  occasions             String[]
+  hasVariants           Boolean           @default(false)
+  images                CloudinaryImage[]
+  OrderItem             OrderItem[]
+  dimensions            ProductDimension?
+  Review                Review[]
+  SalesItem             SalesItem[]
+  variantOptions        VariantOption[]
+
+  @@index([category])
+  @@index([status])
+  @@index([price])
+  @@index([id])
+  @@index([slug])
+}
+
+model VariantOption {
+  id        String   @id @default(uuid())
+  name      String
+  values    String[]
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductDimension {
+  id        String   @id @default(uuid())
+  weight    Float    @default(0)
+  length    Float
+  width     Float
+  height    Float
+  productId String?  @unique
+  product   Product? @relation(fields: [productId], references: [id])
+}
+
+model CloudinaryImage {
+  id        String   @id @default(uuid())
+  url       String
+  publicId  String
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  rating    Int
+  comment   String?
+  createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([productId])
+}
+
+model Promotion {
+  id            String        @id @default(uuid())
+  name          String
+  discountType  DISCOUNT_TYPE
+  discountValue Float
+  startDate     DateTime
+  endDate       DateTime
+  isActive      Boolean       @default(true)
+  imageUrl      String
+  scope         SCOPE
+  promoCode     String        @unique
+  status        status        @default(ACTIVE)
+  categories    String[]
+  products      String[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Sales {
+  id            String             @id @default(uuid())
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  subtotal      Float
+  grandTotal    Float
+  vat           Float
+  discount      Float
+  paymentMethod SalesPaymentMethod
+  giftCard      Boolean            @default(false)
+  CashRecived   Float?
+  orderItems    SalesItem[]
+}
+
+model SalesItem {
+  id        String  @id @default(uuid())
+  salesId   String
+  productId String
+  quantity  Int
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sales     Sales   @relation(fields: [salesId], references: [id], onDelete: Cascade)
+
+  @@index([salesId])
+  @@index([productId])
+}
+
+model StoreSettings {
+  id                    String         @id @default(uuid())
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  storeName             String
+  description           String?
+  logoUrl               String?
+  supportEmail          String
+  phoneNumber           String
+  currency              String         @default("AED")
+  timezone              String         @default("GST")
+  address               String
+  vatRate               Decimal        @default(5.00) @db.Decimal(5, 2)
+  deliveryMethod        DeliveryMethod @default(flat)
+  deliveryFlatRate      Decimal        @default(15.00) @db.Decimal(10, 2)
+  freeShippingThreshold Decimal?       @db.Decimal(10, 2)
+  deliveryEmirates      Json?
+  isExpressEnabled      Boolean        @default(false)
+  expressDeliveryFee    Decimal        @default(30.00) @db.Decimal(10, 2)
+  isScheduledEnabled    Boolean        @default(false)
+  scheduledDeliveryFee  Decimal        @default(0.00) @db.Decimal(10, 2)
+  codFee                Decimal        @default(10.00) @db.Decimal(10, 2)
+  isGiftCardEnabled     Boolean        @default(false)
+  giftCardFee           Decimal        @default(5.00) @db.Decimal(10, 2)
+  facebook              String?
+  instagram             String?
+  twitter               String?
+}
+
+model ThemeSetting {
+  id          String   @id @default(cuid())
+  theme       String   @default("light")
+  layoutStyle String   @default("fullscreen")
+  updatedAt   DateTime @updatedAt
+}
+
+model User {
+  id                     String                   @id @default(cuid())
+  firstName              String
+  lastName               String
+  phoneNumber            String
+  email                  String                   @unique
+  emailVerified          Boolean                  @default(false)
+  passwordHash           String
+  role                   Role                     @default(USER)
+  isGuest                Boolean                  @default(false)
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @default(now())
+  status                 Status                   @default(NEW)
+  address                String?
+  EmailVerificationToken EmailVerificationToken[]
+  membershipCard         MembershipCard?
+  Order                  Order[]
+  PasswordResetToken     PasswordResetToken[]
+  Review                 Review[]
+  sessions               Session[]
+}
+
+model Session {
+  id            String   @id @default(cuid())
+  userId        String
+  tokenHash     String   @unique
+  createdAt     DateTime @default(now())
+  expiresAt     DateTime
+  lastRotatedAt DateTime @default(now())
+  ip            String?
+  userAgent     String?
+  revoked       Boolean  @default(false)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+  resetCode String?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([resetCode])
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_SHIPPING
 }
 
 enum InvoiceStatus {
-    DRAFT
-    SENT
-    PAID
-    OVERDUE
-    CANCELLED
+  DRAFT
+  SENT
+  PAID
+  OVERDUE
+  CANCELLED
 }
 
 enum ReportType {
-    SALES_SUMMARY
-    PAYMENT_ANALYSIS
-    CUSTOMER_ANALYSIS
-    PRODUCT_PERFORMANCE
-    MONTHLY_REVENUE
-    QUARTERLY_REPORT
-    YEARLY_REPORT
-}
-
-
-// Source: membershipCard.prisma
-model MembershipCard {
-  id              String   @id @default(cuid())
-  cardNumber      String   @unique
-  cardHolderName  String
-  expirationDate  DateTime
-  membershipType  MembershipType @default(Mmbebr)
-  issueDate       DateTime @default(now())
-  
-  userId          String   @unique
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  SALES_SUMMARY
+  PAYMENT_ANALYSIS
+  CUSTOMER_ANALYSIS
+  PRODUCT_PERFORMANCE
+  MONTHLY_REVENUE
+  QUARTERLY_REPORT
+  YEARLY_REPORT
 }
 
 enum MembershipType {
@@ -320,482 +578,73 @@ enum MembershipType {
   PLATINUM
 }
 
-
-// Source: notification.prisma
-model Notification {
-    id        String   @id @default(cuid())
-    type      String
-    message   String
-    orderId   String   @default("")
-    createdAt DateTime @default(now())
-    read      Boolean  @default(false)
-}
-
-model PushSubscription {
-    id        String   @id @default(cuid())
-    endpoint  String   @unique
-    keys      Json
-    createdAt DateTime @default(now())
-}
-
-
-// Source: order.prisma
-model Order {
-    id          String       @id @default(cuid())
-    userId      String?
-    user        User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
-    items       OrderItem[]
-    invoice     Invoice? // One-to-one relation with invoice
-    couponUsage CouponUsage? // Coupon used for this order
-
-    // Customer Info
-    firstName String
-    lastName  String
-    email     String
-    phone     String
-
-    // Shipping Address
-    address    String
-    city       String
-    emirate    String
-    postalCode String?
-
-    // Payment Info
-    paymentMethod   PaymentMethod
-    paymentStatus   PaymentStatus @default(PENDING)
-    stripePaymentId String? // Stripe intent/charge ID
-    cardLast4       String?
-
-    // Delivery Options
-    deliveryType        DeliveryType
-    deliveryDate        DateTime?
-    deliveryTime        String?
-    deliveryCost        Float        @default(0)
-    specialInstructions String?
-    codFee              Float        @default(0)
-    vatAmount           Float        @default(0)
-    discount            Float        @default(0)
-    
-    // Gift Card
-    hasGiftCard         Boolean      @default(false)
-    giftCardFee         Float        @default(0)
-    giftRecipient       String?
-    giftSender          String?
-    giftMessage         String?
-    giftCardSize        String?
-    giftCardTheme       String?
-
-    // Order Meta
-    status              OrderStatus  @default(PENDING)
-    totalAmount         Float
-    createdAt           DateTime     @default(now())
-    updatedAt           DateTime     @updatedAt
-}
-
-model OrderItem {
-    id        String @id @default(cuid())
-    orderId   String
-    productId String
-    quantity  Int    @default(1)
-    price     Float
-    size      String?
-    color     String?
-
-    order   Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-    product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-    @@index([orderId])
-    @@index([productId])
-}
-
 enum PaymentMethod {
-    STRIPE
-    COD
+  STRIPE
+  COD
 }
 
 enum PaymentStatus {
-    PENDING
-    PAID
-    FAILED
-    REFUNDED
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
 }
 
 enum DeliveryType {
-    STANDARD
-    EXPRESS
-    SCHEDULED
+  STANDARD
+  EXPRESS
+  SCHEDULED
 }
 
 enum OrderStatus {
-    PENDING
-    PROCESSING
-    SHIPPED
-    DELIVERED
-    CANCELLED
-}
-
-
-// Source: payment.prisma
-model PaymentSetting {
-    id            String   @id @default(cuid())
-    stripeEnabled Boolean  @default(false)
-    codEnabled    Boolean  @default(false)
-    updatedAt     DateTime @updatedAt
-
-    @@index([id])
-}
-
-
-// Source: product.prisma
-model Product {
-    id        String   @unique @default(uuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    // Basic Information
-    name             String
-    slug             String   @unique
-    description      String
-    shortDescription String
-    category         String
-    subcategory      String
-    tags             String[]
-
-    // Pricing
-    price          Float
-    compareAtPrice Float
-    costPerItem    Float
-    // vatPercentage  Float
-
-    // Inventory
-    sku               String? @unique
-    barcode           String?
-    trackQuantity     Boolean @default(false)
-    quantity          Int
-    lowStockThreshold Int
-
-    // Shipping
-    requiresShipping Boolean           @default(false)
-    dimensions       ProductDimension?
-
-    // Images
-    images        CloudinaryImage[]
-    featuredImage Int
-
-    // SEO
-    seoTitle       String
-    seoDescription String
-    seoKeywords    String[]
-
-    // Status
-    status   ProductStatus @default(draft)
-    featured Boolean       @default(false)
-
-    // Delivery
-    deliveryZones         String[]
-    deliveryTime          String
-    freeDeliveryThreshold Float
-
-    // Product Features
-    giftWrapping     Boolean         @default(false)
-    personalization  Boolean         @default(false)
-    careInstructions String?
-    occasions        String[]
-    OrderItem        OrderItem[]
-    SalesItem        SalesItem[]
-    Review           Review[]
-    variantOptions   VariantOption[]
-    hasVariants      Boolean         @default(false)
-
-    @@index([category])
-    @@index([status])
-    @@index([price])
-    @@index([id])
-    @@index([slug])
-}
-
-model VariantOption {
-    id        String   @id @default(uuid())
-    name      String
-    values    String[]
-    product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-    productId String
-}
-
-model ProductDimension {
-    id        String   @id @default(uuid())
-    weight    Float    @default(0)
-    length    Float
-    width     Float
-    height    Float
-    product   Product? @relation(fields: [productId], references: [id])
-    productId String?  @unique
-}
-
-model CloudinaryImage {
-    id        String   @id @default(uuid())
-    url       String
-    publicId  String
-    product   Product? @relation(fields: [productId], references: [id])
-    productId String?
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
 }
 
 enum ProductStatus {
-    draft
-    active
-    archived
-}
-
-model Review {
-    id        String   @id @default(cuid())
-    userId    String
-    productId String
-    rating    Int
-    comment   String?
-    createdAt DateTime @default(now())
-
-    user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-    @@index([userId])
-    @@index([productId])
-}
-
-
-// Source: promotion.prisma
-model Promotion {
-    id            String        @id @default(uuid())
-    name          String
-    discountType  DISCOUNT_TYPE
-    discountValue Float
-    startDate     DateTime
-    endDate       DateTime
-    isActive      Boolean       @default(true)
-    imageUrl      String
-    scope         SCOPE
-    promoCode     String        @unique
-    status        status        @default(ACTIVE)
-    categories    String[]
-    products      String[]
-    createdAt     DateTime      @default(now())
-    updatedAt     DateTime      @updatedAt
+  draft
+  active
+  archived
 }
 
 enum SCOPE {
-    ALL
-    CATEGORY
-    PRODUCT
+  ALL
+  CATEGORY
+  PRODUCT
 }
 
 enum DISCOUNT_TYPE {
-    PERCENTAGE
-    FIXED
+  PERCENTAGE
+  FIXED
 }
 
 enum status {
-    ACTIVE
-    EXPIRED
-    PAUSED
-}
-
-
-// Source: sales.prisma
-model Sales {
-    id            String             @id @default(uuid())
-    createdAt     DateTime           @default(now())
-    updatedAt     DateTime           @updatedAt
-    subtotal      Float
-    grandTotal    Float
-    vat           Float
-    discount      Float
-    paymentMethod SalesPaymentMethod
-    orderItems    SalesItem[]
-    giftCard      Boolean            @default(false)
-    CashRecived   Float?
-}
-
-model SalesItem {
-    id        String  @id @default(uuid())
-    salesId   String
-    productId String
-    quantity  Int
-    sales     Sales   @relation(fields: [salesId], references: [id], onDelete: Cascade)
-    product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-    @@index([salesId])
-    @@index([productId])
+  ACTIVE
+  EXPIRED
+  PAUSED
 }
 
 enum SalesPaymentMethod {
-    CASH
-    ONLINE
+  CASH
+  ONLINE
 }
 
-
-// Source: schema.prisma
-
-
-
-
-
-
-
-// Source: system.prisma
 enum DeliveryMethod {
-    flat
-    emirate
-}
-
-// 3. The Store Settings Model
-model StoreSettings {
-    id        String   @id @default(uuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    // --- Profile ---
-    storeName   String
-    description String? @db.Text // Allows long text
-    logoUrl     String? // Nullable in case they haven't uploaded one yet
-
-    // --- Contact ---
-    supportEmail String
-    phoneNumber  String
-
-    // --- Regional ---
-    currency String @default("AED")
-    timezone String @default("GST")
-    address  String
-
-    // @db.Decimal(precision, scale) -> (5, 2) allows up to 999.99
-    vatRate Decimal @default(5.00) @db.Decimal(5, 2)
-
-    // --- Delivery Logic ---
-    deliveryMethod DeliveryMethod @default(flat)
-
-    // Monetary values: (10, 2) allows up to 99,999,999.99
-    deliveryFlatRate      Decimal  @default(15.00) @db.Decimal(10, 2)
-    freeShippingThreshold Decimal? @db.Decimal(10, 2) // Nullable (if null, disabled)
-
-    // This is much cleaner than creating 7 separate columns.
-    deliveryEmirates Json?
-
-    // 2. Express Delivery
-    isExpressEnabled   Boolean @default(false)
-    expressDeliveryFee Decimal @default(30.00) @db.Decimal(10, 2)
-
-    // 3. Scheduled Delivery
-    isScheduledEnabled   Boolean @default(false)
-    scheduledDeliveryFee Decimal @default(0.00) @db.Decimal(10, 2)
-
-    // 4. Fees & Thresholds
-    codFee    Decimal @default(10.00) @db.Decimal(10, 2) // Cash on Delivery Fee
-    // 5. Gift Card
-    isGiftCardEnabled Boolean @default(false)
-    giftCardFee       Decimal @default(5.00) @db.Decimal(10, 2)
-
-    facebook  String?
-    instagram String?
-    twitter   String?
-}
-
-
-// Source: theme.prisma
-model ThemeSetting {
-    id          String   @id @default(cuid())
-    theme       String   @default("light")
-    layoutStyle String   @default("fullscreen") // boxed, fullscreen
-    updatedAt   DateTime @updatedAt
-}
-
-
-// Source: user.prisma
-model User {
-    id            String   @id @default(cuid())
-    firstName     String
-    lastName      String
-    phoneNumber   String
-    email         String   @unique
-    emailVerified Boolean  @default(false)
-    passwordHash  String
-    role          Role     @default(USER)
-    isGuest       Boolean  @default(false)
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @default(now())
-    status        Status   @default(NEW)
-
-    sessions               Session[]
-    EmailVerificationToken EmailVerificationToken[]
-    PasswordResetToken     PasswordResetToken[]
-    Order                  Order[]
-    Review                 Review[]
-    address                String?
-    membershipCard         MembershipCard?
+  flat
+  emirate
 }
 
 enum Status {
-    VIP
-    NEW
-    REGULAR
+  VIP
+  NEW
+  REGULAR
 }
 
 enum Role {
-    USER
-    ADMIN
-    GUEST
-}
-
-model Session {
-    id            String   @id @default(cuid())
-    userId        String
-    user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    // opaque session token is hashed before storing
-    tokenHash     String   @unique
-    createdAt     DateTime @default(now())
-    expiresAt     DateTime
-    lastRotatedAt DateTime @default(now())
-    ip            String?
-    userAgent     String?
-    revoked       Boolean  @default(false)
-
-    @@index([userId])
-    @@index([expiresAt])
-}
-
-model EmailVerificationToken {
-    id        String    @id @default(cuid())
-    userId    String
-    user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    tokenHash String    @unique
-    expiresAt DateTime
-    usedAt    DateTime?
-    createdAt DateTime  @default(now())
-
-    @@index([userId])
-    @@index([expiresAt])
-}
-
-model PasswordResetToken {
-    id        String    @id @default(cuid())
-    userId    String
-    user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-    tokenHash String    @unique
-    resetCode String?   // 6-digit code for email verification
-    expiresAt DateTime
-    usedAt    DateTime?
-    createdAt DateTime  @default(now())
-
-    @@index([userId])
-    @@index([expiresAt])
-    @@index([resetCode])
-}
-
-
-
-
-model NewsletterSubscriber {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  USER
+  ADMIN
+  GUEST
 }
