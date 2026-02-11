@@ -47,7 +47,8 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = settings?.storeName || "";
   const description = settings?.description || "";
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ||
+    (process.env.APP_URL ? process.env.APP_URL : "https://demo.app");
 
   return {
     metadataBase: new URL(baseUrl),
