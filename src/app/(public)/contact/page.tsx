@@ -11,9 +11,14 @@ interface ContactInfoItem {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const content = await prisma.contactPageContent.findFirst({
-    where: { id: "CONTACT_PAGE" },
-  });
+  let content = null;
+  try {
+    content = await prisma.contactPageContent.findFirst({
+      where: { id: "CONTACT_PAGE" },
+    });
+  } catch (error) {
+    console.warn("Failed to fetch contact page content for metadata:", error);
+  }
 
   const title = content?.heroTitle || "Contact Us";
   const description = content?.heroDesc || "Get in touch with Misk Blooming";
@@ -29,9 +34,14 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ContactPage() {
-  const content = await prisma.contactPageContent.findFirst({
-    where: { id: "CONTACT_PAGE" },
-  });
+  let content = null;
+  try {
+    content = await prisma.contactPageContent.findFirst({
+      where: { id: "CONTACT_PAGE" },
+    });
+  } catch (error) {
+    console.error("Failed to fetch contact page content:", error);
+  }
 
   // Safe parsing of contactInfo
   const contactInfo = (content?.contactInfo as unknown as ContactInfoItem[]) ?? [];

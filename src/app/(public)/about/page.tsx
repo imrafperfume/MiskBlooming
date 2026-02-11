@@ -23,9 +23,14 @@ interface TeamMember {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const content = await prisma.aboutPageContent.findFirst({
-    where: { id: "ABOUT_PAGE" },
-  });
+  let content = null;
+  try {
+    content = await prisma.aboutPageContent.findFirst({
+      where: { id: "ABOUT_PAGE" },
+    });
+  } catch (error) {
+    console.warn("Failed to fetch about page content for metadata:", error);
+  }
 
   const title = content?.heroTitle || "About Us";
   const description = content?.heroDesc || "Learn about Misk Blooming";
@@ -41,9 +46,14 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function AboutPage() {
-  const content = await prisma.aboutPageContent.findFirst({
-    where: { id: "ABOUT_PAGE" },
-  });
+  let content = null;
+  try {
+    content = await prisma.aboutPageContent.findFirst({
+      where: { id: "ABOUT_PAGE" },
+    });
+  } catch (error) {
+    console.error("Failed to fetch about page content:", error);
+  }
 
   const stats = (content?.stats as unknown as StatItem[]) ?? [];
   const values = (content?.values as unknown as ValueItem[]) ?? [];
@@ -51,10 +61,10 @@ export default async function AboutPage() {
 
   // Construct a safe content object to pass
   const safeContent = {
-    heroTitle: content?.heroTitle || "",
-    heroDesc: content?.heroDesc || "",
+    heroTitle: content?.heroTitle || "About Us",
+    heroDesc: content?.heroDesc || "Welcome to Misk Blooming",
     heroImage: content?.heroImage || null,
-    storyTitle: content?.storyTitle || "",
+    storyTitle: content?.storyTitle || "Our Story",
     storyDesc1: content?.storyDesc1 || "",
     storyDesc2: content?.storyDesc2 || "",
     storyImage: content?.storyImage || null,
