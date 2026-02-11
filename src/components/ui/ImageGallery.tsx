@@ -121,10 +121,9 @@ export function ImageGallery({
             onDrop={(e) => handleDrop(e, index)}
             className={`
               relative group cursor-move rounded-lg overflow-hidden border-2 transition-all duration-200
-              ${
-                featuredIndex === index
-                  ? "border-luxury-400 ring-2 ring-luxury-200"
-                  : "border-border  hover:border-border "
+              ${featuredIndex === index
+                ? "border-luxury-400 ring-2 ring-luxury-200"
+                : "border-border  hover:border-border "
               }
               ${draggedIndex === index ? "opacity-50 scale-95" : ""}
             `}
@@ -166,7 +165,7 @@ export function ImageGallery({
                   onClick={() => setSelectedImage(image)}
                 >
                   <Eye className="w-4 h-4" />
-                </button>
+                </Button>
 
                 {/* Set Featured */}
                 {featuredIndex !== index && (

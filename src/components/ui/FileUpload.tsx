@@ -77,10 +77,10 @@ export function FileUpload({
           prev.map((f) =>
             f.id === file.id
               ? {
-                  ...f,
-                  progress,
-                  status: progress === 100 ? "success" : "uploading",
-                }
+                ...f,
+                progress,
+                status: progress === 100 ? "success" : "uploading",
+              }
               : f
           )
         );
@@ -139,11 +139,11 @@ export function FileUpload({
             prev.map((f) =>
               f.id === uploadedFile.id
                 ? {
-                    ...f,
-                    status: "error",
-                    error:
-                      error instanceof Error ? error.message : "Upload failed",
-                  }
+                  ...f,
+                  status: "error",
+                  error:
+                    error instanceof Error ? error.message : "Upload failed",
+                }
                 : f
             )
           );
@@ -242,10 +242,10 @@ export function FileUpload({
         prev.map((f) =>
           f.id === fileId
             ? {
-                ...f,
-                status: "error",
-                error: error instanceof Error ? error.message : "Upload failed",
-              }
+              ...f,
+              status: "error",
+              error: error instanceof Error ? error.message : "Upload failed",
+            }
             : f
         )
       );
@@ -261,10 +261,9 @@ export function FileUpload({
         onDragLeave={handleDragLeave}
         className={`
           relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200
-          ${
-            isDragOver
-              ? "border-luxury-400 bg-foregroundscale-105"
-              : "border-border  hover:border-gray-400"
+          ${isDragOver
+            ? "border-luxury-400 bg-foregroundscale-105"
+            : "border-border  hover:border-gray-400"
           }
           ${isUploading ? "pointer-events-none opacity-75" : "cursor-pointer"}
         `}
@@ -281,17 +280,15 @@ export function FileUpload({
 
         <div className="space-y-4">
           <div
-            className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center ${
-              isDragOver ? "bg-luxury-100" : "bg-background "
-            }`}
+            className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center ${isDragOver ? "bg-luxury-100" : "bg-background "
+              }`}
           >
             {isUploading ? (
               <Loader2 className="w-8 h-8 text-primary animate-spin" />
             ) : (
               <Upload
-                className={`w-8 h-8 ${
-                  isDragOver ? "text-primary " : "text-gray-400"
-                }`}
+                className={`w-8 h-8 ${isDragOver ? "text-primary " : "text-gray-400"
+                  }`}
               />
             )}
           </div>
@@ -317,7 +314,7 @@ export function FileUpload({
           >
             <ImageIcon className="w-4 h-4 mr-2" />
             Choose Files
-          </button>
+          </Button>
         </div>
 
         {isDragOver && (
@@ -369,7 +366,7 @@ export function FileUpload({
                         className="p-1"
                       >
                         <X className="w-4 h-4" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
 
@@ -407,7 +404,7 @@ export function FileUpload({
                         onClick={() => retryUpload(file.id)}
                       >
                         Retry Upload
-                      </button>
+                      </Button>
                     </div>
                   )}
                 </div>

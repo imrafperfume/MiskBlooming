@@ -1,5 +1,6 @@
 import { prisma } from "@/src/lib/db";
 import { isAdmin } from "@/src/lib/isAdmin";
+import { sendMembershipCardEmail } from "@/src/lib/email";
 
 export const membershipResolvers = {
   Query: {
@@ -22,32 +23,32 @@ export const membershipResolvers = {
       }
     },
     membershipCard: async (_: any, { id }: { id: string }, context: { userId: string }) => {
-       try {
+      try {
         if (!context.userId) throw new Error("Unauthorized");
-         return await prisma.membershipCard.findUnique({
-           where: { id },
-           include: { user: true },
-         });
-       } catch (error) {
-         throw new Error("Failed to fetch membership card");
-       }
+        return await prisma.membershipCard.findUnique({
+          where: { id },
+          include: { user: true },
+        });
+      } catch (error) {
+        throw new Error("Failed to fetch membership card");
+      }
     },
-      userMembershipCard: async (_: any, { userId }: { userId: string }, context: { userId: string }) => {
-        try {
-            if (!context.userId) throw new Error("Unauthorized");
-             // Users can see their own card, Admins can see anyone's
-            if (context.userId !== userId) {
-                 const userRole = await isAdmin(context.userId);
-                 if (userRole.role !== "ADMIN") throw new Error("Not authorized");
-            }
-
-            return await prisma.membershipCard.findUnique({
-                where: { userId },
-                include: { user: true },
-            });
-        } catch (error) {
-            throw new Error("Failed to fetch user membership card");
+    userMembershipCard: async (_: any, { userId }: { userId: string }, context: { userId: string }) => {
+      try {
+        if (!context.userId) throw new Error("Unauthorized");
+        // Users can see their own card, Admins can see anyone's
+        if (context.userId !== userId) {
+          const userRole = await isAdmin(context.userId);
+          if (userRole.role !== "ADMIN") throw new Error("Not authorized");
         }
+
+        return await prisma.membershipCard.findUnique({
+          where: { userId },
+          include: { user: true },
+        });
+      } catch (error) {
+        throw new Error("Failed to fetch user membership card");
+      }
     }
   },
   Mutation: {
@@ -63,19 +64,19 @@ export const membershipResolvers = {
         if (userRole.role !== "ADMIN") throw new Error("Not authorized");
 
         const user = await prisma.user.findUnique({
-             where: { email: input.email }
+          where: { email: input.email }
         });
 
         if (!user) {
-             throw new Error(`User with email ${input.email} not found`);
+          throw new Error(`User with email ${input.email} not found`);
         }
 
         const existingCard = await prisma.membershipCard.findUnique({
-            where: { userId: user.id }
+          where: { userId: user.id }
         });
-        
+
         if (existingCard) {
-            throw new Error("User already has a membership card");
+          throw new Error("User already has a membership card");
         }
 
         return await prisma.membershipCard.create({
@@ -85,7 +86,7 @@ export const membershipResolvers = {
             expirationDate: new Date(input.expirationDate),
             membershipType: input.membershipType,
             user: {
-                connect: { id: user.id }
+              connect: { id: user.id }
             }
           },
           include: {
@@ -149,29 +150,29 @@ export const membershipResolvers = {
       { id }: { id: string },
       context: { userId: string }
     ) => {
-        try {
-            const { userId } = context;
-            if (!userId) throw new Error("Unauthorized");
-            const userRole = await isAdmin(userId);
-            if (userRole.role !== "ADMIN") throw new Error("Not authorized");
+      try {
+        const { userId } = context;
+        if (!userId) throw new Error("Unauthorized");
+        const userRole = await isAdmin(userId);
+        if (userRole.role !== "ADMIN") throw new Error("Not authorized");
 
-            const card = await prisma.membershipCard.findUnique({
-                where: { id },
-                include: { user: true }
-            });
+        const card = await prisma.membershipCard.findUnique({
+          where: { id },
+          include: { user: true }
+        });
 
-            if (!card || !card.user) {
-                throw new Error("Card or user not found");
-            }
-
-            const { sendMembershipCardEmail } = require("@/src/lib/email");
-            await sendMembershipCardEmail(card, card.user);
-            
-            return true;
-        } catch (error: any) {
-            console.error(error);
-            throw new Error(error.message || "Failed to send email");
+        if (!card || !card.user) {
+          throw new Error("Card or user not found");
         }
+
+
+        await sendMembershipCardEmail(card, card.user);
+
+        return true;
+      } catch (error: any) {
+        console.error(error);
+        throw new Error(error.message || "Failed to send email");
+      }
     }
   },
 };
