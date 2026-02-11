@@ -160,6 +160,9 @@ const navigation = [
   },
 ];
 
+import { useQuery } from "@apollo/client";
+import { GET_STORE_SETTINGS } from "@/src/modules/system/opration";
+
 export default function AdminLayout({
   children,
 }: {
@@ -167,21 +170,22 @@ export default function AdminLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  // const [notificationOpen, setNotificationOpen] = useState(false); // Removed
-  
-  const { data: user, isLoading } = useAuth();
+
+  const { data: user, isLoading: isAuthLoading } = useAuth();
+  const { data: settingsData } = useQuery(GET_STORE_SETTINGS);
+  const storeSettings = settingsData?.getStoreSettings;
 
   const pathname = usePathname();
   const router = useRouter();
 
   // Auth Guard
   useEffect(() => {
-    if (!isLoading && (!user || user.role !== "ADMIN")) {
+    if (!isAuthLoading && (!user || user.role !== "ADMIN")) {
       router.push("/");
     }
-  }, [user, isLoading, router]);
+  }, [user, isAuthLoading, router]);
 
-  if (isLoading) return <Loading />;
+  if (isAuthLoading) return <Loading />;
   if (!user || user.role !== "ADMIN") return null;
 
   return (
@@ -212,9 +216,17 @@ export default function AdminLayout({
           <div className="flex items-center justify-between h-16 px-6 border-b border-border bg-card">
             <Link href="/dashboard" className="flex items-center gap-2">
               <div className="flex flex-col">
-                <span className="font-cormorant text-2xl font-bold text-primary">
-                  MiskBlooming
-                </span>
+                {storeSettings?.logoUrl ? (
+                  <img
+                    src={storeSettings.logoUrl}
+                    alt={storeSettings.storeName || "Logo"}
+                    className="h-8 object-contain"
+                  />
+                ) : (
+                  <span className="font-cormorant text-2xl font-bold text-primary">
+                    {storeSettings?.storeName || "Demo"}
+                  </span>
+                )}
                 <span className="text-xs text-muted-foreground uppercase tracking-wider">
                   Admin Panel
                 </span>
@@ -238,28 +250,25 @@ export default function AdminLayout({
                   href={item.href}
                   className={`
                     group flex items-center px-3 py-3 text-sm font-medium rounded-xl transition-all duration-200
-                    ${
-                      isActive
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
+                    ${isActive
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-primary/10 hover:text-primary"
                     }
                   `}
                 >
                   <item.icon
-                    className={`w-5 h-5 mr-3 shrink-0 ${
-                      isActive
-                        ? "text-primary-foreground"
-                        : "text-muted-foreground group-hover:text-primary"
-                    }`}
+                    className={`w-5 h-5 mr-3 shrink-0 ${isActive
+                      ? "text-primary-foreground"
+                      : "text-muted-foreground group-hover:text-primary"
+                      }`}
                   />
                   <div>
                     <div className="font-medium">{item.name}</div>
                     <div
-                      className={`text-[10px] ${
-                        isActive
-                          ? "text-primary-foreground/80"
-                          : "text-muted-foreground/70"
-                      }`}
+                      className={`text-[10px] ${isActive
+                        ? "text-primary-foreground/80"
+                        : "text-muted-foreground/70"
+                        }`}
                     >
                       {item.description}
                     </div>
@@ -289,9 +298,8 @@ export default function AdminLayout({
                     </p>
                   </div>
                   <ChevronDown
-                    className={`w-4 h-4 text-muted-foreground transition-transform ${
-                      userMenuOpen ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 text-muted-foreground transition-transform ${userMenuOpen ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
               </DropdownMenuPrimitive.Trigger>
