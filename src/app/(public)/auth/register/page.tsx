@@ -27,13 +27,6 @@ export default function RegisterPage() {
       .then((d) => setCsrf(d));
   }, []);
 
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
   const {
     register,
     handleSubmit,
@@ -41,6 +34,14 @@ export default function RegisterPage() {
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
   });
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const onSubmit = async (data: RegisterInput) => {
     setIsLoading(true);
@@ -265,8 +266,8 @@ export default function RegisterPage() {
                     {...register("confirmPassword")}
                     type={showConfirmPassword ? "text" : "password"}
                     className={`block w-full pl-10 pr-10 py-3 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all duration-300 ${errors.confirmPassword
-                        ? "border-red-500"
-                        : "border-border "
+                      ? "border-red-500"
+                      : "border-border "
                       }`}
                     placeholder="Confirm your password"
                   />

@@ -31,14 +31,6 @@ function LoginFormWrapper() {
       .then((d) => setCsrf(d));
   }, []);
 
-  if (!mounted) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
   const {
     register,
     handleSubmit,
@@ -46,6 +38,14 @@ function LoginFormWrapper() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
