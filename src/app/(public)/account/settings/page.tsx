@@ -237,7 +237,7 @@ export default function SettingsPage() {
                     <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <input
                       type="text"
-                      value={formData?.firstName}
+                      value={formData?.firstName || ""}
                       onChange={(e) =>
                         updateField(null, "firstName", e.target.value)
                       }
@@ -253,7 +253,7 @@ export default function SettingsPage() {
                   </label>
                   <input
                     type="text"
-                    value={formData?.lastName}
+                    value={formData?.lastName || ""}
                     onChange={(e) =>
                       updateField(null, "lastName", e.target.value)
                     }
@@ -270,7 +270,7 @@ export default function SettingsPage() {
                     <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <input
                       type="email"
-                      value={formData?.email}
+                      value={formData?.email || ""}
                       onChange={(e) =>
                         updateField(null, "email", e.target.value)
                       }
@@ -288,7 +288,7 @@ export default function SettingsPage() {
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                     <input
                       type="tel"
-                      value={formData?.phone}
+                      value={formData?.phone || ""}
                       onChange={(e) =>
                         updateField(null, "phone", e.target.value)
                       }
@@ -305,7 +305,7 @@ export default function SettingsPage() {
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
                     <textarea
-                      value={formData?.address}
+                      value={formData?.address || ""}
                       onChange={(e) =>
                         updateField(null, "address", e.target.value)
                       }

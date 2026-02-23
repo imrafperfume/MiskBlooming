@@ -65,7 +65,7 @@ export default function POSPage() {
 
   const [createSale, { loading: creatingSale }] = useMutation(CREATE_SALE);
 
-  const products: Product[] = data?.products || [];
+  const products: Product[] = useMemo(() => data?.products || [], [data?.products]);
 
   // --- Effects ---
   useEffect(() => {
@@ -458,7 +458,7 @@ export default function POSPage() {
               htmlFor="gift-card-toggle"
               className="text-sm font-medium text-muted-foreground cursor-pointer select-none flex items-center gap-2 hover:text-foreground transition-colors"
             >
-              <Gift size={14} /> Mark as Gift
+              <Gift size={14} /> Include Gift Card
             </label>
           </div>
 
@@ -466,21 +466,19 @@ export default function POSPage() {
           <div className="grid grid-cols-2 gap-2 bg-muted/50 p-1 rounded-lg border border-border">
             <button
               onClick={() => setPaymentMethod("cash")}
-              className={`flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-all ${
-                paymentMethod === "cash"
-                  ? "bg-background text-primary shadow-sm border border-border"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={`flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-all ${paymentMethod === "cash"
+                ? "bg-background text-primary shadow-sm border border-border"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
             >
               <Banknote size={16} /> Cash
             </button>
             <button
               onClick={() => setPaymentMethod("card")}
-              className={`flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-all ${
-                paymentMethod === "card"
-                  ? "bg-background text-primary shadow-sm border border-border"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={`flex items-center justify-center gap-2 py-2 rounded-md text-sm font-medium transition-all ${paymentMethod === "card"
+                ? "bg-background text-primary shadow-sm border border-border"
+                : "text-muted-foreground hover:text-foreground"
+                }`}
             >
               <CreditCard size={16} /> Card
             </button>
@@ -505,9 +503,8 @@ export default function POSPage() {
               <div className="flex justify-between items-center mt-2 text-sm px-1">
                 <span className="text-muted-foreground">Change Due:</span>
                 <span
-                  className={`font-bold text-base tabular-nums ${
-                    changeDue < 0 ? "text-destructive" : "text-green-600"
-                  }`}
+                  className={`font-bold text-base tabular-nums ${changeDue < 0 ? "text-destructive" : "text-green-600"
+                    }`}
                 >
                   {formatCurrency(Math.max(0, changeDue))}
                 </span>
