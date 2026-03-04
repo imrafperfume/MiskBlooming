@@ -61,6 +61,10 @@ export const settingTypeDefs = gql`
     facebook: String
     instagram: String
     twitter: String
+    privacyPolicy: String
+    cookiePolicy: String
+    termsConditions: String
+    shippingPolicy: String
   }
 
   # 5. Inputs (For Mutations)
@@ -99,6 +103,10 @@ export const settingTypeDefs = gql`
     facebook: String
     instagram: String
     twitter: String
+    privacyPolicy: String
+    cookiePolicy: String
+    termsConditions: String
+    shippingPolicy: String
   }
 
   # 6. Operations

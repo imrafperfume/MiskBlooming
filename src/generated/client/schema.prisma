@@ -1,5 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
+  output        = "../src/generated/client"
   binaryTargets = ["native", "linux-musl", "linux-musl-openssl-3.0.x"]
 }
 
@@ -463,10 +464,6 @@ model StoreSettings {
   facebook              String?
   instagram             String?
   twitter               String?
-  privacyPolicy         String?        @db.Text
-  cookiePolicy          String?        @db.Text
-  termsConditions       String?        @db.Text
-  shippingPolicy        String?        @db.Text
 }
 
 model ThemeSetting {

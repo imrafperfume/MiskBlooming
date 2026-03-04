@@ -22,8 +22,12 @@ import {
   Banknote,
   Earth,
   Gift,
+  FileText,
+  ShieldAlert,
+  Cookie,
 } from "lucide-react";
 import { toast } from "sonner";
+import RichTextEditor from "@/src/components/ui/RichTextEditor";
 import { uploadToCloudinary } from "@/src/lib/cloudinary";
 import {
   GET_STORE_SETTINGS,
@@ -77,6 +81,10 @@ interface StoreSettingsFormData {
   facebook?: string;
   instagram?: string;
   twitter?: string;
+  privacyPolicy: string;
+  cookiePolicy: string;
+  termsConditions: string;
+  shippingPolicy: string;
 }
 
 const UAE_EMIRATES = [
@@ -135,6 +143,10 @@ export default function StoreSettingsForm() {
       facebook: "",
       instagram: "",
       twitter: "",
+      privacyPolicy: "",
+      cookiePolicy: "",
+      termsConditions: "",
+      shippingPolicy: "",
     },
   });
 
@@ -169,6 +181,10 @@ export default function StoreSettingsForm() {
           facebook: s.facebook || "",
           instagram: s.instagram || "",
           twitter: s.twitter || "",
+          privacyPolicy: s.privacyPolicy || "",
+          cookiePolicy: s.cookiePolicy || "",
+          termsConditions: s.termsConditions || "",
+          shippingPolicy: s.shippingPolicy || "",
           deliveryEmirates: {
             abu_dhabi: s.deliveryEmirates.abu_dhabi,
             dubai: s.deliveryEmirates.dubai,
@@ -835,6 +851,74 @@ export default function StoreSettingsForm() {
           </div>
         </div>
       </div>
+      <div className="h-px bg-border" />
+
+      {/* --- Section 6: Legal Policies --- */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="space-y-1">
+          <h3 className="text-base font-semibold flex items-center gap-2 text-foreground">
+            <ShieldAlert className="w-4 h-4 text-primary" />
+            Legal Policies
+          </h3>
+          <p className="text-sm text-muted-foreground">Manage your store&apos;s legal content.</p>
+        </div>
+        <div className="md:col-span-2 space-y-8">
+          {/* Privacy Policy */}
+          <div className="grid gap-3">
+            <div className="flex items-center gap-2">
+              <FileText className="w-4 h-4 text-muted-foreground" />
+              <label className="text-sm font-medium">Privacy Policy</label>
+            </div>
+            <RichTextEditor
+              value={watch("privacyPolicy")}
+              onChange={(val) => setValue("privacyPolicy", val, { shouldDirty: true })}
+              className="min-h-[250px]"
+            />
+          </div>
+
+          {/* Cookie Policy */}
+          <div className="grid gap-3">
+            <div className="flex items-center gap-2">
+              <Cookie className="w-4 h-4 text-muted-foreground" />
+              <label className="text-sm font-medium">Cookie Policy</label>
+            </div>
+            <RichTextEditor
+              value={watch("cookiePolicy")}
+              onChange={(val) => setValue("cookiePolicy", val, { shouldDirty: true })}
+              className="min-h-[250px]"
+            />
+          </div>
+
+          {/* Terms & Conditions */}
+          <div className="grid gap-3">
+            <div className="flex items-center gap-2">
+              <FileText className="w-4 h-4 text-muted-foreground" />
+              <label className="text-sm font-medium">Terms & Conditions</label>
+            </div>
+            <RichTextEditor
+              value={watch("termsConditions")}
+              onChange={(val) => setValue("termsConditions", val, { shouldDirty: true })}
+              className="min-h-[250px]"
+            />
+          </div>
+
+          {/* Shipping Policy */}
+          <div className="grid gap-3">
+            <div className="flex items-center gap-2">
+              <Truck className="w-4 h-4 text-muted-foreground" />
+              <label className="text-sm font-medium">Shipping & Delivery Policy</label>
+            </div>
+            <RichTextEditor
+              value={watch("shippingPolicy")}
+              onChange={(val) => setValue("shippingPolicy", val, { shouldDirty: true })}
+              className="min-h-[250px]"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="h-px bg-border" />
+
       {/* Save Action */}
       <div className="flex justify-end pt-4">
         <button

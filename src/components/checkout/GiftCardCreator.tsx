@@ -15,6 +15,7 @@ interface GiftCardCreatorProps {
     // CheckoutPage does NOT wrap in FormProvider, it passes form manually.
     // So we should accept form as prop or register methods.
     form: any; // Using any for ease with hook-form types, or generic
+    settings?: any;
 }
 
 const SIZES = [
@@ -30,7 +31,7 @@ const THEMES = [
     { id: "Royal", label: "Royal", color: "from-purple-50 to-indigo-50" },
 ];
 
-export function GiftCardCreator({ isOpen, onClose, form }: GiftCardCreatorProps) {
+export function GiftCardCreator({ isOpen, onClose, form, settings }: GiftCardCreatorProps) {
     const { register, watch, setValue, formState: { errors } } = form;
 
     // Watch values for preview
@@ -216,7 +217,7 @@ export function GiftCardCreator({ isOpen, onClose, form }: GiftCardCreatorProps)
                                 Luxury Gift Card
                             </h3>
 
-                            <p className="font-serif italic opacity-70 mb-6 text-sm">Chocolate & Flowers Boutique</p>
+                            <p className="font-serif italic opacity-70 mb-6 text-sm">{settings?.storeName || "Chocolate & Flowers Boutique"}</p>
 
                             {/* Divider */}
                             <div className={`w-16 h-px mb-8 opacity-50 ${theme === 'Rich' ? 'bg-[#cda45e]' : 'bg-current'}`}></div>
@@ -233,7 +234,7 @@ export function GiftCardCreator({ isOpen, onClose, form }: GiftCardCreatorProps)
 
                             {/* Footer on Card */}
                             <div className="mt-auto opacity-50 text-[10px] tracking-widest uppercase">
-                                www.miskblooming.com | +971 123 4567
+                                {typeof window !== 'undefined' ? window.location.host : "www.miskblooming.com"} | {settings?.phoneNumber || "+971 123 4567"}
                             </div>
 
                         </motion.div>
