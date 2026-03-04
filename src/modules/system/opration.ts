@@ -34,6 +34,10 @@ export const GET_STORE_SETTINGS = gql`
       facebook
       instagram
       twitter
+      privacyPolicy
+      cookiePolicy
+      termsConditions
+      shippingPolicy
       # Granular Rates (Must request sub-fields)
       deliveryEmirates {
         abu_dhabi

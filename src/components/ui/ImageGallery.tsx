@@ -177,7 +177,7 @@ export function ImageGallery({
                     onClick={() => setFeatured(index)}
                   >
                     <Star className="w-4 h-4" />
-                  </button>
+                  </Button>
                 )}
 
                 {/* Download */}
@@ -189,7 +189,7 @@ export function ImageGallery({
                   onClick={() => downloadImage(image, index)}
                 >
                   <Download className="w-4 h-4" />
-                </button>
+                </Button>
 
                 {/* Remove */}
                 <Button
@@ -200,7 +200,7 @@ export function ImageGallery({
                   onClick={() => removeImage(index)}
                 >
                   <Trash2 className="w-4 h-4" />
-                </button>
+                </Button>
               </div>
             </div>
 
@@ -229,7 +229,7 @@ export function ImageGallery({
               onClick={() => setSelectedImage(null)}
             >
               <X className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
         </div>
       )}

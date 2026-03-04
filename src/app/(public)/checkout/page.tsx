@@ -94,6 +94,7 @@ export default function CheckoutPage() {
           isOpen={isGiftCardModalOpen}
           onClose={() => setGiftCardModalOpen(false)}
           form={form}
+          settings={settings}
         />
 
         {/* Guest Checkout Notice */}

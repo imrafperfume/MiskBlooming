@@ -58,6 +58,10 @@ interface UpdateStoreSettingsInput {
   facebook?: string;
   instagram?: string;
   twitter?: string;
+  privacyPolicy?: string;
+  cookiePolicy?: string;
+  termsConditions?: string;
+  shippingPolicy?: string;
 }
 
 const CACHE_KEY = "store_settings";
@@ -139,6 +143,10 @@ export const SettingResolvers = {
           facebook: args.input.facebook,
           instagram: args.input.instagram,
           twitter: args.input.twitter,
+          privacyPolicy: args.input.privacyPolicy,
+          cookiePolicy: args.input.cookiePolicy,
+          termsConditions: args.input.termsConditions,
+          shippingPolicy: args.input.shippingPolicy,
           isGiftCardEnabled: args.input.isGiftCardEnabled,
           giftCardFee: args.input.giftCardFee,
         };
@@ -221,6 +229,10 @@ export const SettingResolvers = {
             facebook: args.input.facebook,
             instagram: args.input.instagram,
             twitter: args.input.twitter,
+            privacyPolicy: args.input.privacyPolicy,
+            cookiePolicy: args.input.cookiePolicy,
+            termsConditions: args.input.termsConditions,
+            shippingPolicy: args.input.shippingPolicy,
             isGiftCardEnabled: args.input.isGiftCardEnabled,
             giftCardFee: args.input.giftCardFee,
           },
